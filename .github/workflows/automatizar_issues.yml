@@ -1,0 +1,71 @@
+name: 'Automação Idempotente de Issues'
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create_issues:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Criar Issues Padrão (Idempotente)
+        run: |
+          # Função bash para criar issue apenas se não existir
+          create_issue_if_not_exists() {
+            local title="$1"
+            local body="$2"
+            local labels="$3"
+
+            echo "🔍 Buscando issue: '$title'"
+            
+            local issue_number=$(gh issue list --search "\"$title\" in:title" --state all --json number --jq '.[0].number')
+            
+            if [ -n "$issue_number" ] && [ "$issue_number" != "null" ]; then
+              echo "⏭️ A issue já existe (#$issue_number). Nenhuma ação necessária."
+            else
+              echo "✨ Criando nova issue..."
+              gh issue create --title "$title" --body "$body" --label "$labels"
+              echo "✅ Issue criada com sucesso!"
+            fi
+            echo "----------------------------------------"
+          }
+
+          create_issue_if_not_exists \
+            "[FEAT] Adicionar receita de integração com Gemini API" \
+            "**Contexto:** Precisamos de um script base para integrações com a API do Gemini. Lembrete: Nunca inclua chaves reais como \`<GEMINI_API_KEY>\` diretamente no código.\n\n**Critérios de Aceite:**\n- [ ] Criar script boilerplate\n- [ ] Consultar [Plano de Personalização](docs/plano_personalizacao.md)" \
+            "enhancement"
+
+          create_issue_if_not_exists \
+            "[CONFIG] Configurar cofre de segredos via variáveis de ambiente" \
+            "**Contexto:** Precisamos definir um padrão rigoroso de arquivos \`.env\`.\n\n**Critérios de Aceite:**\n- [ ] Criar documentação explicando como mapear variaveis usando \`os.getenv\`\n- [ ] Adicionar \`.env.example\` padrão" \
+            "enhancement"
+
+          create_issue_if_not_exists \
+            "[ARCH] Definir padrão de boilerplate para novas receitas" \
+            "**Contexto:** Como manter consistência nos nossos scripts e automações?\n\n**Critérios de Aceite:**\n- [ ] Estruturar uma pasta de \`templates/\` com arquivos \`README.md\` padronizados" \
+            "enhancement"
+
+          create_issue_if_not_exists \
+            "[DOCS] Criar guia de contribuição (CONTRIBUTING.md)" \
+            "**Contexto:** Como novos membros podem contribuir com segurança?\n\n**Critérios de Aceite:**\n- [ ] Descrever os padrões de commit\n- [ ] Explicar o processo de Pull Request" \
+            "documentation"
+
+          create_issue_if_not_exists \
+            "[DOCS] Revisar e expandir troubleshooting.md" \
+            "**Contexto:** Nosso documento de troubleshooting e postmortems precisa ser atualizado.\n\n**Critérios de Aceite:**\n- [ ] **IMPORTANTE:** Adicionar um aviso em destaque informando a regra de inserção incremental (NOVAS ENTRADAS DEVEM IR SEMPRE AO TOPO das listas/tabelas e os registros antigos nunca devem ser deletados)." \
+            "documentation"
+
+          create_issue_if_not_exists \
+            "[FEAT] Implementar backup automatizado com rclone" \
+            "**Contexto:** Receita para sincronizar backups com segurança para a nuvem.\n\n**Critérios de Aceite:**\n- [ ] Criar script bash com rclone\n- [ ] Consultar [Política de Backup](docs/politica_backup.md)" \
+            "enhancement"
