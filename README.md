@@ -1,9 +1,12 @@
-# 📚 Receitas — Repositório de Automação & Boas Práticas
+<div align="center">
+  <img src="logo_transparent.png" alt="BJ Sports Logo" width="220" />
+  <h1>BJ Sports — Centro de Treinamento</h1>
+</div>
 
-![Automação de Issues](https://github.com/dxcdc/Receitas/actions/workflows/automatizar_issues.yml/badge.svg)
+![Automação de Issues](https://github.com/fvier/bjsports/actions/workflows/automatizar_issues.yml/badge.svg)
 
-Bem-vindo(a) ao **Receitas**, o núcleo central de automação e conhecimento da equipe **dxcdc**! 🚀
-Este repositório serve como um hub seguro e colaborativo para **scripts reutilizáveis**, **prompts**, **boilerplates de API** e **configurações de infraestrutura (IaC)**. 
+Bem-vindo(a) ao repositório oficial do **BJ Sports — Centro de Treinamento**! 🚀  
+Este repositório reúne automações, documentos de governança, scripts reutilizáveis e receitas operacionais. 
 
 ---
 
