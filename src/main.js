@@ -133,6 +133,121 @@ function setupPlanButtons() {
   });
 }
 
+// Dynamic 48h Schedule Generator Logic
+function getClassesForDay(dayOfWeek) {
+  // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
+  if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
+    return [
+      { time: '06:00h', title: 'Boxe Matinal' },
+      { time: '17:00h', title: 'Jiu-Jitsu Tarde' },
+      { time: '19:00h', title: 'Jiu-Jitsu Noturno' }
+    ];
+  } else if (dayOfWeek === 2 || dayOfWeek === 4) {
+    return [
+      { time: '12:00h', title: 'Jiu-Jitsu Almoço' },
+      { time: '19:00h', title: 'Jiu-Jitsu / Boxe Noturno' }
+    ];
+  }
+  return [];
+}
+
+function formatDateBR(dateObj) {
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}`;
+}
+
+const dayNamesBR = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+
+function populate48hScheduleOptions() {
+  const select = document.getElementById('bookShift');
+  const hint = document.getElementById('shift48hHint');
+  if (!select) return;
+
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+
+  let optionsHTML = '';
+
+  // Rule: If today is Saturday (6) or Sunday (0), show ONLY Monday's classes!
+  if (currentDay === 6 || currentDay === 0) {
+    const daysUntilMonday = (currentDay === 6) ? 2 : 1;
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() + daysUntilMonday);
+
+    const formattedDate = formatDateBR(nextMonday);
+    const classes = getClassesForDay(1); // Monday classes
+
+    optionsHTML = classes.map(c => `
+      <option value="Segunda-feira (${formattedDate}) — ${c.time} (${c.title})">
+        Segunda-feira (${formattedDate}) — ${c.time} (${c.title})
+      </option>
+    `).join('');
+
+    if (hint) {
+      hint.textContent = `⚡ Fim de semana: Exibindo horários das aulas de Segunda-feira (${formattedDate}).`;
+    }
+  } else {
+    // Weekday: Calculate available classes for Today and Tomorrow (48h window)
+    const datesToEvaluate = [];
+    
+    // Today
+    datesToEvaluate.push({ date: new Date(now), isToday: true });
+
+    // Tomorrow (+24h)
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    datesToEvaluate.push({ date: tomorrow, isToday: false });
+
+    const availableOptions = [];
+
+    datesToEvaluate.forEach(item => {
+      const d = item.date;
+      const dayW = d.getDay();
+      if (dayW === 0 || dayW === 6) return; // Skip Sat & Sun
+
+      const dateStr = formatDateBR(d);
+      const dayName = dayNamesBR[dayW];
+      const classes = getClassesForDay(dayW);
+
+      classes.forEach(c => {
+        // If class is today, check if time has not passed
+        if (item.isToday) {
+          const classHour = parseInt(c.time.split(':')[0], 10);
+          if (currentHour >= classHour) return; // Passed
+        }
+
+        const label = `${dayName} (${dateStr}) — ${c.time} (${c.title})`;
+        availableOptions.push(`<option value="${label}">${label}</option>`);
+      });
+    });
+
+    if (availableOptions.length === 0) {
+      // Fallback if all classes for today passed, show next valid weekday
+      const nextDay = new Date(now);
+      nextDay.setDate(now.getDate() + (currentDay === 5 ? 3 : 1));
+      const dateStr = formatDateBR(nextDay);
+      const dayName = dayNamesBR[nextDay.getDay()];
+      const classes = getClassesForDay(nextDay.getDay());
+
+      optionsHTML = classes.map(c => `
+        <option value="${dayName} (${dateStr}) — ${c.time} (${c.title})">
+          ${dayName} (${dateStr}) — ${c.time} (${c.title})
+        </option>
+      `).join('');
+    } else {
+      optionsHTML = availableOptions.join('');
+    }
+
+    if (hint) {
+      hint.textContent = `⏱️ Aulas disponíveis para agendamento nas próximas 48h.`;
+    }
+  }
+
+  select.innerHTML = optionsHTML;
+}
+
 // Booking Modal
 function setupBookingModal() {
   const modal = document.getElementById('bookingModal');
@@ -149,6 +264,7 @@ function setupBookingModal() {
   if (modal) modal.classList.add('hidden');
 
   function openModal() {
+    populate48hScheduleOptions();
     if (modal) modal.classList.remove('hidden');
   }
 
@@ -213,8 +329,8 @@ function setupBookingModal() {
         msg += `🛡️ *3 Primeiros Dígitos CPF:* ${cpf3}\n`;
       }
       msg += `🥋 *Modalidade:* ${modality}\n`;
-      msg += `🕒 *Horário & Dia:* ${shift}\n`;
-      msg += `⏱️ *Status:* Reserva solicitada com antecedência (até 48h antes da aula)\n\n`;
+      msg += `🕒 *Aula Desejada:* ${shift}\n`;
+      msg += `⏱️ *Janela:* Agendamento para as próximas 48h\n\n`;
       msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
       msg += `Olá Mestre Bolivar, gostaria de confirmar minha reserva!`;
 
@@ -233,6 +349,7 @@ function setupBookingModal() {
 function openModalWithModality(modalityName) {
   const modal = document.getElementById('bookingModal');
   const select = document.getElementById('bookModality');
+  populate48hScheduleOptions();
   if (select) {
     for (let option of select.options) {
       if (option.value.toLowerCase().includes(modalityName.toLowerCase()) || modalityName.toLowerCase().includes(option.value.toLowerCase())) {

@@ -223,7 +223,7 @@
         <div class="belt-card belt-blue">
           <div class="belt-stripe"></div>
           <h4>Faixa Azul</h4>
-          <p>Construção de repertório técnico e domínio de raspagens e escapadas.</p>
+          <p>Construção de repertório técnico e domínio de raspagens et escapadas.</p>
         </div>
         <div class="belt-card belt-purple">
           <div class="belt-stripe"></div>
@@ -278,7 +278,7 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva -->
+  <!-- Modal de Reserva com Seleção Dinâmica de Horários nas Próximas 48h -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
@@ -316,7 +316,7 @@
           </div>
         </div>
 
-        <!-- Dropdowns: Modalidade e Horários -->
+        <!-- Dropdowns: Modalidade e Horários Dinâmicos Próximas 48h -->
         <div class="form-group">
           <label for="bookModality">Modalidade:</label>
           <select id="bookModality" required>
@@ -327,15 +327,11 @@
         </div>
 
         <div class="form-group">
-          <label for="bookShift">Horário & Dia (Reservas até 48 horas antes da aula):</label>
+          <label for="bookShift">Aulas Disponíveis (Próximas 48 horas):</label>
           <select id="bookShift" required>
-            <option value="Seg, Qua e Sex — 17:00h (Tarde)">Seg, Qua e Sex — 17:00h (Tarde)</option>
-            <option value="Seg, Qua e Sex — 19:00h (Noturno)">Seg, Qua e Sex — 19:00h (Noturno)</option>
-            <option value="Seg, Qua e Sex — 06:00h (Matinal)">Seg, Qua e Sex — 06:00h (Matinal)</option>
-            <option value="Ter e Qui — 12:00h (Almoço)">Ter e Qui — 12:00h (Almoço)</option>
-            <option value="Ter e Qui — 19:00h (Noturno)">Ter e Qui — 19:00h (Noturno)</option>
+            <!-- Populated dynamically via JS -->
           </select>
-          <span class="field-hint">⏱️ *Reservas permitidas com antecedência máxima de até 48h antes do treino.</span>
+          <span class="field-hint" id="shift48hHint">⏱️ Exibindo apenas horários disponíveis nas próximas 48 horas.</span>
         </div>
 
         <!-- Submit Button -->
