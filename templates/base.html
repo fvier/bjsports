@@ -77,6 +77,13 @@
 
         <a href="{{ url_for('loja') }}" class="nav-item {% if request.endpoint == 'loja' %}active{% endif %}">Loja</a>
         <a href="{{ url_for('blog') }}" class="nav-item {% if request.endpoint == 'blog' %}active{% endif %}">Blog</a>
+
+        {% if is_logged_in %}
+        <!-- Link Direto no Menu Principal quando Logado -->
+        <a href="{{ url_for('login') }}" class="nav-item nav-item-highlight {% if request.endpoint == 'login' %}active{% endif %}">
+          <i data-lucide="user-check" class="icon-gold"></i> Área do Aluno
+        </a>
+        {% endif %}
       </nav>
 
       <!-- Ações do Cabeçalho -->
@@ -86,6 +93,11 @@
         </button>
 
         {% if is_logged_in %}
+        <!-- Botão Visível de Retorno à Área do Aluno + Avatar -->
+        <a href="{{ url_for('login') }}" class="btn btn-header-login active-link-btn" title="Ir para Área de Membros">
+          <i data-lucide="user-check"></i> Área do Aluno
+        </a>
+
         <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN -->
         <div class="user-avatar-dropdown">
           <button class="avatar-trigger-btn" id="userAvatarBtn" title="Minha Conta">

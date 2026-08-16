@@ -4,6 +4,14 @@
   <!-- Hero Banner da Loja -->
   <section class="hero-section page-hero">
     <div class="container text-center">
+      {% if is_logged_in %}
+      <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">
+          <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
+        </a>
+      </div>
+      {% endif %}
+
       <span class="section-badge">EQUIPAMENTOS & ARMAS DE COMBATE</span>
       <h1 class="hero-title">LOJA OFICIAL <span class="highlight-red">BJ SPORTS</span></h1>
       <p class="hero-desc" style="margin: 0 auto;">
