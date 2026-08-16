@@ -779,6 +779,38 @@ body {
   gap: 18px;
 }
 
+/* Checkbox Aula Experimental */
+.experimental-checkbox-box {
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  transition: all 0.25s ease;
+}
+
+.experimental-checkbox-box:hover {
+  background: rgba(255, 215, 0, 0.14);
+  border-color: var(--accent-gold);
+}
+
+.experimental-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--accent-gold);
+
+  user-select: none;
+}
+
+.experimental-checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary-red);
+  cursor: pointer;
+}
+
 /* Indicador de Ocupação da Turma em Barra (% Cheio) */
 .capacity-bar-box {
   background: rgba(229, 9, 20, 0.08);

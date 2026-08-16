@@ -55,11 +55,11 @@ function initIcons() {
   });
 }
 
-// Schedule Data based on Mestre Bolivar's exact parameters
+// Schedule Data based on Mestre Bolivar's exact parameters (Clean table items)
 const scheduleData = {
   seg: [
     { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' },
-    { name: 'Jiu-Jitsu Tarde (85% Cheio!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Tarde', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
     { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
@@ -140,6 +140,11 @@ function setupBookingModal() {
   const closeBtn = document.getElementById('closeBookingModal');
   const heroCTA = document.getElementById('heroCTA');
   const bookingForm = document.getElementById('bookingForm');
+  const chkExperimental = document.getElementById('chkExperimental');
+  const lblBookLogin = document.getElementById('lblBookLogin');
+  const bookLoginInput = document.getElementById('bookLogin');
+  const groupCpf3 = document.getElementById('groupCpf3');
+  const bookCpf3Input = document.getElementById('bookCpf3');
 
   if (modal) modal.classList.add('hidden');
 
@@ -149,6 +154,27 @@ function setupBookingModal() {
 
   function closeModal() {
     if (modal) modal.classList.add('hidden');
+  }
+
+  function toggleExperimentalMode() {
+    if (chkExperimental && chkExperimental.checked) {
+      if (lblBookLogin) lblBookLogin.textContent = 'Nome:';
+      if (bookLoginInput) bookLoginInput.placeholder = 'Seu Nome Completo';
+      if (groupCpf3) groupCpf3.classList.add('hidden');
+      if (bookCpf3Input) {
+        bookCpf3Input.removeAttribute('required');
+        bookCpf3Input.value = '';
+      }
+    } else {
+      if (lblBookLogin) lblBookLogin.textContent = 'Login:';
+      if (bookLoginInput) bookLoginInput.placeholder = 'Bolivar';
+      if (groupCpf3) groupCpf3.classList.remove('hidden');
+      if (bookCpf3Input) bookCpf3Input.setAttribute('required', 'true');
+    }
+  }
+
+  if (chkExperimental) {
+    chkExperimental.addEventListener('change', toggleExperimentalMode);
   }
 
   if (openBtn) openBtn.addEventListener('click', openModal);
@@ -164,8 +190,9 @@ function setupBookingModal() {
   if (bookingForm) {
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const login = document.getElementById('bookLogin').value;
-      const cpf3 = document.getElementById('bookCpf3').value;
+      const isExperimental = chkExperimental ? chkExperimental.checked : false;
+      const loginOrName = document.getElementById('bookLogin').value;
+      const cpf3 = document.getElementById('bookCpf3') ? document.getElementById('bookCpf3').value : '';
       const modality = document.getElementById('bookModality').value;
       const shift = document.getElementById('bookShift').value;
 
@@ -175,15 +202,21 @@ function setupBookingModal() {
         origin: { y: 0.5 }
       });
 
-      // Format WhatsApp Message with exact required fields
-      let msg = `*RESERVA DE VAGA NA AULA — BJ SPORTS*\n\n`;
-      msg += `👤 *Login:* ${login}\n`;
-      msg += `🛡️ *3 Primeiros Dígitos CPF:* ${cpf3}\n`;
+      // Format WhatsApp Message
+      let msg = '';
+      if (isExperimental) {
+        msg += `*RESERVA — AULA EXPERIMENTAL GRÁTIS*\n\n`;
+        msg += `👤 *Nome Completo:* ${loginOrName}\n`;
+      } else {
+        msg += `*RESERVA DE VAGA NA AULA — BJ SPORTS*\n\n`;
+        msg += `👤 *Login:* ${loginOrName}\n`;
+        msg += `🛡️ *3 Primeiros Dígitos CPF:* ${cpf3}\n`;
+      }
       msg += `🥋 *Modalidade:* ${modality}\n`;
       msg += `🕒 *Horário & Dia:* ${shift}\n`;
       msg += `⏱️ *Status:* Reserva solicitada com antecedência (até 48h antes da aula)\n\n`;
       msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
-      msg += `Olá Mestre Bolivar, gostaria de confirmar minha reserva de vaga!`;
+      msg += `Olá Mestre Bolivar, gostaria de confirmar minha reserva!`;
 
       const encodedMsg = encodeURIComponent(msg);
       const waUrl = `https://wa.me/5583996527997?text=${encodedMsg}`;
@@ -191,6 +224,7 @@ function setupBookingModal() {
       window.open(waUrl, '_blank');
 
       bookingForm.reset();
+      toggleExperimentalMode();
       closeModal();
     });
   }

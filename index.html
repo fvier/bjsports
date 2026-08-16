@@ -173,7 +173,7 @@
       <div class="section-header text-center">
         <span class="section-badge">TABELA OFICIAL DE AULAS</span>
         <h2 class="section-title">HORÁRIOS & <span class="highlight-red">VALORES MENSAIS</span></h2>
-        <p class="section-subtitle">Vagas limitadas a no máximo 20 alunos por turma. Garanta sua vaga com antecedência.</p>
+        <p class="section-subtitle">Aulas sob comando do Mestre Bolivar em Cajazeiras-PB.</p>
       </div>
 
       <!-- Filters -->
@@ -285,34 +285,30 @@
       
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
-        <h3>RESERVAR MINHA VAGA NA AULA • BJ SPORTS</h3>
+        <h3 id="modalTitleText">RESERVAR MINHA VAGA NA AULA • BJ SPORTS</h3>
         <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma (Máx 20 Alunos)</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
-        <!-- Indicativo de Ocupação da Turma em Barra (% Cheio) -->
-        <div class="capacity-bar-box" id="capacityBox">
-          <div class="capacity-header">
-            <span class="capacity-label">Ocupação da Turma: <strong id="capacityPercentText">85% Cheio</strong></span>
-            <span class="capacity-vagas" id="capacityVagasText">17/20 Vagas Ocupadas</span>
-          </div>
-          <div class="capacity-track">
-            <div class="capacity-fill" id="capacityFillBar" style="width: 85%;"></div>
-          </div>
-          <p class="capacity-subtext">⚡ <strong>Apenas 3 vagas restantes</strong> para a turma selecionada!</p>
+        <!-- Checkbox de Aula Experimental no início -->
+        <div class="experimental-checkbox-box">
+          <label class="experimental-checkbox-label">
+            <input type="checkbox" id="chkExperimental">
+            <span class="custom-chk-text">🎁 Quero agendar uma <strong>Aula Experimental Grátis</strong></span>
+          </label>
         </div>
 
-        <!-- Inputs: Login e 3 primeiros digitos do CPF -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="bookLogin">Login:</label>
+        <!-- Inputs: Login (ou Nome) e 3 primeiros digitos do CPF -->
+        <div class="form-row" id="formInputsRow">
+          <div class="form-group" id="groupLogin">
+            <label for="bookLogin" id="lblBookLogin">Login:</label>
             <div class="input-with-icon">
               <i data-lucide="user" class="input-icon"></i>
               <input type="text" id="bookLogin" placeholder="Bolivar" required>
             </div>
           </div>
-          <div class="form-group">
-            <label for="bookCpf3">3 primeiros números do CPF *</label>
+          <div class="form-group" id="groupCpf3">
+            <label for="bookCpf3" id="lblBookCpf3">3 primeiros números do CPF *</label>
             <div class="input-with-icon">
               <i data-lucide="shield-check" class="input-icon"></i>
               <input type="text" id="bookCpf3" placeholder="123" maxlength="3" required>
