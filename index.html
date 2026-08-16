@@ -137,7 +137,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Acesso total às aulas escolhidas</li>
             <li><i data-lucide="check" class="icon-green"></i> Válido para pais, filhos e irmãos</li>
           </ul>
-          <button class="btn btn-primary btn-block select-plan-btn" data-plan="Plano Família (R$ 280/mês)">
+          <button class="btn btn-primary btn-block select-plan-btn" data-plan="Plano Família" data-price="280">
             Reservar Plano Família
           </button>
         </div>
@@ -156,7 +156,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Treino em dupla com foco e motivação</li>
             <li><i data-lucide="check" class="icon-green"></i> Livre escolha de modalidade</li>
           </ul>
-          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal (R$ 190/mês)">
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal" data-price="190">
             Reservar Plano Casal
           </button>
         </div>
@@ -175,7 +175,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Disciplina, respeito e motor-skills</li>
             <li><i data-lucide="check" class="icon-green"></i> Turmas direcionadas com segurança</li>
           </ul>
-          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Kids Irmãos (R$ 170/mês)">
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Kids" data-price="170">
             Reservar Plano Kids
           </button>
         </div>
@@ -295,50 +295,105 @@
     </div>
   </footer>
 
-  <!-- Modal de Agendamento -->
+  <!-- Modal de Reserva Avançado -->
   <div class="modal-backdrop hidden" id="bookingModal">
-    <div class="modal-card glass-panel">
-      <button class="modal-close" id="closeBookingModal">&times;</button>
+    <div class="modal-card glass-panel modal-card-lg">
+      <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
+      
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
-        <h3>Reservar Vaga no BJ Sports</h3>
-        <p>Preencha os dados abaixo para garantir sua vaga em Cajazeiras-PB!</p>
+        <h3>RESERVA DE VAGA • BJ SPORTS</h3>
+        <p class="modal-subtitle">Garantia de atendimento direto com o Mestre Bolivar em Cajazeiras-PB</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
-        <div class="form-group">
-          <label for="bookName">Nome Completo</label>
-          <input type="text" id="bookName" placeholder="Seu nome completo" required>
-        </div>
-
-        <div class="form-group">
-          <label for="bookPhone">WhatsApp / Telefone</label>
-          <input type="tel" id="bookPhone" placeholder="(83) 99652-7997" required>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="bookModality">Modalidade / Plano</label>
-            <select id="bookModality" required>
-              <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
-              <option value="Boxe">Boxe</option>
-              <option value="Plano Família">Plano Família (R$ 280/mês)</option>
-              <option value="Plano Casal">Plano Casal (R$ 190/mês)</option>
-              <option value="Plano Kids">Plano Kids Irmãos (R$ 170/mês)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="bookShift">Frequência Escolhida</label>
-            <select id="bookShift" required>
-              <option value="Seg, Qua e Sex (R$ 100/mês)">Seg, Qua e Sex (3x / sem)</option>
-              <option value="Ter e Qui (R$ 90/mês)">Ter e Qui (2x / sem)</option>
-              <option value="Todos os dias (R$ 120/mês)">Todos os dias (Livre Acesso)</option>
-            </select>
+        <!-- Step 1: Dados Pessoais -->
+        <div class="form-section">
+          <h4 class="form-section-title"><i data-lucide="user"></i> 1. Dados do Aluno / Responsável</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookName">Nome Completo *</label>
+              <div class="input-with-icon">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="bookName" placeholder="Ex: Fernando Vier" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bookPhone">WhatsApp com DDD *</label>
+              <div class="input-with-icon">
+                <i data-lucide="phone" class="input-icon"></i>
+                <input type="tel" id="bookPhone" placeholder="(83) 99652-7997" required>
+              </div>
+            </div>
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
-          <i data-lucide="check-circle"></i> Confirmar Reserva
+        <!-- Step 2: Escolha da Modalidade & Horário -->
+        <div class="form-section">
+          <h4 class="form-section-title"><i data-lucide="swords"></i> 2. Modalidade & Frequência</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookModality">Modalidade / Plano *</label>
+              <select id="bookModality" required>
+                <option value="Jiu-Jitsu (BJJ)">🥋 Jiu-Jitsu (BJJ)</option>
+                <option value="Boxe Tradicional">🥊 Boxe Tradicional</option>
+                <option value="Plano Família (3 Pessoas)">👨‍👩‍👧 Plano Família (3 Pessoas - R$ 280/mês)</option>
+                <option value="Plano Casal (2 Pessoas)">👩‍❤️‍👨 Plano Casal (2 Pessoas - R$ 190/mês)</option>
+                <option value="Plano Kids (2 Irmãos)">🧒 Plano Kids Irmãos (R$ 170/mês)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bookShift">Horário / Frequência *</label>
+              <select id="bookShift" required>
+                <option value="Seg, Qua e Sex - 17:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 17:00h (Jiu-Jitsu) — R$ 100/mês</option>
+                <option value="Seg, Qua e Sex - 19:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 19:00h (Jiu-Jitsu) — R$ 100/mês</option>
+                <option value="Seg, Qua e Sex - 06:00h (Boxe) | R$ 90/mês">Seg, Qua e Sex • 06:00h (Boxe) — R$ 90/mês</option>
+                <option value="Ter e Qui - 12:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 12:00h (Jiu-Jitsu) — R$ 90/mês</option>
+                <option value="Ter e Qui - 19:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 19:00h (Jiu-Jitsu) — R$ 90/mês</option>
+                <option value="Ter e Qui - 19:00h (Boxe) | R$ 90/mês">Ter e Qui • 19:00h (Boxe) — R$ 90/mês</option>
+                <option value="Todos os Dias - Passe Livre | R$ 120/mês">Todos os Dias • Passe Livre — R$ 120/mês</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Nível de Experiência & Observações -->
+        <div class="form-section">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookLevel">Nível de Experiência</label>
+              <select id="bookLevel">
+                <option value="Iniciante (Nunca treinei)">🟢 Iniciante (Primeira vez no Tatame)</option>
+                <option value="Praticante / Faixa Branca com tempo">🟡 Já pratico / Faixa Branca com base</option>
+                <option value="Graduado (Azul / Roxa / Marrom / Preta)">🔴 Graduado (Azul, Roxa, Marrom, Preta)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="bookNotes">Observação / Dúvida (Opcional)</label>
+              <input type="text" id="bookNotes" placeholder="Ex: Tenho 2 filhos para o Kids">
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo Dinâmico do Investimento -->
+        <div class="booking-summary-card" id="bookingSummaryCard">
+          <div class="summary-header">
+            <span class="summary-badge"><i data-lucide="sparkles" class="icon-gold"></i> RESUMO DA RESERVA</span>
+            <span class="summary-trial">🎁 Primeira Aula Experimental Grátis</span>
+          </div>
+          <div class="summary-body">
+            <div class="summary-item">
+              <span>Investimento Estimado:</span>
+              <strong id="summaryPriceDisplay" class="summary-price">R$ 100,00 /mês</strong>
+            </div>
+            <p class="summary-foot">📍 Atendimento confirmado na Av. Estrada do Amor, Cajazeiras-PB</p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-booking-btn">
+          <i data-lucide="message-square"></i> Confirmar & Enviar no WhatsApp
         </button>
       </form>
     </div>
@@ -347,7 +402,7 @@
   <!-- Modal de Área do Aluno / Login -->
   <div class="modal-backdrop hidden" id="loginModal">
     <div class="modal-card glass-panel">
-      <button class="modal-close" id="closeLoginModal">&times;</button>
+      <button class="modal-close" id="closeLoginModal" title="Fechar (ESC)">&times;</button>
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
         <h3>Área do Aluno BJ Sports</h3>
