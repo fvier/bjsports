@@ -109,174 +109,171 @@
       </header>
 
       <main class="erp-content">
-        <div class="erp-hero-banner" style="margin-bottom: 28px;">
-          <div class="erp-status-indicator">
-            <span class="live-dot"></span> CONTROLE MENSAL DE COBRANÇA DA ACADEMIA ({{ total_count }} ALUNOS CADASTRADOS)
-          </div>
-          <h1 class="erp-hero-heading">Gestão de Mensalidades & Vencimentos</h1>
-          <p class="erp-hero-sub">Clique no botão <strong>[+]</strong> em cada aluno para expandir o histórico de meses (🟢 Pago, 🟠 Atrasado, ⚪ A Vencer).</p>
-        </div>
-
-        <!-- Metric Cards por Dia de Vencimento -->
-        <div class="erp-cards-grid" style="margin-bottom: 28px;">
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Total de Alunos</span>
-            <div class="erp-card-big-number" style="color: #ffffff;">{{ total_count }}</div>
-            <span class="erp-card-foot">Membros cadastrados</span>
+        <!-- BARRA DE PAINEL DE FILTROS SUPERIOR (FILTROS EM CIMA PARA LOCALIZAÇÃO E FILTRAGEM MAIS DETALHADA) -->
+        <div class="glass-panel" style="margin-bottom: 24px; padding: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(96, 165, 250, 0.3);">
+          <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="sliders" class="icon-gold"></i> Filtros & Busca Detalhada de Alunos
+            </h3>
+            <span class="badge-pill bg-green" style="font-size: 0.75rem;">
+              Exibindo {{ users|length }} de {{ total_count }} alunos
+            </span>
           </div>
 
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Vencimento Dia 5</span>
-            <div class="erp-card-big-number" style="color: #60a5fa;">{{ day5_count }}</div>
-            <span class="erp-card-foot">Alunos com vencimento Dia 5</span>
-          </div>
-
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Vencimento Dia 15</span>
-            <div class="erp-card-big-number" style="color: var(--accent-gold);">{{ day15_count }}</div>
-            <span class="erp-card-foot">Alunos com vencimento Dia 15</span>
-          </div>
-
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Vencimento Dia 25</span>
-            <div class="erp-card-big-number" style="color: #4ade80;">{{ day25_count }}</div>
-            <span class="erp-card-foot">Alunos com vencimento Dia 25</span>
-          </div>
-        </div>
-
-        <!-- Legenda de Cores dos Meses -->
-        <div class="glass-panel" style="margin-bottom: 24px; padding: 16px 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-light);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.95rem;">
-              <i data-lucide="info" class="icon-gold"></i> Legenda de Cores do Histórico Anual:
-            </strong>
-            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-              <span class="month-badge-pill month-status-pago">🟢 PAGO</span>
-              <span class="month-badge-pill month-status-atrasado">🟠 ATRASADO</span>
-              <span class="month-badge-pill month-status-futuro">⚪ A VENCER</span>
+          <form action="{{ url_for('mensalidades_admin') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end;">
+            
+            <!-- 1. Campo de Busca por Texto -->
+            <div class="form-group">
+              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Localizar Aluno (Nome, CPF ou Plano):</label>
+              <div class="input-with-icon">
+                <i data-lucide="search" class="input-icon" style="color: var(--accent-gold);"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Ex: Gabriel ou 101.202..." style="padding: 8px 12px 8px 38px !important; font-size: 0.88rem;">
+              </div>
             </div>
-          </div>
+
+            <!-- 2. Filtro de Dia de Vencimento -->
+            <div class="form-group">
+              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Dia de Vencimento:</label>
+              <select name="day" style="padding: 8px 12px; font-size: 0.88rem;">
+                <option value="todos" {% if filter_day == 'todos' %}selected{% endif %}>📅 Todos os Vencimentos</option>
+                <option value="5" {% if filter_day == '5' %}selected{% endif %}>📅 Vencimento Dia 5 ({{ day5_count }})</option>
+                <option value="15" {% if filter_day == '15' %}selected{% endif %}>📅 Vencimento Dia 15 ({{ day15_count }})</option>
+                <option value="25" {% if filter_day == '25' %}selected{% endif %}>📅 Vencimento Dia 25 ({{ day25_count }})</option>
+              </select>
+            </div>
+
+            <!-- 3. Filtro por Status Financeiro -->
+            <div class="form-group">
+              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Status Financeiro:</label>
+              <select name="status" style="padding: 8px 12px; font-size: 0.88rem;">
+                <option value="todos" {% if status_filter == 'todos' %}selected{% endif %}>Todos os Status</option>
+                <option value="pago" {% if status_filter == 'pago' %}selected{% endif %}>🟢 PAGO / EM DIA ({{ paid_count }})</option>
+                <option value="pendente" {% if status_filter == 'pendente' %}selected{% endif %}>🔴 AGUARDANDO PIX ({{ pending_count }})</option>
+              </select>
+            </div>
+
+            <!-- Botões de Ação do Filtro -->
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="btn btn-primary btn-sm btn-glow" style="flex: 1; padding: 10px;">
+                <i data-lucide="filter"></i> Filtrar
+              </button>
+              {% if search_query or filter_day != 'todos' or status_filter != 'todos' %}
+              <a href="{{ url_for('mensalidades_admin') }}" class="btn btn-secondary btn-sm" style="padding: 10px;" title="Limpar Filtros">
+                <i data-lucide="x-circle"></i> Limpar
+              </a>
+              {% endif %}
+            </div>
+
+          </form>
         </div>
 
-        <!-- Filtros por Dia de Vencimento -->
-        <div class="schedule-filters" style="margin-bottom: 24px;">
-          <a href="{{ url_for('mensalidades_admin', day='todos') }}" class="day-btn {% if filter_day == 'todos' %}active{% endif %}">
-            Todos os Alunos ({{ total_count }})
-          </a>
-          <a href="{{ url_for('mensalidades_admin', day='5') }}" class="day-btn {% if filter_day == '5' %}active{% endif %}">
-            📅 Vencimento Dia 5 ({{ day5_count }})
-          </a>
-          <a href="{{ url_for('mensalidades_admin', day='15') }}" class="day-btn {% if filter_day == '15' %}active{% endif %}">
-            📅 Vencimento Dia 15 ({{ day15_count }})
-          </a>
-          <a href="{{ url_for('mensalidades_admin', day='25') }}" class="day-btn {% if filter_day == '25' %}active{% endif %}">
-            📅 Vencimento Dia 25 ({{ day25_count }})
-          </a>
-        </div>
-
-        <!-- Tabela dos 30 Alunos com Botão (+) para Expandir Meses -->
-        <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
-                <i data-lucide="dollar-sign" class="icon-green"></i> Alunos Cadastrados (Exibindo {{ users|length }} de {{ total_count }})
-              </h3>
-              <p style="color: var(--text-muted); font-size: 0.88rem;">Clique no ícone <strong>+</strong> para visualizar os meses de 2026 de cada aluno.</p>
-            </div>
-            <div>
-              <span class="badge-pill bg-green" style="font-size: 0.8rem;">{{ paid_count }} EM DIA</span>
-              <span class="badge-pill" style="font-size: 0.8rem; background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444; margin-left: 8px;">{{ pending_count }} PENDENTES</span>
-            </div>
-          </div>
-
+        <!-- PLANILHA DE MENSALIDADES MINIMALISTA -->
+        <div class="glass-panel" style="background: rgba(14, 14, 22, 0.98); border: 1px solid var(--border-light); padding: 20px;">
+          
           <div class="table-responsive">
-            <table class="schedule-table">
+            <table class="schedule-table minimal-spreadsheet-table">
               <thead>
                 <tr>
-                  <th style="width: 50px;">Expandir</th>
-                  <th>ID</th>
-                  <th>Aluno / Cadastro</th>
-                  <th>Plano Contratado</th>
-                  <th>Dia de Vencimento</th>
-                  <th>Status Financeiro</th>
-                  <th>Ação / Atualizar</th>
+                  <th style="width: 45px; text-align: center;">[+]</th>
+                  <th style="width: 50px;">ID</th>
+                  <th>ALUNO / CONTATO</th>
+                  <th>PLANO CONTRATADO</th>
+                  <th style="width: 120px;">VENCIMENTO</th>
+                  <th style="width: 140px;">STATUS MÊS ATUAL</th>
+                  <th style="width: 160px; text-align: right;">DAR BAIXA / AÇÕES</th>
                 </tr>
               </thead>
               <tbody>
                 {% for u in users %}
                 {% set u_months = u.get_month_schedule() %}
-                <tr>
-                  <!-- BOTÃO (+) QUE EXPANDE PARA BAIXO OS MESES DO ANO -->
-                  <td>
-                    <button type="button" class="btn-expand-months" id="btnToggle-{{ u.id }}" onclick="toggleMonthDrawer('{{ u.id }}')" title="Expandir Histórico de Meses">
+                <tr class="minimal-row">
+                  <!-- BOTÃO (+) EXPANDÍVEL -->
+                  <td style="text-align: center;">
+                    <button type="button" class="btn-expand-months-mini" id="btnToggle-{{ u.id }}" onclick="toggleMonthDrawer('{{ u.id }}')" title="Expandir Meses de {{ u.name }}">
                       <i data-lucide="plus" id="icon-plus-{{ u.id }}"></i>
                     </button>
                   </td>
                   <td>
-                    <strong style="color: var(--text-dim);">#{{ u.id }}</strong>
+                    <strong style="color: var(--text-dim); font-size: 0.85rem;">#{{ u.id }}</strong>
                   </td>
                   <td>
-                    <strong style="color: #ffffff; font-size: 0.95rem;">{{ u.name }}</strong>
-                    <small style="display: block; color: var(--accent-gold);">@{{ u.username }} • CPF: {{ u.cpf }}</small>
+                    <strong style="color: #ffffff; font-size: 0.9rem;">{{ u.name }}</strong>
+                    <span style="display: block; color: var(--text-muted); font-size: 0.78rem;">@{{ u.username }} • {{ u.phone }}</span>
                   </td>
                   <td>
-                    <span style="font-size: 0.85rem; color: #ffffff;">{{ u.plan }}</span>
+                    <span style="font-size: 0.82rem; color: #e2e8f0;">{{ u.plan.split('—')[0] }}</span>
                   </td>
                   <td>
-                    <span class="badge-pill" style="background: rgba(96, 165, 250, 0.15); border-color: #60a5fa; color: #60a5fa; font-weight: 700;">
-                      📅 Dia {{ u.due_date }} de cada mês
+                    <span class="badge-pill-mini" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3);">
+                      Dia {{ u.due_date }}
                     </span>
                   </td>
                   <td>
                     {% if u.payment_status == 'Em Dia' %}
-                      <span class="badge-pill bg-green">🟢 PAGO / EM DIA</span>
+                      <span class="badge-pill-mini bg-green">🟢 PAGO</span>
                     {% else %}
-                      <span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444;">🔴 AGUARDANDO PIX</span>
+                      <span class="badge-pill-mini bg-orange">🟠 ATRASADO</span>
                     {% endif %}
                   </td>
-                  <td>
-                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
+                  <td style="text-align: right;">
+                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                       <input type="hidden" name="user_id" value="{{ u.id }}">
                       
-                      <select name="due_date" style="padding: 6px; font-size: 0.8rem; width: 95px;">
-                        <option value="5" {% if u.due_date == '5' %}selected{% endif %}>Dia 5</option>
-                        <option value="15" {% if u.due_date == '15' %}selected{% endif %}>Dia 15</option>
-                        <option value="25" {% if u.due_date == '25' %}selected{% endif %}>Dia 25</option>
+                      <select name="payment_status" onchange="this.form.submit()" style="padding: 4px 8px; font-size: 0.78rem; width: 110px; border-radius: 6px;">
+                        <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>🟢 Em Dia</option>
+                        <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>🟠 Pendente</option>
                       </select>
-
-                      <select name="payment_status" style="padding: 6px; font-size: 0.8rem; width: 105px;">
-                        <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>Em Dia</option>
-                        <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>Pendente</option>
-                      </select>
-
-                      <button type="submit" class="btn btn-primary btn-sm btn-glow">
-                        Salvar
-                      </button>
                     </form>
                   </td>
                 </tr>
 
-                <!-- DRAWER DE MESES EXPANDÍVEL (EXPANDE PARA BAIXO) -->
+                <!-- DRAWER DE MESES MINIMALISTA COM MENU DROPDOWN PARA DAR BAIXA NO MÊS -->
                 <tr id="drawer-{{ u.id }}" class="month-drawer-row hidden">
-                  <td colspan="7" style="background: rgba(10, 10, 18, 0.95); padding: 18px 24px; border-bottom: 2px solid var(--border-light);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                  <td colspan="7" style="background: rgba(8, 8, 14, 0.98); padding: 14px 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                       <div>
-                        <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.9rem;">
-                          🗓️ Histórico de Mensalidades 2026 de {{ u.name }} (Início no Mês {{ u_months[0].month }}):
+                        <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem;">
+                          🗓️ Histórico 2026 de {{ u.name }} (Clique em qualquer mês para dar baixa):
                         </strong>
-                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-                          Exibindo meses desde a matrícula (Mês {{ u_months[0].month }}) até o fim do ano (Mês 12):
-                        </span>
                       </div>
 
-                      <div class="month-badges-container">
+                      <!-- LISTA DE MESES COM MENU DROPDOWN PARA CADA MÊS -->
+                      <div class="month-badges-container" style="gap: 10px;">
                         {% for m in u_months %}
-                          <div class="month-badge-pill month-status-{{ m.status }}" title="Mês {{ m.month }} ({{ m.name }}) — {{ m.status|upper }}">
-                            <span>{{ m.month }}</span>
-                            <small>{{ m.name }}</small>
+                          <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
+                            
+                            <!-- Botão/Badge do Mês -->
+                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para alterar status do Mês {{ m.month }}">
+                              <span>{{ m.month }}</span>
+                              <small>{{ m.name }}</small>
+                            </button>
+
+                            <!-- Menu Dropdown para Dar Baixa no Mês Especifico -->
+                            <div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
+                              <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
+                                Dar baixa Mês {{ m.month }}:
+                              </span>
+
+                              <form action="{{ url_for('api_update_month_status') }}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <input type="hidden" name="month" value="{{ m.month }}">
+
+                                <button type="submit" name="status" value="pago" class="btn-pop-option status-pago">
+                                  🟢 Marcar PAGO (Verde)
+                                </button>
+                                <button type="submit" name="status" value="atrasado" class="btn-pop-option status-atrasado">
+                                  🟠 Marcar ATRASADO (Laranja)
+                                </button>
+                                <button type="submit" name="status" value="futuro" class="btn-pop-option status-futuro">
+                                  ⚪ Marcar A VENCER (Branco)
+                                </button>
+                              </form>
+                            </div>
+
                           </div>
                         {% endfor %}
                       </div>
+
                     </div>
                   </td>
                 </tr>
@@ -291,12 +288,90 @@
     </div>
   </div>
 
+  <style>
+    /* Estilos da Planilha Minimalista */
+    .minimal-spreadsheet-table th, .minimal-spreadsheet-table td {
+      padding: 10px 14px !important;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .minimal-row:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .badge-pill-mini {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .bg-green { background: rgba(37, 211, 102, 0.15); color: #4ade80; border: 1px solid rgba(37, 211, 102, 0.4); }
+    .bg-orange { background: rgba(249, 115, 22, 0.15); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.4); }
+
+    .btn-expand-months-mini {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-light);
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-expand-months-mini:hover {
+      background: var(--primary-red);
+      border-color: var(--primary-red);
+    }
+
+    /* Popups dos Meses */
+    .month-popup-menu {
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 170px;
+      background: #141622;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+      border-radius: 8px;
+      padding: 8px;
+      z-index: 200;
+    }
+
+    .btn-pop-option {
+      background: transparent;
+      border: none;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: left;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s ease;
+    }
+
+    .btn-pop-option.status-pago { color: #25d366; }
+    .btn-pop-option.status-pago:hover { background: rgba(37, 211, 102, 0.2); }
+
+    .btn-pop-option.status-atrasado { color: #f97316; }
+    .btn-pop-option.status-atrasado:hover { background: rgba(249, 115, 22, 0.2); }
+
+    .btn-pop-option.status-futuro { color: #ffffff; }
+    .btn-pop-option.status-futuro:hover { background: rgba(255, 255, 255, 0.15); }
+  </style>
+
   <script>
     function toggleMonthDrawer(userId) {
       const drawer = document.getElementById('drawer-' + userId);
       const btn = document.getElementById('btnToggle-' + userId);
-      const icon = document.getElementById('icon-plus-' + userId);
-
       if (drawer) {
         if (drawer.classList.contains('hidden')) {
           drawer.classList.remove('hidden');
@@ -305,6 +380,20 @@
           drawer.classList.add('hidden');
           btn.classList.remove('active');
         }
+      }
+    }
+
+    function toggleMonthMenu(userId, month) {
+      // Oculta todos os outros popups de mês abertos
+      document.querySelectorAll('.month-popup-menu').forEach(pop => {
+        if (pop.id !== `pop-${userId}-${month}`) {
+          pop.classList.add('hidden');
+        }
+      });
+
+      const pop = document.getElementById(`pop-${userId}-${month}`);
+      if (pop) {
+        pop.classList.toggle('hidden');
       }
     }
   </script>

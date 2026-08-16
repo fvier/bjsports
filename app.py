@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,9 +22,10 @@ class User(db.Model):
     phone = db.Column(db.String(9), nullable=False)
     plan = db.Column(db.String(150), nullable=False)
     due_date = db.Column(db.String(10), default='5') # Dia 5, 15 ou 25
-    start_month = db.Column(db.Integer, default=5) # Mês de início (ex: 5 para Maio, 8 para Agosto)
+    start_month = db.Column(db.Integer, default=5) # Mês de início (ex: 5 para Maio)
     role = db.Column(db.String(30), default='aluno') # 'aluno', 'monitor', 'instrutor'
     payment_status = db.Column(db.String(30), default='Em Dia') # 'Em Dia', 'Pendente'
+    monthly_history = db.Column(db.Text, default='{}') # JSON string de status dos meses
     password_hash = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -33,6 +35,24 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_month_history_dict(self):
+        try:
+            return json.loads(self.monthly_history) if self.monthly_history else {}
+        except Exception:
+            return {}
+
+    def set_month_status(self, month_key, status):
+        hist = self.get_month_history_dict()
+        hist[str(month_key)] = status
+        self.monthly_history = json.dumps(hist)
+        
+        # Se o mês 8 (mês atual) for marcado como 'pago', atualiza payment_status para 'Em Dia'
+        if str(month_key) == '08' or str(month_key) == '8':
+            if status == 'pago':
+                self.payment_status = 'Em Dia'
+            elif status == 'atrasado':
+                self.payment_status = 'Pendente'
+
     def get_month_schedule(self, current_month=8):
         start = self.start_month if self.start_month and self.start_month <= current_month else 5
         months = []
@@ -40,17 +60,24 @@ class User(db.Model):
             1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
             7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
         }
+        hist = self.get_month_history_dict()
+
         for m in range(start, 13):
             m_str = f"{m:02d}"
-            if m < current_month:
-                status = 'pago' # Verde
-            elif m == current_month:
-                if self.payment_status == 'Em Dia':
-                    status = 'pago' # Verde
-                else:
-                    status = 'atrasado' # Laranja
+            # Se já houver status salvo manualmente no histórico JSON
+            if m_str in hist:
+                status = hist[m_str]
             else:
-                status = 'futuro' # Branco
+                if m < current_month:
+                    status = 'pago' # Verde
+                elif m == current_month:
+                    if self.payment_status == 'Em Dia':
+                        status = 'pago' # Verde
+                    else:
+                        status = 'atrasado' # Laranja
+                else:
+                    status = 'futuro' # Branco
+
             months.append({
                 'month': m_str,
                 'name': month_names.get(m, ''),
@@ -333,25 +360,81 @@ def planos_admin():
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
     return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
 
+# API ROUTE PARA ALTERAR STATUS DE UM MÊS ESPECÍFICO DE UM ALUNO (DAR BAIXA PELO MENU DROPDOWN DE MÊS)
+@app.route('/api/update_month_status', methods=['POST'])
+def api_update_month_status():
+    user_id = request.form.get('user_id')
+    month = request.form.get('month')
+    status = request.form.get('status')
+    
+    user = User.query.get(user_id)
+    if user and month and status in ['pago', 'atrasado', 'futuro']:
+        user.set_month_status(month, status)
+        db.session.commit()
+        flash(f'Baixa realizada! Mês {month} de {user.name} alterado para {status.upper()}.', 'success')
+    
+    referrer = request.referrer or url_for('mensalidades_admin')
+    return redirect(referrer)
+
+# GESTÃO DE MENSALIDADES (MINIMALISTA COM BUSCA E FILTROS AVANÇADOS NO TOPO)
 @app.route('/mensalidades_admin', methods=['GET', 'POST'])
 @app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
 def mensalidades_admin():
     if request.method == 'POST':
-        user_id = request.form.get('user_id')
-        new_status = request.form.get('payment_status')
-        new_due_date = request.form.get('due_date')
-        user = User.query.get(user_id)
-        if user:
-            if new_status: user.payment_status = new_status
-            if new_due_date: user.due_date = new_due_date
-            db.session.commit()
-            flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
-        return redirect(url_for('mensalidades_admin'))
+        action = request.form.get('action')
+        
+        # Ação vinda do formulário comum ou modal
+        if action == 'update_month':
+            user_id = request.form.get('user_id')
+            month = request.form.get('month')
+            status = request.form.get('status')
+            user = User.query.get(user_id)
+            if user and month and status:
+                user.set_month_status(month, status)
+                db.session.commit()
+                flash(f'Mensalidade do Mês {month} de {user.name} atualizada para {status.upper()}!', 'success')
 
+        else:
+            user_id = request.form.get('user_id')
+            new_status = request.form.get('payment_status')
+            new_due_date = request.form.get('due_date')
+            user = User.query.get(user_id)
+            if user:
+                if new_status: user.payment_status = new_status
+                if new_due_date: user.due_date = new_due_date
+                db.session.commit()
+                flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
+        
+        filter_day = request.args.get('day', 'todos')
+        search_query = request.args.get('q', '')
+        status_filter = request.args.get('status', 'todos')
+        return redirect(url_for('mensalidades_admin', day=filter_day, q=search_query, status=status_filter))
+
+    # Filtros Avançados no Topo (Localização e Filtragem Detalhada)
     filter_day = request.args.get('day', 'todos')
+    search_query = request.args.get('q', '').strip()
+    status_filter = request.args.get('status', 'todos')
+
     query = User.query
+
+    # 1. Filtro por Vencimento (5, 15, 25)
     if filter_day in ['5', '15', '25']:
-        query = query.filter_by(due_date=filter_day)
+        query = query.filter(User.due_date == filter_day)
+
+    # 2. Filtro por Busca de Texto (Nome, Username, CPF, Plano)
+    if search_query:
+        query = query.filter(
+            (User.name.ilike(f'%{search_query}%')) |
+            (User.username.ilike(f'%{search_query}%')) |
+            (User.cpf.ilike(f'%{search_query}%')) |
+            (User.plan.ilike(f'%{search_query}%'))
+        )
+
+    # 3. Filtro por Status Financeiro (Em Dia / Pendente)
+    if status_filter == 'pago':
+        query = query.filter(User.payment_status == 'Em Dia')
+    elif status_filter == 'pendente':
+        query = query.filter(User.payment_status == 'Pendente')
 
     users_list = query.order_by(User.id.asc()).all()
 
@@ -367,6 +450,8 @@ def mensalidades_admin():
         page_title='Gestão de Mensalidades (30 Alunos)',
         users=users_list,
         filter_day=filter_day,
+        search_query=search_query,
+        status_filter=status_filter,
         total_count=total_count,
         day5_count=day5_count,
         day15_count=day15_count,
