@@ -14,27 +14,8 @@
   <link rel="stylesheet" href="/index.css">
 </head>
 <body>
-  <!-- Top Status Bar -->
-  <div class="top-status-bar">
-    <div class="container status-content">
-      <div class="status-brand">
-        <span class="status-title">BJ SPORTS CENTRO DE TREINAMENTO</span>
-      </div>
-      <div class="status-contact">
-        <a href="https://wa.me/5583996527997" target="_blank" class="status-link">
-          <i data-lucide="phone"></i> (83) 9 9652-7997
-        </a>
-        <a href="https://www.instagram.com/bjsports_/" target="_blank" class="status-link">
-          <i data-lucide="instagram"></i> @bjsports_
-        </a>
-        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
-          <i data-lucide="moon" class="icon-sm"></i>
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Header Navigation -->
+  <!-- Header Navigation (Top Status Bar Removed) -->
   <header class="main-header">
     <div class="container header-content">
       <a href="#" class="brand-link">
@@ -52,11 +33,14 @@
       </nav>
 
       <div class="header-actions">
-        <button id="openScheduleModal" class="btn btn-primary btn-glow">
-          <i data-lucide="calendar-check"></i> Agendar Aula
+        <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
+          <i data-lucide="calendar-check"></i> Garantir Vaga
         </button>
-        <button id="openLoginModalBtn" class="btn btn-secondary btn-login">
+        <button id="openLoginModalBtn" class="btn btn-header-login">
           <i data-lucide="user-check"></i> Área do Aluno
+        </button>
+        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
+          <i data-lucide="moon" class="icon-sm"></i>
         </button>
       </div>
     </div>
@@ -72,12 +56,12 @@
         </div>
         <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO TATAME</h1>
         <p class="hero-desc">
-          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe e Preparação Física em Cajazeiras-PB com treinos de alta performance, horários flexíveis e planos especiais para família e casal.
+          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe e Preparação Física em Cajazeiras-PB com turmas limitadas a no máximo 20 alunos para atenção total do Mestre Bolivar.
         </p>
 
         <div class="hero-buttons">
           <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
-            <i data-lucide="flame"></i> Reservar Vaga Grátis
+            <i data-lucide="flame"></i> Garantir Vaga na Turma
           </button>
           <a href="#planos" class="btn btn-secondary btn-lg">
             <i data-lucide="tag"></i> Ver Planos & Descontos
@@ -87,8 +71,8 @@
         <!-- Stats Bar -->
         <div class="hero-stats">
           <div class="stat-card">
-            <span class="stat-number">500+</span>
-            <span class="stat-label">Alunos Ativos</span>
+            <span class="stat-number">Máx. 20</span>
+            <span class="stat-label">Alunos por Turma</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-card">
@@ -98,7 +82,7 @@
           <div class="stat-divider"></div>
           <div class="stat-card">
             <span class="stat-number">100%</span>
-            <span class="stat-label">Dedicação Marcial</span>
+            <span class="stat-label">Atenção Técnica</span>
           </div>
         </div>
       </div>
@@ -138,7 +122,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Válido para pais, filhos e irmãos</li>
           </ul>
           <button class="btn btn-primary btn-block select-plan-btn" data-plan="Plano Família" data-price="280">
-            Reservar Plano Família
+            Garantir Vaga - Plano Família
           </button>
         </div>
 
@@ -157,7 +141,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Livre escolha de modalidade</li>
           </ul>
           <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal" data-price="190">
-            Reservar Plano Casal
+            Garantir Vaga - Plano Casal
           </button>
         </div>
 
@@ -176,7 +160,7 @@
             <li><i data-lucide="check" class="icon-green"></i> Turmas direcionadas com segurança</li>
           </ul>
           <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Kids" data-price="170">
-            Reservar Plano Kids
+            Garantir Vaga - Plano Kids
           </button>
         </div>
       </div>
@@ -189,7 +173,7 @@
       <div class="section-header text-center">
         <span class="section-badge">TABELA OFICIAL DE AULAS</span>
         <h2 class="section-title">HORÁRIOS & <span class="highlight-red">VALORES MENSAIS</span></h2>
-        <p class="section-subtitle">Horários sob o comando do Mestre Bolivar. Escolha sua frequência semanal.</p>
+        <p class="section-subtitle">Vagas limitadas a no máximo 20 alunos por turma. Garanta sua vaga com antecedência.</p>
       </div>
 
       <!-- Filters -->
@@ -262,11 +246,11 @@
   </section>
 
   <!-- Botão Flutuante do WhatsApp -->
-  <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20reservar%20uma%20vaga%20na%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar no WhatsApp com o Mestre Bolivar">
+  <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20garantir%20minha%20vaga%20na%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar no WhatsApp com o Mestre Bolivar">
     <svg class="wa-official-icon" viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
     </svg>
-    <span class="wa-tooltip">Reservar com Mestre Bolivar (83) 9 9652-7997</span>
+    <span class="wa-tooltip">Garantir Vaga com Mestre Bolivar (83) 9 9652-7997</span>
   </a>
 
   <!-- Footer -->
@@ -295,18 +279,24 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva Avançado -->
+  <!-- Modal de Reserva Avançado (Garantia de Vaga - Máx 20 Alunos) -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel modal-card-lg">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
       
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
-        <h3>RESERVA DE VAGA • BJ SPORTS</h3>
-        <p class="modal-subtitle">Garantia de atendimento direto com o Mestre Bolivar em Cajazeiras-PB</p>
+        <h3>GARANTIR MINHA VAGA • BJ SPORTS</h3>
+        <p class="modal-subtitle">🔥 Turmas limitadas a no máximo <strong>20 alunos por período</strong> para atenção total do Mestre Bolivar.</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
+        <!-- Alert Banner Limit -->
+        <div class="vagas-alert-banner">
+          <i data-lucide="alert-triangle" class="icon-gold"></i>
+          <span><strong>ATENÇÃO:</strong> Vagas restritas por turma no período da tarde (17h). Garanta a sua!</span>
+        </div>
+
         <!-- Step 1: Dados Pessoais -->
         <div class="form-section">
           <h4 class="form-section-title"><i data-lucide="user"></i> 1. Dados do Aluno / Responsável</h4>
@@ -330,7 +320,7 @@
 
         <!-- Step 2: Escolha da Modalidade & Horário -->
         <div class="form-section">
-          <h4 class="form-section-title"><i data-lucide="swords"></i> 2. Modalidade & Frequência</h4>
+          <h4 class="form-section-title"><i data-lucide="swords"></i> 2. Modalidade & Horário Desejado</h4>
           <div class="form-row">
             <div class="form-group">
               <label for="bookModality">Modalidade / Plano *</label>
@@ -346,12 +336,12 @@
             <div class="form-group">
               <label for="bookShift">Horário / Frequência *</label>
               <select id="bookShift" required>
-                <option value="Seg, Qua e Sex - 17:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 17:00h (Jiu-Jitsu) — R$ 100/mês</option>
+                <option value="Seg, Qua e Sex - 17:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 17:00h (Tarde - Vagas Restritas!) — R$ 100/mês</option>
                 <option value="Seg, Qua e Sex - 19:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 19:00h (Jiu-Jitsu) — R$ 100/mês</option>
-                <option value="Seg, Qua e Sex - 06:00h (Boxe) | R$ 90/mês">Seg, Qua e Sex • 06:00h (Boxe) — R$ 90/mês</option>
-                <option value="Ter e Qui - 12:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 12:00h (Jiu-Jitsu) — R$ 90/mês</option>
-                <option value="Ter e Qui - 19:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 19:00h (Jiu-Jitsu) — R$ 90/mês</option>
-                <option value="Ter e Qui - 19:00h (Boxe) | R$ 90/mês">Ter e Qui • 19:00h (Boxe) — R$ 90/mês</option>
+                <option value="Seg, Qua e Sex - 06:00h (Boxe) | R$ 90/mês">Seg, Qua e Sex • 06:00h (Boxe Matinal) — R$ 90/mês</option>
+                <option value="Ter e Qui - 12:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 12:00h (Jiu-Jitsu Almoço) — R$ 90/mês</option>
+                <option value="Ter e Qui - 19:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 19:00h (Jiu-Jitsu Noturno) — R$ 90/mês</option>
+                <option value="Ter e Qui - 19:00h (Boxe) | R$ 90/mês">Ter e Qui • 19:00h (Boxe Noturno) — R$ 90/mês</option>
                 <option value="Todos os Dias - Passe Livre | R$ 120/mês">Todos os Dias • Passe Livre — R$ 120/mês</option>
               </select>
             </div>
@@ -371,7 +361,7 @@
             </div>
             <div class="form-group">
               <label for="bookNotes">Observação / Dúvida (Opcional)</label>
-              <input type="text" id="bookNotes" placeholder="Ex: Tenho 2 filhos para o Kids">
+              <input type="text" id="bookNotes" placeholder="Ex: Preferência pelo treino da tarde">
             </div>
           </div>
         </div>
@@ -379,21 +369,21 @@
         <!-- Resumo Dinâmico do Investimento -->
         <div class="booking-summary-card" id="bookingSummaryCard">
           <div class="summary-header">
-            <span class="summary-badge"><i data-lucide="sparkles" class="icon-gold"></i> RESUMO DA RESERVA</span>
-            <span class="summary-trial">🎁 Primeira Aula Experimental Grátis</span>
+            <span class="summary-badge"><i data-lucide="sparkles" class="icon-gold"></i> GARANTIA DE VAGA</span>
+            <span class="summary-trial">🎁 1ª Aula Experimental Grátis</span>
           </div>
           <div class="summary-body">
             <div class="summary-item">
-              <span>Investimento Estimado:</span>
+              <span>Investimento Mensal:</span>
               <strong id="summaryPriceDisplay" class="summary-price">R$ 100,00 /mês</strong>
             </div>
-            <p class="summary-foot">📍 Atendimento confirmado na Av. Estrada do Amor, Cajazeiras-PB</p>
+            <p class="summary-foot">📍 Turmas exclusivas (Máx. 20 alunos) na Av. Estrada do Amor, Cajazeiras-PB</p>
           </div>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-booking-btn">
-          <i data-lucide="message-square"></i> Confirmar & Enviar no WhatsApp
+          <i data-lucide="check-circle"></i> Garantir Vaga no WhatsApp Agora
         </button>
       </form>
     </div>

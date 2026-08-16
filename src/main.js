@@ -22,7 +22,8 @@ import {
   User,
   MessageSquare,
   Sparkles,
-  Award
+  Award,
+  AlertTriangle
 } from 'lucide';
 
 // Initialize Lucide Icons
@@ -50,7 +51,8 @@ function initIcons() {
       User,
       MessageSquare,
       Sparkles,
-      Award
+      Award,
+      AlertTriangle
     }
   });
 }
@@ -59,7 +61,7 @@ function initIcons() {
 const scheduleData = {
   seg: [
     { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
-    { name: 'Jiu-Jitsu Tarde', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Tarde (Vagas Restritas!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
     { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
@@ -212,8 +214,8 @@ function setupBookingModal() {
         origin: { y: 0.5 }
       });
 
-      // Format WhatsApp Message
-      let msg = `*RESERVA DE VAGA — BJ SPORTS CAJAZEIRAS*\n\n`;
+      // Format WhatsApp Message emphasizing 20-student limit
+      let msg = `*RESERVA DE VAGA — TURMA LIMITADA (MÁX 20 ALUNOS)*\n\n`;
       msg += `👤 *Nome:* ${name}\n`;
       msg += `📞 *WhatsApp:* ${phone}\n`;
       msg += `🥋 *Modalidade/Plano:* ${modality}\n`;
@@ -221,12 +223,11 @@ function setupBookingModal() {
       msg += `⭐ *Nível:* ${level}\n`;
       if (notes) msg += `📝 *Observação:* ${notes}\n`;
       msg += `\n📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
-      msg += `Olá Mestre Bolivar, gostaria de confirmar minha reserva!`;
+      msg += `Olá Mestre Bolivar, solicito a confirmação e reserva da minha vaga na turma!`;
 
       const encodedMsg = encodeURIComponent(msg);
       const waUrl = `https://wa.me/5583996527997?text=${encodedMsg}`;
 
-      // Open WhatsApp directly in new window
       window.open(waUrl, '_blank');
 
       bookingForm.reset();
@@ -296,6 +297,16 @@ function setupLoginModal() {
   }
 }
 
+// Theme Toggle
+function setupThemeToggle() {
+  const btn = document.getElementById('themeToggleBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    document.body.classList.toggle('light-theme');
+  });
+}
+
 // Global Keydown Listener for Escape key
 function setupGlobalKeyListeners() {
   document.addEventListener('keydown', (e) => {
@@ -315,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupLoginModal();
+  setupThemeToggle();
   setupGlobalKeyListeners();
   initIcons();
 });
