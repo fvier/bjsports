@@ -30,6 +30,16 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+class Plan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    category = db.Column(db.String(80), nullable=False) # 'Planos Individuais', 'Planos Promocionais & Família'
+    price = db.Column(db.String(50), nullable=False)
+    sub = db.Column(db.String(200), nullable=True)
+    features = db.Column(db.Text, nullable=True)
+    is_featured = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login_or_name = db.Column(db.String(120), nullable=False)
@@ -39,9 +49,47 @@ class Booking(db.Model):
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Ensure Database Tables Created & Seed Sample Users
+# Ensure Database Tables Created & Seed Sample Data
 with app.app_context():
     db.create_all()
+    
+    # Seed default sample plans if empty
+    if not Plan.query.first():
+        p1 = Plan(
+            name='⚡ Plano Passe Livre',
+            category='Planos Individuais',
+            price='R$ 120,00/mês',
+            sub='Acesso total a todas as modalidades e horários',
+            features='Liberdade de treinar todos os dias;Acesso aos treinos da manhã, tarde e noite;Acompanhamento individual de evolução',
+            is_featured=True
+        )
+        p2 = Plan(
+            name='🔥 Plano Casal',
+            category='Planos Promocionais & Família',
+            price='R$ 190,00/mês',
+            sub='Para 2 pessoas treinando juntas',
+            features='Válido para qualquer modalidade;Matrícula conjunta simplificada;Incentivo mútuo nos treinos',
+            is_featured=False
+        )
+        p3 = Plan(
+            name='Plano Família',
+            category='Planos Promocionais & Família',
+            price='R$ 280,00/mês',
+            sub='Pacote especial para 3 familiares',
+            features='Válido para 3 membros da família;Inclui Jiu-Jitsu Kids e Adulto;Maior economia por aluno',
+            is_featured=False
+        )
+        p4 = Plan(
+            name='Jiu-Jitsu (Seg, Qua, Sex)',
+            category='Planos Individuais',
+            price='R$ 100,00/mês',
+            sub='Treinos 3x por semana',
+            features='Treinos de fundamentos e ralas;Turmas da tarde e noite',
+            is_featured=False
+        )
+        db.session.add_all([p1, p2, p3, p4])
+        db.session.commit()
+
     # Seed default sample users if empty
     if not User.query.filter_by(username='bolivarbjj').first():
         mestre = User(
@@ -69,32 +117,6 @@ with app.app_context():
         aluno1.set_password('123456')
         db.session.add(aluno1)
 
-    if not User.query.filter_by(username='joaosilva').first():
-        aluno2 = User(
-            username='joaosilva',
-            name='João Silva',
-            cpf='333.444.555-66',
-            ddd='83',
-            phone='977665544',
-            plan='Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês',
-            role='aluno'
-        )
-        aluno2.set_password('123456')
-        db.session.add(aluno2)
-
-    if not User.query.filter_by(username='mariasantos').first():
-        aluno3 = User(
-            username='mariasantos',
-            name='Maria Santos',
-            cpf='444.555.666-77',
-            ddd='83',
-            phone='966554433',
-            plan='🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês',
-            role='aluno'
-        )
-        aluno3.set_password('123456')
-        db.session.add(aluno3)
-
     db.session.commit()
 
 # Context Processor for active navigation and user state across all templates
@@ -114,7 +136,8 @@ def inject_user_context():
 @app.route('/index')
 @app.route('/index.html')
 def index():
-    return render_template('index.html', page_title='Início')
+    plans_list = Plan.query.order_by(Plan.is_featured.desc(), Plan.id.asc()).all()
+    return render_template('index.html', page_title='Início', plans=plans_list)
 
 @app.route('/loja')
 @app.route('/loja.html')
@@ -129,7 +152,6 @@ def blog():
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])
 def login():
-    # Guarantee active logged-in student session by default for instant Portal presentation
     if 'user_id' not in session and request.method == 'GET' and request.args.get('logout') != '1':
         session['user_id'] = 1
         session['user_name'] = 'Fernando Vier'
@@ -216,7 +238,7 @@ def login():
         is_first_reg=is_first_reg
     )
 
-# ROUTE: GESTÃO DE PRIVILÉGIOS E PERMISSÕES DOS USUÁRIOS
+# ROUTE: GESTÃO DE PRIVILÉGIOS E PERMISSÕES
 @app.route('/gestao', methods=['GET', 'POST'])
 @app.route('/gestao.html', methods=['GET', 'POST'])
 def gestao_privilegios():
@@ -229,20 +251,66 @@ def gestao_privilegios():
             user.role = new_role
             db.session.commit()
             flash(f'Privilégio de {user.name} atualizado com sucesso para: {new_role.upper()}!', 'success')
-            
-            # If current logged in user updated their own role, sync session
             if session.get('user_id') == user.id:
                 session['user_role'] = new_role
 
         return redirect(url_for('gestao_privilegios'))
 
     users_list = User.query.order_by(User.id.asc()).all()
-    
-    return render_template(
-        'gestao.html',
-        page_title='Gestão de Privilégios & Permissões',
-        users=users_list
-    )
+    return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
+
+# ROUTE: ADMINISTRAÇÃO E GESTÃO DE PLANOS DA ACADEMIA
+@app.route('/planos_admin', methods=['GET', 'POST'])
+@app.route('/planos_admin.html', methods=['GET', 'POST'])
+def planos_admin():
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'create':
+            name = request.form.get('name', '').strip()
+            category = request.form.get('category', '').strip()
+            price = request.form.get('price', '').strip()
+            sub = request.form.get('sub', '').strip()
+            features = request.form.get('features', '').strip()
+            is_featured = 'is_featured' in request.form
+
+            new_plan = Plan(
+                name=name,
+                category=category,
+                price=price,
+                sub=sub,
+                features=features,
+                is_featured=is_featured
+            )
+            db.session.add(new_plan)
+            db.session.commit()
+            flash(f'Plano "{name}" cadastrado com sucesso!', 'success')
+
+        elif action == 'update':
+            plan_id = request.form.get('plan_id')
+            plan = Plan.query.get(plan_id)
+            if plan:
+                plan.name = request.form.get('name', '').strip()
+                plan.category = request.form.get('category', '').strip()
+                plan.price = request.form.get('price', '').strip()
+                plan.sub = request.form.get('sub', '').strip()
+                plan.features = request.form.get('features', '').strip()
+                plan.is_featured = 'is_featured' in request.form
+                db.session.commit()
+                flash(f'Plano "{plan.name}" atualizado com sucesso!', 'success')
+
+        elif action == 'delete':
+            plan_id = request.form.get('plan_id')
+            plan = Plan.query.get(plan_id)
+            if plan:
+                db.session.delete(plan)
+                db.session.commit()
+                flash('Plano removido com sucesso!', 'info')
+
+        return redirect(url_for('planos_admin'))
+
+    plans_list = Plan.query.order_by(Plan.id.asc()).all()
+    return render_template('planos_admin.html', page_title='Administração de Planos', plans=plans_list)
 
 @app.route('/aluno')
 @app.route('/aluno.html')

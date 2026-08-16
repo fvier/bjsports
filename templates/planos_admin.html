@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- Hero Section da Administração de Planos -->
+  <section class="hero-section page-hero">
+    <div class="container text-center">
+      <span class="section-badge">ADMINISTRAÇÃO & MENSALIDADES</span>
+      <h1 class="hero-title">GESTÃO DE <span class="highlight-red">PLANOS & VALORES</span></h1>
+      <p class="hero-desc" style="margin: 0 auto;">
+        Cadastre, edite valores e administre as opções de mensalidades oferecidas pelo BJ Sports Centro de Treinamento.
+      </p>
+    </div>
+  </section>
+
+  <!-- Conteúdo da Administração de Planos -->
+  <section class="section portal-section">
+    <div class="container">
+      
+      <div class="member-grid-2" style="grid-template-columns: 0.9fr 1.1fr; align-items: start;">
+        
+        <!-- Formulário de Cadastro de Novo Plano -->
+        <div class="glass-panel">
+          <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;">
+            <i data-lucide="plus-circle" class="icon-gold"></i> Cadastrar Novo Plano
+          </h3>
+          
+          <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
+            <input type="hidden" name="action" value="create">
+
+            <div class="form-group">
+              <label for="name">Nome do Plano *</label>
+              <input type="text" name="name" id="name" placeholder="Ex: ⚡ Plano Passe Livre VIP" required>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Categoria do Plano *</label>
+              <select name="category" id="category" required>
+                <option value="Planos Individuais">Planos Individuais</option>
+                <option value="Planos Promocionais & Família">Planos Promocionais & Família</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="price">Valor Mensal *</label>
+                <input type="text" name="price" id="price" placeholder="R$ 120,00/mês" required>
+              </div>
+              <div class="form-group" style="justify-content: flex-end;">
+                <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
+                  <input type="checkbox" name="is_featured" value="1">
+                  <span>Destaque / Recomendado</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sub">Subtítulo / Descrição Rápida</label>
+              <input type="text" name="sub" id="sub" placeholder="Ex: Acesso ilimitado a todas as modalidades">
+            </div>
+
+            <div class="form-group">
+              <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
+              <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã/noite; Avaliação inclusa">
+              <span class="field-hint">💡 Separe cada benefício por ponto e vírgula para exibir como lista.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
+              <i data-lucide="check-circle"></i> Cadastrar Plano na Academia
+            </button>
+          </form>
+        </div>
+
+        <!-- Tabela e Lista dos Planos Cadastrados -->
+        <div class="glass-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800;">
+                <i data-lucide="tag" class="icon-red"></i> Planos Cadastrados no Sistema
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.88rem;">Planos ativos visíveis na página inicial e no cadastro de alunos.</p>
+            </div>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">
+              <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
+            </a>
+          </div>
+
+          <div class="classes-list">
+            {% for plan in plans %}
+            <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 12px;">
+              
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h4 style="font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; color: #ffffff;">
+                    {{ plan.name }}
+                  </h4>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">{{ plan.category }}</span>
+                </div>
+                <div style="text-align: right;">
+                  <strong style="font-size: 1.3rem; color: var(--accent-gold); font-family: var(--font-heading);">
+                    {{ plan.price }}
+                  </strong>
+                  {% if plan.is_featured %}
+                    <span class="badge-pill bg-green" style="display: block; font-size: 0.65rem; margin-top: 4px;">DESTAQUE</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if plan.sub %}
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">{{ plan.sub }}</p>
+              {% endif %}
+
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; border-top: 1px solid var(--border-light); padding-top: 10px;">
+                <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                  <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;" onclick="return confirm('Deseja realmente excluir este plano?');">
+                    <i data-lucide="trash-2"></i> Excluir
+                  </button>
+                </form>
+              </div>
+
+            </div>
+            {% endfor %}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+{% endblock %}

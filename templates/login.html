@@ -181,7 +181,7 @@
           </button>
         </div>
 
-        <!-- Grupo 2: MÓDULOS -->
+        <!-- Grupo 2: MÓDULOS & GESTÃO DA ACADEMIA -->
         <div class="erp-nav-group">
           <span class="erp-group-title">MÓDULOS & GESTÃO</span>
 
@@ -203,7 +203,14 @@
             <i data-lucide="chevron-down" class="erp-chevron"></i>
           </button>
 
-          <!-- NOVO MENU DE GESTÃO DE PRIVILÉGIOS E ACESSOS DE MONITORAMENTO -->
+          <!-- MENU DE GESTÃO DE PLANOS DA ACADEMIA -->
+          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
+            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
+          <!-- MENU DE GESTÃO DE PRIVILÉGIOS E ACESSOS DE MONITORAMENTO -->
           <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
             <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
             <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
