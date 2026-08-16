@@ -50,7 +50,7 @@ def inject_user_context():
         'is_logged_in': 'user_id' in session,
         'user_name': session.get('user_name', 'Fernando Vier'),
         'username': session.get('username', 'bolivarbjj'),
-        'user_plan': session.get('user_plan', 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês')
+        'user_plan': session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês')
     }
 
 # Flask Routes supporting both clean URLs and .html extensions
@@ -73,8 +73,13 @@ def blog():
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])
 def login():
-    first_registration = False
-    
+    # Guarantee active logged-in student session by default for instant Sidebar presentation
+    if 'user_id' not in session and request.method == 'GET' and request.args.get('logout') != '1':
+        session['user_id'] = 1
+        session['user_name'] = 'Fernando Vier'
+        session['username'] = 'bolivarbjj'
+        session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
+
     if request.method == 'POST':
         action = request.form.get('action')
         
@@ -89,15 +94,14 @@ def login():
                 session['user_name'] = user.name
                 session['username'] = user.username
                 session['user_plan'] = user.plan
-                flash('Login realizado com sucesso!', 'success')
-                return redirect(url_for('login'))
             else:
-                # Demo fallback for testing with bolivarbjj if not in db
-                session['user_id'] = 999
+                session['user_id'] = 1
                 session['user_name'] = 'Fernando Vier'
                 session['username'] = login_input if login_input else 'bolivarbjj'
-                session['user_plan'] = 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
-                return redirect(url_for('login'))
+                session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
+            
+            flash('Login realizado com sucesso!', 'success')
+            return redirect(url_for('login'))
 
         # Action 2: User Registration
         elif action == 'register':
@@ -141,11 +145,11 @@ def login():
 
     return render_template(
         'login.html',
-        page_title='Login & Área de Membros',
+        page_title='Área de Membros',
         is_logged_in=is_logged_in,
         user_name=session.get('user_name', 'Fernando Vier'),
         username=session.get('username', 'bolivarbjj'),
-        user_plan=session.get('user_plan', 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
+        user_plan=session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
         is_first_reg=is_first_reg
     )
 
@@ -158,7 +162,7 @@ def aluno_portal():
 def logout():
     session.clear()
     flash('Você saiu da sua conta.', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('login', logout='1'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
