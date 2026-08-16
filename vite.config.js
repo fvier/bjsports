@@ -8,6 +8,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         loja: resolve(__dirname, 'loja.html'),
         blog: resolve(__dirname, 'blog.html'),
+        aluno: resolve(__dirname, 'aluno.html'),
       },
     },
   },

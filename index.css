@@ -121,7 +121,7 @@ body {
   letter-spacing: 1.5px;
 }
 
-/* Minimalist Navigation & Filiais Dropdown */
+/* Minimalist Navigation & Locais Dropdown */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -262,12 +262,16 @@ body {
   padding: 11px 20px !important;
   border-radius: var(--radius-md);
   transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.btn-header-login:hover {
+.btn-header-login:hover, .btn-header-login.active-link-btn {
   background: rgba(255, 215, 0, 0.18) !important;
   border-color: var(--accent-gold) !important;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.35);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
   transform: translateY(-2px);
 }
 
@@ -492,6 +496,82 @@ body {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: 32px;
+}
+
+/* Portal do Aluno Page Styles */
+.portal-section {
+  padding: 20px 0 100px 0;
+}
+
+.portal-card {
+  padding: 36px;
+  background: rgba(18, 18, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.portal-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  margin-bottom: 28px;
+}
+
+.portal-tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.92rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.portal-tab-btn.active {
+  background: var(--primary-red);
+  color: #ffffff;
+  box-shadow: 0 0 15px var(--primary-red-glow);
+}
+
+.forgot-pass-link {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-pass-link:hover {
+  color: var(--accent-gold);
+}
+
+.dash-info-box {
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid var(--border-red);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.dash-info-box h5 {
+  font-family: var(--font-heading);
+  color: var(--primary-red);
+  margin-bottom: 4px;
+}
+
+.submit-reg-btn {
+  background: linear-gradient(135deg, #25d366, #16a34a) !important;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.4) !important;
 }
 
 /* Planos & Descontos Section */
@@ -971,61 +1051,6 @@ body {
   height: 20px;
   accent-color: var(--primary-red);
   cursor: pointer;
-}
-
-/* Indicador de Ocupação da Turma em Barra (% Cheio) */
-.capacity-bar-box {
-  background: rgba(229, 9, 20, 0.08);
-  border: 1px solid var(--border-red);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.capacity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-}
-
-.capacity-label {
-  color: var(--text-main);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.capacity-vagas {
-  color: var(--accent-gold);
-  font-weight: 800;
-  font-family: var(--font-heading);
-}
-
-.capacity-track {
-  width: 100%;
-  height: 12px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.capacity-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #ff1e27 0%, #e50914 100%);
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.8);
-  transition: width 0.4s ease;
-}
-
-.capacity-subtext {
-  font-size: 0.78rem;
-  color: #4ade80;
-  font-weight: 600;
 }
 
 /* Dark Mode Inputs & Select Controls */

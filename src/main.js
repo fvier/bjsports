@@ -11,6 +11,7 @@ import {
   Target, 
   CheckCircle, 
   UserCheck,
+  UserPlus,
   LogIn,
   Instagram,
   Phone,
@@ -40,6 +41,7 @@ function initIcons() {
       Target,
       CheckCircle,
       UserCheck,
+      UserPlus,
       LogIn,
       Instagram,
       Phone,
@@ -363,39 +365,61 @@ function openModalWithModality(modalityName) {
   if (modal) modal.classList.remove('hidden');
 }
 
-// Login Modal Setup
-function setupLoginModal() {
-  const loginModal = document.getElementById('loginModal');
-  const openLoginBtn = document.getElementById('openLoginModalBtn');
-  const closeLoginBtn = document.getElementById('closeLoginModal');
-  const loginForm = document.getElementById('loginForm');
-  const dashView = document.getElementById('studentDashboardView');
-  const logoutBtn = document.getElementById('logoutStudentBtn');
+// Standalone Portal do Aluno Page Handler (aluno.html)
+function setupPortalPage() {
+  const tabLogin = document.getElementById('tabBtnLogin');
+  const tabRegister = document.getElementById('tabBtnRegister');
+  const formLogin = document.getElementById('portalLoginForm');
+  const formRegister = document.getElementById('portalRegisterForm');
+  const dashView = document.getElementById('portalDashboardView');
+  const logoutBtn = document.getElementById('logoutPortalBtn');
+  const dashNameDisplay = document.getElementById('dashNameDisplay');
+  const dashModalityDisplay = document.getElementById('dashModalityDisplay');
 
-  if (loginModal) loginModal.classList.add('hidden');
+  if (!tabLogin || !tabRegister) return;
 
-  function openLogin() {
-    if (loginModal) loginModal.classList.remove('hidden');
-  }
+  tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    if (formLogin) formLogin.classList.remove('hidden');
+    if (formRegister) formRegister.classList.add('hidden');
+  });
 
-  function closeLogin() {
-    if (loginModal) loginModal.classList.add('hidden');
-  }
+  tabRegister.addEventListener('click', () => {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    if (formRegister) formRegister.classList.remove('hidden');
+    if (formLogin) formLogin.classList.add('hidden');
+  });
 
-  if (openLoginBtn) openLoginBtn.addEventListener('click', openLogin);
-  if (closeLoginBtn) closeLoginBtn.addEventListener('click', closeLogin);
-
-  if (loginModal) {
-    loginModal.addEventListener('click', (e) => {
-      if (e.target === loginModal) closeLogin();
+  if (formLogin) {
+    formLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const loginVal = document.getElementById('portalCpf').value;
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+      
+      if (dashNameDisplay) dashNameDisplay.textContent = loginVal || 'Aluno BJ Sports';
+      if (formLogin) formLogin.classList.add('hidden');
+      if (formRegister) formRegister.classList.add('hidden');
+      document.getElementById('portalTabs').classList.add('hidden');
+      if (dashView) dashView.classList.remove('hidden');
     });
   }
 
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+  if (formRegister) {
+    formRegister.addEventListener('submit', (e) => {
       e.preventDefault();
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
-      loginForm.classList.add('hidden');
+      const nameVal = document.getElementById('regName').value;
+      const modVal = document.getElementById('regModality').value;
+      
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+
+      if (dashNameDisplay) dashNameDisplay.textContent = nameVal || 'Novo Aluno';
+      if (dashModalityDisplay) dashModalityDisplay.textContent = `${modVal} • Aluno Recém Matriculado`;
+
+      if (formLogin) formLogin.classList.add('hidden');
+      if (formRegister) formRegister.classList.add('hidden');
+      document.getElementById('portalTabs').classList.add('hidden');
       if (dashView) dashView.classList.remove('hidden');
     });
   }
@@ -403,8 +427,8 @@ function setupLoginModal() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       if (dashView) dashView.classList.add('hidden');
-      if (loginForm) loginForm.classList.remove('hidden');
-      closeLogin();
+      document.getElementById('portalTabs').classList.remove('hidden');
+      tabLogin.click();
     });
   }
 }
@@ -414,9 +438,7 @@ function setupGlobalKeyListeners() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const bookingModal = document.getElementById('bookingModal');
-      const loginModal = document.getElementById('loginModal');
       if (bookingModal) bookingModal.classList.add('hidden');
-      if (loginModal) loginModal.classList.add('hidden');
     }
   });
 }
@@ -427,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupScheduleFilters();
   setupPlanButtons();
   setupBookingModal();
-  setupLoginModal();
+  setupPortalPage();
   setupGlobalKeyListeners();
   initIcons();
 });
