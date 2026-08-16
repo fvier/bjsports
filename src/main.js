@@ -61,7 +61,7 @@ function initIcons() {
 const scheduleData = {
   seg: [
     { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
-    { name: 'Jiu-Jitsu Tarde (Vagas Restritas!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Tarde (85% Cheio!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
     { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
@@ -167,8 +167,8 @@ function setupBookingModal() {
   if (bookingForm) {
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('bookName').value;
-      const phone = document.getElementById('bookPhone').value;
+      const login = document.getElementById('bookLogin').value;
+      const cpf3 = document.getElementById('bookCpf3').value;
       const modality = document.getElementById('bookModality').value;
       const shift = document.getElementById('bookShift').value;
 
@@ -178,14 +178,15 @@ function setupBookingModal() {
         origin: { y: 0.5 }
       });
 
-      // Format WhatsApp Message
-      let msg = `*GARANTIA DE VAGA — BJ SPORTS CAJAZEIRAS*\n\n`;
-      msg += `👤 *Nome:* ${name}\n`;
-      msg += `📞 *WhatsApp:* ${phone}\n`;
-      msg += `🥋 *Modalidade/Plano:* ${modality}\n`;
-      msg += `🕒 *Horário/Frequência:* ${shift}\n\n`;
+      // Format WhatsApp Message with exact required fields
+      let msg = `*RESERVA DE VAGA NA AULA — BJ SPORTS*\n\n`;
+      msg += `👤 *Login:* ${login}\n`;
+      msg += `🛡️ *3 Primeiros Dígitos CPF:* ${cpf3}\n`;
+      msg += `🥋 *Modalidade:* ${modality}\n`;
+      msg += `🕒 *Horário & Dia:* ${shift}\n`;
+      msg += `⏱️ *Status:* Reserva solicitada com antecedência (até 48h antes da aula)\n\n`;
       msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
-      msg += `Olá Mestre Bolivar, solicito a confirmação e reserva da minha vaga na turma!`;
+      msg += `Olá Mestre Bolivar, gostaria de confirmar minha reserva de vaga!`;
 
       const encodedMsg = encodeURIComponent(msg);
       const waUrl = `https://wa.me/5583996527997?text=${encodedMsg}`;

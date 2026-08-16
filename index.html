@@ -279,78 +279,72 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva Limpo e Direto -->
+  <!-- Modal de Reserva Exato -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
       
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
-        <h3>GARANTIR MINHA VAGA • BJ SPORTS</h3>
-        <p class="modal-subtitle">🔥 Turmas limitadas a no máximo <strong>20 alunos por período</strong> em Cajazeiras-PB.</p>
+        <h3>RESERVAR MINHA VAGA NA AULA • BJ SPORTS</h3>
+        <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma (Máx 20 Alunos)</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
-        <!-- Alert Banner Limit -->
-        <div class="vagas-alert-banner">
-          <i data-lucide="alert-triangle" class="icon-gold"></i>
-          <span><strong>ATENÇÃO:</strong> Vagas restritas por turma no período da tarde (17h). Garanta a sua!</span>
+        <!-- Indicativo de Ocupação da Turma em Barra (% Cheio) -->
+        <div class="capacity-bar-box" id="capacityBox">
+          <div class="capacity-header">
+            <span class="capacity-label"><i data-lucide="flame" class="icon-gold"></i> Ocupação da Turma: <strong id="capacityPercentText">85% Cheio</strong></span>
+            <span class="capacity-vagas" id="capacityVagasText">17/20 Vagas Ocupadas</span>
+          </div>
+          <div class="capacity-track">
+            <div class="capacity-fill" id="capacityFillBar" style="width: 85%;"></div>
+          </div>
+          <p class="capacity-subtext">⚡ <strong>Apenas 3 vagas restantes</strong> para a turma selecionada!</p>
         </div>
 
-        <!-- Step 1: Dados Pessoais -->
-        <div class="form-section">
-          <h4 class="form-section-title"><i data-lucide="user"></i> 1. Dados do Aluno / Responsável</h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="bookName">Nome Completo *</label>
-              <div class="input-with-icon">
-                <i data-lucide="user" class="input-icon"></i>
-                <input type="text" id="bookName" placeholder="Ex: Fernando Vier" required>
-              </div>
+        <!-- Inputs: Login e 3 primeiros digitos do CPF -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bookLogin">Login:</label>
+            <div class="input-with-icon">
+              <i data-lucide="user" class="input-icon"></i>
+              <input type="text" id="bookLogin" placeholder="Bolivar" required>
             </div>
-            <div class="form-group">
-              <label for="bookPhone">WhatsApp com DDD *</label>
-              <div class="input-with-icon">
-                <i data-lucide="phone" class="input-icon"></i>
-                <input type="tel" id="bookPhone" placeholder="(83) 99652-7997" required>
-              </div>
+          </div>
+          <div class="form-group">
+            <label for="bookCpf3">3 primeiros números do CPF *</label>
+            <div class="input-with-icon">
+              <i data-lucide="shield-check" class="input-icon"></i>
+              <input type="text" id="bookCpf3" placeholder="123" maxlength="3" required>
             </div>
           </div>
         </div>
 
-        <!-- Step 2: Escolha da Modalidade & Horário -->
-        <div class="form-section">
-          <h4 class="form-section-title"><i data-lucide="swords"></i> 2. Modalidade & Horário Desejado</h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="bookModality">Modalidade / Plano *</label>
-              <select id="bookModality" required>
-                <option value="Jiu-Jitsu (BJJ)">🥋 Jiu-Jitsu (BJJ)</option>
-                <option value="Boxe Tradicional">🥊 Boxe Tradicional</option>
-                <option value="Plano Família (3 Pessoas)">👨‍👩‍👧 Plano Família (3 Pessoas - R$ 280/mês)</option>
-                <option value="Plano Casal (2 Pessoas)">👩‍❤️‍👨 Plano Casal (2 Pessoas - R$ 190/mês)</option>
-                <option value="Plano Kids (2 Irmãos)">🧒 Plano Kids Irmãos (R$ 170/mês)</option>
-              </select>
-            </div>
+        <!-- Dropdowns: Modalidade e Horários (até 48h antes) -->
+        <div class="form-group">
+          <label for="bookModality">Modalidade:</label>
+          <select id="bookModality" required>
+            <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
+            <option value="Boxe Tradicional">Boxe Tradicional</option>
+          </select>
+        </div>
 
-            <div class="form-group">
-              <label for="bookShift">Horário / Frequência *</label>
-              <select id="bookShift" required>
-                <option value="Seg, Qua e Sex - 17:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 17:00h (Tarde - Vagas Restritas!) — R$ 100/mês</option>
-                <option value="Seg, Qua e Sex - 19:00h (Jiu-Jitsu) | R$ 100/mês">Seg, Qua e Sex • 19:00h (Jiu-Jitsu) — R$ 100/mês</option>
-                <option value="Seg, Qua e Sex - 06:00h (Boxe) | R$ 90/mês">Seg, Qua e Sex • 06:00h (Boxe Matinal) — R$ 90/mês</option>
-                <option value="Ter e Qui - 12:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 12:00h (Jiu-Jitsu Almoço) — R$ 90/mês</option>
-                <option value="Ter e Qui - 19:00h (Jiu-Jitsu) | R$ 90/mês">Ter e Qui • 19:00h (Jiu-Jitsu Noturno) — R$ 90/mês</option>
-                <option value="Ter e Qui - 19:00h (Boxe) | R$ 90/mês">Ter e Qui • 19:00h (Boxe Noturno) — R$ 90/mês</option>
-                <option value="Todos os Dias - Passe Livre | R$ 120/mês">Todos os Dias • Passe Livre — R$ 120/mês</option>
-              </select>
-            </div>
-          </div>
+        <div class="form-group">
+          <label for="bookShift">Horário & Dia (Reservas até 48 horas antes da aula):</label>
+          <select id="bookShift" required>
+            <option value="Seg, Qua e Sex — 17:00h (Tarde)">Seg, Qua e Sex — 17:00h (Tarde)</option>
+            <option value="Seg, Qua e Sex — 19:00h (Noturno)">Seg, Qua e Sex — 19:00h (Noturno)</option>
+            <option value="Seg, Qua e Sex — 06:00h (Matinal)">Seg, Qua e Sex — 06:00h (Matinal)</option>
+            <option value="Ter e Qui — 12:00h (Almoço)">Ter e Qui — 12:00h (Almoço)</option>
+            <option value="Ter e Qui — 19:00h (Noturno)">Ter e Qui — 19:00h (Noturno)</option>
+          </select>
+          <span class="field-hint">⏱️ *Reservas permitidas com antecedência máxima de até 48h antes do treino.</span>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-booking-btn">
-          <i data-lucide="check-circle"></i> Garantir Vaga no WhatsApp Agora
+          <i data-lucide="check-circle"></i> Reservar Minha Vaga Agora
         </button>
       </form>
     </div>
