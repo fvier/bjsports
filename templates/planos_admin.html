@@ -4,34 +4,40 @@
   <!-- Hero Section da Administração de Planos -->
   <section class="hero-section page-hero">
     <div class="container text-center">
-      <span class="section-badge">ADMINISTRAÇÃO & MENSALIDADES</span>
-      <h1 class="hero-title">GESTÃO DE <span class="highlight-red">PLANOS & VALORES</span></h1>
+      <span class="section-badge">AUDITORIA DE PAGAMENTOS & MENSALIDADES</span>
+      <h1 class="hero-title">ADMINISTRAÇÃO DE <span class="highlight-red">PLANOS & AUDITORIA</span></h1>
       <p class="hero-desc" style="margin: 0 auto;">
-        Cadastre, edite valores e administre as opções de mensalidades oferecidas pelo BJ Sports Centro de Treinamento.
+        Gerencie e audite os planos de mensalidade da academia. Cada plano possui um <strong>ID Único de Auditoria (#PLN-XXX)</strong> para garantir a integridade dos históricos financeiros dos alunos.
       </p>
     </div>
   </section>
 
-  <!-- Conteúdo da Administração de Planos -->
+  <!-- Conteúdo Empilhado Verticalmente (Topo: Cadastrar Plano | Baixo: Planos Cadastrados & Auditoria) -->
   <section class="section portal-section">
-    <div class="container">
+    <div class="container" style="max-width: 960px;">
       
-      <div class="member-grid-2" style="grid-template-columns: 0.9fr 1.1fr; align-items: start;">
-        
-        <!-- Formulário de Cadastro de Novo Plano -->
-        <div class="glass-panel">
-          <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;">
-            <i data-lucide="plus-circle" class="icon-gold"></i> Cadastrar Novo Plano
-          </h3>
-          
-          <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
-            <input type="hidden" name="action" value="create">
+      <!-- 1. BLOCO SUPERIOR (EM CIMA): CADASTRAR NOVO PLANO -->
+      <div class="glass-panel" style="margin-bottom: 40px; border: 1px solid var(--border-red); background: rgba(18, 18, 28, 0.95);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+              <i data-lucide="plus-circle" class="icon-gold"></i> 1. Cadastrar Novo Plano no Sistema
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Preencha os dados abaixo para gerar automaticamente um novo código de auditoria.</p>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">
+            <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
+          </a>
+        </div>
 
+        <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
+          <input type="hidden" name="action" value="create">
+
+          <div class="form-row">
             <div class="form-group">
-              <label for="name">Nome do Plano *</label>
+              <label for="name">Nome Oficial do Plano (Imutável após criação) *</label>
               <input type="text" name="name" id="name" placeholder="Ex: ⚡ Plano Passe Livre VIP" required>
             </div>
-
             <div class="form-group">
               <label for="category">Categoria do Plano *</label>
               <select name="category" id="category" required>
@@ -39,90 +45,127 @@
                 <option value="Planos Promocionais & Família">Planos Promocionais & Família</option>
               </select>
             </div>
+          </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="price">Valor Mensal *</label>
-                <input type="text" name="price" id="price" placeholder="R$ 120,00/mês" required>
-              </div>
-              <div class="form-group" style="justify-content: flex-end;">
-                <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
-                  <input type="checkbox" name="is_featured" value="1">
-                  <span>Destaque / Recomendado</span>
-                </label>
-              </div>
-            </div>
-
+          <div class="form-row">
             <div class="form-group">
-              <label for="sub">Subtítulo / Descrição Rápida</label>
-              <input type="text" name="sub" id="sub" placeholder="Ex: Acesso ilimitado a todas as modalidades">
+              <label for="price">Valor Mensal (Auditável) *</label>
+              <input type="text" name="price" id="price" placeholder="R$ 120,00/mês" required>
             </div>
-
-            <div class="form-group">
-              <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
-              <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã/noite; Avaliação inclusa">
-              <span class="field-hint">💡 Separe cada benefício por ponto e vírgula para exibir como lista.</span>
+            <div class="form-group" style="justify-content: flex-end;">
+              <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
+                <input type="checkbox" name="is_featured" value="1">
+                <span>Destacar como "MAIS POPULAR"</span>
+              </label>
             </div>
+          </div>
 
-            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
-              <i data-lucide="check-circle"></i> Cadastrar Plano na Academia
-            </button>
-          </form>
+          <div class="form-group">
+            <label for="sub">Subtítulo / Descrição Rápida</label>
+            <input type="text" name="sub" id="sub" placeholder="Ex: Acesso ilimitado a todas as modalidades e horários">
+          </div>
+
+          <div class="form-group">
+            <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
+            <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã e noite; Avaliação física inclusa">
+            <span class="field-hint">💡 Separe os benefícios com ';' para gerar a lista na página de vendas.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-top: 10px;">
+            <i data-lucide="check-circle"></i> Cadastrar Plano e Gerar ID de Auditoria
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. BLOCO INFERIOR (EMBAIXO): LISTA E EDIÇÃO DE PLANOS POR ID DE AUDITORIA -->
+      <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+            <i data-lucide="shield-check" class="icon-gold"></i> 2. Planos Cadastrados & Auditoria de Valores (#PLN-XXX)
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Os nomes dos planos permanecem <strong>fixos por ID de Auditoria</strong> para manter a precisão dos relatórios de mensalidade. Você pode editar o valor mensal, categoria e benefícios a qualquer momento.
+          </p>
         </div>
 
-        <!-- Tabela e Lista dos Planos Cadastrados -->
-        <div class="glass-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800;">
-                <i data-lucide="tag" class="icon-red"></i> Planos Cadastrados no Sistema
-              </h3>
-              <p style="color: var(--text-muted); font-size: 0.88rem;">Planos ativos visíveis na página inicial e no cadastro de alunos.</p>
-            </div>
-            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">
-              <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
-            </a>
-          </div>
+        <div class="classes-list">
+          {% for plan in plans %}
+          <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 16px; padding: 24px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);">
+            
+            <!-- Cabeçalho do Card com ID de Auditoria e Nome Imutável -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span class="badge-pill" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold); font-size: 0.75rem; margin-bottom: 4px;">
+                  ID AUDITORIA: #{{ plan.plan_code }}
+                </span>
+                <h4 style="font-family: var(--font-heading); font-weight: 900; font-size: 1.3rem; color: #ffffff; margin-top: 4px;">
+                  {{ plan.name }}
+                </h4>
+              </div>
 
-          <div class="classes-list">
-            {% for plan in plans %}
-            <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 12px;">
-              
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <h4 style="font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; color: #ffffff;">
-                    {{ plan.name }}
-                  </h4>
-                  <span style="font-size: 0.8rem; color: var(--text-muted);">{{ plan.category }}</span>
+              <div style="text-align: right;">
+                <span class="badge-pill bg-green" style="font-size: 0.7rem;">STATUS: ATIVO EM AUDITORIA</span>
+                <small style="display: block; color: var(--text-dim); margin-top: 4px;">Cadastrado em: {{ plan.created_at.strftime('%d/%m/%Y') }}</small>
+              </div>
+            </div>
+
+            <!-- Formulário Inline de Edição por ID de Auditoria -->
+            <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
+              <input type="hidden" name="action" value="update">
+              <input type="hidden" name="plan_id" value="{{ plan.id }}">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Valor Mensal (Auditado) *</label>
+                  <input type="text" name="price" value="{{ plan.price }}" required style="font-weight: 700; color: var(--accent-gold);">
                 </div>
-                <div style="text-align: right;">
-                  <strong style="font-size: 1.3rem; color: var(--accent-gold); font-family: var(--font-heading);">
-                    {{ plan.price }}
-                  </strong>
-                  {% if plan.is_featured %}
-                    <span class="badge-pill bg-green" style="display: block; font-size: 0.65rem; margin-top: 4px;">DESTAQUE</span>
-                  {% endif %}
+
+                <div class="form-group">
+                  <label>Categoria do Plano *</label>
+                  <select name="category" required>
+                    <option value="Planos Individuais" {% if plan.category == 'Planos Individuais' %}selected{% endif %}>Planos Individuais</option>
+                    <option value="Planos Promocionais & Família" {% if plan.category == 'Planos Promocionais & Família' %}selected{% endif %}>Planos Promocionais & Família</option>
+                  </select>
                 </div>
               </div>
 
-              {% if plan.sub %}
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">{{ plan.sub }}</p>
-              {% endif %}
+              <div class="form-group">
+                <label>Subtítulo / Descrição</label>
+                <input type="text" name="sub" value="{{ plan.sub if plan.sub else '' }}">
+              </div>
 
-              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; border-top: 1px solid var(--border-light); padding-top: 10px;">
-                <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
-                  <input type="hidden" name="action" value="delete">
-                  <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                  <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;" onclick="return confirm('Deseja realmente excluir este plano?');">
-                    <i data-lucide="trash-2"></i> Excluir
+              <div class="form-group">
+                <label>Benefícios (Separados por ';')</label>
+                <input type="text" name="features" value="{{ plan.features if plan.features else '' }}">
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 12px;">
+                <label class="experimental-checkbox-label">
+                  <input type="checkbox" name="is_featured" value="1" {% if plan.is_featured %}checked{% endif %}>
+                  <span style="font-size: 0.85rem;">Exibir selo MAIS POPULAR na página inicial</span>
+                </label>
+
+                <div style="display: flex; gap: 10px;">
+                  <button type="submit" class="btn btn-primary btn-sm btn-glow">
+                    <i data-lucide="save"></i> Salvar Alterações (#{{ plan.plan_code }})
                   </button>
-                </form>
+                </div>
               </div>
+            </form>
 
+            <!-- Ação de Remoção Auditada -->
+            <div style="display: flex; justify-content: flex-end; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+              <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;" onclick="return confirm('Deseja realmente remover o plano com ID #{{ plan.plan_code }}?');">
+                  <i data-lucide="trash-2"></i> Desativar Plano (#{{ plan.plan_code }})
+                </button>
+              </form>
             </div>
-            {% endfor %}
-          </div>
 
+          </div>
+          {% endfor %}
         </div>
 
       </div>
