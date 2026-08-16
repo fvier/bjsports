@@ -394,6 +394,28 @@ function setupPasswordEyeToggles() {
   });
 }
 
+// Automatic CPF Mask Format (###.###.###-##)
+function setupCpfMask() {
+  const cpfInputs = [document.getElementById('regCpf')].filter(Boolean);
+  cpfInputs.forEach(input => {
+    input.setAttribute('inputmode', 'numeric');
+    input.setAttribute('maxlength', '14');
+    input.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+
+      if (value.length > 9) {
+        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})$/, '$1.$2.$3-$4');
+      } else if (value.length > 6) {
+        value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, '$1.$2.$3');
+      } else if (value.length > 3) {
+        value = value.replace(/^(\d{3})(\d{1,3})$/, '$1.$2');
+      }
+      e.target.value = value;
+    });
+  });
+}
+
 // Standalone Login & Cadastro Page Handler (login.html)
 function setupPortalPage() {
   const tabLogin = document.getElementById('tabBtnLogin');
@@ -440,11 +462,18 @@ function setupPortalPage() {
       e.preventDefault();
       const usernameVal = document.getElementById('regUsername').value;
       const nameVal = document.getElementById('regName').value;
+      const cpfVal = document.getElementById('regCpf').value;
       const dddVal = document.getElementById('regDDD').value;
       const phoneVal = document.getElementById('regPhoneNumber').value;
       const planVal = document.getElementById('regPlan').value;
       const passVal = document.getElementById('regPass').value;
       const passConfirmVal = document.getElementById('regPassConfirm').value;
+
+      const rawCpf = cpfVal.replace(/\D/g, '');
+      if (rawCpf.length !== 11) {
+        alert('O CPF deve conter exatamente 11 dígitos numéricos.');
+        return;
+      }
 
       if (phoneVal.length !== 9 || !/^\d{9}$/.test(phoneVal)) {
         alert('O número do celular deve conter exatamente 9 dígitos (ex: 996527997).');
@@ -459,7 +488,7 @@ function setupPortalPage() {
       confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
 
       if (dashNameDisplay) dashNameDisplay.textContent = `${nameVal} (@${usernameVal})`;
-      if (dashPlanDisplay) dashPlanDisplay.textContent = `${planVal} • WhatsApp: (${dddVal}) ${phoneVal}`;
+      if (dashPlanDisplay) dashPlanDisplay.textContent = `${planVal} • CPF: ${cpfVal} • WhatsApp: (${dddVal}) ${phoneVal}`;
 
       if (formLogin) formLogin.classList.add('hidden');
       if (formRegister) formRegister.classList.add('hidden');
@@ -495,6 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBookingModal();
   setupPortalPage();
   setupPasswordEyeToggles();
+  setupCpfMask();
   setupGlobalKeyListeners();
   initIcons();
 });

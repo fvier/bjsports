@@ -171,10 +171,11 @@
             </div>
           </div>
 
-          <!-- 3. CPF -->
+          <!-- 3. CPF Numérico de 11 dígitos com Máscara ###.###.###-## -->
           <div class="form-group">
-            <label for="regCpf">CPF *</label>
-            <input type="text" id="regCpf" placeholder="000.000.000-00" required>
+            <label for="regCpf">CPF (11 dígitos) *</label>
+            <input type="text" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
+            <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
           </div>
 
           <!-- 4. WhatsApp Dividido em DDD e Número (9 dígitos exatos) -->
@@ -182,28 +183,28 @@
             <label>WhatsApp / Celular *</label>
             <div class="phone-split-group">
               <div style="width: 85px;">
-                <input type="text" id="regDDD" class="ddd-input" placeholder="83" maxlength="2" required title="DDD (2 dígitos)">
+                <input type="text" id="regDDD" class="ddd-input" placeholder="83" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
               </div>
               <div style="flex: 1;">
-                <input type="tel" id="regPhoneNumber" placeholder="996527997" maxlength="9" pattern="[0-9]{9}" required title="Número do Celular (exatamente 9 dígitos)">
+                <input type="tel" id="regPhoneNumber" placeholder="996527997" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
               </div>
             </div>
             <span class="field-hint">📱 DDD (2 dígitos) e Número do celular (exatamente 9 dígitos sem traço).</span>
           </div>
 
-          <!-- 5. Seleção de Planos & Valores Mensais (Passe Livre como Padrão & Destaque para Plano Casal) -->
+          <!-- 5. Seleção de Planos por Categoria (Passe Livre Padrão e Emoji 🔥 no Plano Casal) -->
           <div class="form-group">
             <label for="regPlan">Plano Desejado & Investimento Mensal *</label>
             <select id="regPlan" required>
-              <option value="Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês" selected>Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês (Acesso Total)</option>
-              <option value="🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês">🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês ★ DESTAQUE PROMOÇÃO</option>
               <optgroup label="Planos Individuais">
+                <option value="⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês" selected>⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês</option>
                 <option value="Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês</option>
                 <option value="Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês</option>
                 <option value="Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês</option>
                 <option value="Boxe Tradicional (Ter, Qui) — R$ 90,00/mês">Boxe Tradicional (Ter, Qui) — R$ 90,00/mês</option>
               </optgroup>
-              <optgroup label="Planos Família & Dupla">
+              <optgroup label="Planos Promocionais & Família">
+                <option value="🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês">🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês</option>
                 <option value="Plano Família (3 Pessoas) — R$ 280,00/mês">Plano Família (3 Pessoas) — R$ 280,00/mês</option>
                 <option value="Plano Kids (2 Irmãos) — R$ 170,00/mês">Plano Kids (2 Irmãos) — R$ 170,00/mês</option>
               </optgroup>
