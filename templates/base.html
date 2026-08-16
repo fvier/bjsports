@@ -84,10 +84,56 @@
         <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
           <i data-lucide="calendar-check"></i> Garantir Vaga
         </button>
-        
+
+        {% if is_logged_in %}
+        <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN -->
+        <div class="user-avatar-dropdown">
+          <button class="avatar-trigger-btn" id="userAvatarBtn" title="Minha Conta">
+            <span class="user-avatar-photo">🥋</span>
+            <span class="user-header-name">{{ user_name.split(' ')[0] }}</span>
+            <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+          </button>
+
+          <!-- Dropdown da Foto de Perfil -->
+          <div class="avatar-menu glass-panel" id="userAvatarMenu">
+            <div class="menu-user-info">
+              <strong>{{ user_name }}</strong>
+              <small>@{{ username }}</small>
+              <span class="badge-pill bg-green" style="font-size: 0.65rem; margin-top: 4px;">ALUNO ATIVO</span>
+            </div>
+
+            <a href="{{ url_for('login') }}" class="dropdown-item">
+              <i data-lucide="target" class="icon-gold"></i>
+              <div>
+                <strong>Área do Aluno / Membros</strong>
+                <small>Ver dashboard e treinos</small>
+              </div>
+            </a>
+
+            <button class="dropdown-item border-none-btn" id="editProfileBtn">
+              <i data-lucide="user-check" class="icon-gold"></i>
+              <div>
+                <strong>Editar Informações</strong>
+                <small>Atualizar dados cadastrais</small>
+              </div>
+            </button>
+
+            <a href="{{ url_for('logout') }}" class="dropdown-item logout-dropdown-item">
+              <i data-lucide="log-out" class="icon-red"></i>
+              <div>
+                <strong style="color: #ef4444;">Sair da Conta</strong>
+                <small>Encerrar sessão ativa</small>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Botão Padrão Sem Login -->
         <a href="{{ url_for('login') }}" class="btn btn-header-login {% if request.endpoint == 'login' %}active-link-btn{% endif %}">
           <i data-lucide="user-check"></i> Área do Aluno
         </a>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -101,32 +147,6 @@
     </svg>
     <span class="wa-tooltip">Falar no WhatsApp (83) 9 9652-7997</span>
   </a>
-
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container footer-content">
-      <div class="footer-brand">
-        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo Footer" class="footer-logo">
-        <p class="footer-tagline">BJ Sports — Centro de Treinamento sob comando do Mestre Bolivar.</p>
-      </div>
-      <div class="footer-links">
-        <a href="https://wa.me/5583996527997" target="_blank" class="footer-link-item">
-          <i data-lucide="phone"></i> WhatsApp: (83) 9 9652-7997
-        </a>
-        <a href="https://www.instagram.com/bjsports_/" target="_blank" class="footer-link-item">
-          <i data-lucide="instagram"></i> Instagram: @bjsports_
-        </a>
-        <div class="footer-link-item footer-address-item">
-          <i data-lucide="map-pin"></i> Av. Estrada do Amor, Cajazeiras - PB
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div class="container text-center">
-        <p>&copy; {{ now.year }} BJ Sports Centro de Treinamento. Todos os direitos reservados.</p>
-      </div>
-    </div>
-  </footer>
 
   <!-- Modal de Reserva de Vagas -->
   <div class="modal-backdrop hidden" id="bookingModal">

@@ -42,10 +42,16 @@ class Booking(db.Model):
 with app.app_context():
     db.create_all()
 
-# Context Processor for active navigation
+# Context Processor for active navigation and user state across all templates
 @app.context_processor
-def inject_now():
-    return {'now': datetime.utcnow()}
+def inject_user_context():
+    return {
+        'now': datetime.utcnow(),
+        'is_logged_in': 'user_id' in session,
+        'user_name': session.get('user_name', 'Fernando Vier'),
+        'username': session.get('username', 'bolivarbjj'),
+        'user_plan': session.get('user_plan', 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês')
+    }
 
 # Flask Routes supporting both clean URLs and .html extensions
 @app.route('/')

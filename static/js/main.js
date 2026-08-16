@@ -346,6 +346,39 @@ function setupCpfMask() {
   });
 }
 
+// Top Bar User Avatar Dropdown & Edit Profile Handler
+function setupTopBarUserAvatar() {
+  const avatarDropdown = document.querySelector('.user-avatar-dropdown');
+  const avatarBtn = document.getElementById('userAvatarBtn');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+
+  if (avatarBtn && avatarDropdown) {
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      avatarDropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!avatarDropdown.contains(e.target)) {
+        avatarDropdown.classList.remove('active');
+      }
+    });
+  }
+
+  if (editProfileBtn) {
+    editProfileBtn.addEventListener('click', () => {
+      if (window.location.pathname.includes('login')) {
+        const settingsTabBtn = document.querySelector('.sidebar-link[data-target-tab="tab-settings"]');
+        if (settingsTabBtn) {
+          settingsTabBtn.click();
+        }
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  }
+}
+
 // Member Sidebar Tabs Switching Logic
 function setupMemberSidebarTabs() {
   const sidebarLinks = document.querySelectorAll('.sidebar-link[data-target-tab]');
@@ -403,6 +436,8 @@ function setupGlobalKeyListeners() {
     if (e.key === 'Escape') {
       const bookingModal = document.getElementById('bookingModal');
       if (bookingModal) bookingModal.classList.add('hidden');
+      const avatarDropdown = document.querySelector('.user-avatar-dropdown');
+      if (avatarDropdown) avatarDropdown.classList.remove('active');
     }
   });
 }
@@ -415,6 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBookingModal();
   setupPortalPage();
   setupMemberSidebarTabs();
+  setupTopBarUserAvatar();
   setupPasswordEyeToggles();
   setupCpfMask();
   setupGlobalKeyListeners();

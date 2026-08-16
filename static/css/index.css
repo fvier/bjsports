@@ -275,6 +275,103 @@ body {
   transform: translateY(-2px);
 }
 
+/* Top Bar User Avatar Dropdown */
+.user-avatar-dropdown {
+  position: relative;
+}
+
+.avatar-trigger-btn {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.avatar-trigger-btn:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.user-avatar-photo {
+  font-size: 1.3rem;
+  background: rgba(229, 9, 20, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--primary-red);
+}
+
+.user-header-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+}
+
+.avatar-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  width: 260px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.25s ease;
+  z-index: 150;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
+  background: #12121c;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.user-avatar-dropdown:hover .avatar-menu,
+.user-avatar-dropdown.active .avatar-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menu-user-info {
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-user-info strong {
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.menu-user-info small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.border-none-btn {
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
 /* Buttons Base */
 .btn {
   display: inline-flex;
