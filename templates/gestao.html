@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- Hero Section da Gestão de Privilégios -->
+  <section class="hero-section page-hero">
+    <div class="container text-center">
+      <span class="section-badge">ADMINISTRAÇÃO & CONTROLE DE ACESSO</span>
+      <h1 class="hero-title">GESTÃO DE <span class="highlight-red">PRIVILÉGIOS & PERMISSÕES</span></h1>
+      <p class="hero-desc" style="margin: 0 auto;">
+        Gerencie as permissões dos membros do BJ Sports. Atribua acessos especiais de <strong>Monitoramento</strong> para alunos que ajudam na gestão dos treinos e turmas.
+      </p>
+    </div>
+  </section>
+
+  <!-- Conteúdo da Gestão -->
+  <section class="section portal-section">
+    <div class="container">
+      
+      <!-- Cards Explicativos de Níveis de Acesso -->
+      <div class="grid-planos" style="margin-bottom: 36px;">
+        
+        <!-- Nível 1: Aluno -->
+        <div class="plano-card glass-panel text-center">
+          <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">⚡</div>
+          <h3 class="plano-title">Nível 1: Aluno</h3>
+          <p class="plano-sub">Acesso Padrão do Sistema</p>
+          <ul class="plano-features" style="margin-bottom: 12px; font-size: 0.88rem;">
+            <li><i data-lucide="check" class="icon-green"></i> Ver suas próprias presenças e treinos</li>
+            <li><i data-lucide="check" class="icon-green"></i> Acompanhar seu progresso de faixa</li>
+            <li><i data-lucide="check" class="icon-green"></i> Reservar aulas nas próximas 48h</li>
+            <li><i data-lucide="check" class="icon-green"></i> Desconto exclusivo de 15% na loja</li>
+          </ul>
+          <span class="badge-pill" style="margin-top: 10px;">PERMISSÃO INICIAL</span>
+        </div>
+
+        <!-- Nível 2: Monitor -->
+        <div class="plano-card featured-card glass-panel text-center">
+          <div class="plano-badge">RECOMENDADO PARA AUXILIARES</div>
+          <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">🔍</div>
+          <h3 class="plano-title">Nível 2: Monitor</h3>
+          <p class="plano-sub">Acesso Especial de Auxílio à Gestão</p>
+          <ul class="plano-features" style="margin-bottom: 12px; font-size: 0.88rem;">
+            <li><i data-lucide="check" class="icon-green"></i> <strong>Todas as permissões de Aluno</strong></li>
+            <li><i data-lucide="check" class="icon-green"></i> Confirmar presença de colegas no rala</li>
+            <li><i data-lucide="check" class="icon-green"></i> Visualizar listagem de alunos da turma</li>
+            <li><i data-lucide="check" class="icon-green"></i> Auxiliar o Mestre na organização do tatame</li>
+          </ul>
+          <span class="badge-pill bg-green" style="margin-top: 10px;">ACESSO ESPECIAL</span>
+        </div>
+
+        <!-- Nível 3: Instrutor / Mestre -->
+        <div class="plano-card glass-panel text-center">
+          <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">🥋</div>
+          <h3 class="plano-title">Nível 3: Instrutor / Mestre</h3>
+          <p class="plano-sub">Acesso Total Administrativo</p>
+          <ul class="plano-features" style="margin-bottom: 12px; font-size: 0.88rem;">
+            <li><i data-lucide="check" class="icon-green"></i> <strong>Controle total do sistema</strong></li>
+            <li><i data-lucide="check" class="icon-green"></i> Alterar privilégios e papéis de membros</li>
+            <li><i data-lucide="check" class="icon-green"></i> Atribuir graus e faixas oficiais</li>
+            <li><i data-lucide="check" class="icon-green"></i> Gerenciar faturas e mensalidades</li>
+          </ul>
+          <span class="badge-pill" style="margin-top: 10px; background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">ACESSO TOTAL</span>
+        </div>
+
+      </div>
+
+      <!-- Tabela de Usuários e Edição de Privilégios -->
+      <div class="glass-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800;">
+              <i data-lucide="shield" class="icon-gold"></i> Membros Cadastrados & Níveis de Privilégio
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Altere a permissão de qualquer membro selecionando o novo papel e clicando em Salvar.</p>
+          </div>
+          <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">
+            <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
+          </a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th>Membro / Aluno</th>
+                <th>Usuário / CPF</th>
+                <th>Plano Contratado</th>
+                <th>Privilégio Atual</th>
+                <th>Alterar Privilégio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.6rem;">
+                      {% if user.role == 'instrutor' %}🥋{% elif user.role == 'monitor' %}🔍{% else %}⚡{% endif %}
+                    </span>
+                    <div>
+                      <strong>{{ user.name }}</strong>
+                      <small style="display: block; color: var(--text-muted);">ID: #{{ user.id }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <strong style="color: var(--accent-gold);">@{{ user.username }}</strong>
+                  <small style="display: block; color: var(--text-muted);">CPF: {{ user.cpf }}</small>
+                </td>
+                <td>
+                  <span style="font-size: 0.85rem; color: #ffffff;">{{ user.plan }}</span>
+                </td>
+                <td>
+                  {% if user.role == 'instrutor' %}
+                    <span class="badge-pill" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">🥋 INSTRUTOR / MESTRE</span>
+                  {% elif user.role == 'monitor' %}
+                    <span class="badge-pill bg-green">🔍 MONITOR DE TREINO</span>
+                  {% else %}
+                    <span class="badge-pill">⚡ ALUNO</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <form action="{{ url_for('gestao_privilegios') }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <select name="new_role" style="padding: 6px 12px; font-size: 0.85rem; width: auto;" required>
+                      <option value="aluno" {% if user.role == 'aluno' %}selected{% endif %}>⚡ Aluno (Padrão)</option>
+                      <option value="monitor" {% if user.role == 'monitor' %}selected{% endif %}>🔍 Monitor (Auxiliar)</option>
+                      <option value="instrutor" {% if user.role == 'instrutor' %}selected{% endif %}>🥋 Instrutor / Mestre</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm btn-glow">
+                      Salvar
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+{% endblock %}

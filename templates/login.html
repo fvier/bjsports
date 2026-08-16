@@ -183,7 +183,7 @@
 
         <!-- Grupo 2: MÓDULOS -->
         <div class="erp-nav-group">
-          <span class="erp-group-title">MÓDULOS</span>
+          <span class="erp-group-title">MÓDULOS & GESTÃO</span>
 
           <button class="erp-nav-item" data-target-tab="tab-frequency">
             <i data-lucide="shopping-cart" class="erp-item-icon"></i>
@@ -202,6 +202,13 @@
             <span class="erp-item-label">Financeiro & Mensalidade</span>
             <i data-lucide="chevron-down" class="erp-chevron"></i>
           </button>
+
+          <!-- NOVO MENU DE GESTÃO DE PRIVILÉGIOS E ACESSOS DE MONITORAMENTO -->
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
+            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
 
           <button class="erp-nav-item" data-target-tab="tab-videotheque">
             <i data-lucide="sparkles" class="erp-item-icon"></i>
@@ -244,9 +251,17 @@
         
         <div class="erp-topbar-right">
           <div class="erp-user-badge">
-            <span class="erp-avatar">🥋</span>
+            <span class="erp-avatar">
+              {% if user_role == 'instrutor' %}🥋{% elif user_role == 'monitor' %}🔍{% else %}⚡{% endif %}
+            </span>
             <span class="erp-user-name">{{ user_name }}</span>
-            <span class="badge-pill bg-green" style="font-size: 0.7rem;">FAIXA AZUL</span>
+            {% if user_role == 'instrutor' %}
+              <span class="badge-pill" style="font-size: 0.7rem; background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">INSTRUTOR / MESTRE</span>
+            {% elif user_role == 'monitor' %}
+              <span class="badge-pill bg-green" style="font-size: 0.7rem;">MONITOR DE TREINO</span>
+            {% else %}
+              <span class="badge-pill" style="font-size: 0.7rem;">ALUNO</span>
+            {% endif %}
           </div>
         </div>
       </header>
@@ -319,7 +334,7 @@
                   <span class="rank-pos">#1</span>
                   <div class="rank-info">
                     <strong>{{ user_name }}</strong>
-                    <small>180 pontos • Faixa Azul (2º Grau)</small>
+                    <small>180 pontos • {{ user_role.upper() }}</small>
                   </div>
                   <span class="badge-pill bg-green">LÍDER</span>
                 </div>
@@ -327,7 +342,7 @@
                   <span class="rank-pos">#2</span>
                   <div class="rank-info">
                     <strong>Mestre Bolivar</strong>
-                    <small>165 pontos • Faixa Preta 3º Dan</small>
+                    <small>165 pontos • INSTRUTOR</small>
                   </div>
                   <span class="badge-pill">MESTRE</span>
                 </div>

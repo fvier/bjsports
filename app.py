@@ -20,6 +20,7 @@ class User(db.Model):
     ddd = db.Column(db.String(2), nullable=False)
     phone = db.Column(db.String(9), nullable=False)
     plan = db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(30), default='aluno') # 'aluno', 'monitor', 'instrutor'
     password_hash = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -38,9 +39,63 @@ class Booking(db.Model):
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Ensure Database Tables Created
+# Ensure Database Tables Created & Seed Sample Users
 with app.app_context():
     db.create_all()
+    # Seed default sample users if empty
+    if not User.query.filter_by(username='bolivarbjj').first():
+        mestre = User(
+            username='bolivarbjj',
+            name='Mestre Bolivar',
+            cpf='111.222.333-44',
+            ddd='83',
+            phone='996527997',
+            plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
+            role='instrutor'
+        )
+        mestre.set_password('123456')
+        db.session.add(mestre)
+
+    if not User.query.filter_by(username='fernandovier').first():
+        aluno1 = User(
+            username='fernandovier',
+            name='Fernando Vier',
+            cpf='222.333.444-55',
+            ddd='83',
+            phone='988776655',
+            plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
+            role='monitor'
+        )
+        aluno1.set_password('123456')
+        db.session.add(aluno1)
+
+    if not User.query.filter_by(username='joaosilva').first():
+        aluno2 = User(
+            username='joaosilva',
+            name='João Silva',
+            cpf='333.444.555-66',
+            ddd='83',
+            phone='977665544',
+            plan='Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês',
+            role='aluno'
+        )
+        aluno2.set_password('123456')
+        db.session.add(aluno2)
+
+    if not User.query.filter_by(username='mariasantos').first():
+        aluno3 = User(
+            username='mariasantos',
+            name='Maria Santos',
+            cpf='444.555.666-77',
+            ddd='83',
+            phone='966554433',
+            plan='🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês',
+            role='aluno'
+        )
+        aluno3.set_password('123456')
+        db.session.add(aluno3)
+
+    db.session.commit()
 
 # Context Processor for active navigation and user state across all templates
 @app.context_processor
@@ -50,10 +105,11 @@ def inject_user_context():
         'is_logged_in': 'user_id' in session,
         'user_name': session.get('user_name', 'Fernando Vier'),
         'username': session.get('username', 'bolivarbjj'),
+        'user_role': session.get('user_role', 'monitor'),
         'user_plan': session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês')
     }
 
-# Flask Routes supporting both clean URLs and .html extensions
+# Flask Routes
 @app.route('/')
 @app.route('/index')
 @app.route('/index.html')
@@ -73,11 +129,12 @@ def blog():
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])
 def login():
-    # Guarantee active logged-in student session by default for instant Sidebar presentation
+    # Guarantee active logged-in student session by default for instant Portal presentation
     if 'user_id' not in session and request.method == 'GET' and request.args.get('logout') != '1':
         session['user_id'] = 1
         session['user_name'] = 'Fernando Vier'
         session['username'] = 'bolivarbjj'
+        session['user_role'] = 'monitor'
         session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
 
     if request.method == 'POST':
@@ -93,11 +150,13 @@ def login():
                 session['user_id'] = user.id
                 session['user_name'] = user.name
                 session['username'] = user.username
+                session['user_role'] = user.role
                 session['user_plan'] = user.plan
             else:
                 session['user_id'] = 1
                 session['user_name'] = 'Fernando Vier'
                 session['username'] = login_input if login_input else 'bolivarbjj'
+                session['user_role'] = 'monitor'
                 session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
             
             flash('Login realizado com sucesso!', 'success')
@@ -121,7 +180,8 @@ def login():
                     cpf=cpf,
                     ddd=ddd,
                     phone=phone,
-                    plan=plan
+                    plan=plan,
+                    role='aluno'
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
@@ -130,12 +190,14 @@ def login():
                 session['user_id'] = new_user.id
                 session['user_name'] = new_user.name
                 session['username'] = new_user.username
+                session['user_role'] = new_user.role
                 session['user_plan'] = new_user.plan
                 session['first_registration'] = True
             else:
                 session['user_id'] = existing_user.id
                 session['user_name'] = existing_user.name
                 session['username'] = existing_user.username
+                session['user_role'] = existing_user.role
                 session['user_plan'] = existing_user.plan
             
             return redirect(url_for('login'))
@@ -149,8 +211,37 @@ def login():
         is_logged_in=is_logged_in,
         user_name=session.get('user_name', 'Fernando Vier'),
         username=session.get('username', 'bolivarbjj'),
+        user_role=session.get('user_role', 'monitor'),
         user_plan=session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
         is_first_reg=is_first_reg
+    )
+
+# ROUTE: GESTÃO DE PRIVILÉGIOS E PERMISSÕES DOS USUÁRIOS
+@app.route('/gestao', methods=['GET', 'POST'])
+@app.route('/gestao.html', methods=['GET', 'POST'])
+def gestao_privilegios():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        new_role = request.form.get('new_role')
+        
+        user = User.query.get(user_id)
+        if user and new_role in ['aluno', 'monitor', 'instrutor']:
+            user.role = new_role
+            db.session.commit()
+            flash(f'Privilégio de {user.name} atualizado com sucesso para: {new_role.upper()}!', 'success')
+            
+            # If current logged in user updated their own role, sync session
+            if session.get('user_id') == user.id:
+                session['user_role'] = new_role
+
+        return redirect(url_for('gestao_privilegios'))
+
+    users_list = User.query.order_by(User.id.asc()).all()
+    
+    return render_template(
+        'gestao.html',
+        page_title='Gestão de Privilégios & Permissões',
+        users=users_list
     )
 
 @app.route('/aluno')
