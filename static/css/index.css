@@ -736,6 +736,93 @@ body {
   font-size: 0.8rem;
 }
 
+/* ESTILOS DOS BOTÕES EXPANDÍVEIS DE MÊS DA MENSALIDADE (+ EXPANDE PARA BAIXO) */
+.btn-expand-months {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-expand-months:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-expand-months i {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s ease;
+}
+
+.btn-expand-months.active i {
+  transform: rotate(45deg);
+}
+
+.month-badges-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.month-badge-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.month-badge-pill:hover {
+  transform: scale(1.08);
+}
+
+.month-badge-pill small {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* 🟢 VERDE = PAGO */
+.month-status-pago {
+  background: rgba(37, 211, 102, 0.18);
+  border: 1px solid #25d366;
+  color: #25d366;
+  box-shadow: 0 0 8px rgba(37, 211, 102, 0.25);
+}
+
+/* 🟠 LARANJA = ATRASADO */
+.month-status-atrasado {
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid #f97316;
+  color: #f97316;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+}
+
+/* ⚪ BRANCO = A VENCER (FUTURO) */
+.month-status-futuro {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
 /* Base Buttons */
 .btn {
   display: inline-flex;

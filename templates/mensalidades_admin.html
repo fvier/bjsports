@@ -114,7 +114,7 @@
             <span class="live-dot"></span> CONTROLE MENSAL DE COBRANÇA DA ACADEMIA ({{ total_count }} ALUNOS CADASTRADOS)
           </div>
           <h1 class="erp-hero-heading">Gestão de Mensalidades & Vencimentos</h1>
-          <p class="erp-hero-sub">Painel completo com os {{ total_count }} alunos da academia para controle de vencimentos (Dias 5, 15 e 25) e baixa de pagamentos.</p>
+          <p class="erp-hero-sub">Clique no botão <strong>[+]</strong> em cada aluno para expandir o histórico de meses (🟢 Pago, 🟠 Atrasado, ⚪ A Vencer).</p>
         </div>
 
         <!-- Metric Cards por Dia de Vencimento -->
@@ -144,6 +144,20 @@
           </div>
         </div>
 
+        <!-- Legenda de Cores dos Meses -->
+        <div class="glass-panel" style="margin-bottom: 24px; padding: 16px 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-light);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.95rem;">
+              <i data-lucide="info" class="icon-gold"></i> Legenda de Cores do Histórico Anual:
+            </strong>
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+              <span class="month-badge-pill month-status-pago">🟢 PAGO</span>
+              <span class="month-badge-pill month-status-atrasado">🟠 ATRASADO</span>
+              <span class="month-badge-pill month-status-futuro">⚪ A VENCER</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Filtros por Dia de Vencimento -->
         <div class="schedule-filters" style="margin-bottom: 24px;">
           <a href="{{ url_for('mensalidades_admin', day='todos') }}" class="day-btn {% if filter_day == 'todos' %}active{% endif %}">
@@ -160,14 +174,14 @@
           </a>
         </div>
 
-        <!-- Tabela dos 30 Alunos -->
+        <!-- Tabela dos 30 Alunos com Botão (+) para Expandir Meses -->
         <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
             <div>
               <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
                 <i data-lucide="dollar-sign" class="icon-green"></i> Alunos Cadastrados (Exibindo {{ users|length }} de {{ total_count }})
               </h3>
-              <p style="color: var(--text-muted); font-size: 0.88rem;">Altere o dia de vencimento (5, 15 ou 25) ou confirme a baixa no pagamento PIX.</p>
+              <p style="color: var(--text-muted); font-size: 0.88rem;">Clique no ícone <strong>+</strong> para visualizar os meses de 2026 de cada aluno.</p>
             </div>
             <div>
               <span class="badge-pill bg-green" style="font-size: 0.8rem;">{{ paid_count }} EM DIA</span>
@@ -179,6 +193,7 @@
             <table class="schedule-table">
               <thead>
                 <tr>
+                  <th style="width: 50px;">Expandir</th>
                   <th>ID</th>
                   <th>Aluno / Cadastro</th>
                   <th>Plano Contratado</th>
@@ -189,7 +204,14 @@
               </thead>
               <tbody>
                 {% for u in users %}
+                {% set u_months = u.get_month_schedule() %}
                 <tr>
+                  <!-- BOTÃO (+) QUE EXPANDE PARA BAIXO OS MESES DO ANO -->
+                  <td>
+                    <button type="button" class="btn-expand-months" id="btnToggle-{{ u.id }}" onclick="toggleMonthDrawer('{{ u.id }}')" title="Expandir Histórico de Meses">
+                      <i data-lucide="plus" id="icon-plus-{{ u.id }}"></i>
+                    </button>
+                  </td>
                   <td>
                     <strong style="color: var(--text-dim);">#{{ u.id }}</strong>
                   </td>
@@ -233,6 +255,31 @@
                     </form>
                   </td>
                 </tr>
+
+                <!-- DRAWER DE MESES EXPANDÍVEL (EXPANDE PARA BAIXO) -->
+                <tr id="drawer-{{ u.id }}" class="month-drawer-row hidden">
+                  <td colspan="7" style="background: rgba(10, 10, 18, 0.95); padding: 18px 24px; border-bottom: 2px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                      <div>
+                        <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.9rem;">
+                          🗓️ Histórico de Mensalidades 2026 de {{ u.name }} (Início no Mês {{ u_months[0].month }}):
+                        </strong>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                          Exibindo meses desde a matrícula (Mês {{ u_months[0].month }}) até o fim do ano (Mês 12):
+                        </span>
+                      </div>
+
+                      <div class="month-badges-container">
+                        {% for m in u_months %}
+                          <div class="month-badge-pill month-status-{{ m.status }}" title="Mês {{ m.month }} ({{ m.name }}) — {{ m.status|upper }}">
+                            <span>{{ m.month }}</span>
+                            <small>{{ m.name }}</small>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -243,4 +290,22 @@
       </main>
     </div>
   </div>
+
+  <script>
+    function toggleMonthDrawer(userId) {
+      const drawer = document.getElementById('drawer-' + userId);
+      const btn = document.getElementById('btnToggle-' + userId);
+      const icon = document.getElementById('icon-plus-' + userId);
+
+      if (drawer) {
+        if (drawer.classList.contains('hidden')) {
+          drawer.classList.remove('hidden');
+          btn.classList.add('active');
+        } else {
+          drawer.classList.add('hidden');
+          btn.classList.remove('active');
+        }
+      }
+    }
+  </script>
 {% endblock %}
