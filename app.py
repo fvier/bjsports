@@ -1,5 +1,6 @@
 import os
 import json
+import urllib.parse
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -46,7 +47,6 @@ class User(db.Model):
         hist[str(month_key)] = status
         self.monthly_history = json.dumps(hist)
         
-        # Se o mês 8 (mês atual) for marcado como 'pago', atualiza payment_status para 'Em Dia'
         if str(month_key) == '08' or str(month_key) == '8':
             if status == 'pago':
                 self.payment_status = 'Em Dia'
@@ -64,7 +64,6 @@ class User(db.Model):
 
         for m in range(start, 13):
             m_str = f"{m:02d}"
-            # Se já houver status salvo manualmente no histórico JSON
             if m_str in hist:
                 status = hist[m_str]
             else:
@@ -84,6 +83,21 @@ class User(db.Model):
                 'status': status
             })
         return months
+
+    def get_whatsapp_billing_link(self):
+        clean_ddd = ''.join(c for c in self.ddd if c.isdigit())
+        clean_phone = ''.join(c for c in self.phone if c.isdigit())
+        full_number = f"55{clean_ddd}{clean_phone}"
+
+        msg = f"Olá, *{self.name}*! 👋\n\n" \
+              f"Passando da *BJ Sports Centro de Treinamento* para informar sobre a sua mensalidade:\n\n" \
+              f"📌 *Plano:* {self.plan}\n" \
+              f"📅 *Dia de Vencimento:* Todo Dia {self.due_date}\n" \
+              f"🔴 *Status:* {self.payment_status}\n\n" \
+              f"🔑 *Chave PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n" \
+              f"Qualquer dúvida ou envio do comprovante, estamos à disposição. OSS! 🥋"
+
+        return f"https://wa.me/{full_number}?text={urllib.parse.quote(msg)}"
 
 class Plan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -360,7 +374,6 @@ def planos_admin():
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
     return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
 
-# API ROUTE PARA ALTERAR STATUS DE UM MÊS ESPECÍFICO DE UM ALUNO (DAR BAIXA PELO MENU DROPDOWN DE MÊS)
 @app.route('/api/update_month_status', methods=['POST'])
 def api_update_month_status():
     user_id = request.form.get('user_id')
@@ -376,14 +389,13 @@ def api_update_month_status():
     referrer = request.referrer or url_for('mensalidades_admin')
     return redirect(referrer)
 
-# GESTÃO DE MENSALIDADES (MINIMALISTA COM BUSCA E FILTROS AVANÇADOS NO TOPO)
+# GESTÃO DE MENSALIDADES (EXIBE VALOR DO PLANO, BOTÃO DE COBRANÇA WHATSAPP E FILTROS CONSOLIDADOS COM MODALIDADE)
 @app.route('/mensalidades_admin', methods=['GET', 'POST'])
 @app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
 def mensalidades_admin():
     if request.method == 'POST':
         action = request.form.get('action')
         
-        # Ação vinda do formulário comum ou modal
         if action == 'update_month':
             user_id = request.form.get('user_id')
             month = request.form.get('month')
@@ -393,7 +405,6 @@ def mensalidades_admin():
                 user.set_month_status(month, status)
                 db.session.commit()
                 flash(f'Mensalidade do Mês {month} de {user.name} atualizada para {status.upper()}!', 'success')
-
         else:
             user_id = request.form.get('user_id')
             new_status = request.form.get('payment_status')
@@ -408,12 +419,14 @@ def mensalidades_admin():
         filter_day = request.args.get('day', 'todos')
         search_query = request.args.get('q', '')
         status_filter = request.args.get('status', 'todos')
-        return redirect(url_for('mensalidades_admin', day=filter_day, q=search_query, status=status_filter))
+        modality_filter = request.args.get('modality', 'todos')
+        return redirect(url_for('mensalidades_admin', day=filter_day, q=search_query, status=status_filter, modality=modality_filter))
 
-    # Filtros Avançados no Topo (Localização e Filtragem Detalhada)
+    # Filtros Consolidados no Topo
     filter_day = request.args.get('day', 'todos')
     search_query = request.args.get('q', '').strip()
     status_filter = request.args.get('status', 'todos')
+    modality_filter = request.args.get('modality', 'todos')
 
     query = User.query
 
@@ -421,7 +434,11 @@ def mensalidades_admin():
     if filter_day in ['5', '15', '25']:
         query = query.filter(User.due_date == filter_day)
 
-    # 2. Filtro por Busca de Texto (Nome, Username, CPF, Plano)
+    # 2. Filtro por Modalidade / Plano
+    if modality_filter != 'todos':
+        query = query.filter(User.plan.ilike(f'%{modality_filter}%'))
+
+    # 3. Filtro por Busca de Texto (Nome, Username, CPF, Plano)
     if search_query:
         query = query.filter(
             (User.name.ilike(f'%{search_query}%')) |
@@ -430,7 +447,7 @@ def mensalidades_admin():
             (User.plan.ilike(f'%{search_query}%'))
         )
 
-    # 3. Filtro por Status Financeiro (Em Dia / Pendente)
+    # 4. Filtro por Status Financeiro (Em Dia / Pendente)
     if status_filter == 'pago':
         query = query.filter(User.payment_status == 'Em Dia')
     elif status_filter == 'pendente':
@@ -452,6 +469,7 @@ def mensalidades_admin():
         filter_day=filter_day,
         search_query=search_query,
         status_filter=status_filter,
+        modality_filter=modality_filter,
         total_count=total_count,
         day5_count=day5_count,
         day15_count=day15_count,

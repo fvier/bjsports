@@ -109,57 +109,75 @@
       </header>
 
       <main class="erp-content">
-        <!-- BARRA DE PAINEL DE FILTROS SUPERIOR (FILTROS EM CIMA PARA LOCALIZAÇÃO E FILTRAGEM MAIS DETALHADA) -->
-        <div class="glass-panel" style="margin-bottom: 24px; padding: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(96, 165, 250, 0.3);">
+        <!-- BARRA UNIFICADA DE FILTROS SUPERIORES (LOCALIZAÇÃO, MODALIDADE, VENCIMENTO E STATUS) -->
+        <div class="glass-panel" style="margin-bottom: 24px; padding: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(96, 165, 250, 0.35);">
           <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="sliders" class="icon-gold"></i> Filtros & Busca Detalhada de Alunos
+              <i data-lucide="sliders" class="icon-gold"></i> Painel Unificado de Filtros & Busca Detalhada
             </h3>
-            <span class="badge-pill bg-green" style="font-size: 0.75rem;">
-              Exibindo {{ users|length }} de {{ total_count }} alunos
-            </span>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge-pill bg-green" style="font-size: 0.75rem;">
+                {{ paid_count }} Em Dia
+              </span>
+              <span class="badge-pill bg-orange" style="font-size: 0.75rem;">
+                {{ pending_count }} Pendentes
+              </span>
+            </div>
           </div>
 
-          <form action="{{ url_for('mensalidades_admin') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: end;">
+          <form action="{{ url_for('mensalidades_admin') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end;">
             
             <!-- 1. Campo de Busca por Texto -->
             <div class="form-group">
-              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Localizar Aluno (Nome, CPF ou Plano):</label>
+              <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Localizar Aluno (Nome/CPF):</label>
               <div class="input-with-icon">
                 <i data-lucide="search" class="input-icon" style="color: var(--accent-gold);"></i>
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Ex: Gabriel ou 101.202..." style="padding: 8px 12px 8px 38px !important; font-size: 0.88rem;">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Nome, @user ou CPF..." style="padding: 8px 12px 8px 38px !important; font-size: 0.85rem;">
               </div>
             </div>
 
-            <!-- 2. Filtro de Dia de Vencimento -->
+            <!-- 2. Filtro por Modalidade / Plano -->
             <div class="form-group">
-              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Dia de Vencimento:</label>
-              <select name="day" style="padding: 8px 12px; font-size: 0.88rem;">
-                <option value="todos" {% if filter_day == 'todos' %}selected{% endif %}>📅 Todos os Vencimentos</option>
-                <option value="5" {% if filter_day == '5' %}selected{% endif %}>📅 Vencimento Dia 5 ({{ day5_count }})</option>
-                <option value="15" {% if filter_day == '15' %}selected{% endif %}>📅 Vencimento Dia 15 ({{ day15_count }})</option>
-                <option value="25" {% if filter_day == '25' %}selected{% endif %}>📅 Vencimento Dia 25 ({{ day25_count }})</option>
+              <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Modalidade / Plano:</label>
+              <select name="modality" style="padding: 8px 12px; font-size: 0.85rem;">
+                <option value="todos" {% if modality_filter == 'todos' %}selected{% endif %}>🥋 Todas as Modalidades</option>
+                <option value="Jiu-Jitsu" {% if modality_filter == 'Jiu-Jitsu' %}selected{% endif %}>🥋 Jiu-Jitsu (BJJ)</option>
+                <option value="Boxe" {% if modality_filter == 'Boxe' %}selected{% endif %}>🥊 Boxe Tradicional</option>
+                <option value="Passe Livre" {% if modality_filter == 'Passe Livre' %}selected{% endif %}>⚡ Passe Livre (BJJ + Boxe)</option>
+                <option value="Casal" {% if modality_filter == 'Casal' %}selected{% endif %}>🔥 Plano Casal</option>
+                <option value="Família" {% if modality_filter == 'Família' %}selected{% endif %}>👨‍👩‍👧 Plano Família</option>
               </select>
             </div>
 
-            <!-- 3. Filtro por Status Financeiro -->
+            <!-- 3. Filtro por Dia de Vencimento -->
             <div class="form-group">
-              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Status Financeiro:</label>
-              <select name="status" style="padding: 8px 12px; font-size: 0.88rem;">
+              <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Dia de Vencimento:</label>
+              <select name="day" style="padding: 8px 12px; font-size: 0.85rem;">
+                <option value="todos" {% if filter_day == 'todos' %}selected{% endif %}>📅 Todos os Dias</option>
+                <option value="5" {% if filter_day == '5' %}selected{% endif %}>📅 Dia 5 ({{ day5_count }})</option>
+                <option value="15" {% if filter_day == '15' %}selected{% endif %}>📅 Dia 15 ({{ day15_count }})</option>
+                <option value="25" {% if filter_day == '25' %}selected{% endif %}>📅 Dia 25 ({{ day25_count }})</option>
+              </select>
+            </div>
+
+            <!-- 4. Filtro por Status Financeiro -->
+            <div class="form-group">
+              <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Status Financeiro:</label>
+              <select name="status" style="padding: 8px 12px; font-size: 0.85rem;">
                 <option value="todos" {% if status_filter == 'todos' %}selected{% endif %}>Todos os Status</option>
-                <option value="pago" {% if status_filter == 'pago' %}selected{% endif %}>🟢 PAGO / EM DIA ({{ paid_count }})</option>
-                <option value="pendente" {% if status_filter == 'pendente' %}selected{% endif %}>🔴 AGUARDANDO PIX ({{ pending_count }})</option>
+                <option value="pago" {% if status_filter == 'pago' %}selected{% endif %}>🟢 PAGO / EM DIA</option>
+                <option value="pendente" {% if status_filter == 'pendente' %}selected{% endif %}>🔴 AGUARDANDO PIX</option>
               </select>
             </div>
 
             <!-- Botões de Ação do Filtro -->
-            <div style="display: flex; gap: 8px;">
-              <button type="submit" class="btn btn-primary btn-sm btn-glow" style="flex: 1; padding: 10px;">
+            <div style="display: flex; gap: 6px;">
+              <button type="submit" class="btn btn-primary btn-sm btn-glow" style="flex: 1; padding: 9px;">
                 <i data-lucide="filter"></i> Filtrar
               </button>
-              {% if search_query or filter_day != 'todos' or status_filter != 'todos' %}
-              <a href="{{ url_for('mensalidades_admin') }}" class="btn btn-secondary btn-sm" style="padding: 10px;" title="Limpar Filtros">
-                <i data-lucide="x-circle"></i> Limpar
+              {% if search_query or filter_day != 'todos' or status_filter != 'todos' or modality_filter != 'todos' %}
+              <a href="{{ url_for('mensalidades_admin') }}" class="btn btn-secondary btn-sm" style="padding: 9px;" title="Limpar Filtros">
+                <i data-lucide="x-circle"></i>
               </a>
               {% endif %}
             </div>
@@ -167,25 +185,30 @@
           </form>
         </div>
 
-        <!-- PLANILHA DE MENSALIDADES MINIMALISTA -->
+        <!-- PLANILHA DE MENSALIDADES MINIMALISTA COM VALOR DO PLANO E COBRANÇA WHATSAPP -->
         <div class="glass-panel" style="background: rgba(14, 14, 22, 0.98); border: 1px solid var(--border-light); padding: 20px;">
           
           <div class="table-responsive">
             <table class="schedule-table minimal-spreadsheet-table">
               <thead>
                 <tr>
-                  <th style="width: 45px; text-align: center;">[+]</th>
-                  <th style="width: 50px;">ID</th>
+                  <th style="width: 40px; text-align: center;">[+]</th>
+                  <th style="width: 45px;">ID</th>
                   <th>ALUNO / CONTATO</th>
                   <th>PLANO CONTRATADO</th>
-                  <th style="width: 120px;">VENCIMENTO</th>
-                  <th style="width: 140px;">STATUS MÊS ATUAL</th>
-                  <th style="width: 160px; text-align: right;">DAR BAIXA / AÇÕES</th>
+                  <th style="width: 130px; text-align: right;">VALOR DO PLANO</th>
+                  <th style="width: 100px; text-align: center;">VENCIMENTO</th>
+                  <th style="width: 120px; text-align: center;">STATUS</th>
+                  <th style="width: 220px; text-align: right;">DAR BAIXA / COBRAR</th>
                 </tr>
               </thead>
               <tbody>
                 {% for u in users %}
                 {% set u_months = u.get_month_schedule() %}
+                {% set plan_parts = u.plan.split('—') %}
+                {% set plan_name = plan_parts[0] %}
+                {% set plan_price = plan_parts[1] if plan_parts|length > 1 else 'R$ 120,00/mês' %}
+                
                 <tr class="minimal-row">
                   <!-- BOTÃO (+) EXPANDÍVEL -->
                   <td style="text-align: center;">
@@ -193,47 +216,70 @@
                       <i data-lucide="plus" id="icon-plus-{{ u.id }}"></i>
                     </button>
                   </td>
+
                   <td>
                     <strong style="color: var(--text-dim); font-size: 0.85rem;">#{{ u.id }}</strong>
                   </td>
+
                   <td>
                     <strong style="color: #ffffff; font-size: 0.9rem;">{{ u.name }}</strong>
-                    <span style="display: block; color: var(--text-muted); font-size: 0.78rem;">@{{ u.username }} • {{ u.phone }}</span>
+                    <span style="display: block; color: var(--text-muted); font-size: 0.76rem;">@{{ u.username }} • ({{ u.ddd }}) {{ u.phone }}</span>
                   </td>
+
                   <td>
-                    <span style="font-size: 0.82rem; color: #e2e8f0;">{{ u.plan.split('—')[0] }}</span>
+                    <span style="font-size: 0.82rem; color: #e2e8f0; font-weight: 600;">{{ plan_name }}</span>
                   </td>
-                  <td>
+
+                  <!-- COLUNA DO VALOR DO PLANO EXIBIDO DE FORMA MINIMALISTA E DESTAQUE -->
+                  <td style="text-align: right;">
+                    <strong style="color: var(--accent-gold); font-size: 0.92rem; font-family: var(--font-heading);">
+                      {{ plan_price.strip() }}
+                    </strong>
+                  </td>
+
+                  <td style="text-align: center;">
                     <span class="badge-pill-mini" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3);">
                       Dia {{ u.due_date }}
                     </span>
                   </td>
-                  <td>
+
+                  <td style="text-align: center;">
                     {% if u.payment_status == 'Em Dia' %}
                       <span class="badge-pill-mini bg-green">🟢 PAGO</span>
                     {% else %}
                       <span class="badge-pill-mini bg-orange">🟠 ATRASADO</span>
                     {% endif %}
                   </td>
+
+                  <!-- AÇÕES: DAR BAIXA E BOTÃO ENVIAR COBRANÇA WHATSAPP -->
                   <td style="text-align: right;">
-                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
-                      <input type="hidden" name="user_id" value="{{ u.id }}">
+                    <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                       
-                      <select name="payment_status" onchange="this.form.submit()" style="padding: 4px 8px; font-size: 0.78rem; width: 110px; border-radius: 6px;">
-                        <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>🟢 Em Dia</option>
-                        <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>🟠 Pendente</option>
-                      </select>
-                    </form>
+                      <!-- Form de Dar Baixa Rápida -->
+                      <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-flex;">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <select name="payment_status" onchange="this.form.submit()" style="padding: 4px 6px; font-size: 0.76rem; width: 95px; border-radius: 6px;" title="Alterar status de pagamento">
+                          <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>🟢 Em Dia</option>
+                          <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>🟠 Pendente</option>
+                        </select>
+                      </form>
+
+                      <!-- BOTÃO AUTOMÁTICO DE COBRANÇA WHATSAPP COM DADOS FORMATADOS DO ALUNO -->
+                      <a href="{{ u.get_whatsapp_billing_link() }}" target="_blank" class="btn-wa-billing" title="Enviar Mensagem de Cobrança no WhatsApp para {{ u.name }}">
+                        <i data-lucide="message-square"></i> Cobrar
+                      </a>
+
+                    </div>
                   </td>
                 </tr>
 
                 <!-- DRAWER DE MESES MINIMALISTA COM MENU DROPDOWN PARA DAR BAIXA NO MÊS -->
                 <tr id="drawer-{{ u.id }}" class="month-drawer-row hidden">
-                  <td colspan="7" style="background: rgba(8, 8, 14, 0.98); padding: 14px 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                  <td colspan="8" style="background: rgba(8, 8, 14, 0.98); padding: 14px 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                       <div>
                         <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem;">
-                          🗓️ Histórico 2026 de {{ u.name }} (Clique em qualquer mês para dar baixa):
+                          🗓️ Histórico 2026 de {{ u.name }} (Valor: <span style="color: var(--accent-gold);">{{ plan_price }}</span>):
                         </strong>
                       </div>
 
@@ -291,8 +337,8 @@
   <style>
     /* Estilos da Planilha Minimalista */
     .minimal-spreadsheet-table th, .minimal-spreadsheet-table td {
-      padding: 10px 14px !important;
-      font-size: 0.85rem;
+      padding: 10px 12px !important;
+      font-size: 0.84rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
@@ -304,7 +350,7 @@
       display: inline-block;
       padding: 3px 8px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
     }
 
@@ -315,8 +361,8 @@
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-light);
       color: #ffffff;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 4px;
       cursor: pointer;
       display: inline-flex;
@@ -328,6 +374,33 @@
     .btn-expand-months-mini:hover {
       background: var(--primary-red);
       border-color: var(--primary-red);
+    }
+
+    /* Botão de Cobrança WhatsApp */
+    .btn-wa-billing {
+      background: rgba(37, 211, 102, 0.16);
+      border: 1px solid rgba(37, 211, 102, 0.45);
+      color: #25d366;
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-wa-billing:hover {
+      background: #25d366;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(37, 211, 102, 0.5);
+    }
+
+    .btn-wa-billing i {
+      width: 14px;
+      height: 14px;
     }
 
     /* Popups dos Meses */
@@ -384,7 +457,6 @@
     }
 
     function toggleMonthMenu(userId, month) {
-      // Oculta todos os outros popups de mês abertos
       document.querySelectorAll('.month-popup-menu').forEach(pop => {
         if (pop.id !== `pop-${userId}-${month}`) {
           pop.classList.add('hidden');
