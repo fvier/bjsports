@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <div class="hero-text-block">
+        <span class="badge-pill">
+          <i data-lucide="shield-check"></i> CENTRO DE TREINAMENTO • CAJAZEIRAS-PB
+        </span>
+        <h1 class="hero-title">
+          DOMINE A ARTE DA <span class="highlight-red">LUUTA & DISCIPLINA</span>
+        </h1>
+        <p class="hero-desc">
+          Jiu-Jitsu de Alto Nível e Boxe Tradicional sob o comando direto do <strong>Mestre Bolivar</strong>. Turmas reduzidas para máximo desenvolvimento técnico.
+        </p>
+        <div class="hero-buttons">
+          <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
+            <i data-lucide="zap"></i> Garantir Vaga
+          </button>
+          <a href="#horarios" class="btn btn-secondary btn-lg">
+            <i data-lucide="clock"></i> Ver Horários & Planos
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Foco em Alta Performance</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number">20</span>
+            <span class="stat-label">Vagas Máx por Turma</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number">5.0</span>
+            <span class="stat-label">Avaliação dos Alunos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-media-block">
+        <div class="logo-hero-wrapper">
+          <div class="glowing-ring"></div>
+          <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo Emblema" class="hero-logo-img">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção de Horários e Tabela Simples (Sem Indicadores de Preenchimento) -->
+  <section class="section" id="horarios">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">TABELA DE HORÁRIOS & VALORES MENSAIS</span>
+        <h2 class="section-title">NOSSAS <span class="highlight-red">TURMAS & MENSALIDADES</span></h2>
+        <p class="section-subtitle">Tabela limpa e transparente. Escolha a frequência ideal para os seus treinos.</p>
+      </div>
+
+      <!-- Filtros por Dia -->
+      <div class="schedule-filters">
+        <button class="day-btn active" data-day="seg">Segunda, Quarta & Sexta</button>
+        <button class="day-btn" data-day="ter">Terça & Quinta</button>
+        <button class="day-btn" data-day="todos">Planos Especiais & Família</button>
+      </div>
+
+      <!-- Tabela Limpa -->
+      <div class="glass-panel table-responsive">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>Modalidade</th>
+              <th>Frequência</th>
+              <th>Horário</th>
+              <th>Valor Mensal</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTableBody">
+            <!-- Renderizado dinamicamente via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção de Planos e Investimentos -->
+  <section class="section" id="planos">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">INVESTIMENTO NO SEU DESENVOLVIMENTO</span>
+        <h2 class="section-title">PLANOS <span class="highlight-red">ESPECIAIS & DESCONTOS</span></h2>
+        <p class="section-subtitle">Treine mais pagando menos. Opções para famílias, casais e modalidades combinadas.</p>
+      </div>
+
+      <div class="grid-planos">
+        
+        <!-- Plano Passe Livre -->
+        <div class="plano-card featured-card glass-panel text-center">
+          <div class="plano-badge">RECOMENDADO</div>
+          <h3 class="plano-title">Plano Passe Livre</h3>
+          <p class="plano-sub">Acesso total a todas as modalidades e horários</p>
+          <div class="plano-price-box">
+            <span class="main-price">R$ 120<small>,00/mês</small></span>
+            <span class="price-detail">Treinos ilimitados de Jiu-Jitsu + Boxe</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Liberdade de treinar todos os dias</li>
+            <li><i data-lucide="check" class="icon-green"></i> Acesso aos treinos da manhã, tarde e noite</li>
+            <li><i data-lucide="check" class="icon-green"></i> Acompanhamento individual de evolução</li>
+          </ul>
+          <button class="btn btn-primary btn-block btn-glow select-plan-btn" data-plan="Plano Passe Livre">
+            Garantir Passe Livre
+          </button>
+        </div>
+
+        <!-- Plano Casal -->
+        <div class="plano-card glass-panel text-center">
+          <h3 class="plano-title">🔥 Plano Casal</h3>
+          <p class="plano-sub">Para 2 pessoas treinando juntas</p>
+          <div class="plano-price-box">
+            <span class="old-price">R$ 200,00</span>
+            <span class="main-price">R$ 190<small>,00/mês</small></span>
+            <span class="price-detail">Economia garantida para a dupla</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Válido para qualquer modalidade</li>
+            <li><i data-lucide="check" class="icon-green"></i> Matrícula conjunta simplificada</li>
+            <li><i data-lucide="check" class="icon-green"></i> Incentivo mútuo nos treinos</li>
+          </ul>
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal">
+            Escolher Plano Casal
+          </button>
+        </div>
+
+        <!-- Plano Família -->
+        <div class="plano-card glass-panel text-center">
+          <h3 class="plano-title">Plano Família</h3>
+          <p class="plano-sub">Pacote especial para 3 familiares</p>
+          <div class="plano-price-box">
+            <span class="old-price">R$ 300,00</span>
+            <span class="main-price">R$ 280<small>,00/mês</small></span>
+            <span class="price-detail">Desconto de R$ 20,00 na mensalidade</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Válido para 3 membros da família</li>
+            <li><i data-lucide="check" class="icon-green"></i> Inclui Jiu-Jitsu Kids e Adulto</li>
+            <li><i data-lucide="check" class="icon-green"></i> Maior economia por aluno</li>
+          </ul>
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Família">
+            Escolher Plano Família
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Graduação BJJ Timeline -->
+  <section class="section" id="graduacao">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">JORNADA DA SUAVIDADE</span>
+        <h2 class="section-title">GRADUAÇÃO <span class="highlight-red">NO JIU-JITSU</span></h2>
+        <p class="section-subtitle">O caminho da faixa branca até a preta exige constância, disciplina e respeito ao tatame.</p>
+      </div>
+
+      <div class="belts-timeline">
+        <div class="belt-card belt-white">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Branca</h4>
+          <p>Fase de aprendizado dos fundamentos, sobrevivência e postura defensiva.</p>
+        </div>
+
+        <div class="belt-card belt-blue">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Azul</h4>
+          <p>Desenvolvimento do repertório de raspagens, passagens de guarda e finalizações.</p>
+        </div>
+
+        <div class="belt-card belt-purple">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Roxa</h4>
+          <p>Refinamento do jogo próprio, combinações fluidas e velocidade de reação.</p>
+        </div>
+
+        <div class="belt-card belt-brown">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Marrom</h4>
+          <p>Ajuste milimétrico de alavancas, domínio conceitual e liderança de treino.</p>
+        </div>
+
+        <div class="belt-card belt-black">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Preta</h4>
+          <p>Mestria marcial, sabedoria no ensino e perpetuação dos valores marciais.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- Hero Section do Login & Portal -->
+  <section class="hero-section page-hero">
+    <div class="container text-center">
+      {% if is_logged_in %}
+        <span class="section-badge" id="pageHeroBadge">PAINEL EXCLUSIVO DO ALUNO</span>
+        <h1 class="hero-title" id="pageHeroTitle">ÁREA DE <span class="highlight-red">MEMBROS</span></h1>
+        <p class="hero-desc" id="pageHeroSubtitle" style="margin: 0 auto;">
+          Bem-vindo de volta, {{ user_name }}! Acompanhe suas presenças, graduação e treinos com o Mestre Bolivar.
+        </p>
+      {% else %}
+        <span class="section-badge" id="pageHeroBadge">ACESSO RESTRITO & GESTÃO</span>
+        <h1 class="hero-title" id="pageHeroTitle">LOGIN & <span class="highlight-red">CADASTRO</span></h1>
+        <p class="hero-desc" id="pageHeroSubtitle" style="margin: 0 auto;">
+          Acesse sua conta de aluno ou faça seu novo cadastro para treinar no BJ Sports sob supervisão do Mestre Bolivar.
+        </p>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if not is_logged_in %}
+  <!-- Section 1: Formulário de Autenticação (Login e Cadastro Flask) -->
+  <section class="section portal-section" id="authSection">
+    <div class="container" style="max-width: 600px;">
+      <div class="glass-panel portal-card">
+        
+        <!-- Tabs de Alternância: Entrar vs Criar Conta -->
+        <div class="portal-tabs" id="portalTabs">
+          <button class="portal-tab-btn active" id="tabBtnLogin">
+            <i data-lucide="log-in" class="icon-sm"></i> Entrar na Conta
+          </button>
+          <button class="portal-tab-btn" id="tabBtnRegister">
+            <i data-lucide="user-plus" class="icon-sm"></i> Criar Nova Conta
+          </button>
+        </div>
+
+        <!-- Formulário 1: Login de Aluno (POST /login) -->
+        <form action="{{ url_for('login') }}" method="POST" id="portalLoginForm" class="modal-form portal-form">
+          <input type="hidden" name="action" value="login">
+          
+          <div class="form-group">
+            <label for="portalCpf">Usuário ou CPF *</label>
+            <div class="input-with-icon">
+              <i data-lucide="user" class="input-icon"></i>
+              <input type="text" name="portalCpf" id="portalCpf" placeholder="bolivarbjj ou 000.000.000-00" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="portalPassword">Senha de Acesso *</label>
+            <div class="input-with-eye">
+              <i data-lucide="shield-check" class="input-icon"></i>
+              <input type="password" name="portalPassword" id="portalPassword" placeholder="••••••••" required>
+              <button type="button" class="btn-toggle-eye" data-target="portalPassword" title="Mostrar/Ocultar Senha">
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" id="btnLoginSubmit">
+            <i data-lucide="log-in"></i> Acessar Portal do Aluno
+          </button>
+
+          <div class="text-center mt-2">
+            <a href="https://wa.me/5583996527997?text=Esqueci%20minha%20senha%20do%20portal%20do%20aluno" target="_blank" class="forgot-pass-link">
+              Esqueceu sua senha? Falar com Mestre Bolivar
+            </a>
+          </div>
+        </form>
+
+        <!-- Formulário 2: Cadastro de Novo Aluno (POST /login) -->
+        <form action="{{ url_for('login') }}" method="POST" id="portalRegisterForm" class="modal-form portal-form hidden">
+          <input type="hidden" name="action" value="register">
+
+          <!-- 1. Usuário (Único) com placeholder bolivarbjj -->
+          <div class="form-group">
+            <label for="regUsername">Usuário (Login Único) *</label>
+            <div class="input-with-icon">
+              <i data-lucide="user-check" class="input-icon"></i>
+              <input type="text" name="regUsername" id="regUsername" placeholder="bolivarbjj" required>
+            </div>
+            <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
+          </div>
+
+          <!-- 2. Nome Completo -->
+          <div class="form-group">
+            <label for="regName">Nome Completo *</label>
+            <div class="input-with-icon">
+              <i data-lucide="user" class="input-icon"></i>
+              <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" required>
+            </div>
+          </div>
+
+          <!-- 3. CPF Numérico de 11 dígitos com Máscara ###.###.###-## -->
+          <div class="form-group">
+            <label for="regCpf">CPF (11 dígitos) *</label>
+            <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
+            <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
+          </div>
+
+          <!-- 4. WhatsApp Dividido em DDD e Número (9 dígitos exatos) -->
+          <div class="form-group">
+            <label>WhatsApp / Celular *</label>
+            <div class="phone-split-group">
+              <div style="width: 85px;">
+                <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="83" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
+              </div>
+              <div style="flex: 1;">
+                <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="996527997" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+              </div>
+            </div>
+            <span class="field-hint">📱 DDD (2 dígitos) e Número do celular (exatamente 9 dígitos sem traço).</span>
+          </div>
+
+          <!-- 5. Seleção de Planos por Categoria (Passe Livre Padrão e Emoji 🔥 no Plano Casal) -->
+          <div class="form-group">
+            <label for="regPlan">Plano Desejado & Investimento Mensal *</label>
+            <select name="regPlan" id="regPlan" required>
+              <optgroup label="Planos Individuais">
+                <option value="⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês" selected>⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês</option>
+                <option value="Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês</option>
+                <option value="Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês</option>
+                <option value="Boxe Tradicional (Ter, Qui) — R$ 90,00/mês">Boxe Tradicional (Ter, Qui) — R$ 90,00/mês</option>
+              </optgroup>
+              <optgroup label="Planos Promocionais & Família">
+                <option value="🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês">🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês</option>
+                <option value="Plano Família (3 Pessoas) — R$ 280,00/mês">Plano Família (3 Pessoas) — R$ 280,00/mês</option>
+                <option value="Plano Kids (2 Irmãos) — R$ 170,00/mês">Plano Kids (2 Irmãos) — R$ 170,00/mês</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- 6. Senha & Confirmação com Escudo no Início e Olhinho no Final -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regPass">Criar Senha *</label>
+              <div class="input-with-eye">
+                <i data-lucide="shield-check" class="input-icon"></i>
+                <input type="password" name="regPass" id="regPass" placeholder="••••••••" required>
+                <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar/Ocultar Senha">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="regPassConfirm">Confirmar Senha *</label>
+              <div class="input-with-eye">
+                <i data-lucide="shield-check" class="input-icon"></i>
+                <input type="password" id="regPassConfirm" placeholder="••••••••" required>
+                <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit">
+            <i data-lucide="user-plus"></i> Finalizar Primeiro Cadastro
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  {% else %}
+
+  <!-- Section 2: ÁREA DE MEMBROS FLASK COMPLETA COM BARRA LATERAL (Exibido pós-login) -->
+  <section class="section member-portal-section" id="memberPortalSection">
+    <div class="container">
+      
+      {% if is_first_reg %}
+      <!-- Welcome Banner for First Registration -->
+      <div id="welcomeFirstRegBanner" class="welcome-banner">
+        <div class="welcome-icon">🎉</div>
+        <div>
+          <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
+          <p>Seu primeiro cadastro foi realizado com sucesso! Sua Área de Membros está liberada e ativa.</p>
+        </div>
+      </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          if (window.confetti) {
+            confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
+          }
+        });
+      </script>
+      {% endif %}
+
+      <!-- Layout com Barra Lateral (Sidebar Navigation) -->
+      <div class="member-portal-layout">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="member-sidebar">
+          
+          <div class="sidebar-profile">
+            <div class="profile-avatar-box">
+              <div class="profile-avatar-emoji">🥋</div>
+              <span class="profile-belt-tag">FAIXA AZUL • 2º GRAU</span>
+            </div>
+            <h3 id="dashNameDisplay">{{ user_name }}</h3>
+            <p id="dashUserDisplay">@{{ username }}</p>
+            <span class="badge-pill bg-green mt-2" style="font-size: 0.72rem;">MATRÍCULA ATIVA</span>
+          </div>
+
+          <!-- Navegação da Barra Lateral -->
+          <nav class="sidebar-nav">
+            <button class="sidebar-link active">
+              <i data-lucide="target" class="icon-gold"></i> Visão Geral
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="swords" class="icon-red"></i> Meus Treinos & Presenças
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="check-circle" class="icon-green"></i> Mensalidades & Fatura
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="award" class="icon-gold"></i> Graduação & Gradil
+            </button>
+            <a href="{{ url_for('loja') }}" class="sidebar-link">
+              <i data-lucide="tag" class="icon-red"></i> Desconto Loja Oficial (15%)
+            </a>
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout-link">
+              <i data-lucide="log-out"></i> Sair da Minha Conta
+            </a>
+          </nav>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA) -->
+        <main class="member-content">
+          
+          <!-- Métrica Rápida -->
+          <div class="member-stats-row">
+            <div class="member-stat-box">
+              <div class="stat-box-icon"><i data-lucide="swords"></i></div>
+              <div class="stat-box-info">
+                <span>Presenças no Mês</span>
+                <strong>18 Treinos</strong>
+              </div>
+            </div>
+
+            <div class="member-stat-box">
+              <div class="stat-box-icon" style="color: #4ade80; background: rgba(37, 211, 102, 0.15);"><i data-lucide="check-circle"></i></div>
+              <div class="stat-box-info">
+                <span>Situação Financeira</span>
+                <strong style="color: #4ade80;">100% Em Dia</strong>
+              </div>
+            </div>
+
+            <div class="member-stat-box">
+              <div class="stat-box-icon" style="color: var(--accent-gold); background: rgba(255, 215, 0, 0.15);"><i data-lucide="award"></i></div>
+              <div class="stat-box-info">
+                <span>Plano Contratado</span>
+                <strong style="font-size: 0.95rem;" id="dashPlanDisplay">{{ user_plan }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards de Conteúdo Principal -->
+          <div class="member-grid-2">
+            
+            <!-- Card 1: Agenda de Treinos da Semana -->
+            <div class="member-card-panel">
+              <h4 class="member-card-title">
+                <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
+              </h4>
+              <div class="classes-list">
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
+                    <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥊 Boxe Tradicional Noturno</h5>
+                    <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥋 Jiu-Jitsu Rala Noturno</h5>
+                    <p>Quarta-feira às 19:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Benefício Loja & Contato Direto -->
+            <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h4 class="member-card-title">
+                  <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
+                </h4>
+                <div class="promo-store-box">
+                  <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
+                  <span class="coupon-code">BJMESTO15</span>
+                  <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
+                  <i data-lucide="message-square"></i> Falar com Mestre Bolivar
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </main>
+
+      </div>
+    </div>
+  </section>
+  {% endif %}
+{% endblock %}
