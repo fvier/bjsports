@@ -101,7 +101,7 @@ body.light-theme {
   background: rgba(10, 10, 14, 0.92);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border-light);
-  padding: 16px 0;
+  padding: 14px 0;
 }
 
 body.light-theme .main-header {
@@ -123,7 +123,7 @@ body.light-theme .main-header {
 }
 
 .header-logo {
-  height: 52px;
+  height: 50px;
   width: auto;
   filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.5));
   transition: transform 0.3s ease;
@@ -141,7 +141,7 @@ body.light-theme .main-header {
 .brand-name {
   font-family: var(--font-heading);
   font-weight: 900;
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   letter-spacing: 1px;
   line-height: 1.1;
 }
@@ -153,30 +153,33 @@ body.light-theme .main-header {
   letter-spacing: 1.5px;
 }
 
-/* Navigation & Sedes Dropdown */
+/* Minimalist Navigation & Filiais Dropdown */
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
 }
 
 .nav-item {
   color: var(--text-muted);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
   background: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0;
 }
 
 .nav-item:hover, .nav-item.active {
   color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .nav-dropdown {
@@ -197,18 +200,18 @@ body.light-theme .main-header {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 12px;
-  width: 260px;
-  padding: 12px;
+  margin-top: 8px;
+  width: 280px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
   transition: all 0.25s ease;
   z-index: 120;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
 }
 
 .nav-dropdown:hover .dropdown-menu {
@@ -229,7 +232,7 @@ body.light-theme .main-header {
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-item strong {
@@ -243,10 +246,10 @@ body.light-theme .main-header {
   color: var(--text-muted);
 }
 
-.dropdown-divider {
-  height: 1px;
-  background: var(--border-light);
-  margin: 4px 0;
+.icon-red {
+  color: var(--primary-red);
+  width: 18px;
+  height: 18px;
 }
 
 .header-actions {
