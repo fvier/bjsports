@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BJ Sports — Centro de Treinamento | Laboratório Local</title>
+  <link rel="icon" type="image/png" href="/logo_transparent.png">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <!-- Top Banner / System Status -->
+  <div class="top-status-bar">
+    <div class="container status-content">
+      <span class="status-indicator"><span class="pulse-dot"></span> Laboratório Local Ativo — Porta 5173</span>
+      <span class="status-info">🔥 BJ Sports Centro de Treinamento • Sistema de Gestão & Agendamento</span>
+      <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
+        <i data-lucide="moon" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="main-header">
+    <div class="container header-content">
+      <a href="#" class="brand-link">
+        <img src="/logo_transparent.png" alt="BJ Sports Logo" class="header-logo">
+        <div class="brand-text">
+          <span class="brand-name">BJ SPORTS</span>
+          <span class="brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="#modalidades" class="nav-item">Modalidades</a>
+        <a href="#horarios" class="nav-item">Grade de Horários</a>
+        <a href="#laboratorio" class="nav-item">Lab Performance</a>
+        <a href="#graduacao" class="nav-item">Graduações</a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="openScheduleModal" class="btn btn-primary btn-glow">
+          <i data-lucide="calendar-check"></i> Agendar Aula Grátis
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-bg-overlay"></div>
+    <div class="container hero-content">
+      <div class="hero-text-block">
+        <div class="badge-pill">
+          <i data-lucide="zap" class="icon-gold"></i> ALTA PERFORMANCE & DISCIPLINA
+        </div>
+        <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO MATAME</h1>
+        <p class="hero-desc">
+          O <strong>BJ Sports Centro de Treinamento</strong> combina a essência das artes marciais tradicionais com a ciência da preparação física moderna. Treine com campeões e alcance seus objetivos.
+        </p>
+
+        <div class="hero-buttons">
+          <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
+            <i data-lucide="flame"></i> Começar Agora
+          </button>
+          <a href="#horarios" class="btn btn-secondary btn-lg">
+            <i data-lucide="clock"></i> Ver Horários
+          </a>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number" data-target="500">500+</span>
+            <span class="stat-label">Alunos Ativos</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number" data-target="35">35+</span>
+            <span class="stat-label">Títulos Regionais</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number" data-target="6">6</span>
+            <span class="stat-label">Modalidades</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-media-block">
+        <div class="logo-hero-wrapper">
+          <img src="/logo_transparent.png" alt="BJ Sports Logo Emblema" class="hero-logo-img">
+          <div class="glowing-ring"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modalidades Section -->
+  <section id="modalidades" class="section modalidades-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">NOSSOS PROGRAMAS</span>
+        <h2 class="section-title">MODALIDADES DE <span class="highlight-red">EXCELÊNCIA</span></h2>
+        <p class="section-subtitle">Aulas adaptadas desde iniciantes até atletas de alto rendimento.</p>
+      </div>
+
+      <div class="grid-modalidades" id="modalidadesGrid">
+        <!-- Cards injetados via Javascript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Grade de Horários Interativa -->
+  <section id="horarios" class="section horarios-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">AGENDA SEMANAL</span>
+        <h2 class="section-title">GRADE DE <span class="highlight-red">AULAS</span></h2>
+        <p class="section-subtitle">Selecione o dia da semana para visualizar os horários disponíveis.</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="schedule-filters" id="scheduleDays">
+        <button class="day-btn active" data-day="seg">Segunda</button>
+        <button class="day-btn" data-day="ter">Terça</button>
+        <button class="day-btn" data-day="qua">Quarta</button>
+        <button class="day-btn" data-day="qui">Quinta</button>
+        <button class="day-btn" data-day="sex">Sexta</button>
+        <button class="day-btn" data-day="sab">Sábado</button>
+      </div>
+
+      <!-- Timetable Container -->
+      <div class="timetable-card glass-panel">
+        <div class="table-responsive">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Modalidade</th>
+                <th>Professor / Mestre</th>
+                <th>Nível</th>
+                <th>Vagas</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableBody">
+              <!-- Content rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Laboratório de Performance (Calculadora & Avaliação) -->
+  <section id="laboratorio" class="section lab-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">FERRAMENTA INTERATIVA</span>
+        <h2 class="section-title">LABORATÓRIO DE <span class="highlight-red">PERFORMANCE</span></h2>
+        <p class="section-subtitle">Calcule seu perfil físico e descubra a modalidade ideal para o seu objetivo.</p>
+      </div>
+
+      <div class="lab-grid">
+        <!-- Form Calculator -->
+        <div class="lab-card glass-panel">
+          <h3 class="card-title"><i data-lucide="calculator"></i> Calculadora Física & Recomendador</h3>
+          <form id="labForm" class="lab-form">
+            <div class="form-group">
+              <label for="userWeight">Peso (kg)</label>
+              <input type="number" id="userWeight" placeholder="Ex: 75" required min="30" max="200" step="0.1">
+            </div>
+
+            <div class="form-group">
+              <label for="userHeight">Altura (cm)</label>
+              <input type="number" id="userHeight" placeholder="Ex: 178" required min="120" max="230">
+            </div>
+
+            <div class="form-group">
+              <label for="userGoal">Objetivo Principal</label>
+              <select id="userGoal" required>
+                <option value="defesa">Defesa Pessoal & Autoconfiança</option>
+                <option value="perda_peso">Emagrecimento & Condicionamento</option>
+                <option value="ganho_massa">Ganho de Força & Hipertrofia</option>
+                <option value="competicao">Competição & Atleta de Elite</option>
+                <option value="desestress">Alívio de Estresse & Saúde</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-glow">
+              <i data-lucide="cpu"></i> Calcular Perfil & Gerar Recomendação
+            </button>
+          </form>
+        </div>
+
+        <!-- Result Card -->
+        <div class="lab-card glass-panel result-card" id="labResultCard">
+          <div class="result-placeholder" id="resultPlaceholder">
+            <i data-lucide="activity" class="icon-lg text-muted"></i>
+            <p>Preencha os dados ao lado para gerar sua análise de desempenho no laboratório.</p>
+          </div>
+
+          <div class="result-content hidden" id="resultContent">
+            <div class="result-header">
+              <span class="badge-pill bg-red">ANÁLISE GERADA</span>
+              <h4 id="resCategory">Atleta em Potencial</h4>
+            </div>
+
+            <div class="result-metrics">
+              <div class="metric-box">
+                <span class="metric-val" id="resBMI">23.6</span>
+                <span class="metric-lbl">IMC (Índice de Massa Corporal)</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-val" id="resCalories">650 kcal</span>
+                <span class="metric-lbl">Gasto Médio/Treino</span>
+              </div>
+            </div>
+
+            <div class="recommendation-box">
+              <h5><i data-lucide="sparkles" class="icon-gold"></i> Modalidade Recomendada:</h5>
+              <p class="rec-name" id="resModalidade">Jiu-Jitsu (BJJ) & Treino Funcional</p>
+              <p class="rec-desc" id="resDesc">Ideal para queima calórica intensa, fortalecimento core e aprendizado técnico de defesa pessoal.</p>
+            </div>
+
+            <button id="bookRecommendedBtn" class="btn btn-secondary btn-block">
+              <i data-lucide="check-circle-2"></i> Agendar esta Modalidade
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Graduações & Níveis -->
+  <section id="graduacao" class="section graduacao-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">EVOLUÇÃO & TRADIÇÃO</span>
+        <h2 class="section-title">SISTEMA DE <span class="highlight-red">GRADUAÇÃO</span></h2>
+        <p class="section-subtitle">Acompanhe a jornada de evolução técnica e faixas no BJ Sports.</p>
+      </div>
+
+      <div class="belts-timeline">
+        <div class="belt-card belt-white">
+          <div class="belt-stripe"></div>
+          <h4>Faixa Branca</h4>
+          <p>O início da jornada. Foco na base, postura e defesa básica.</p>
+        </div>
+        <div class="belt-card belt-blue">
+          <div class="belt-stripe"></div>
+          <h4>Faixa Azul</h4>
+          <p>Construção de repertório técnico e domínio de raspagens e escapadas.</p>
+        </div>
+        <div class="belt-card belt-purple">
+          <div class="belt-stripe"></div>
+          <h4>Faixa Roxa</h4>
+          <p>Refinamento do estilo de jogo individual e contra-ataques rápidos.</p>
+        </div>
+        <div class="belt-card belt-brown">
+          <div class="belt-stripe"></div>
+          <h4>Faixa Marrom</h4>
+          <p>Consolidação do conhecimento, ajustes de pressão e transição.</p>
+        </div>
+        <div class="belt-card belt-black">
+          <div class="belt-stripe red-bar"></div>
+          <h4>Faixa Preta</h4>
+          <p>Mestria técnica, filosofia marcial e capacidade de ensinar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <img src="/logo_transparent.png" alt="BJ Sports Logo Footer" class="footer-logo">
+        <p class="footer-tagline">BJ Sports — Centro de Treinamento de Artes Marciais & Condicionamento Físico.</p>
+      </div>
+      <div class="footer-links">
+        <span>📍 Rua das Artes Marciais, 100 • Centro</span>
+        <span>📞 (81) 99999-8888</span>
+        <span>✉️ contato@bjsports.com.br</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container text-center">
+        <p>&copy; 2026 BJ Sports Centro de Treinamento. Todos os direitos reservados. • Laboratório Local V1.0</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal de Agendamento -->
+  <div class="modal-backdrop hidden" id="bookingModal">
+    <div class="modal-card glass-panel">
+      <button class="modal-close" id="closeBookingModal">&times;</button>
+      <div class="modal-header text-center">
+        <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
+        <h3>Agendar Aula Experimental Grátis</h3>
+        <p>Preencha os dados abaixo e venha fazer seu primeiro treino no BJ Sports!</p>
+      </div>
+
+      <form id="bookingForm" class="modal-form">
+        <div class="form-group">
+          <label for="bookName">Nome Completo</label>
+          <input type="text" id="bookName" placeholder="Seu nome completo" required>
+        </div>
+
+        <div class="form-group">
+          <label for="bookPhone">WhatsApp / Telefone</label>
+          <input type="tel" id="bookPhone" placeholder="(81) 99999-9999" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bookModality">Modalidade</label>
+            <select id="bookModality" required>
+              <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
+              <option value="Muay Thai">Muay Thai</option>
+              <option value="Boxe">Boxe</option>
+              <option value="Treino Funcional">Treino Funcional</option>
+              <option value="MMA Submissão">MMA Submissão</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="bookShift">Turno Preferido</label>
+            <select id="bookShift" required>
+              <option value="Manhã (06:00 - 09:00)">Manhã (06:00 - 09:00)</option>
+              <option value="Tarde (12:00 - 15:00)">Tarde (12:00 - 15:00)</option>
+              <option value="Noite (18:00 - 21:30)">Noite (18:00 - 21:30)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
+          <i data-lucide="check-circle"></i> Confirmar Agendamento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
