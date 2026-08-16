@@ -569,6 +569,33 @@ body {
   margin-bottom: 4px;
 }
 
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.welcome-icon {
+  font-size: 2.2rem;
+}
+
+.welcome-banner h4 {
+  font-family: var(--font-heading);
+  color: #4ade80;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.welcome-banner p {
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
 .submit-reg-btn {
   background: linear-gradient(135deg, #25d366, #16a34a) !important;
   box-shadow: 0 0 20px rgba(37, 211, 102, 0.4) !important;
