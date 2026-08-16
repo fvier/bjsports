@@ -346,6 +346,33 @@ function setupCpfMask() {
   });
 }
 
+// Member Sidebar Tabs Switching Logic
+function setupMemberSidebarTabs() {
+  const sidebarLinks = document.querySelectorAll('.sidebar-link[data-target-tab]');
+  const tabContents = document.querySelectorAll('.member-tab-content');
+
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('data-target-tab');
+      if (!targetId) return;
+
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      tabContents.forEach(content => {
+        if (content.id === targetId) {
+          content.classList.remove('hidden');
+          content.classList.add('active');
+        } else {
+          content.classList.add('hidden');
+          content.classList.remove('active');
+        }
+      });
+    });
+  });
+}
+
 // Standalone Login & Member Portal Tabs
 function setupPortalPage() {
   const tabLogin = document.getElementById('tabBtnLogin');
@@ -387,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupPortalPage();
+  setupMemberSidebarTabs();
   setupPasswordEyeToggles();
   setupCpfMask();
   setupGlobalKeyListeners();

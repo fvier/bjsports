@@ -167,7 +167,7 @@
 
   {% else %}
 
-  <!-- Section 2: ÁREA DE MEMBROS FLASK COMPLETA COM BARRA LATERAL (Exibido pós-login) -->
+  <!-- Section 2: ÁREA DE MEMBROS FLASK COMPLETA COM BARRA LATERAL RICA (Exibido pós-login) -->
   <section class="section member-portal-section" id="memberPortalSection">
     <div class="container">
       
@@ -192,7 +192,7 @@
       <!-- Layout com Barra Lateral (Sidebar Navigation) -->
       <div class="member-portal-layout">
         
-        <!-- BARRA LATERAL (SIDEBAR) -->
+        <!-- BARRA LATERAL EXTENSA (SIDEBAR COM DIVERSOS CONTEÚDOS HIPOTÉTICOS) -->
         <aside class="member-sidebar">
           
           <div class="sidebar-profile">
@@ -205,114 +205,226 @@
             <span class="badge-pill bg-green mt-2" style="font-size: 0.72rem;">MATRÍCULA ATIVA</span>
           </div>
 
-          <!-- Navegação da Barra Lateral -->
+          <!-- Navegação da Barra Lateral Completa com Diversos Conteúdos Hipotéticos -->
           <nav class="sidebar-nav">
-            <button class="sidebar-link active">
+            <button class="sidebar-link active" data-target-tab="tab-overview">
               <i data-lucide="target" class="icon-gold"></i> Visão Geral
             </button>
-            <button class="sidebar-link">
-              <i data-lucide="swords" class="icon-red"></i> Meus Treinos & Presenças
+            <button class="sidebar-link" data-target-tab="tab-frequency">
+              <i data-lucide="swords" class="icon-red"></i> Frequência & Ralas (18)
             </button>
-            <button class="sidebar-link">
-              <i data-lucide="check-circle" class="icon-green"></i> Mensalidades & Fatura
+            <button class="sidebar-link" data-target-tab="tab-graduation">
+              <i data-lucide="award" class="icon-gold"></i> Graduação & Graus
             </button>
-            <button class="sidebar-link">
-              <i data-lucide="award" class="icon-gold"></i> Graduação & Gradil
+            <button class="sidebar-link" data-target-tab="tab-schedule">
+              <i data-lucide="calendar-check" class="icon-red"></i> Aulas Reservadas (3)
+            </button>
+            <button class="sidebar-link" data-target-tab="tab-payments">
+              <i data-lucide="check-circle" class="icon-green"></i> Mensalidades (Em Dia)
+            </button>
+            <button class="sidebar-link" data-target-tab="tab-videotheque">
+              <i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeo Aulas
+            </button>
+            <button class="sidebar-link" data-target-tab="tab-tournaments">
+              <i data-lucide="trophy" class="icon-gold"></i> Torneios & Campeonatos
             </button>
             <a href="{{ url_for('loja') }}" class="sidebar-link">
-              <i data-lucide="tag" class="icon-red"></i> Desconto Loja Oficial (15%)
+              <i data-lucide="tag" class="icon-red"></i> Desconto Loja (15% OFF)
             </a>
+            <button class="sidebar-link" data-target-tab="tab-settings">
+              <i data-lucide="building-2" class="icon-muted"></i> Minhas Configurações
+            </button>
             <a href="{{ url_for('logout') }}" class="sidebar-link logout-link">
               <i data-lucide="log-out"></i> Sair da Minha Conta
             </a>
           </nav>
         </aside>
 
-        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA) -->
+        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA COM TABS INTERATIVAS) -->
         <main class="member-content">
           
-          <!-- Métrica Rápida -->
-          <div class="member-stats-row">
-            <div class="member-stat-box">
-              <div class="stat-box-icon"><i data-lucide="swords"></i></div>
-              <div class="stat-box-info">
-                <span>Presenças no Mês</span>
-                <strong>18 Treinos</strong>
+          <!-- TAB 1: VISÃO GERAL -->
+          <div class="member-tab-content active" id="tab-overview">
+            
+            <!-- Métrica Rápida -->
+            <div class="member-stats-row">
+              <div class="member-stat-box">
+                <div class="stat-box-icon"><i data-lucide="swords"></i></div>
+                <div class="stat-box-info">
+                  <span>Presenças no Mês</span>
+                  <strong>18 Treinos</strong>
+                </div>
+              </div>
+
+              <div class="member-stat-box">
+                <div class="stat-box-icon" style="color: #4ade80; background: rgba(37, 211, 102, 0.15);"><i data-lucide="check-circle"></i></div>
+                <div class="stat-box-info">
+                  <span>Situação Financeira</span>
+                  <strong style="color: #4ade80;">100% Em Dia</strong>
+                </div>
+              </div>
+
+              <div class="member-stat-box">
+                <div class="stat-box-icon" style="color: var(--accent-gold); background: rgba(255, 215, 0, 0.15);"><i data-lucide="award"></i></div>
+                <div class="stat-box-info">
+                  <span>Plano Contratado</span>
+                  <strong style="font-size: 0.95rem;" id="dashPlanDisplay">{{ user_plan }}</strong>
+                </div>
               </div>
             </div>
 
-            <div class="member-stat-box">
-              <div class="stat-box-icon" style="color: #4ade80; background: rgba(37, 211, 102, 0.15);"><i data-lucide="check-circle"></i></div>
-              <div class="stat-box-info">
-                <span>Situação Financeira</span>
-                <strong style="color: #4ade80;">100% Em Dia</strong>
+            <!-- Cards de Conteúdo Principal -->
+            <div class="member-grid-2" style="margin-top: 24px;">
+              
+              <!-- Card 1: Agenda de Treinos da Semana -->
+              <div class="member-card-panel">
+                <h4 class="member-card-title">
+                  <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
+                </h4>
+                <div class="classes-list">
+                  <div class="class-item-card">
+                    <div class="class-item-info">
+                      <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
+                      <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
+                    </div>
+                    <span class="badge-pill">Confirmado</span>
+                  </div>
+
+                  <div class="class-item-card">
+                    <div class="class-item-info">
+                      <h5>🥊 Boxe Tradicional Noturno</h5>
+                      <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
+                    </div>
+                    <span class="badge-pill">Confirmado</span>
+                  </div>
+
+                  <div class="class-item-card">
+                    <div class="class-item-info">
+                      <h5>🥋 Jiu-Jitsu Rala Noturno</h5>
+                      <p>Quarta-feira às 19:00h • Cajazeiras (Sede)</p>
+                    </div>
+                    <span class="badge-pill">Confirmado</span>
+                  </div>
+                </div>
               </div>
+
+              <!-- Card 2: Benefício Loja & Contato Direto -->
+              <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <h4 class="member-card-title">
+                    <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
+                  </h4>
+                  <div class="promo-store-box">
+                    <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
+                    <span class="coupon-code">BJMESTO15</span>
+                    <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+                  </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                  <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
+                    <i data-lucide="message-square"></i> Falar com Mestre Bolivar
+                  </a>
+                </div>
+              </div>
+
             </div>
 
-            <div class="member-stat-box">
-              <div class="stat-box-icon" style="color: var(--accent-gold); background: rgba(255, 215, 0, 0.15);"><i data-lucide="award"></i></div>
-              <div class="stat-box-info">
-                <span>Plano Contratado</span>
-                <strong style="font-size: 0.95rem;" id="dashPlanDisplay">{{ user_plan }}</strong>
+          </div>
+
+          <!-- TAB 2: FREQUÊNCIA & RALAS -->
+          <div class="member-tab-content hidden" id="tab-frequency">
+            <div class="member-card-panel">
+              <h4 class="member-card-title"><i data-lucide="swords" class="icon-red"></i> Histórico Detalhado de Presenças</h4>
+              <p style="color: var(--text-muted); margin-bottom: 20px;">Seu registro de presença no tatame sob supervisão do Mestre Bolivar.</p>
+              <div class="classes-list">
+                <div class="class-item-card">
+                  <div><strong>16/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Passagem de Guarda & Rala)</small></div>
+                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+                </div>
+                <div class="class-item-card">
+                  <div><strong>14/08/2026 — 19:00h</strong><br><small>Boxe Noturno (Combinações & Sparring)</small></div>
+                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+                </div>
+                <div class="class-item-card">
+                  <div><strong>12/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Defesa Pessoal & Raspagem)</small></div>
+                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Cards de Conteúdo Principal -->
-          <div class="member-grid-2">
-            
-            <!-- Card 1: Agenda de Treinos da Semana -->
+          <!-- TAB 3: GRADUAÇÃO & GRAUS -->
+          <div class="member-tab-content hidden" id="tab-graduation">
             <div class="member-card-panel">
-              <h4 class="member-card-title">
-                <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
-              </h4>
+              <h4 class="member-card-title"><i data-lucide="award" class="icon-gold"></i> Progresso de Graduação no Jiu-Jitsu</h4>
+              <div class="promo-store-box" style="text-align: left; margin-bottom: 20px;">
+                <h4>🥋 Faixa Azul — 2º Grau Atribuído</h4>
+                <p>Tempo de tatame: 1 ano e 4 meses • Mestre Responsável: Mestre Bolivar</p>
+                <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
+                  <div style="background: var(--accent-gold); width: 65%; height: 100%;"></div>
+                </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 6px;">65% do caminho percorrido para o 3º Grau da Faixa Azul.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: MENSALIDADES -->
+          <div class="member-tab-content hidden" id="tab-payments">
+            <div class="member-card-panel">
+              <h4 class="member-card-title"><i data-lucide="check-circle" class="icon-green"></i> Histórico de Pagamentos & Faturas</h4>
               <div class="classes-list">
                 <div class="class-item-card">
-                  <div class="class-item-info">
-                    <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
-                    <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
-                  </div>
-                  <span class="badge-pill">Confirmado</span>
+                  <div><strong>Mensalidade Agosto/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
+                  <span class="badge-pill bg-green">PAGO (PIX)</span>
                 </div>
-
                 <div class="class-item-card">
-                  <div class="class-item-info">
-                    <h5>🥊 Boxe Tradicional Noturno</h5>
-                    <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
-                  </div>
-                  <span class="badge-pill">Confirmado</span>
-                </div>
-
-                <div class="class-item-card">
-                  <div class="class-item-info">
-                    <h5>🥋 Jiu-Jitsu Rala Noturno</h5>
-                    <p>Quarta-feira às 19:00h • Cajazeiras (Sede)</p>
-                  </div>
-                  <span class="badge-pill">Confirmado</span>
+                  <div><strong>Mensalidade Julho/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
+                  <span class="badge-pill bg-green">PAGO (PIX)</span>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Card 2: Benefício Loja & Contato Direto -->
-            <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
-              <div>
-                <h4 class="member-card-title">
-                  <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
-                </h4>
-                <div class="promo-store-box">
-                  <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
-                  <span class="coupon-code">BJMESTO15</span>
-                  <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+          <!-- TAB 5: TREINOTECA / VÍDEO AULAS HIPOTÉTICAS -->
+          <div class="member-tab-content hidden" id="tab-videotheque">
+            <div class="member-card-panel">
+              <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca Oficial (Vídeos Didáticos)</h4>
+              <p style="color: var(--text-muted); margin-bottom: 20px;">Acervo exclusivo de posições gravadas pelo Mestre Bolivar para revisão técnica dos alunos.</p>
+              <div class="classes-list">
+                <div class="class-item-card">
+                  <div><strong>Módulo 1: Passagem de Guarda Aranha</strong><br><small>Duração: 12 min • Mestre Bolivar</small></div>
+                  <button class="btn btn-secondary btn-sm">Assistir Aula</button>
+                </div>
+                <div class="class-item-card">
+                  <div><strong>Módulo 2: Esquivas & Pendular no Boxe</strong><br><small>Duração: 18 min • Mestre Bolivar</small></div>
+                  <button class="btn btn-secondary btn-sm">Assistir Aula</button>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div style="margin-top: 20px;">
-                <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
-                  <i data-lucide="message-square"></i> Falar com Mestre Bolivar
-                </a>
+          <!-- TAB 6: TORNEIOS & CAMPEONATOS HIPOTÉTICOS -->
+          <div class="member-tab-content hidden" id="tab-tournaments">
+            <div class="member-card-panel">
+              <h4 class="member-card-title"><i data-lucide="trophy" class="icon-gold"></i> Campeonato & Inscrições de Equipe</h4>
+              <div class="promo-store-box" style="text-align: left;">
+                <h4>🏆 Open Sertão de Jiu-Jitsu 2026</h4>
+                <p>Data: 20 de Setembro, 2026 • Local: Cajazeiras-PB</p>
+                <p><small>A equipe BJ Sports estará presente com delegação completa. Fale com Mestre Bolivar para se inscrever.</small></p>
               </div>
             </div>
+          </div>
 
+          <!-- TAB 7: CONFIGURAÇÕES -->
+          <div class="member-tab-content hidden" id="tab-settings">
+            <div class="member-card-panel">
+              <h4 class="member-card-title"><i data-lucide="building-2" class="icon-muted"></i> Minhas Configurações de Perfil</h4>
+              <p style="color: var(--text-muted); margin-bottom: 16px;">Altere seus dados de cadastro e preferências de notificação.</p>
+              <a href="https://wa.me/5583996527997?text=Solicito%20alteracao%20de%20dados%20cadastrais" target="_blank" class="btn btn-secondary">
+                Solicitar Alteração Cadastral no WhatsApp
+              </a>
+            </div>
           </div>
 
         </main>
