@@ -48,7 +48,6 @@ class User(db.Model):
         hist[str(month_key)] = status
         self.monthly_history = json.dumps(hist)
         
-        # Atualiza payment_status global com base nas pendências
         overdue_cnt = sum(1 for m, s in hist.items() if s == 'atrasado')
         if overdue_cnt > 0 or hist.get('08') == 'atrasado':
             self.payment_status = 'Pendente'
@@ -101,7 +100,6 @@ class User(db.Model):
         overdue_months = [m for m in schedule if m['status'] == 'atrasado']
         overdue_count = len(overdue_months)
         
-        # Se estiver Pendente mas nenhum mês marcado no histórico, assume pelo menos o mês atual
         if overdue_count == 0 and self.payment_status == 'Pendente':
             overdue_count = 1
             overdue_months = [{'month': '08', 'name': 'Ago', 'status': 'atrasado'}]
@@ -128,35 +126,34 @@ class User(db.Model):
         months_str = details['months_str']
         unit_price = details['unit_price']
 
-        plan_simple = self.plan.split('—')[0].strip()
+        # Limpa emojis complexos do nome do plano para evitar símbolos ''
+        plan_simple = self.plan.split('—')[0].replace('⚡', '').replace('🔥', '').replace('👨‍👩‍👧', '').strip()
+        first_name = self.name.split(' ')[0]
 
-        # MENSAGEM AMIGÁVEL E RESPEITOSA DE COBRANÇA FORMATADA PARA WHATSAPP
+        # MENSAGEM DIRETA, CLARA E SEM SÍMBOLOS '' DE ERRO DE ENCODING
         if overdue_count > 1:
             msg = (
-                f"Olá, *{self.name}*! Tudo bem com você? 😊🥋\n\n"
-                f"Esperamos que esteja treinando forte na *BJ Sports Centro de Treinamento*!\n\n"
-                f"Passando com muito carinho para atualizar a sua conta no sistema do Mestre Bolivar. "
-                f"Identificamos *{overdue_count} mensalidades pendentes* ({months_str}):\n\n"
-                f"📌 *Plano:* {plan_simple}\n"
-                f"💰 *Valor Mensal:* R$ {unit_price:.2f}\n"
-                f"📊 *Mensalidades Atrasadas:* {overdue_count} meses ({months_str})\n"
-                f"💳 *Valor Total em Aberto:* R$ {total_debt:.2f}\n"
-                f"📅 *Dia de Vencimento:* Todo Dia {self.due_date}\n\n"
-                f"Caso queira quitar via PIX para manter seu cadastro 100% em dia, segue a chave:\n"
-                f"🔑 *Chave PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n"
-                f"Se você já efetuou o pagamento, favor desconsiderar ou nos enviar o comprovante por aqui! "
-                f"Estamos à disposição para qualquer dúvida. Te aguardamos no tatame! OSS! 🥋🔥"
+                f"Olá, {first_name}!\n\n"
+                f"Segue o resumo do seu débito no BJ Sports Centro de Treinamento:\n\n"
+                f"*Plano:* {plan_simple}\n"
+                f"*Vencimento:* Todo Dia {self.due_date}\n"
+                f"*Mensalidades Pendentes:* {overdue_count} meses ({months_str})\n"
+                f"*Valor Total Devido:* R$ {total_debt:.2f}\n\n"
+                f"Chave PIX para quitação:\n"
+                f"*PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n"
+                f"Caso já tenha efetuado o pagamento, favor enviar o comprovante. OSS!"
             )
         else:
             msg = (
-                f"Olá, *{self.name}*! Tudo bem com você? 😊🥋\n\n"
-                f"Passando da *BJ Sports Centro de Treinamento* para lembrar sobre a sua mensalidade do mês:\n\n"
-                f"📌 *Plano:* {plan_simple}\n"
-                f"💰 *Valor Mensal:* R$ {unit_price:.2f}\n"
-                f"📅 *Dia de Vencimento:* Todo Dia {self.due_date}\n"
-                f"🔴 *Status:* Aguardando Pagamento\n\n"
-                f"🔑 *Chave PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n"
-                f"Favor nos enviar o comprovante após a transferência. Qualquer dúvida estamos à disposição. OSS! 🥋"
+                f"Olá, {first_name}!\n\n"
+                f"Segue o lembrete da sua mensalidade no BJ Sports Centro de Treinamento:\n\n"
+                f"*Plano:* {plan_simple}\n"
+                f"*Vencimento:* Dia {self.due_date}\n"
+                f"*Valor:* R$ {unit_price:.2f}\n"
+                f"*Status:* Pendente\n\n"
+                f"Chave PIX para pagamento:\n"
+                f"*PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n"
+                f"Favor enviar o comprovante assim que realizar o pagamento. OSS!"
             )
 
         return f"https://wa.me/{full_number}?text={urllib.parse.quote(msg)}"
@@ -180,35 +177,34 @@ class Booking(db.Model):
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Lista de 30 Alunos com Simulação de Múltiplos Meses Atrasados
 SEED_STUDENTS = [
     ("bolivarbjj", "Mestre Bolivar", "111.222.333-44", "83", "996527997", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 1, "instrutor", "Em Dia", '{}'),
-    ("fernandovier", "Fernando Vier", "222.333.444-55", "83", "988776655", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 3, "monitor", "Em Dia", '{}'),
+    ("fernandovier", "Fernando Vier", "222.333.444-55", "83", "988776655", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 3, "monitor", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
     ("joaosilva", "João Silva", "333.444.555-66", "83", "977665544", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", 5, "aluno", "Em Dia", '{}'),
     ("mariasantos", "Maria Santos", "444.555.666-77", "83", "966554433", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", 5, "aluno", "Em Dia", '{}'),
     ("pedroalbuquerque", "Pedro Albuquerque", "101.202.303-40", "83", "991112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 6, "aluno", "Em Dia", '{}'),
-    ("lucasoliveira", "Lucas Oliveira", "102.203.304-41", "83", "992223344", "Boxe Tradicional — R$ 90,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'), # 2 meses devendo (R$ 180,00)
+    ("lucasoliveira", "Lucas Oliveira", "102.203.304-41", "83", "992223344", "Boxe Tradicional — R$ 90,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
     ("gabrielcosta", "Gabriel Costa", "103.204.305-42", "83", "993334455", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", 5, "aluno", "Em Dia", '{}'),
     ("camilaferreira", "Camila Ferreira", "104.205.306-43", "83", "994445566", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", 8, "aluno", "Em Dia", '{}'),
     ("brunosouza", "Bruno Souza", "105.206.307-44", "83", "995556677", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 4, "monitor", "Em Dia", '{}'),
     ("julianalima", "Juliana Lima", "106.207.308-45", "83", "996667788", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", 5, "aluno", "Em Dia", '{}'),
-    ("matheusribeiro", "Matheus Ribeiro", "107.208.309-46", "83", "997778899", "Boxe Tradicional — R$ 90,00/mês", "5", 5, "aluno", "Pendente", '{"06": "atrasado", "07": "atrasado", "08": "atrasado"}'), # 3 meses devendo (R$ 270,00)
+    ("matheusribeiro", "Matheus Ribeiro", "107.208.309-46", "83", "997778899", "Boxe Tradicional — R$ 90,00/mês", "5", 5, "aluno", "Pendente", '{"06": "atrasado", "07": "atrasado", "08": "atrasado"}'),
     ("rafaelabarbosa", "Rafaela Barbosa", "108.209.310-47", "83", "998889900", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", 5, "aluno", "Em Dia", '{}'),
     ("rodrigomartins", "Rodrigo Martins", "109.210.311-48", "83", "999990011", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "25", 7, "aluno", "Em Dia", '{}'),
     ("amandarosario", "Amanda Rosário", "110.211.312-49", "83", "981112233", "Boxe Tradicional — R$ 90,00/mês", "5", 8, "aluno", "Em Dia", '{}'),
-    ("felipepereira", "Felipe Pereira", "111.212.313-50", "83", "982223344", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'), # 2 meses devendo (R$ 200,00)
+    ("felipepereira", "Felipe Pereira", "111.212.313-50", "83", "982223344", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
     ("beatrizgomes", "Beatriz Gomes", "112.213.314-51", "83", "983334455", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", 6, "aluno", "Em Dia", '{}'),
     ("diego alves", "Diego Alves", "113.214.315-52", "83", "984445566", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 7, "aluno", "Em Dia", '{}'),
     ("larissamendes", "Larissa Mendes", "114.215.316-53", "83", "985556677", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "15", 5, "aluno", "Em Dia", '{}'),
-    ("thiagomedeiros", "Thiago Medeiros", "115.216.317-54", "83", "986667788", "Boxe Tradicional — R$ 90,00/mês", "25", 8, "aluno", "Pendente", '{"08": "atrasado"}'), # 1 mês devendo (R$ 90,00)
+    ("thiagomedeiros", "Thiago Medeiros", "115.216.317-54", "83", "986667788", "Boxe Tradicional — R$ 90,00/mês", "25", 8, "aluno", "Pendente", '{"08": "atrasado"}'),
     ("vanessacavalcanti", "Vanessa Cavalcanti", "116.217.318-55", "83", "987778899", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 5, "aluno", "Em Dia", '{}'),
     ("andrearaujo", "André Araújo", "117.218.319-56", "83", "988889900", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", 6, "aluno", "Em Dia", '{}'),
     ("priscilafarias", "Priscila Farias", "118.219.320-57", "83", "989990011", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", 7, "aluno", "Em Dia", '{}'),
-    ("marcelofreitas", "Marcelo Freitas", "119.220.321-58", "83", "971112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 5, "aluno", "Pendente", '{"06": "atrasado", "07": "atrasado", "08": "atrasado"}'), # 3 meses devendo (R$ 360,00)
+    ("marcelofreitas", "Marcelo Freitas", "119.220.321-58", "83", "971112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 5, "aluno", "Pendente", '{"06": "atrasado", "07": "atrasado", "08": "atrasado"}'),
     ("isabelacardoso", "Isabela Cardoso", "120.221.322-59", "83", "972223344", "Boxe Tradicional — R$ 90,00/mês", "15", 5, "aluno", "Em Dia", '{}'),
     ("gustavomoreira", "Gustavo Moreira", "121.222.323-60", "83", "973334455", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", 6, "aluno", "Em Dia", '{}'),
     ("carolinaneto", "Carolina Neto", "122.223.324-61", "83", "974445566", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", 7, "aluno", "Em Dia", '{}'),
-    ("renatoteixeira", "Renato Teixeira", "123.224.325-62", "83", "975556677", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'), # 2 meses devendo (R$ 240,00)
+    ("renatoteixeira", "Renato Teixeira", "123.224.325-62", "83", "975556677", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 5, "aluno", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
     ("tatianadantas", "Tatiana Dantas", "124.225.326-63", "83", "976667788", "Boxe Tradicional — R$ 90,00/mês", "25", 5, "aluno", "Em Dia", '{}'),
     ("vitorhugofagundes", "Vitor Hugo Fagundes", "125.226.327-64", "83", "977778899", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "5", 6, "aluno", "Em Dia", '{}'),
     ("patriciagalvao", "Patrícia Galvão", "126.227.328-65", "83", "978889900", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 7, "aluno", "Em Dia", '{}')
