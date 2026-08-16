@@ -1,16 +1,21 @@
-# =========================================================================
-# 🔒 Arquivo de Ignorância do Git (.gitignore)
-#
-# Propósito de Segurança:
-# Este arquivo garante que segredos, credenciais, arquivos compilados,
-# e diretórios de dependências não sejam "commitados" acidentalmente
-# no repositório. O vazamento de senhas e chaves pode comprometer
-# a segurança da infraestrutura de toda a equipe dxcdc.
-# =========================================================================
+# ==========================================
+# BJ SPORTS — PYTHON FLASK GITIGNORE
+# ==========================================
 
-# -------------------------------------------------------------------------
-# Variáveis de Ambiente e Segredos
-# -------------------------------------------------------------------------
+# Python virtual environment
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Flask Instance & SQLite Database
+instance/
+*.db
+*.sqlite
+
+# Environment variables
 .env
 .env.*
 !.env.example
