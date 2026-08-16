@@ -582,6 +582,7 @@ body {
 }
 
 .input-with-eye input {
+  padding-left: 42px !important;
   padding-right: 44px !important;
 }
 
@@ -597,6 +598,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: color 0.2s ease;
+  z-index: 5;
 }
 
 .btn-toggle-eye:hover {
@@ -1176,6 +1178,7 @@ body {
   height: 18px;
   color: var(--primary-red);
   pointer-events: none;
+  z-index: 2;
 }
 
 .input-with-icon input {

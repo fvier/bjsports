@@ -394,7 +394,7 @@ function setupPasswordEyeToggles() {
   });
 }
 
-// Standalone Portal do Aluno Page Handler (aluno.html)
+// Standalone Login & Cadastro Page Handler (login.html)
 function setupPortalPage() {
   const tabLogin = document.getElementById('tabBtnLogin');
   const tabRegister = document.getElementById('tabBtnRegister');
@@ -445,6 +445,11 @@ function setupPortalPage() {
       const planVal = document.getElementById('regPlan').value;
       const passVal = document.getElementById('regPass').value;
       const passConfirmVal = document.getElementById('regPassConfirm').value;
+
+      if (phoneVal.length !== 9 || !/^\d{9}$/.test(phoneVal)) {
+        alert('O número do celular deve conter exatamente 9 dígitos (ex: 996527997).');
+        return;
+      }
 
       if (passVal !== passConfirmVal) {
         alert('As senhas não coincidem. Por favor, verifique a senha informada.');
