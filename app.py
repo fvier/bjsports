@@ -47,20 +47,25 @@ with app.app_context():
 def inject_now():
     return {'now': datetime.utcnow()}
 
-# Flask Routes
+# Flask Routes supporting both clean URLs and .html extensions
 @app.route('/')
+@app.route('/index')
+@app.route('/index.html')
 def index():
     return render_template('index.html', page_title='Início')
 
 @app.route('/loja')
+@app.route('/loja.html')
 def loja():
     return render_template('loja.html', page_title='Loja Oficial')
 
 @app.route('/blog')
+@app.route('/blog.html')
 def blog():
     return render_template('blog.html', page_title='Blog do Tatame')
 
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login.html', methods=['GET', 'POST'])
 def login():
     first_registration = False
     
@@ -137,6 +142,11 @@ def login():
         user_plan=session.get('user_plan', 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
         is_first_reg=is_first_reg
     )
+
+@app.route('/aluno')
+@app.route('/aluno.html')
+def aluno_portal():
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
