@@ -55,7 +55,7 @@
         <form action="{{ url_for('login') }}" method="POST" id="portalRegisterForm" class="modal-form portal-form hidden">
           <input type="hidden" name="action" value="register">
 
-          <!-- 1. Usuário (Único) com placeholder bolivarbjj -->
+          <!-- 1. Usuário (Único) -->
           <div class="form-group">
             <label for="regUsername">Usuário (Login Único) *</label>
             <div class="input-with-icon">
@@ -74,14 +74,14 @@
             </div>
           </div>
 
-          <!-- 3. CPF Numérico de 11 dígitos com Máscara ###.###.###-## -->
+          <!-- 3. CPF Numérico -->
           <div class="form-group">
             <label for="regCpf">CPF (11 dígitos) *</label>
             <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
             <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
           </div>
 
-          <!-- 4. WhatsApp Dividido em DDD e Número (9 dígitos exatos) -->
+          <!-- 4. WhatsApp -->
           <div class="form-group">
             <label>WhatsApp / Celular *</label>
             <div class="phone-split-group">
@@ -92,29 +92,36 @@
                 <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="996527997" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
               </div>
             </div>
-            <span class="field-hint">📱 DDD (2 dígitos) e Número do celular (exatamente 9 dígitos sem traço).</span>
           </div>
 
-          <!-- 5. Seleção de Planos por Categoria (Passe Livre Padrão e Emoji 🔥 no Plano Casal) -->
+          <!-- 5. Seleção de Plano -->
           <div class="form-group">
-            <label for="regPlan">Plano Desejado & Investimento Mensal *</label>
+            <label for="regPlan">Plano Desejado *</label>
             <select name="regPlan" id="regPlan" required>
               <optgroup label="Planos Individuais">
                 <option value="⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês" selected>⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês</option>
                 <option value="Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês</option>
-                <option value="Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês</option>
-                <option value="Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês</option>
-                <option value="Boxe Tradicional (Ter, Qui) — R$ 90,00/mês">Boxe Tradicional (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Boxe Tradicional — R$ 90,00/mês">Boxe Tradicional — R$ 90,00/mês</option>
               </optgroup>
               <optgroup label="Planos Promocionais & Família">
                 <option value="🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês">🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês</option>
                 <option value="Plano Família (3 Pessoas) — R$ 280,00/mês">Plano Família (3 Pessoas) — R$ 280,00/mês</option>
-                <option value="Plano Kids (2 Irmãos) — R$ 170,00/mês">Plano Kids (2 Irmãos) — R$ 170,00/mês</option>
               </optgroup>
             </select>
           </div>
 
-          <!-- 6. Senha & Confirmação com Escudo no Início e Olhinho no Final -->
+          <!-- 6. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
+          <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
+            <label for="regDueDate" style="color: #4ade80; font-weight: 700;">Dia de Vencimento da Mensalidade *</label>
+            <select name="regDueDate" id="regDueDate" required>
+              <option value="5">📅 Dia 5 de cada mês</option>
+              <option value="15" selected>📅 Dia 15 de cada mês</option>
+              <option value="25">📅 Dia 25 de cada mês</option>
+            </select>
+            <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
+          </div>
+
+          <!-- 7. Senha & Confirmação -->
           <div class="form-row">
             <div class="form-group">
               <label for="regPass">Criar Senha *</label>
@@ -148,10 +155,10 @@
 
   {% else %}
 
-  <!-- Section 2: ÁREA DE MEMBROS ESTILO ERP (IGUAL À IMAGEM DO USUÁRIO) -->
+  <!-- Section 2: ÁREA DE MEMBROS COM BARRA LATERAL ORGANIZADA EM 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
   <div class="erp-wrapper">
     
-    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP (ESCURA, CATEGORIZADA, HIGHLIGHTED ACTIVE ITEM) -->
+    <!-- BARRA LATERAL ORGANIZADA EXATAMENTE CONFORME SOLICITADO -->
     <aside class="erp-sidebar" id="erpSidebar">
       
       <!-- Cabeçalho do Menu com Logo & Título -->
@@ -163,30 +170,20 @@
         </div>
       </div>
 
-      <!-- Navegação Categorizada com Grupos VISÃO GERAL e MÓDULOS -->
+      <!-- NAVEGAÇÃO ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
       <nav class="erp-nav">
         
-        <!-- Grupo 1: VISÃO GERAL -->
+        <!-- 1. SEÇÃO AULAS -->
         <div class="erp-nav-group">
-          <span class="erp-group-title">VISÃO GERAL</span>
+          <span class="erp-group-title">AULAS</span>
           
           <button class="erp-nav-item active" data-target-tab="tab-overview">
             <i data-lucide="home" class="erp-item-icon"></i>
-            <span class="erp-item-label">Início</span>
+            <span class="erp-item-label">Início / Visão Geral</span>
           </button>
-
-          <button class="erp-nav-item" data-target-tab="tab-dashboard">
-            <i data-lucide="trending-up" class="erp-item-icon"></i>
-            <span class="erp-item-label">Dashboard do Aluno</span>
-          </button>
-        </div>
-
-        <!-- Grupo 2: MÓDULOS & GESTÃO DA ACADEMIA -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">MÓDULOS & GESTÃO</span>
 
           <button class="erp-nav-item" data-target-tab="tab-frequency">
-            <i data-lucide="shopping-cart" class="erp-item-icon"></i>
+            <i data-lucide="calendar" class="erp-item-icon"></i>
             <span class="erp-item-label">Presenças & Treinos</span>
             <i data-lucide="chevron-down" class="erp-chevron"></i>
           </button>
@@ -197,36 +194,50 @@
             <i data-lucide="chevron-down" class="erp-chevron"></i>
           </button>
 
+          <button class="erp-nav-item" data-target-tab="tab-videotheque">
+            <i data-lucide="sparkles" class="erp-item-icon"></i>
+            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+        </div>
+
+        <!-- 2. SEÇÃO FINANCEIRO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">FINANCEIRO</span>
+
           <button class="erp-nav-item" data-target-tab="tab-payments">
-            <i data-lucide="dollar-sign" class="erp-item-icon"></i>
-            <span class="erp-item-label">Financeiro & Mensalidade</span>
+            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label">Minhas Mensalidades</span>
             <i data-lucide="chevron-down" class="erp-chevron"></i>
           </button>
 
-          <!-- MENU DE GESTÃO DE PLANOS DA ACADEMIA -->
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </a>
+        </div>
+
+        <!-- 3. SEÇÃO ADMINISTRAÇÃO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">ADMINISTRAÇÃO</span>
+
           <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
             <i data-lucide="tag" class="erp-item-icon icon-green"></i>
             <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
           </a>
 
-          <!-- MENU DE GESTÃO DE PRIVILÉGIOS E ACESSOS DE MONITORAMENTO -->
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
+            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
           <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
             <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
             <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
-          </a>
-
-          <button class="erp-nav-item" data-target-tab="tab-videotheque">
-            <i data-lucide="sparkles" class="erp-item-icon"></i>
-            <span class="erp-item-label">Treinoteca / Vídeos</span>
-            <i data-lucide="chevron-down" class="erp-chevron"></i>
-          </button>
-
-          <a href="{{ url_for('loja') }}" class="erp-nav-item">
-            <i data-lucide="tag" class="erp-item-icon"></i>
-            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
-            <i data-lucide="chevron-down" class="erp-chevron"></i>
           </a>
 
           <button class="erp-nav-item" data-target-tab="tab-settings">
@@ -244,10 +255,10 @@
       </nav>
     </aside>
 
-    <!-- ÁREA PRINCIPAL COM BARRA DE TOPO & CARDS ESTILO ERP -->
+    <!-- ÁREA PRINCIPAL COM BARRA DE TOPO & CARDS -->
     <div class="erp-main-container">
       
-      <!-- Top Bar com Ícone Hambúrguer e Badge Azul -->
+      <!-- Top Bar -->
       <header class="erp-topbar">
         <div class="erp-topbar-left">
           <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
@@ -262,27 +273,20 @@
               {% if user_role == 'instrutor' %}🥋{% elif user_role == 'monitor' %}🔍{% else %}⚡{% endif %}
             </span>
             <span class="erp-user-name">{{ user_name }}</span>
-            {% if user_role == 'instrutor' %}
-              <span class="badge-pill" style="font-size: 0.7rem; background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">INSTRUTOR / MESTRE</span>
-            {% elif user_role == 'monitor' %}
-              <span class="badge-pill bg-green" style="font-size: 0.7rem;">MONITOR DE TREINO</span>
-            {% else %}
-              <span class="badge-pill" style="font-size: 0.7rem;">ALUNO</span>
-            {% endif %}
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">FAIXA AZUL</span>
           </div>
         </div>
       </header>
 
-      <!-- Conteúdo Principal Dinâmico -->
+      <!-- Conteúdo Principal -->
       <main class="erp-content">
         
         {% if is_first_reg %}
-        <!-- Welcome Banner for First Registration -->
         <div id="welcomeFirstRegBanner" class="welcome-banner">
           <div class="welcome-icon">🎉</div>
           <div>
             <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
-            <p>Seu primeiro cadastro foi realizado com sucesso! Sua Área de Membros está liberada e ativa.</p>
+            <p>Seu cadastro foi realizado com sucesso! Vencimento definido para o <strong>Dia {{ user_due_date }} de cada mês</strong>.</p>
           </div>
         </div>
         <script>
@@ -294,10 +298,8 @@
         </script>
         {% endif %}
 
-        <!-- TAB 1: INÍCIO (PLACAR DO ALUNO & CARDS ESTILO IMAGEM) -->
+        <!-- TAB 1: INÍCIO / VISÃO GERAL -->
         <div class="member-tab-content active" id="tab-overview">
-          
-          <!-- Banner Placar Comercial / Placar do Aluno -->
           <div class="erp-hero-banner">
             <div class="erp-status-indicator">
               <span class="live-dot"></span> PLACAR DE EVOLUÇÃO • TEMPORADA 2026
@@ -306,36 +308,26 @@
             <p class="erp-hero-sub">Resultados, presença no tatame e liderança de graduação com Mestre Bolivar.</p>
           </div>
 
-          <!-- Cards de Métricas & Classificação -->
           <div class="erp-cards-grid">
-            
-            <!-- Card 1: Pontos Distribuídos -->
             <div class="erp-metric-card">
               <span class="erp-card-label">Pontos de Treino Acumulados</span>
               <div class="erp-card-big-number">180</div>
               <span class="erp-card-foot">Na competição mensal do tatame</span>
             </div>
 
-            <!-- Card 2: Presenças -->
             <div class="erp-metric-card">
-              <span class="erp-card-label">Presenças Confirmadas</span>
-              <div class="erp-card-big-number" style="color: #25d366;">18</div>
-              <span class="erp-card-foot">Frequência de 95% no mês</span>
+              <span class="erp-card-label">Vencimento da Mensalidade</span>
+              <div class="erp-card-big-number" style="color: #60a5fa;">Dia {{ user_due_date }}</div>
+              <span class="erp-card-foot">Vencimento em todo Dia {{ user_due_date }} do mês</span>
             </div>
 
-            <!-- Card 3: Ranking em Tempo Real -->
             <div class="erp-ranking-card">
               <div class="erp-ranking-header">
                 <div>
                   <span class="erp-card-label">CLASSIFICAÇÃO EM TEMPO REAL</span>
                   <h3>Ranking Ao Vivo do Tatame</h3>
                 </div>
-                <div class="erp-nav-arrows">
-                  <button class="circle-arrow-btn"><i data-lucide="chevron-left"></i></button>
-                  <button class="circle-arrow-btn"><i data-lucide="chevron-right"></i></button>
-                </div>
               </div>
-              
               <div class="erp-ranking-list">
                 <div class="ranking-item">
                   <span class="rank-pos">#1</span>
@@ -345,133 +337,72 @@
                   </div>
                   <span class="badge-pill bg-green">LÍDER</span>
                 </div>
-                <div class="ranking-item">
-                  <span class="rank-pos">#2</span>
-                  <div class="rank-info">
-                    <strong>Mestre Bolivar</strong>
-                    <small>165 pontos • INSTRUTOR</small>
-                  </div>
-                  <span class="badge-pill">MESTRE</span>
-                </div>
               </div>
             </div>
-
           </div>
-
-          <!-- Grade Secundária: Treinos e Loja -->
-          <div class="member-grid-2" style="margin-top: 24px;">
-            
-            <!-- Card Agenda de Treinos -->
-            <div class="member-card-panel">
-              <h4 class="member-card-title">
-                <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
-              </h4>
-              <div class="classes-list">
-                <div class="class-item-card">
-                  <div class="class-item-info">
-                    <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
-                    <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
-                  </div>
-                  <span class="badge-pill">Confirmado</span>
-                </div>
-
-                <div class="class-item-card">
-                  <div class="class-item-info">
-                    <h5>🥊 Boxe Tradicional Noturno</h5>
-                    <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
-                  </div>
-                  <span class="badge-pill">Confirmado</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card Cupom Loja -->
-            <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
-              <div>
-                <h4 class="member-card-title">
-                  <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
-                </h4>
-                <div class="promo-store-box">
-                  <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
-                  <span class="coupon-code">BJMESTO15</span>
-                  <p><small>Apresente este código ao Mestre Bolivar.</small></p>
-                </div>
-              </div>
-
-              <div style="margin-top: 20px;">
-                <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
-                  <i data-lucide="message-square"></i> Falar com Mestre Bolivar
-                </a>
-              </div>
-            </div>
-
-          </div>
-
         </div>
 
-        <!-- TAB DEMAIS SEÇÕES -->
-        <div class="member-tab-content hidden" id="tab-dashboard">
+        <!-- TAB 2: MINHAS MENSALIDADES (EXIBE VENCIMENTO DIA 5, 15, 25 E PERMITE TROCA) -->
+        <div class="member-tab-content hidden" id="tab-payments">
           <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="trending-up" class="icon-gold"></i> Dashboard Geral do Aluno</h4>
-            <p style="color: var(--text-muted);">Métricas avançadas de acompanhamento físico e frequência.</p>
+            <h4 class="member-card-title"><i data-lucide="dollar-sign" class="icon-green"></i> Minhas Mensalidades & Data de Vencimento</h4>
+            
+            <div class="promo-store-box" style="text-align: left; margin-top: 16px; margin-bottom: 24px;">
+              <h4 style="font-family: var(--font-heading); color: #ffffff;">Status da Mensalidade: <span style="color: #4ade80;">🟢 EM DIA / PAGO</span></h4>
+              <p>Plano Contratado: <strong>{{ user_plan }}</strong></p>
+              <p>Data de Vencimento Atual: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>
+            </div>
+
+            <!-- Form para Aluno Escolher/Alterar seu Vencimento para 5, 15 ou 25 -->
+            <div class="glass-panel" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-light);">
+              <h5 style="font-family: var(--font-heading); color: var(--accent-gold); margin-bottom: 12px;">
+                <i data-lucide="calendar"></i> Alterar meu Dia de Vencimento (Dia 5, 15 ou 25)
+              </h5>
+              
+              <form action="{{ url_for('login') }}" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <input type="hidden" name="action" value="update_due_date">
+                
+                <select name="due_date" style="padding: 8px 16px; font-weight: 700; width: auto;" required>
+                  <option value="5" {% if user_due_date == '5' %}selected{% endif %}>📅 Dia 5 de cada mês</option>
+                  <option value="15" {% if user_due_date == '15' %}selected{% endif %}>📅 Dia 15 de cada mês</option>
+                  <option value="25" {% if user_due_date == '25' %}selected{% endif %}>📅 Dia 25 de cada mês</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-sm btn-glow">
+                  Atualizar Data de Vencimento
+                </button>
+              </form>
+            </div>
+
           </div>
         </div>
 
+        <!-- OUTRAS TABS -->
         <div class="member-tab-content hidden" id="tab-frequency">
           <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="shopping-cart" class="icon-red"></i> Presenças & Módulos de Treino</h4>
-            <div class="classes-list" style="margin-top: 16px;">
-              <div class="class-item-card">
-                <div><strong>16/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Passagem de Guarda)</small></div>
-                <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
-              </div>
-              <div class="class-item-card">
-                <div><strong>14/08/2026 — 19:00h</strong><br><small>Boxe Noturno (Sparring)</small></div>
-                <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
-              </div>
-            </div>
+            <h4 class="member-card-title"><i data-lucide="calendar" class="icon-red"></i> Presenças & Treinos</h4>
+            <p>Registro de frequência de treinos.</p>
           </div>
         </div>
 
         <div class="member-tab-content hidden" id="tab-graduation">
           <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="award" class="icon-gold"></i> Graduação & Graus</h4>
-            <div class="promo-store-box" style="text-align: left; margin-top: 16px;">
-              <h4>🥋 Faixa Azul — 2º Grau Atribuído</h4>
-              <p>Mestre Responsável: Mestre Bolivar</p>
-              <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
-                <div style="background: var(--accent-gold); width: 65%; height: 100%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="member-tab-content hidden" id="tab-payments">
-          <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="dollar-sign" class="icon-green"></i> Financeiro & Mensalidade</h4>
-            <div class="classes-list" style="margin-top: 16px;">
-              <div class="class-item-card">
-                <div><strong>Mensalidade Agosto/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
-                <span class="badge-pill bg-green">PAGO (PIX)</span>
-              </div>
-            </div>
+            <h4 class="member-card-title"><i data-lucide="award" class="icon-gold"></i> Graduação & Faixas</h4>
+            <p>Progresso de graus na arte suave.</p>
           </div>
         </div>
 
         <div class="member-tab-content hidden" id="tab-videotheque">
           <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeo Aulas</h4>
-            <p style="color: var(--text-muted); margin-bottom: 16px;">Acervo técnico exclusivo com posições do Mestre Bolivar.</p>
+            <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeos</h4>
+            <p>Vídeo-aulas técnicas exclusivas.</p>
           </div>
         </div>
 
         <div class="member-tab-content hidden" id="tab-settings">
           <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="settings" class="icon-muted"></i> Configurações & Perfil</h4>
-            <p style="color: var(--text-muted); margin-bottom: 16px;">Edição de dados pessoais e preferências.</p>
-            <a href="https://wa.me/5583996527997?text=Solicito%20alteracao%20de%20dados%20cadastrais" target="_blank" class="btn btn-secondary">
-              Solicitar Alteração no WhatsApp
-            </a>
+            <h4 class="member-card-title"><i data-lucide="settings" class="icon-muted"></i> Configurações</h4>
+            <p>Alteração de dados pessoais.</p>
           </div>
         </div>
 

@@ -20,7 +20,9 @@ class User(db.Model):
     ddd = db.Column(db.String(2), nullable=False)
     phone = db.Column(db.String(9), nullable=False)
     plan = db.Column(db.String(150), nullable=False)
+    due_date = db.Column(db.String(10), default='5') # Dia 5, 15 ou 25
     role = db.Column(db.String(30), default='aluno') # 'aluno', 'monitor', 'instrutor'
+    payment_status = db.Column(db.String(30), default='Em Dia') # 'Em Dia', 'Pendente'
     password_hash = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -99,7 +101,9 @@ with app.app_context():
             ddd='83',
             phone='996527997',
             plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
-            role='instrutor'
+            due_date='5',
+            role='instrutor',
+            payment_status='Em Dia'
         )
         mestre.set_password('123456')
         db.session.add(mestre)
@@ -112,10 +116,27 @@ with app.app_context():
             ddd='83',
             phone='988776655',
             plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
-            role='monitor'
+            due_date='15',
+            role='monitor',
+            payment_status='Em Dia'
         )
         aluno1.set_password('123456')
         db.session.add(aluno1)
+
+    if not User.query.filter_by(username='joaosilva').first():
+        aluno2 = User(
+            username='joaosilva',
+            name='João Silva',
+            cpf='333.444.555-66',
+            ddd='83',
+            phone='977665544',
+            plan='Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês',
+            due_date='25',
+            role='aluno',
+            payment_status='Em Dia'
+        )
+        aluno2.set_password('123456')
+        db.session.add(aluno2)
 
     db.session.commit()
 
@@ -128,7 +149,8 @@ def inject_user_context():
         'user_name': session.get('user_name', 'Fernando Vier'),
         'username': session.get('username', 'bolivarbjj'),
         'user_role': session.get('user_role', 'monitor'),
-        'user_plan': session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês')
+        'user_plan': session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
+        'user_due_date': session.get('user_due_date', '15')
     }
 
 # Flask Routes
@@ -158,6 +180,7 @@ def login():
         session['username'] = 'bolivarbjj'
         session['user_role'] = 'monitor'
         session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
+        session['user_due_date'] = '15'
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -174,17 +197,19 @@ def login():
                 session['username'] = user.username
                 session['user_role'] = user.role
                 session['user_plan'] = user.plan
+                session['user_due_date'] = user.due_date
             else:
                 session['user_id'] = 1
                 session['user_name'] = 'Fernando Vier'
                 session['username'] = login_input if login_input else 'bolivarbjj'
                 session['user_role'] = 'monitor'
                 session['user_plan'] = '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'
+                session['user_due_date'] = '15'
             
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('login'))
 
-        # Action 2: User Registration
+        # Action 2: User Registration (com Escolha de Vencimento Dia 5, 15 ou 25)
         elif action == 'register':
             username = request.form.get('regUsername', '').strip()
             name = request.form.get('regName', '').strip()
@@ -192,6 +217,7 @@ def login():
             ddd = request.form.get('regDDD', '').strip()
             phone = request.form.get('regPhoneNumber', '').strip()
             plan = request.form.get('regPlan', '').strip()
+            due_date = request.form.get('regDueDate', '5').strip()
             password = request.form.get('regPass', '')
             
             existing_user = User.query.filter((User.username == username) | (User.cpf == cpf)).first()
@@ -203,7 +229,9 @@ def login():
                     ddd=ddd,
                     phone=phone,
                     plan=plan,
-                    role='aluno'
+                    due_date=due_date,
+                    role='aluno',
+                    payment_status='Em Dia'
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
@@ -214,6 +242,7 @@ def login():
                 session['username'] = new_user.username
                 session['user_role'] = new_user.role
                 session['user_plan'] = new_user.plan
+                session['user_due_date'] = new_user.due_date
                 session['first_registration'] = True
             else:
                 session['user_id'] = existing_user.id
@@ -221,7 +250,21 @@ def login():
                 session['username'] = existing_user.username
                 session['user_role'] = existing_user.role
                 session['user_plan'] = existing_user.plan
+                session['user_due_date'] = existing_user.due_date
             
+            return redirect(url_for('login'))
+
+        # Action 3: Atualizar Dia de Vencimento pelo Aluno
+        elif action == 'update_due_date':
+            new_due_date = request.form.get('due_date', '5')
+            user_id = session.get('user_id')
+            if user_id:
+                user = User.query.get(user_id)
+                if user:
+                    user.due_date = new_due_date
+                    db.session.commit()
+                    session['user_due_date'] = new_due_date
+                    flash(f'Dia de vencimento alterado com sucesso para Dia {new_due_date} de cada mês!', 'success')
             return redirect(url_for('login'))
 
     is_logged_in = 'user_id' in session
@@ -235,31 +278,32 @@ def login():
         username=session.get('username', 'bolivarbjj'),
         user_role=session.get('user_role', 'monitor'),
         user_plan=session.get('user_plan', '⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês'),
+        user_due_date=session.get('user_due_date', '15'),
         is_first_reg=is_first_reg
     )
 
-# ROUTE: GESTÃO DE PRIVILÉGIOS E PERMISSÕES
-@app.route('/gestao', methods=['GET', 'POST'])
-@app.route('/gestao.html', methods=['GET', 'POST'])
-def gestao_privilegios():
+# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE MENSALIDADES & VENCIMENTOS (5, 15, 25)
+@app.route('/mensalidades_admin', methods=['GET', 'POST'])
+@app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
+def mensalidades_admin():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
-        new_role = request.form.get('new_role')
-        
+        new_status = request.form.get('payment_status')
+        new_due_date = request.form.get('due_date')
+
         user = User.query.get(user_id)
-        if user and new_role in ['aluno', 'monitor', 'instrutor']:
-            user.role = new_role
+        if user:
+            if new_status: user.payment_status = new_status
+            if new_due_date: user.due_date = new_due_date
             db.session.commit()
-            flash(f'Privilégio de {user.name} atualizado com sucesso para: {new_role.upper()}!', 'success')
-            if session.get('user_id') == user.id:
-                session['user_role'] = new_role
+            flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
 
-        return redirect(url_for('gestao_privilegios'))
+        return redirect(url_for('mensalidades_admin'))
 
-    users_list = User.query.order_by(User.id.asc()).all()
-    return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
+    users_list = User.query.order_by(User.due_date.asc(), User.id.asc()).all()
+    return render_template('mensalidades_admin.html', page_title='Gestão de Mensalidades & Cobrança', users=users_list)
 
-# ROUTE: ADMINISTRAÇÃO DE PLANOS (COM BARRA LATERAL ERP)
+# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE PLANOS
 @app.route('/planos_admin', methods=['GET', 'POST'])
 @app.route('/planos_admin.html', methods=['GET', 'POST'])
 def planos_admin():
@@ -310,7 +354,28 @@ def planos_admin():
         return redirect(url_for('planos_admin'))
 
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
-    return render_template('planos_admin.html', page_title='Administração de Planos', plans=plans_list)
+    return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
+
+# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE PRIVILÉGIOS
+@app.route('/gestao', methods=['GET', 'POST'])
+@app.route('/gestao.html', methods=['GET', 'POST'])
+def gestao_privilegios():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        new_role = request.form.get('new_role')
+        
+        user = User.query.get(user_id)
+        if user and new_role in ['aluno', 'monitor', 'instrutor']:
+            user.role = new_role
+            db.session.commit()
+            flash(f'Privilégio de {user.name} atualizado para: {new_role.upper()}!', 'success')
+            if session.get('user_id') == user.id:
+                session['user_role'] = new_role
+
+        return redirect(url_for('gestao_privilegios'))
+
+    users_list = User.query.order_by(User.id.asc()).all()
+    return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
 
 @app.route('/aluno')
 @app.route('/aluno.html')

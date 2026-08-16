@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- ÁREA DE GESTÃO DE PRIVILÉGIOS COM BARRA LATERAL ORGANIZADA -->
+  <!-- ÁREA DE GESTÃO DE MENSALIDADES COM BARRA LATERAL ERP COMERCIAL -->
   <div class="erp-wrapper">
     
-    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
+    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP -->
     <aside class="erp-sidebar" id="erpSidebar">
       
       <!-- Cabeçalho do Menu com Logo & Título -->
@@ -69,14 +69,14 @@
             <i data-lucide="chevron-right" class="erp-chevron"></i>
           </a>
 
-          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+          <!-- ATIVO: GESTÃO DE MENSALIDADES -->
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item active" style="border: 1px solid rgba(96, 165, 250, 0.4); background: rgba(96, 165, 250, 0.12);">
             <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
             <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
           </a>
 
-          <!-- ATIVO: GESTÃO DE PRIVILÉGIOS -->
-          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item active" style="border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.12);">
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
             <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
             <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
@@ -100,100 +100,107 @@
           <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
             <i data-lucide="menu"></i>
           </button>
-          <span class="erp-blue-badge">BJ Sports ERP • Gestão de Permissões</span>
+          <span class="erp-blue-badge">BJ Sports ERP • Gestão de Mensalidades</span>
         </div>
         
         <div class="erp-topbar-right">
           <div class="erp-user-badge">
             <span class="erp-avatar">🥋</span>
             <span class="erp-user-name">{{ user_name }}</span>
-            <span class="badge-pill bg-green" style="font-size: 0.7rem;">PAINEL ADMINISTRATIVO</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">GESTOR FINANCEIRO</span>
           </div>
         </div>
       </header>
 
-      <!-- Conteúdo Principal -->
+      <!-- Conteúdo da Gestão de Mensalidades -->
       <main class="erp-content">
         
         <div class="erp-hero-banner" style="margin-bottom: 28px;">
           <div class="erp-status-indicator">
-            <span class="live-dot"></span> ADMINISTRAÇÃO DE ACESSOS & MONITORAMENTO
+            <span class="live-dot"></span> CONTROLE MENSAL DE COBRANÇA & VENCIMENTOS
           </div>
-          <h1 class="erp-hero-heading">Gestão de Privilégios & Permissões</h1>
-          <p class="erp-hero-sub">Atribua permissões especiais de Monitoramento para alunos que auxiliam o Mestre Bolivar na academia.</p>
+          <h1 class="erp-hero-heading">Gestão de Mensalidades dos Alunos</h1>
+          <p class="erp-hero-sub">Acompanhe os vencimentos (Dia 5, Dia 15 ou Dia 25 de cada mês) e altere o status de pagamento dos alunos.</p>
         </div>
 
-        <div class="grid-planos" style="margin-bottom: 36px;">
-          <div class="plano-card glass-panel text-center">
-            <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">⚡</div>
-            <h3 class="plano-title">Nível 1: Aluno</h3>
-            <p class="plano-sub">Acesso Padrão do Sistema</p>
-            <span class="badge-pill" style="margin-top: 10px;">PERMISSÃO INICIAL</span>
+        <!-- Metric Cards por Dia de Vencimento -->
+        <div class="erp-cards-grid" style="margin-bottom: 28px;">
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 5</span>
+            <div class="erp-card-big-number" style="color: #60a5fa;">Dia 5</div>
+            <span class="erp-card-foot">Primeira remessa do mês</span>
           </div>
 
-          <div class="plano-card featured-card glass-panel text-center">
-            <div class="plano-badge">RECOMENDADO PARA AUXILIARES</div>
-            <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">🔍</div>
-            <h3 class="plano-title">Nível 2: Monitor</h3>
-            <p class="plano-sub">Acesso Especial de Auxílio à Gestão</p>
-            <span class="badge-pill bg-green" style="margin-top: 10px;">ACESSO ESPECIAL</span>
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 15</span>
+            <div class="erp-card-big-number" style="color: var(--accent-gold);">Dia 15</div>
+            <span class="erp-card-foot">Segunda remessa do mês</span>
           </div>
 
-          <div class="plano-card glass-panel text-center">
-            <div class="product-icon" style="font-size: 2.5rem; margin-top: 5px;">🥋</div>
-            <h3 class="plano-title">Nível 3: Instrutor / Mestre</h3>
-            <p class="plano-sub">Acesso Total Administrativo</p>
-            <span class="badge-pill" style="margin-top: 10px; background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">ACESSO TOTAL</span>
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 25</span>
+            <div class="erp-card-big-number" style="color: #4ade80;">Dia 25</div>
+            <span class="erp-card-foot">Terceira remessa do mês</span>
           </div>
         </div>
 
+        <!-- Tabela dos Alunos com Vencimento 5, 15, 25 -->
         <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
-          <div style="margin-bottom: 24px;">
+          <div style="margin-bottom: 20px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
-              <i data-lucide="shield" class="icon-gold"></i> Membros Cadastrados & Níveis de Privilégio
+              <i data-lucide="dollar-sign" class="icon-green"></i> Alunos Cadastrados & Status de Mensalidade
             </h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Filtre e altere o dia de vencimento (5, 15 ou 25) e confirme pagamentos em tempo real.</p>
           </div>
 
           <div class="table-responsive">
             <table class="schedule-table">
               <thead>
                 <tr>
-                  <th>Membro / Aluno</th>
-                  <th>Usuário / CPF</th>
+                  <th>Aluno / Cadastro</th>
                   <th>Plano Contratado</th>
-                  <th>Privilégio Atual</th>
-                  <th>Alterar Privilégio</th>
+                  <th>Dia de Vencimento</th>
+                  <th>Status Financeiro</th>
+                  <th>Atualizar Fatura</th>
                 </tr>
               </thead>
               <tbody>
-                {% for user in users %}
+                {% for u in users %}
                 <tr>
                   <td>
-                    <strong>{{ user.name }}</strong>
+                    <strong>{{ u.name }}</strong>
+                    <small style="display: block; color: var(--text-muted);">@{{ u.username }} • CPF: {{ u.cpf }}</small>
                   </td>
                   <td>
-                    <strong style="color: var(--accent-gold);">@{{ user.username }}</strong>
+                    <span style="font-size: 0.85rem; color: #ffffff;">{{ u.plan }}</span>
                   </td>
                   <td>
-                    <span style="font-size: 0.85rem; color: #ffffff;">{{ user.plan }}</span>
+                    <span class="badge-pill" style="background: rgba(96, 165, 250, 0.15); border-color: #60a5fa; color: #60a5fa; font-weight: 700;">
+                      📅 Dia {{ u.due_date }} de cada mês
+                    </span>
                   </td>
                   <td>
-                    {% if user.role == 'instrutor' %}
-                      <span class="badge-pill" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">🥋 INSTRUTOR</span>
-                    {% elif user.role == 'monitor' %}
-                      <span class="badge-pill bg-green">🔍 MONITOR</span>
+                    {% if u.payment_status == 'Em Dia' %}
+                      <span class="badge-pill bg-green">🟢 PAGO / EM DIA</span>
                     {% else %}
-                      <span class="badge-pill">⚡ ALUNO</span>
+                      <span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444;">🔴 AGUARDANDO PIX</span>
                     {% endif %}
                   </td>
                   <td>
-                    <form action="{{ url_for('gestao_privilegios') }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
-                      <input type="hidden" name="user_id" value="{{ user.id }}">
-                      <select name="new_role" style="padding: 6px 12px; font-size: 0.85rem; width: auto;" required>
-                        <option value="aluno" {% if user.role == 'aluno' %}selected{% endif %}>⚡ Aluno</option>
-                        <option value="monitor" {% if user.role == 'monitor' %}selected{% endif %}>🔍 Monitor</option>
-                        <option value="instrutor" {% if user.role == 'instrutor' %}selected{% endif %}>🥋 Instrutor</option>
+                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
+                      <input type="hidden" name="user_id" value="{{ u.id }}">
+                      
+                      <select name="due_date" style="padding: 6px; font-size: 0.8rem; width: 100px;">
+                        <option value="5" {% if u.due_date == '5' %}selected{% endif %}>Dia 5</option>
+                        <option value="15" {% if u.due_date == '15' %}selected{% endif %}>Dia 15</option>
+                        <option value="25" {% if u.due_date == '25' %}selected{% endif %}>Dia 25</option>
                       </select>
+
+                      <select name="payment_status" style="padding: 6px; font-size: 0.8rem; width: 110px;">
+                        <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>Em Dia</option>
+                        <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                      </select>
+
                       <button type="submit" class="btn btn-primary btn-sm btn-glow">
                         Salvar
                       </button>

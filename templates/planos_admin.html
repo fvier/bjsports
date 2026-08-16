@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- ÁREA DE ADMINISTRAÇÃO DE PLANOS COM BARRA LATERAL ERP COMERCIAL -->
+  <!-- ÁREA DE ADMINISTRAÇÃO DE PLANOS COM BARRA LATERAL ORGANIZADA -->
   <div class="erp-wrapper">
     
-    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP (100% VISÍVEL NESSA ROTA) -->
+    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
     <aside class="erp-sidebar" id="erpSidebar">
       
       <!-- Cabeçalho do Menu com Logo & Título -->
@@ -16,12 +16,12 @@
         </div>
       </div>
 
-      <!-- Navegação Categorizada com Grupos VISÃO GERAL e MÓDULOS -->
+      <!-- Navegação Categorizada Organizada nas 3 Seções: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
       <nav class="erp-nav">
         
-        <!-- Grupo 1: VISÃO GERAL -->
+        <!-- SEÇÃO 1: AULAS -->
         <div class="erp-nav-group">
-          <span class="erp-group-title">VISÃO GERAL</span>
+          <span class="erp-group-title">AULAS</span>
           
           <a href="{{ url_for('login') }}" class="erp-nav-item">
             <i data-lucide="home" class="erp-item-icon"></i>
@@ -29,33 +29,57 @@
           </a>
 
           <a href="{{ url_for('login') }}" class="erp-nav-item">
-            <i data-lucide="trending-up" class="erp-item-icon"></i>
-            <span class="erp-item-label">Dashboard do Aluno</span>
+            <i data-lucide="calendar" class="erp-item-icon"></i>
+            <span class="erp-item-label">Presenças & Treinos</span>
+          </a>
+
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="award" class="erp-item-icon"></i>
+            <span class="erp-item-label">Graduação & Faixas</span>
+          </a>
+
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="sparkles" class="erp-item-icon"></i>
+            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
           </a>
         </div>
 
-        <!-- Grupo 2: MÓDULOS & GESTÃO DA ACADEMIA -->
+        <!-- SEÇÃO 2: FINANCEIRO -->
         <div class="erp-nav-group">
-          <span class="erp-group-title">MÓDULOS & GESTÃO</span>
+          <span class="erp-group-title">FINANCEIRO</span>
 
-          <!-- MENU ATIVO: GESTÃO DE PLANOS -->
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label">Minhas Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">ADMINISTRAÇÃO</span>
+
+          <!-- ATIVO: GESTÃO DE PLANOS -->
           <a href="{{ url_for('planos_admin') }}" class="erp-nav-item active" style="border: 1px solid rgba(37, 211, 102, 0.4); background: rgba(37, 211, 102, 0.12);">
             <i data-lucide="tag" class="erp-item-icon icon-green"></i>
             <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
           </a>
 
-          <!-- MENU: GESTÃO DE PRIVILÉGIOS -->
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
+            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
           <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
             <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
             <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
             <i data-lucide="chevron-right" class="erp-chevron"></i>
-          </a>
-
-          <a href="{{ url_for('loja') }}" class="erp-nav-item">
-            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
-            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
-            <i data-lucide="chevron-down" class="erp-chevron"></i>
           </a>
 
           <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
@@ -67,10 +91,10 @@
       </nav>
     </aside>
 
-    <!-- ÁREA PRINCIPAL COM TOOPBAR ERP & CONTEÚDO EMPILHADO VERTICALMENTE -->
+    <!-- ÁREA PRINCIPAL -->
     <div class="erp-main-container">
       
-      <!-- Top Bar com Ícone Hambúrguer e Badge Azul -->
+      <!-- Top Bar -->
       <header class="erp-topbar">
         <div class="erp-topbar-left">
           <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
@@ -81,25 +105,22 @@
         
         <div class="erp-topbar-right">
           <div class="erp-user-badge">
-            <span class="erp-avatar">
-              {% if user_role == 'instrutor' %}🥋{% elif user_role == 'monitor' %}🔍{% else %}⚡{% endif %}
-            </span>
+            <span class="erp-avatar">🥋</span>
             <span class="erp-user-name">{{ user_name }}</span>
             <span class="badge-pill bg-green" style="font-size: 0.7rem;">PAINEL ADMINISTRATIVO</span>
           </div>
         </div>
       </header>
 
-      <!-- Conteúdo Principal Empilhado (EM CIMA: Form de Cadastro | EMBAIXO: Planos Cadastrados) -->
+      <!-- Conteúdo Principal Empilhado (EM CIMA: Form | EMBAIXO: Lista de Planos) -->
       <main class="erp-content">
         
-        <!-- Banner de Início -->
         <div class="erp-hero-banner" style="margin-bottom: 28px;">
           <div class="erp-status-indicator">
-            <span class="live-dot"></span> ADMINISTRAÇÃO MENSAL DE PLANOS
+            <span class="live-dot"></span> ADMINISTRAÇÃO DE PLANOS & INVESTIMENTOS
           </div>
-          <h1 class="erp-hero-heading">Gestão de Mensalidades & Opções</h1>
-          <p class="erp-hero-sub">Cadastre novos planos ou edite valores dos planos cadastrados no sistema.</p>
+          <h1 class="erp-hero-heading">Gestão de Catálogo de Planos</h1>
+          <p class="erp-hero-sub">Cadastre novos planos ou edite valores dos planos cadastrados na academia.</p>
         </div>
 
         <!-- 1. BLOCO SUPERIOR (EM CIMA): CADASTRAR NOVO PLANO -->
@@ -149,7 +170,6 @@
             <div class="form-group">
               <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
               <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã e noite; Acompanhamento de evolução">
-              <span class="field-hint">💡 Separe os benefícios com ';' para exibir em lista na página inicial.</span>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-top: 10px;">
@@ -158,7 +178,7 @@
           </form>
         </div>
 
-        <!-- 2. BLOCO INFERIOR (EMBAIXO): LISTA DE PLANOS CADASTRAIS E EDIÇÃO DE VALORES -->
+        <!-- 2. BLOCO INFERIOR (EMBAIXO): LISTA DE PLANOS CADASTRAIS -->
         <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
           <div style="margin-bottom: 24px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
@@ -173,7 +193,6 @@
             {% for plan in plans %}
             <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 16px; padding: 24px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);">
               
-              <!-- Formulário Inline de Edição por ID -->
               <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="plan_id" value="{{ plan.id }}">
@@ -232,7 +251,6 @@
                 </div>
               </form>
 
-              <!-- Ação de Remoção -->
               <div style="display: flex; justify-content: flex-end;">
                 <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
                   <input type="hidden" name="action" value="delete">
