@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ page_title }} — BJ Sports Centro de Treinamento</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo_transparent.png') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,7 +86,7 @@
         </button>
 
         {% if is_logged_in %}
-        <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN (ÚNICO E LIMPO) -->
+        <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN -->
         <div class="user-avatar-dropdown">
           <button class="avatar-trigger-btn" id="userAvatarBtn" title="Minha Conta">
             <span class="user-avatar-photo">🥋</span>
@@ -110,13 +110,13 @@
               </div>
             </a>
 
-            <button class="dropdown-item border-none-btn" id="editProfileBtn">
+            <a href="{{ url_for('configuracoes') }}" class="dropdown-item">
               <i data-lucide="user-check" class="icon-gold"></i>
               <div>
                 <strong>Editar Informações</strong>
                 <small>Atualizar dados cadastrais</small>
               </div>
-            </button>
+            </a>
 
             <a href="{{ url_for('logout') }}" class="dropdown-item logout-dropdown-item">
               <i data-lucide="log-out" class="icon-red"></i>
