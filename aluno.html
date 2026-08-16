@@ -104,7 +104,7 @@
 
   <!-- Card Principal de Login e Cadastro -->
   <section class="section portal-section">
-    <div class="container" style="max-width: 580px;">
+    <div class="container" style="max-width: 600px;">
       <div class="glass-panel portal-card">
         
         <!-- Tabs de Alternância: Entrar vs Criar Conta -->
@@ -120,18 +120,21 @@
         <!-- Formulário 1: Login de Aluno -->
         <form id="portalLoginForm" class="modal-form portal-form">
           <div class="form-group">
-            <label for="portalCpf">CPF do Aluno ou Login *</label>
+            <label for="portalCpf">Usuário ou CPF *</label>
             <div class="input-with-icon">
               <i data-lucide="user" class="input-icon"></i>
-              <input type="text" id="portalCpf" placeholder="000.000.000-00 ou Bolivar" required>
+              <input type="text" id="portalCpf" placeholder="bolivar_bjj ou 000.000.000-00" required>
             </div>
           </div>
 
           <div class="form-group">
             <label for="portalPassword">Senha de Acesso *</label>
-            <div class="input-with-icon">
+            <div class="input-with-eye">
               <i data-lucide="shield-check" class="input-icon"></i>
               <input type="password" id="portalPassword" placeholder="••••••••" required>
+              <button type="button" class="btn-toggle-eye" data-target="portalPassword" title="Mostrar/Ocultar Senha">
+                <i data-lucide="eye"></i>
+              </button>
             </div>
           </div>
 
@@ -146,8 +149,20 @@
           </div>
         </form>
 
-        <!-- Formulário 2: Cadastro de Novo Aluno -->
+        <!-- Formulário 2: Cadastro de Novo Aluno (Requisitos Atualizados) -->
         <form id="portalRegisterForm" class="modal-form portal-form hidden">
+          
+          <!-- 1. Usuário (Único) -->
+          <div class="form-group">
+            <label for="regUsername">Usuário (Login Único) *</label>
+            <div class="input-with-icon">
+              <i data-lucide="user-check" class="input-icon"></i>
+              <input type="text" id="regUsername" placeholder="ex: bolivar_bjj" required>
+            </div>
+            <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
+          </div>
+
+          <!-- 2. Nome Completo -->
           <div class="form-group">
             <label for="regName">Nome Completo *</label>
             <div class="input-with-icon">
@@ -156,34 +171,65 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="regCpf">CPF *</label>
-              <input type="text" id="regCpf" placeholder="000.000.000-00" required>
-            </div>
-            <div class="form-group">
-              <label for="regPhone">WhatsApp com DDD *</label>
-              <input type="tel" id="regPhone" placeholder="(83) 99999-9999" required>
-            </div>
+          <!-- 3. CPF -->
+          <div class="form-group">
+            <label for="regCpf">CPF *</label>
+            <input type="text" id="regCpf" placeholder="000.000.000-00" required>
           </div>
 
+          <!-- 4. WhatsApp Dividido em DDD e Número -->
           <div class="form-group">
-            <label for="regModality">Modalidade de Interesse:</label>
-            <select id="regModality" required>
-              <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
-              <option value="Jiu-Jitsu (Kids)">Jiu-Jitsu (Kids)</option>
-              <option value="Boxe Tradicional">Boxe Tradicional</option>
+            <label>WhatsApp / Celular *</label>
+            <div class="phone-split-group">
+              <div style="width: 85px;">
+                <input type="text" id="regDDD" class="ddd-input" placeholder="83" maxlength="2" required title="DDD (2 dígitos)">
+              </div>
+              <div style="flex: 1;">
+                <input type="tel" id="regPhoneNumber" placeholder="99652-7997" maxlength="10" required title="Número do Celular">
+              </div>
+            </div>
+            <span class="field-hint">📱 Informe DDD e o número sem o DDD.</span>
+          </div>
+
+          <!-- 5. Seleção de Planos & Valores Mensais -->
+          <div class="form-group">
+            <label for="regPlan">Plano Desejado & Investimento Mensal *</label>
+            <select id="regPlan" required>
+              <option value="" disabled selected>-- Selecione seu Plano --</option>
+              <optgroup label="Planos Individuais">
+                <option value="Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês</option>
+                <option value="Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Tradicional (Seg, Qua, Sex) — R$ 90,00/mês</option>
+                <option value="Boxe Tradicional (Ter, Qui) — R$ 90,00/mês">Boxe Tradicional (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Passe Livre (BJJ & Boxe) — R$ 120,00/mês">Passe Livre (BJJ & Boxe) — R$ 120,00/mês</option>
+              </optgroup>
+              <optgroup label="Planos Promocionais & Família">
+                <option value="Plano Família (3 Pessoas) — R$ 280,00/mês">Plano Família (3 Pessoas) — R$ 280,00/mês</option>
+                <option value="Plano Casal (2 Pessoas) — R$ 190,00/mês">Plano Casal (2 Pessoas) — R$ 190,00/mês</option>
+                <option value="Plano Kids (2 Irmãos) — R$ 170,00/mês">Plano Kids (2 Irmãos) — R$ 170,00/mês</option>
+              </optgroup>
             </select>
           </div>
 
+          <!-- 6. Senha & Confirmação com Olhinho -->
           <div class="form-row">
             <div class="form-group">
               <label for="regPass">Criar Senha *</label>
-              <input type="password" id="regPass" placeholder="Mínimo 6 caracteres" required>
+              <div class="input-with-eye">
+                <input type="password" id="regPass" placeholder="••••••••" required>
+                <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar/Ocultar Senha">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="regPassConfirm">Confirmar Senha *</label>
-              <input type="password" id="regPassConfirm" placeholder="Repita a senha" required>
+              <div class="input-with-eye">
+                <input type="password" id="regPassConfirm" placeholder="••••••••" required>
+                <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -199,7 +245,7 @@
             <div>
               <h3 id="dashNameDisplay">Fernando Vier</h3>
               <span class="badge-pill bg-green">ALUNO MATRICULADO</span>
-              <p style="margin-top: 4px;"><small id="dashModalityDisplay">Jiu-Jitsu (BJJ) • Faixa Azul (2 Graus)</small></p>
+              <p style="margin-top: 4px;"><small id="dashPlanDisplay">Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês</small></p>
             </div>
           </div>
 
@@ -262,7 +308,7 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva com Seleção Dinâmica de Horários nas Próximas 48h -->
+  <!-- Modal de Reserva -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>

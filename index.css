@@ -574,6 +574,46 @@ body {
   box-shadow: 0 0 20px rgba(37, 211, 102, 0.4) !important;
 }
 
+/* Password Eye Toggle & Split Phone Inputs */
+.input-with-eye {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-eye input {
+  padding-right: 44px !important;
+}
+
+.btn-toggle-eye {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.btn-toggle-eye:hover {
+  color: var(--accent-gold);
+}
+
+.phone-split-group {
+  display: flex;
+  gap: 12px;
+}
+
+.ddd-input {
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent-gold) !important;
+}
+
 /* Planos & Descontos Section */
 .grid-planos {
   display: grid;

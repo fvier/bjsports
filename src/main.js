@@ -24,7 +24,9 @@ import {
   Award,
   AlertTriangle,
   ChevronDown,
-  Building2
+  Building2,
+  Eye,
+  EyeOff
 } from 'lucide';
 
 // Initialize Lucide Icons
@@ -54,7 +56,9 @@ function initIcons() {
       Award,
       AlertTriangle,
       ChevronDown,
-      Building2
+      Building2,
+      Eye,
+      EyeOff
     }
   });
 }
@@ -365,6 +369,31 @@ function openModalWithModality(modalityName) {
   if (modal) modal.classList.remove('hidden');
 }
 
+// Password Eye Toggle Handler
+function setupPasswordEyeToggles() {
+  document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+
+      const icon = btn.querySelector('i');
+      if (icon) {
+        if (isPassword) {
+          icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+          icon.setAttribute('data-lucide', 'eye');
+        }
+        initIcons();
+      }
+    });
+  });
+}
+
 // Standalone Portal do Aluno Page Handler (aluno.html)
 function setupPortalPage() {
   const tabLogin = document.getElementById('tabBtnLogin');
@@ -374,7 +403,7 @@ function setupPortalPage() {
   const dashView = document.getElementById('portalDashboardView');
   const logoutBtn = document.getElementById('logoutPortalBtn');
   const dashNameDisplay = document.getElementById('dashNameDisplay');
-  const dashModalityDisplay = document.getElementById('dashModalityDisplay');
+  const dashPlanDisplay = document.getElementById('dashPlanDisplay');
 
   if (!tabLogin || !tabRegister) return;
 
@@ -409,13 +438,23 @@ function setupPortalPage() {
   if (formRegister) {
     formRegister.addEventListener('submit', (e) => {
       e.preventDefault();
+      const usernameVal = document.getElementById('regUsername').value;
       const nameVal = document.getElementById('regName').value;
-      const modVal = document.getElementById('regModality').value;
-      
+      const dddVal = document.getElementById('regDDD').value;
+      const phoneVal = document.getElementById('regPhoneNumber').value;
+      const planVal = document.getElementById('regPlan').value;
+      const passVal = document.getElementById('regPass').value;
+      const passConfirmVal = document.getElementById('regPassConfirm').value;
+
+      if (passVal !== passConfirmVal) {
+        alert('As senhas não coincidem. Por favor, verifique a senha informada.');
+        return;
+      }
+
       confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
 
-      if (dashNameDisplay) dashNameDisplay.textContent = nameVal || 'Novo Aluno';
-      if (dashModalityDisplay) dashModalityDisplay.textContent = `${modVal} • Aluno Recém Matriculado`;
+      if (dashNameDisplay) dashNameDisplay.textContent = `${nameVal} (@${usernameVal})`;
+      if (dashPlanDisplay) dashPlanDisplay.textContent = `${planVal} • WhatsApp: (${dddVal}) ${phoneVal}`;
 
       if (formLogin) formLogin.classList.add('hidden');
       if (formRegister) formRegister.classList.add('hidden');
@@ -450,6 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupPortalPage();
+  setupPasswordEyeToggles();
   setupGlobalKeyListeners();
   initIcons();
 });
