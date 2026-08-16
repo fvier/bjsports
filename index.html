@@ -15,7 +15,7 @@
 </head>
 <body>
 
-  <!-- Header Navigation (Top Status Bar Removed) -->
+  <!-- Header Navigation -->
   <header class="main-header">
     <div class="container header-content">
       <a href="#" class="brand-link">
@@ -279,15 +279,15 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva Avançado (Garantia de Vaga - Máx 20 Alunos) -->
+  <!-- Modal de Reserva Limpo e Direto -->
   <div class="modal-backdrop hidden" id="bookingModal">
-    <div class="modal-card glass-panel modal-card-lg">
+    <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
       
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
         <h3>GARANTIR MINHA VAGA • BJ SPORTS</h3>
-        <p class="modal-subtitle">🔥 Turmas limitadas a no máximo <strong>20 alunos por período</strong> para atenção total do Mestre Bolivar.</p>
+        <p class="modal-subtitle">🔥 Turmas limitadas a no máximo <strong>20 alunos por período</strong> em Cajazeiras-PB.</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
@@ -345,39 +345,6 @@
                 <option value="Todos os Dias - Passe Livre | R$ 120/mês">Todos os Dias • Passe Livre — R$ 120/mês</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Nível de Experiência & Observações -->
-        <div class="form-section">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="bookLevel">Nível de Experiência</label>
-              <select id="bookLevel">
-                <option value="Iniciante (Nunca treinei)">🟢 Iniciante (Primeira vez no Tatame)</option>
-                <option value="Praticante / Faixa Branca com tempo">🟡 Já pratico / Faixa Branca com base</option>
-                <option value="Graduado (Azul / Roxa / Marrom / Preta)">🔴 Graduado (Azul, Roxa, Marrom, Preta)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="bookNotes">Observação / Dúvida (Opcional)</label>
-              <input type="text" id="bookNotes" placeholder="Ex: Preferência pelo treino da tarde">
-            </div>
-          </div>
-        </div>
-
-        <!-- Resumo Dinâmico do Investimento -->
-        <div class="booking-summary-card" id="bookingSummaryCard">
-          <div class="summary-header">
-            <span class="summary-badge"><i data-lucide="sparkles" class="icon-gold"></i> GARANTIA DE VAGA</span>
-            <span class="summary-trial">🎁 1ª Aula Experimental Grátis</span>
-          </div>
-          <div class="summary-body">
-            <div class="summary-item">
-              <span>Investimento Mensal:</span>
-              <strong id="summaryPriceDisplay" class="summary-price">R$ 100,00 /mês</strong>
-            </div>
-            <p class="summary-foot">📍 Turmas exclusivas (Máx. 20 alunos) na Av. Estrada do Amor, Cajazeiras-PB</p>
           </div>
         </div>
 

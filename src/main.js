@@ -131,37 +131,9 @@ function setupPlanButtons() {
   document.querySelectorAll('.select-plan-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const plan = btn.getAttribute('data-plan');
-      const price = btn.getAttribute('data-price');
-      openModalWithModality(plan, price);
+      openModalWithModality(plan);
     });
   });
-}
-
-// Booking Summary Calculator
-function updateBookingSummary() {
-  const modSelect = document.getElementById('bookModality');
-  const shiftSelect = document.getElementById('bookShift');
-  const priceDisplay = document.getElementById('summaryPriceDisplay');
-  if (!modSelect || !priceDisplay) return;
-
-  const modVal = modSelect.value;
-  const shiftVal = shiftSelect ? shiftSelect.value : '';
-
-  let price = 'R$ 100,00 /mês';
-
-  if (modVal.includes('Família')) {
-    price = 'R$ 280,00 /mês';
-  } else if (modVal.includes('Casal')) {
-    price = 'R$ 190,00 /mês';
-  } else if (modVal.includes('Kids')) {
-    price = 'R$ 170,00 /mês';
-  } else if (shiftVal.includes('90/mês') || shiftVal.includes('06:00h') || shiftVal.includes('12:00h') || shiftVal.includes('Ter e Qui')) {
-    price = 'R$ 90,00 /mês';
-  } else if (shiftVal.includes('120/mês') || shiftVal.includes('Passe Livre')) {
-    price = 'R$ 120,00 /mês';
-  }
-
-  priceDisplay.textContent = price;
 }
 
 // Booking Modal
@@ -171,14 +143,11 @@ function setupBookingModal() {
   const closeBtn = document.getElementById('closeBookingModal');
   const heroCTA = document.getElementById('heroCTA');
   const bookingForm = document.getElementById('bookingForm');
-  const modSelect = document.getElementById('bookModality');
-  const shiftSelect = document.getElementById('bookShift');
 
   if (modal) modal.classList.add('hidden');
 
   function openModal() {
     if (modal) modal.classList.remove('hidden');
-    updateBookingSummary();
   }
 
   function closeModal() {
@@ -188,9 +157,6 @@ function setupBookingModal() {
   if (openBtn) openBtn.addEventListener('click', openModal);
   if (heroCTA) heroCTA.addEventListener('click', openModal);
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
-
-  if (modSelect) modSelect.addEventListener('change', updateBookingSummary);
-  if (shiftSelect) shiftSelect.addEventListener('change', updateBookingSummary);
 
   if (modal) {
     modal.addEventListener('click', (e) => {
@@ -205,8 +171,6 @@ function setupBookingModal() {
       const phone = document.getElementById('bookPhone').value;
       const modality = document.getElementById('bookModality').value;
       const shift = document.getElementById('bookShift').value;
-      const level = document.getElementById('bookLevel').value;
-      const notes = document.getElementById('bookNotes').value;
 
       confetti({
         particleCount: 150,
@@ -214,15 +178,13 @@ function setupBookingModal() {
         origin: { y: 0.5 }
       });
 
-      // Format WhatsApp Message emphasizing 20-student limit
-      let msg = `*RESERVA DE VAGA — TURMA LIMITADA (MÁX 20 ALUNOS)*\n\n`;
+      // Format WhatsApp Message
+      let msg = `*GARANTIA DE VAGA — BJ SPORTS CAJAZEIRAS*\n\n`;
       msg += `👤 *Nome:* ${name}\n`;
       msg += `📞 *WhatsApp:* ${phone}\n`;
       msg += `🥋 *Modalidade/Plano:* ${modality}\n`;
-      msg += `🕒 *Horário/Frequência:* ${shift}\n`;
-      msg += `⭐ *Nível:* ${level}\n`;
-      if (notes) msg += `📝 *Observação:* ${notes}\n`;
-      msg += `\n📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
+      msg += `🕒 *Horário/Frequência:* ${shift}\n\n`;
+      msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
       msg += `Olá Mestre Bolivar, solicito a confirmação e reserva da minha vaga na turma!`;
 
       const encodedMsg = encodeURIComponent(msg);
@@ -236,7 +198,7 @@ function setupBookingModal() {
   }
 }
 
-function openModalWithModality(modalityName, customPrice) {
+function openModalWithModality(modalityName) {
   const modal = document.getElementById('bookingModal');
   const select = document.getElementById('bookModality');
   if (select) {
@@ -247,7 +209,6 @@ function openModalWithModality(modalityName, customPrice) {
       }
     }
   }
-  updateBookingSummary();
   if (modal) modal.classList.remove('hidden');
 }
 
