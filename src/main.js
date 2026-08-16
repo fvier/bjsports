@@ -10,8 +10,6 @@ import {
   Trophy, 
   Target, 
   CheckCircle, 
-  Moon,
-  Sun,
   UserCheck,
   LogIn,
   Instagram,
@@ -41,8 +39,6 @@ function initIcons() {
       Trophy,
       Target,
       CheckCircle,
-      Moon,
-      Sun,
       UserCheck,
       LogIn,
       Instagram,
@@ -413,22 +409,6 @@ function setupLoginModal() {
   }
 }
 
-// Theme Toggle (Positioned at left of Garantir Vaga, default Dark)
-function setupThemeToggle() {
-  const btn = document.getElementById('themeToggleBtn');
-  if (!btn) return;
-
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
-    const isLight = document.body.classList.contains('light-theme');
-    btn.setAttribute('title', isLight ? 'Alternar para Tema Escuro' : 'Alternar para Tema Claro');
-    btn.innerHTML = isLight 
-      ? `<i data-lucide="sun" class="icon-sm"></i>` 
-      : `<i data-lucide="moon" class="icon-sm"></i>`;
-    initIcons();
-  });
-}
-
 // Global Keydown Listener for Escape key
 function setupGlobalKeyListeners() {
   document.addEventListener('keydown', (e) => {
@@ -448,7 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupLoginModal();
-  setupThemeToggle();
   setupGlobalKeyListeners();
   initIcons();
 });
