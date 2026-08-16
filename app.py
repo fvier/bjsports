@@ -126,11 +126,10 @@ class User(db.Model):
         months_str = details['months_str']
         unit_price = details['unit_price']
 
-        # Limpa emojis complexos do nome do plano para evitar símbolos ''
         plan_simple = self.plan.split('—')[0].replace('⚡', '').replace('🔥', '').replace('👨‍👩‍👧', '').strip()
         first_name = self.name.split(' ')[0]
 
-        # MENSAGEM DIRETA, CLARA E SEM SÍMBOLOS '' DE ERRO DE ENCODING
+        # MENSAGEM DIRETA, CLARA E SEM SÍMBOLOS DE ERRO DE ENCODING
         if overdue_count > 1:
             msg = (
                 f"Olá, {first_name}!\n\n"
@@ -177,9 +176,10 @@ class Booking(db.Model):
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+# SEED DE ALUNOS COM NÚMERO ATUALIZADO DE FERNANDO VIER (55 81 98447-2771)
 SEED_STUDENTS = [
     ("bolivarbjj", "Mestre Bolivar", "111.222.333-44", "83", "996527997", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 1, "instrutor", "Em Dia", '{}'),
-    ("fernandovier", "Fernando Vier", "222.333.444-55", "83", "988776655", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 3, "monitor", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
+    ("fernandovier", "Fernando Vier", "222.333.444-55", "81", "984472771", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", 3, "monitor", "Pendente", '{"07": "atrasado", "08": "atrasado"}'),
     ("joaosilva", "João Silva", "333.444.555-66", "83", "977665544", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", 5, "aluno", "Em Dia", '{}'),
     ("mariasantos", "Maria Santos", "444.555.666-77", "83", "966554433", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", 5, "aluno", "Em Dia", '{}'),
     ("pedroalbuquerque", "Pedro Albuquerque", "101.202.303-40", "83", "991112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", 6, "aluno", "Em Dia", '{}'),
