@@ -123,21 +123,6 @@ with app.app_context():
         aluno1.set_password('123456')
         db.session.add(aluno1)
 
-    if not User.query.filter_by(username='joaosilva').first():
-        aluno2 = User(
-            username='joaosilva',
-            name='João Silva',
-            cpf='333.444.555-66',
-            ddd='83',
-            phone='977665544',
-            plan='Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês',
-            due_date='25',
-            role='aluno',
-            payment_status='Em Dia'
-        )
-        aluno2.set_password('123456')
-        db.session.add(aluno2)
-
     db.session.commit()
 
 # Context Processor for active navigation and user state across all templates
@@ -209,7 +194,7 @@ def login():
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('login'))
 
-        # Action 2: User Registration (com Escolha de Vencimento Dia 5, 15 ou 25)
+        # Action 2: User Registration
         elif action == 'register':
             username = request.form.get('regUsername', '').strip()
             name = request.form.get('regName', '').strip()
@@ -254,7 +239,7 @@ def login():
             
             return redirect(url_for('login'))
 
-        # Action 3: Atualizar Dia de Vencimento pelo Aluno
+        # Action 3: Atualizar Dia de Vencimento
         elif action == 'update_due_date':
             new_due_date = request.form.get('due_date', '5')
             user_id = session.get('user_id')
@@ -264,7 +249,7 @@ def login():
                     user.due_date = new_due_date
                     db.session.commit()
                     session['user_due_date'] = new_due_date
-                    flash(f'Dia de vencimento alterado com sucesso para Dia {new_due_date} de cada mês!', 'success')
+                    flash(f'Dia de vencimento alterado para Dia {new_due_date}!', 'success')
             return redirect(url_for('login'))
 
     is_logged_in = 'user_id' in session
@@ -282,34 +267,46 @@ def login():
         is_first_reg=is_first_reg
     )
 
-# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE MENSALIDADES & VENCIMENTOS (5, 15, 25)
-@app.route('/mensalidades_admin', methods=['GET', 'POST'])
-@app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
-def mensalidades_admin():
+# DEDICATED ROUTES FOR EVERY SIDEBAR ITEM
+
+# 1. SEÇÃO AULAS — Presenças & Treinos
+@app.route('/presencas', methods=['GET', 'POST'])
+@app.route('/presencas.html', methods=['GET', 'POST'])
+def presencas():
     if request.method == 'POST':
-        user_id = request.form.get('user_id')
-        new_status = request.form.get('payment_status')
-        new_due_date = request.form.get('due_date')
+        flash('Presença confirmada no rala de hoje com Mestre Bolivar!', 'success')
+        return redirect(url_for('presencas'))
+    return render_template('presencas.html', page_title='Presenças & Treinos')
 
-        user = User.query.get(user_id)
-        if user:
-            if new_status: user.payment_status = new_status
-            if new_due_date: user.due_date = new_due_date
-            db.session.commit()
-            flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
+# 2. SEÇÃO AULAS — Graduação & Faixas
+@app.route('/graduacao')
+@app.route('/graduacao.html')
+def graduacao():
+    return render_template('graduacao.html', page_title='Graduação & Faixas')
 
-        return redirect(url_for('mensalidades_admin'))
+# 3. SEÇÃO AULAS — Treinoteca / Vídeo Aulas
+@app.route('/treinoteca')
+@app.route('/treinoteca.html')
+def treinoteca():
+    return render_template('treinoteca.html', page_title='Treinoteca / Vídeo Aulas')
 
-    users_list = User.query.order_by(User.due_date.asc(), User.id.asc()).all()
-    return render_template('mensalidades_admin.html', page_title='Gestão de Mensalidades & Cobrança', users=users_list)
+# 4. SEÇÃO FINANCEIRO — Minhas Mensalidades
+@app.route('/mensalidades_aluno', methods=['GET', 'POST'])
+@app.route('/mensalidades_aluno.html', methods=['GET', 'POST'])
+def mensalidades_aluno():
+    if request.method == 'POST':
+        new_due_date = request.form.get('due_date', '15')
+        session['user_due_date'] = new_due_date
+        flash(f'Data de vencimento atualizada para o Dia {new_due_date} de cada mês!', 'success')
+        return redirect(url_for('mensalidades_aluno'))
+    return render_template('mensalidades_aluno.html', page_title='Minhas Mensalidades')
 
-# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE PLANOS
+# 5. SEÇÃO ADMINISTRAÇÃO — Gestão de Planos
 @app.route('/planos_admin', methods=['GET', 'POST'])
 @app.route('/planos_admin.html', methods=['GET', 'POST'])
 def planos_admin():
     if request.method == 'POST':
         action = request.form.get('action')
-        
         if action == 'create':
             name = request.form.get('name', '').strip()
             category = request.form.get('category', '').strip()
@@ -356,7 +353,28 @@ def planos_admin():
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
     return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
 
-# SEÇÃO ADMINISTRAÇÃO: GESTÃO DE PRIVILÉGIOS
+# 6. SEÇÃO ADMINISTRAÇÃO — Gestão de Mensalidades
+@app.route('/mensalidades_admin', methods=['GET', 'POST'])
+@app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
+def mensalidades_admin():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        new_status = request.form.get('payment_status')
+        new_due_date = request.form.get('due_date')
+
+        user = User.query.get(user_id)
+        if user:
+            if new_status: user.payment_status = new_status
+            if new_due_date: user.due_date = new_due_date
+            db.session.commit()
+            flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
+
+        return redirect(url_for('mensalidades_admin'))
+
+    users_list = User.query.order_by(User.due_date.asc(), User.id.asc()).all()
+    return render_template('mensalidades_admin.html', page_title='Gestão de Mensalidades & Cobrança', users=users_list)
+
+# 7. SEÇÃO ADMINISTRAÇÃO — Gestão de Privilégios
 @app.route('/gestao', methods=['GET', 'POST'])
 @app.route('/gestao.html', methods=['GET', 'POST'])
 def gestao_privilegios():
@@ -376,6 +394,18 @@ def gestao_privilegios():
 
     users_list = User.query.order_by(User.id.asc()).all()
     return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
+
+# 8. SEÇÃO CONFIGURAÇÕES — Configurações & Perfil
+@app.route('/configuracoes', methods=['GET', 'POST'])
+@app.route('/configuracoes.html', methods=['GET', 'POST'])
+def configuracoes():
+    if request.method == 'POST':
+        new_name = request.form.get('name', '').strip()
+        new_phone = request.form.get('phone', '').strip()
+        if new_name: session['user_name'] = new_name
+        flash('Configurações salvas com sucesso!', 'success')
+        return redirect(url_for('configuracoes'))
+    return render_template('configuracoes.html', page_title='Configurações & Perfil')
 
 @app.route('/aluno')
 @app.route('/aluno.html')

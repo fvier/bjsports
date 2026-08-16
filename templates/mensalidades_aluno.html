@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- ÁREA DE MENSALIDADES DO ALUNO COM BARRA LATERAL ERP COMERCIAL -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
+    <aside class="erp-sidebar" id="erpSidebar">
+      <div class="erp-brand-header">
+        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
+        <div class="erp-brand-info">
+          <h2 class="erp-brand-name">BJ Sports</h2>
+          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </div>
+
+      <nav class="erp-nav">
+        <!-- SEÇÃO 1: AULAS -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">AULAS</span>
+          
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="home" class="erp-item-icon"></i>
+            <span class="erp-item-label">Início / Visão Geral</span>
+          </a>
+
+          <a href="{{ url_for('presencas') }}" class="erp-nav-item">
+            <i data-lucide="calendar" class="erp-item-icon"></i>
+            <span class="erp-item-label">Presenças & Treinos</span>
+          </a>
+
+          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
+            <i data-lucide="award" class="erp-item-icon"></i>
+            <span class="erp-item-label">Graduação & Faixas</span>
+          </a>
+
+          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
+            <i data-lucide="sparkles" class="erp-item-icon"></i>
+            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 2: FINANCEIRO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">FINANCEIRO</span>
+
+          <!-- ATIVO: MINHAS MENSALIDADES -->
+          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item active" style="border: 1px solid rgba(37, 211, 102, 0.4); background: rgba(37, 211, 102, 0.12);">
+            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Minhas Mensalidades</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">ADMINISTRAÇÃO</span>
+
+          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
+            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
+          </a>
+
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
+            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
+            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
+          </a>
+
+          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
+            <i data-lucide="settings" class="erp-item-icon"></i>
+            <span class="erp-item-label">Configurações & Perfil</span>
+          </a>
+
+          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
+            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label text-red">Sair da Conta</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="erp-main-container">
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP • Minhas Mensalidades</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">🥋</span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">MENSALIDADE EM DIA</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="erp-content">
+        <div class="erp-hero-banner" style="margin-bottom: 28px;">
+          <div class="erp-status-indicator">
+            <span class="live-dot"></span> SEUS COMPROVANTES & VENCIMENTO DE MENSALIDADE
+          </div>
+          <h1 class="erp-hero-heading">Minhas Mensalidades</h1>
+          <p class="erp-hero-sub">Consulte a data de vencimento da sua mensalidade (Dia 5, 15 ou 25) e altere quando necessário.</p>
+        </div>
+
+        <!-- Banner com Data de Vencimento -->
+        <div class="promo-store-box" style="text-align: left; margin-bottom: 28px; background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <span class="badge-pill bg-green">SITUAÇÃO FINANCEIRA: EM DIA</span>
+              <h3 style="font-family: var(--font-heading); color: #ffffff; margin-top: 6px;">
+                Plano: {{ user_plan }}
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Dia de Vencimento Escolhido: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>
+            </div>
+
+            <div>
+              <a href="https://wa.me/5583996527997?text=Quero%20solicitar%20o%20PIX%20para%20pagamento%20da%20minha%20mensalidade" target="_blank" class="btn btn-primary btn-glow">
+                <i data-lucide="qr-code"></i> Pagar via PIX no WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alterar Data de Vencimento -->
+        <div class="glass-panel" style="margin-bottom: 28px; background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
+          <h4 style="font-family: var(--font-heading); color: var(--accent-gold); margin-bottom: 12px;">
+            <i data-lucide="calendar"></i> Alterar meu Dia de Vencimento (Dia 5, 15 ou 25)
+          </h4>
+          
+          <form action="{{ url_for('mensalidades_aluno') }}" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <select name="due_date" style="padding: 8px 16px; font-weight: 700; width: auto;" required>
+              <option value="5" {% if user_due_date == '5' %}selected{% endif %}>📅 Dia 5 de cada mês</option>
+              <option value="15" {% if user_due_date == '15' %}selected{% endif %}>📅 Dia 15 de cada mês</option>
+              <option value="25" {% if user_due_date == '25' %}selected{% endif %}>📅 Dia 25 de cada mês</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary btn-sm btn-glow">
+              Confirmar Nova Data
+            </button>
+          </form>
+        </div>
+
+      </main>
+    </div>
+  </div>
+{% endblock %}

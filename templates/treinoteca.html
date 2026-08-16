@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- ÁREA DE TREINOTECA COM BARRA LATERAL ERP COMERCIAL -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
+    <aside class="erp-sidebar" id="erpSidebar">
+      <div class="erp-brand-header">
+        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
+        <div class="erp-brand-info">
+          <h2 class="erp-brand-name">BJ Sports</h2>
+          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </div>
+
+      <nav class="erp-nav">
+        <!-- SEÇÃO 1: AULAS -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">AULAS</span>
+          
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="home" class="erp-item-icon"></i>
+            <span class="erp-item-label">Início / Visão Geral</span>
+          </a>
+
+          <a href="{{ url_for('presencas') }}" class="erp-nav-item">
+            <i data-lucide="calendar" class="erp-item-icon"></i>
+            <span class="erp-item-label">Presenças & Treinos</span>
+          </a>
+
+          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
+            <i data-lucide="award" class="erp-item-icon"></i>
+            <span class="erp-item-label">Graduação & Faixas</span>
+          </a>
+
+          <!-- ATIVO: TREINOTECA -->
+          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item active" style="border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.12);">
+            <i data-lucide="sparkles" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Treinoteca / Vídeo Aulas</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 2: FINANCEIRO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">FINANCEIRO</span>
+
+          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
+            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label">Minhas Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">ADMINISTRAÇÃO</span>
+
+          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
+            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
+          </a>
+
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
+            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
+            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
+          </a>
+
+          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
+            <i data-lucide="settings" class="erp-item-icon"></i>
+            <span class="erp-item-label">Configurações & Perfil</span>
+          </a>
+
+          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
+            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label text-red">Sair da Conta</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="erp-main-container">
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP • Treinoteca & Vídeo Aulas</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">🥋</span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">ACERVO TÉCNICO VIP</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="erp-content">
+        <div class="erp-hero-banner" style="margin-bottom: 28px;">
+          <div class="erp-status-indicator">
+            <span class="live-dot"></span> ACERVO TÉCNICO EXCLUSIVO DE VÍDEOS
+          </div>
+          <h1 class="erp-hero-heading">Treinoteca / Vídeo Aulas</h1>
+          <p class="erp-hero-sub">Estude os detalhes técnicos das posições ensinadas pelo Mestre Bolivar em alta resolução.</p>
+        </div>
+
+        <div class="grid-planos">
+          <!-- Vídeo 1 -->
+          <div class="plano-card glass-panel" style="padding: 20px;">
+            <div style="background: #000; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border-light); margin-bottom: 14px;">
+              <i data-lucide="play-circle" style="width: 54px; height: 54px; color: var(--accent-gold);"></i>
+            </div>
+            <span class="badge-pill" style="margin-bottom: 8px;">JIU-JITSU • PASSAGEM</span>
+            <h4 style="font-family: var(--font-heading); color: #fff; font-size: 1.1rem;">Passagem de Guarda Emborcando</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Detalhe do quadril e pegada de gola no rala.</p>
+            <button class="btn btn-primary btn-sm btn-block style-btn" style="margin-top: 12px;">Assistir Vídeo (08:45)</button>
+          </div>
+
+          <!-- Vídeo 2 -->
+          <div class="plano-card glass-panel" style="padding: 20px;">
+            <div style="background: #000; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border-light); margin-bottom: 14px;">
+              <i data-lucide="play-circle" style="width: 54px; height: 54px; color: var(--primary-red);"></i>
+            </div>
+            <span class="badge-pill" style="margin-bottom: 8px;">BOXE • COMBINAÇÃO</span>
+            <h4 style="font-family: var(--font-heading); color: #fff; font-size: 1.1rem;">Esquiva Externa + Direto no Queixo</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Combinação rápida de contra-ataque.</p>
+            <button class="btn btn-primary btn-sm btn-block style-btn" style="margin-top: 12px;">Assistir Vídeo (06:20)</button>
+          </div>
+
+          <!-- Vídeo 3 -->
+          <div class="plano-card glass-panel" style="padding: 20px;">
+            <div style="background: #000; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border-light); margin-bottom: 14px;">
+              <i data-lucide="play-circle" style="width: 54px; height: 54px; color: #4ade80;"></i>
+            </div>
+            <span class="badge-pill" style="margin-bottom: 8px;">JIU-JITSU • FINALIZAÇÃO</span>
+            <h4 style="font-family: var(--font-heading); color: #fff; font-size: 1.1rem;">Armlock da Guarda Fechada</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Ajuste do ângulo e rotação de ombros.</p>
+            <button class="btn btn-primary btn-sm btn-block style-btn" style="margin-top: 12px;">Assistir Vídeo (11:10)</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+{% endblock %}

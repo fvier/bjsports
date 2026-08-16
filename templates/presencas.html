@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- ÁREA DE PRESENÇAS COM BARRA LATERAL ERP COMERCIAL -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
+    <aside class="erp-sidebar" id="erpSidebar">
+      <div class="erp-brand-header">
+        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
+        <div class="erp-brand-info">
+          <h2 class="erp-brand-name">BJ Sports</h2>
+          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </div>
+
+      <nav class="erp-nav">
+        <!-- SEÇÃO 1: AULAS -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">AULAS</span>
+          
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="home" class="erp-item-icon"></i>
+            <span class="erp-item-label">Início / Visão Geral</span>
+          </a>
+
+          <!-- ATIVO: PRESENÇAS & TREINOS -->
+          <a href="{{ url_for('presencas') }}" class="erp-nav-item active" style="border: 1px solid rgba(229, 9, 20, 0.4); background: rgba(229, 9, 20, 0.12);">
+            <i data-lucide="calendar" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label" style="color: var(--primary-red); font-weight: 700;">Presenças & Treinos</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
+          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
+            <i data-lucide="award" class="erp-item-icon"></i>
+            <span class="erp-item-label">Graduação & Faixas</span>
+          </a>
+
+          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
+            <i data-lucide="sparkles" class="erp-item-icon"></i>
+            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 2: FINANCEIRO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">FINANCEIRO</span>
+
+          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
+            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label">Minhas Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+          </a>
+        </div>
+
+        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">ADMINISTRAÇÃO</span>
+
+          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
+            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
+          </a>
+
+          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
+            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
+            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
+          </a>
+
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
+            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
+          </a>
+
+          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
+            <i data-lucide="settings" class="erp-item-icon"></i>
+            <span class="erp-item-label">Configurações & Perfil</span>
+          </a>
+
+          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
+            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label text-red">Sair da Conta</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="erp-main-container">
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP • Presenças & Treinos</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">🥋</span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">95% FREQUÊNCIA</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="erp-content">
+        <div class="erp-hero-banner" style="margin-bottom: 28px;">
+          <div class="erp-status-indicator">
+            <span class="live-dot"></span> REGISTRO DE PRESENÇA NO TATAME
+          </div>
+          <h1 class="erp-hero-heading">Frequência & Histórico de Treinos</h1>
+          <p class="erp-hero-sub">Acompanhe seus ralas e confirme sua presença na aula de hoje com Mestre Bolivar.</p>
+        </div>
+
+        <div class="erp-cards-grid" style="margin-bottom: 28px;">
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Presenças no Mês</span>
+            <div class="erp-card-big-number" style="color: #4ade80;">18</div>
+            <span class="erp-card-foot">Frequência de 95% das aulas</span>
+          </div>
+
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Ralas de Jiu-Jitsu</span>
+            <div class="erp-card-big-number" style="color: var(--accent-gold);">12</div>
+            <span class="erp-card-foot">Treinos com e sem kimono</span>
+          </div>
+
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Treinos de Boxe</span>
+            <div class="erp-card-big-number" style="color: var(--primary-red);">6</div>
+            <span class="erp-card-foot">Manopla e sparring tático</span>
+          </div>
+        </div>
+
+        <!-- Confirmar Presença de Hoje -->
+        <div class="glass-panel" style="margin-bottom: 28px; background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: #ffffff;">
+                <i data-lucide="check-circle" class="icon-green"></i> Confirmar Presença no Rala de Hoje
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Treino: 🥋 Jiu-Jitsu Tarde (17:00h) — Mestre Bolivar (Sede)</p>
+            </div>
+            <form action="{{ url_for('presencas') }}" method="POST">
+              <button type="submit" class="btn btn-primary btn-lg btn-glow">
+                <i data-lucide="check"></i> Confirmar Check-in Hoje
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Histórico Recente -->
+        <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
+          <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;">
+            <i data-lucide="list" class="icon-gold"></i> Histórico Recente de Presenças
+          </h3>
+
+          <div class="classes-list">
+            <div class="class-item-card">
+              <div>
+                <strong style="color: #ffffff;">16/08/2026 — 17:00h</strong><br>
+                <small style="color: var(--text-muted);">Jiu-Jitsu Tarde • Passagem de Guarda Emborcando com Mestre Bolivar</small>
+              </div>
+              <span class="badge-pill bg-green">CONFIRMADO</span>
+            </div>
+
+            <div class="class-item-card">
+              <div>
+                <strong style="color: #ffffff;">14/08/2026 — 19:00h</strong><br>
+                <small style="color: var(--text-muted);">Boxe Tradicional • Combinações Jab-Direto e Sparring Tático</small>
+              </div>
+              <span class="badge-pill bg-green">CONFIRMADO</span>
+            </div>
+
+            <div class="class-item-card">
+              <div>
+                <strong style="color: #ffffff;">12/08/2026 — 17:00h</strong><br>
+                <small style="color: var(--text-muted);">Jiu-Jitsu Tarde • Armlock da Guarda Fechada e Raspagem Tesoura</small>
+              </div>
+              <span class="badge-pill bg-green">CONFIRMADO</span>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+{% endblock %}
