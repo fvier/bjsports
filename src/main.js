@@ -60,30 +60,30 @@ function initIcons() {
 // Schedule Data based on Mestre Bolivar's exact parameters
 const scheduleData = {
   seg: [
-    { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
-    { name: 'Jiu-Jitsu Tarde (85% Cheio!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
+    { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' },
+    { name: 'Jiu-Jitsu Tarde (85% Cheio!)', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
-    { name: 'Jiu-Jitsu Almoço', freq: '2x / semana (Ter, Qui)', time: '12:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Jiu-Jitsu Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' }
+    { name: 'Jiu-Jitsu Almoço', freq: '2x / semana (Ter, Qui)', time: '12:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' }
   ],
   todos: [
-    { name: 'Plano Passe Livre (BJJ & Boxe)', freq: 'Diário (Livre Acesso)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-func', tagLabel: 'Livre Acesso' },
-    { name: 'Plano Família (3 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Família' },
-    { name: 'Plano Casal (2 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Casal' }
+    { name: 'Plano Passe Livre (BJJ & Boxe)', freq: 'Diário (Livre Acesso)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', tag: 'tag-func', tagLabel: 'Livre Acesso' },
+    { name: 'Plano Família (3 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', tag: 'tag-bjj', tagLabel: 'Família' },
+    { name: 'Plano Casal (2 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', tag: 'tag-boxe', tagLabel: 'Casal' }
   ]
 };
 
-// Render Schedule Table
+// Render Schedule Table (Without redundant teacher column)
 function renderSchedule(day = 'seg') {
   const tbody = document.getElementById('scheduleTableBody');
   if (!tbody) return;
 
   const rows = scheduleData[day] || [];
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum treino listado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum treino listado.</td></tr>`;
     return;
   }
 
@@ -96,7 +96,6 @@ function renderSchedule(day = 'seg') {
       <td>${item.freq}</td>
       <td><span class="badge-pill">${item.time}</span></td>
       <td><span class="price-highlight">${item.price}</span></td>
-      <td>${item.teacher}</td>
       <td>
         <button class="btn btn-secondary btn-sm quick-book-btn" data-modality="${item.name}">
           Reservar
