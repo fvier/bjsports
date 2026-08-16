@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login & Cadastro — BJ Sports Centro de Treinamento</title>
+  <title>Login & Área de Membros — BJ Sports Centro de Treinamento</title>
   <link rel="icon" type="image/png" href="/logo_transparent.png">
   
   <!-- Google Fonts -->
@@ -84,17 +84,17 @@
           <i data-lucide="calendar-check"></i> Garantir Vaga
         </button>
         
-        <a href="/login.html" class="btn btn-header-login active-link-btn">
+        <a href="/login.html" class="btn btn-header-login active-link-btn" id="headerAreaAlunoBtn">
           <i data-lucide="user-check"></i> Área do Aluno
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section do Login -->
+  <!-- Hero Section do Login & Portal -->
   <section class="hero-section page-hero">
     <div class="container text-center">
-      <span class="section-badge">ACESSO RESTRITO & GESTÃO</span>
+      <span class="section-badge" id="pageHeroBadge">ACESSO RESTRITO & GESTÃO</span>
       <h1 class="hero-title" id="pageHeroTitle">LOGIN & <span class="highlight-red">CADASTRO</span></h1>
       <p class="hero-desc" id="pageHeroSubtitle" style="margin: 0 auto;">
         Acesse sua conta de aluno ou faça seu novo cadastro para treinar no BJ Sports sob supervisão do Mestre Bolivar.
@@ -102,10 +102,10 @@
     </div>
   </section>
 
-  <!-- Card Principal de Login e Cadastro -->
-  <section class="section portal-section">
-    <div class="container" style="max-width: 650px;">
-      <div class="glass-panel portal-card" id="portalMainCard">
+  <!-- Section 1: Formulário de Autenticação (Login e Cadastro) -->
+  <section class="section portal-section" id="authSection">
+    <div class="container" style="max-width: 600px;">
+      <div class="glass-panel portal-card">
         
         <!-- Tabs de Alternância: Entrar vs Criar Conta -->
         <div class="portal-tabs" id="portalTabs">
@@ -117,7 +117,7 @@
           </button>
         </div>
 
-        <!-- Formulário 1: Login de Aluno (Sem Animação de Confetti) -->
+        <!-- Formulário 1: Login de Aluno -->
         <form id="portalLoginForm" class="modal-form portal-form">
           <div class="form-group">
             <label for="portalCpf">Usuário ou CPF *</label>
@@ -239,53 +239,150 @@
             <i data-lucide="user-plus"></i> Finalizar Primeiro Cadastro
           </button>
         </form>
+      </div>
+    </div>
+  </section>
 
-        <!-- Visão de Dashboard do Aluno Logado (Direcionado com Sucesso) -->
-        <div id="portalDashboardView" class="student-dashboard hidden">
+  <!-- Section 2: PORTAL DO ALUNO / ÁREA DE MEMBROS COMPLETA COM BARRA LATERAL (Exibido pós-login) -->
+  <section class="section member-portal-section hidden" id="memberPortalSection">
+    <div class="container">
+      
+      <!-- Welcome Banner for First Registration -->
+      <div id="welcomeFirstRegBanner" class="welcome-banner hidden">
+        <div class="welcome-icon">🎉</div>
+        <div>
+          <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
+          <p>Seu primeiro cadastro foi realizado com sucesso! Sua Área de Membros está liberada e ativa.</p>
+        </div>
+      </div>
+
+      <!-- Layout com Barra Lateral (Sidebar Navigation) -->
+      <div class="member-portal-layout">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="member-sidebar">
           
-          <!-- Welcome Banner for First Registration -->
-          <div id="welcomeFirstRegBanner" class="welcome-banner hidden">
-            <div class="welcome-icon">🎉</div>
-            <div>
-              <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
-              <p>Seu primeiro cadastro foi realizado com sucesso. Seu acesso ao Portal do Aluno está liberado!</p>
+          <div class="sidebar-profile">
+            <div class="profile-avatar-box">
+              <div class="profile-avatar-emoji">🥋</div>
+              <span class="profile-belt-tag">FAIXA AZUL • 2º GRAU</span>
             </div>
+            <h3 id="dashNameDisplay">Fernando Vier</h3>
+            <p id="dashUserDisplay">@bolivarbjj</p>
+            <span class="badge-pill bg-green mt-2" style="font-size: 0.72rem;">MATRÍCULA ATIVA</span>
           </div>
 
-          <div class="student-profile-header">
-            <div class="student-avatar">🥋</div>
-            <div>
-              <h3 id="dashNameDisplay">Fernando Vier</h3>
-              <span class="badge-pill bg-green">ALUNO MATRICULADO</span>
-              <p style="margin-top: 4px;"><small id="dashPlanDisplay">Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês</small></p>
-            </div>
-          </div>
-
-          <div class="dashboard-stats-grid">
-            <div class="dash-stat">
-              <span class="dash-val">18</span>
-              <span class="dash-lbl">Presenças no Mês</span>
-            </div>
-            <div class="dash-stat">
-              <span class="dash-val">100%</span>
-              <span class="dash-lbl">Mensalidade Em Dia</span>
-            </div>
-          </div>
-
-          <div class="dash-info-box">
-            <h5>📌 Próximo Treino Confirmado</h5>
-            <p><strong>Segunda-feira às 17:00h</strong> — Jiu-Jitsu Tarde (Mestre Bolivar)</p>
-          </div>
-
-          <div class="dash-actions">
-            <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block mb-2">
-              <i data-lucide="message-square"></i> Falar com Mestre Bolivar no WhatsApp
+          <!-- Navegação da Barra Lateral -->
+          <nav class="sidebar-nav">
+            <button class="sidebar-link active">
+              <i data-lucide="target" class="icon-gold"></i> Visão Geral
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="swords" class="icon-red"></i> Meus Treinos & Presenças
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="check-circle" class="icon-green"></i> Mensalidades & Fatura
+            </button>
+            <button class="sidebar-link">
+              <i data-lucide="award" class="icon-gold"></i> Graduação & Gradil
+            </button>
+            <a href="/loja.html" class="sidebar-link">
+              <i data-lucide="tag" class="icon-red"></i> Desconto Loja Oficial (15%)
             </a>
-            <button id="logoutPortalBtn" class="btn btn-secondary btn-block">
+            <button id="logoutPortalBtn" class="sidebar-link logout-link">
               <i data-lucide="log-out"></i> Sair da Minha Conta
             </button>
+          </nav>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA) -->
+        <main class="member-content">
+          
+          <!-- Métrica Rápida -->
+          <div class="member-stats-row">
+            <div class="member-stat-box">
+              <div class="stat-box-icon"><i data-lucide="swords"></i></div>
+              <div class="stat-box-info">
+                <span>Presenças no Mês</span>
+                <strong>18 Treinos</strong>
+              </div>
+            </div>
+
+            <div class="member-stat-box">
+              <div class="stat-box-icon" style="color: #4ade80; background: rgba(37, 211, 102, 0.15);"><i data-lucide="check-circle"></i></div>
+              <div class="stat-box-info">
+                <span>Situação Financeira</span>
+                <strong style="color: #4ade80;">100% Em Dia</strong>
+              </div>
+            </div>
+
+            <div class="member-stat-box">
+              <div class="stat-box-icon" style="color: var(--accent-gold); background: rgba(255, 215, 0, 0.15);"><i data-lucide="award"></i></div>
+              <div class="stat-box-info">
+                <span>Plano Contratado</span>
+                <strong style="font-size: 0.95rem;" id="dashPlanDisplay">Plano Passe Livre (BJJ & Boxe)</strong>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Cards de Conteúdo Principal -->
+          <div class="member-grid-2">
+            
+            <!-- Card 1: Agenda de Treinos da Semana -->
+            <div class="member-card-panel">
+              <h4 class="member-card-title">
+                <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
+              </h4>
+              <div class="classes-list">
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
+                    <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥊 Boxe Tradicional Noturno</h5>
+                    <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+
+                <div class="class-item-card">
+                  <div class="class-item-info">
+                    <h5>🥋 Jiu-Jitsu Rala Noturno</h5>
+                    <p>Quarta-feira às 19:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Benefício Loja & Contato Direto -->
+            <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h4 class="member-card-title">
+                  <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
+                </h4>
+                <div class="promo-store-box">
+                  <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
+                  <span class="coupon-code">BJMESTO15</span>
+                  <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
+                  <i data-lucide="message-square"></i> Falar com Mestre Bolivar
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </main>
 
       </div>
     </div>

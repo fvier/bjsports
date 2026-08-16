@@ -418,17 +418,20 @@ function setupCpfMask() {
   });
 }
 
-// Standalone Login & Cadastro Page Handler (login.html)
+// Standalone Login & Member Portal Page Handler (login.html)
 function setupPortalPage() {
   const tabLogin = document.getElementById('tabBtnLogin');
   const tabRegister = document.getElementById('tabBtnRegister');
   const formLogin = document.getElementById('portalLoginForm');
   const formRegister = document.getElementById('portalRegisterForm');
-  const dashView = document.getElementById('portalDashboardView');
+  const authSection = document.getElementById('authSection');
+  const memberPortalSection = document.getElementById('memberPortalSection');
   const welcomeBanner = document.getElementById('welcomeFirstRegBanner');
   const logoutBtn = document.getElementById('logoutPortalBtn');
   const dashNameDisplay = document.getElementById('dashNameDisplay');
+  const dashUserDisplay = document.getElementById('dashUserDisplay');
   const dashPlanDisplay = document.getElementById('dashPlanDisplay');
+  const heroBadge = document.getElementById('pageHeroBadge');
   const heroTitle = document.getElementById('pageHeroTitle');
   const heroSubtitle = document.getElementById('pageHeroSubtitle');
 
@@ -448,31 +451,32 @@ function setupPortalPage() {
     if (formLogin) formLogin.classList.add('hidden');
   });
 
-  // 1. LOGIN SUBMIT (NO CONFETTI - Direct Smooth Redirection to Dashboard)
+  // 1. LOGIN SUBMIT (NO CONFETTI - Redirects cleanly to full Member Portal Section with Sidebar)
   if (formLogin) {
     formLogin.addEventListener('submit', (e) => {
       e.preventDefault();
       const loginVal = document.getElementById('portalCpf').value;
       
-      // NO CONFETTI ON LOGIN as requested by user
-      if (dashNameDisplay) dashNameDisplay.textContent = loginVal || 'Aluno BJ Sports';
-      if (dashPlanDisplay) dashPlanDisplay.textContent = 'Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês';
-      
-      if (welcomeBanner) welcomeBanner.classList.add('hidden'); // Hide first reg banner on normal login
+      // Update Member Portal Info
+      if (dashNameDisplay) dashNameDisplay.textContent = loginVal.includes('@') || !loginVal.includes('.') ? loginVal : 'Fernando Vier';
+      if (dashUserDisplay) dashUserDisplay.textContent = loginVal.startsWith('@') ? loginVal : `@${loginVal.replace(/\D/g, '') || 'bolivarbjj'}`;
+      if (dashPlanDisplay) dashPlanDisplay.textContent = 'Plano Passe Livre (BJJ & Boxe)';
 
-      if (formLogin) formLogin.classList.add('hidden');
-      if (formRegister) formRegister.classList.add('hidden');
-      document.getElementById('portalTabs').classList.add('hidden');
-      
-      if (heroTitle) heroTitle.innerHTML = `PAINEL DO <span class="highlight-red">ALUNO</span>`;
-      if (heroSubtitle) heroSubtitle.textContent = `Bem-vindo de volta, ${loginVal}! Seu portal de frequência e mensalidade está ativo.`;
+      if (welcomeBanner) welcomeBanner.classList.add('hidden'); // Hide welcome banner on normal login
 
-      if (dashView) dashView.classList.remove('hidden');
-      window.scrollTo({ top: 180, behavior: 'smooth' });
+      // Transition Section: Hide Login Box -> Reveal Member Portal with Sidebar
+      if (authSection) authSection.classList.add('hidden');
+      if (memberPortalSection) memberPortalSection.classList.remove('hidden');
+
+      if (heroBadge) heroBadge.textContent = 'PAINEL EXCLUSIVO DO ALUNO';
+      if (heroTitle) heroTitle.innerHTML = `ÁREA DE <span class="highlight-red">MEMBROS</span>`;
+      if (heroSubtitle) heroSubtitle.textContent = `Bem-vindo de volta! Acompanhe suas presenças, graduação e treinos com o Mestre Bolivar.`;
+
+      window.scrollTo({ top: 120, behavior: 'smooth' });
     });
   }
 
-  // 2. REGISTER SUBMIT (CONFETTI ONLY ON FIRST REGISTRATION)
+  // 2. REGISTER SUBMIT (CONFETTI ONLY ON FIRST REGISTRATION -> Redirects to Member Portal)
   if (formRegister) {
     formRegister.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -517,30 +521,34 @@ function setupPortalPage() {
         if (welcomeBanner) welcomeBanner.classList.add('hidden');
       }
 
-      if (dashNameDisplay) dashNameDisplay.textContent = `${nameVal} (@${usernameVal})`;
-      if (dashPlanDisplay) dashPlanDisplay.textContent = `${planVal} • CPF: ${cpfVal} • WhatsApp: (${dddVal}) ${phoneVal}`;
+      if (dashNameDisplay) dashNameDisplay.textContent = nameVal;
+      if (dashUserDisplay) dashUserDisplay.textContent = `@${usernameVal}`;
+      if (dashPlanDisplay) dashPlanDisplay.textContent = planVal.split('—')[0].trim();
 
-      if (formLogin) formLogin.classList.add('hidden');
-      if (formRegister) formRegister.classList.add('hidden');
-      document.getElementById('portalTabs').classList.add('hidden');
+      // Transition Section: Hide Login Box -> Reveal Member Portal with Sidebar
+      if (authSection) authSection.classList.add('hidden');
+      if (memberPortalSection) memberPortalSection.classList.remove('hidden');
 
-      if (heroTitle) heroTitle.innerHTML = `CONTA <span class="highlight-red">CRIADA COM SUCESSO</span>`;
-      if (heroSubtitle) heroSubtitle.textContent = `Parabéns, ${nameVal}! Sua conta de aluno foi cadastrada no BJ Sports Centro de Treinamento.`;
+      if (heroBadge) heroBadge.textContent = 'MATRÍCULA CONCLUÍDA';
+      if (heroTitle) heroTitle.innerHTML = `BEM-VINDO À <span class="highlight-red">ÁREA DE MEMBROS</span>`;
+      if (heroSubtitle) heroSubtitle.textContent = `Parabéns, ${nameVal}! Sua matrícula foi ativada. Confira sua barra lateral de acesso rápido abaixo.`;
 
-      if (dashView) dashView.classList.remove('hidden');
-      window.scrollTo({ top: 180, behavior: 'smooth' });
+      window.scrollTo({ top: 120, behavior: 'smooth' });
     });
   }
 
-  // 3. LOGOUT BUTTON
+  // 3. LOGOUT BUTTON (Returns to Auth Section)
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      if (dashView) dashView.classList.add('hidden');
-      document.getElementById('portalTabs').classList.remove('hidden');
+      if (memberPortalSection) memberPortalSection.classList.add('hidden');
+      if (authSection) authSection.classList.remove('hidden');
+      
+      if (heroBadge) heroBadge.textContent = 'ACESSO RESTRITO & GESTÃO';
       if (heroTitle) heroTitle.innerHTML = `LOGIN & <span class="highlight-red">CADASTRO</span>`;
       if (heroSubtitle) heroSubtitle.textContent = `Acesse sua conta de aluno ou faça seu novo cadastro para treinar no BJ Sports sob supervisão do Mestre Bolivar.`;
+      
       tabLogin.click();
-      window.scrollTo({ top: 180, behavior: 'smooth' });
+      window.scrollTo({ top: 120, behavior: 'smooth' });
     });
   }
 }
