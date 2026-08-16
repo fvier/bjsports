@@ -61,21 +61,36 @@ body {
   padding: 0 24px;
 }
 
+/* Light Theme Variables Toggle */
+body.light-theme {
+  --bg-dark: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: rgba(241, 245, 249, 0.95);
+  --bg-input: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  --border-light: rgba(0, 0, 0, 0.1);
+}
+
 .theme-toggle {
   background: transparent;
   border: 1px solid var(--border-light);
   color: var(--text-main);
-  padding: 8px 10px;
+  padding: 10px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  transition: all 0.2s ease;
+  justify-content: center;
+  transition: all 0.25s ease;
+  margin-right: 4px;
 }
 
 .theme-toggle:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: var(--primary-red);
+  transform: scale(1.05);
 }
 
 /* Header */
@@ -87,6 +102,10 @@ body {
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border-light);
   padding: 16px 0;
+}
+
+body.light-theme .main-header {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .header-content {
@@ -134,9 +153,11 @@ body {
   letter-spacing: 1.5px;
 }
 
+/* Navigation & Sedes Dropdown */
 .nav-menu {
   display: flex;
-  gap: 28px;
+  align-items: center;
+  gap: 24px;
 }
 
 .nav-item {
@@ -145,16 +166,93 @@ body {
   font-weight: 600;
   font-size: 0.95rem;
   transition: color 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
 }
 
-.nav-item:hover {
+.nav-item:hover, .nav-item.active {
   color: var(--text-main);
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.nav-dropdown:hover .dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 12px;
+  width: 260px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.25s ease;
+  z-index: 120;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-main);
+  transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dropdown-item strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.dropdown-item small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 4px 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* Header Buttons with High Distinction */
@@ -601,6 +699,88 @@ body {
   color: var(--accent-gold);
 }
 
+/* Loja & Blog Grid Styles */
+.grid-loja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.loja-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.loja-card:hover {
+  transform: translateY(-6px);
+}
+
+.product-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.loja-card h4 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.loja-card p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.grid-blog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.blog-date {
+  font-size: 0.78rem;
+  color: var(--primary-red);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.blog-card h4 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.blog-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.read-more {
+  color: var(--accent-gold);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.read-more:hover {
+  color: var(--text-main);
+}
+
 /* Belts Section */
 .belts-timeline {
   display: grid;
@@ -800,7 +980,6 @@ body {
   cursor: pointer;
   font-size: 0.95rem;
   color: var(--accent-gold);
-
   user-select: none;
 }
 

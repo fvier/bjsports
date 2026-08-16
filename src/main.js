@@ -11,6 +11,7 @@ import {
   Target, 
   CheckCircle, 
   Moon,
+  Sun,
   UserCheck,
   LogIn,
   Instagram,
@@ -22,7 +23,9 @@ import {
   MessageSquare,
   Sparkles,
   Award,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown,
+  Building2
 } from 'lucide';
 
 // Initialize Lucide Icons
@@ -39,6 +42,7 @@ function initIcons() {
       Target,
       CheckCircle,
       Moon,
+      Sun,
       UserCheck,
       LogIn,
       Instagram,
@@ -50,7 +54,9 @@ function initIcons() {
       MessageSquare,
       Sparkles,
       Award,
-      AlertTriangle
+      AlertTriangle,
+      ChevronDown,
+      Building2
     }
   });
 }
@@ -407,13 +413,19 @@ function setupLoginModal() {
   }
 }
 
-// Theme Toggle
+// Theme Toggle (Positioned at left of Garantir Vaga, default Dark)
 function setupThemeToggle() {
   const btn = document.getElementById('themeToggleBtn');
   if (!btn) return;
 
   btn.addEventListener('click', () => {
     document.body.classList.toggle('light-theme');
+    const isLight = document.body.classList.contains('light-theme');
+    btn.setAttribute('title', isLight ? 'Alternar para Tema Escuro' : 'Alternar para Tema Claro');
+    btn.innerHTML = isLight 
+      ? `<i data-lucide="sun" class="icon-sm"></i>` 
+      : `<i data-lucide="moon" class="icon-sm"></i>`;
+    initIcons();
   });
 }
 

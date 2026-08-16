@@ -26,21 +26,52 @@
         </div>
       </a>
 
+      <!-- Menu Principal com Início, Sedes (dropdown), Loja e Blog -->
       <nav class="nav-menu">
+        <a href="#" class="nav-item active">Início</a>
+        
+        <!-- Sedes Dropdown -->
+        <div class="nav-dropdown">
+          <button class="nav-item nav-dropdown-trigger">
+            Sedes <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+          </button>
+          <div class="dropdown-menu glass-panel">
+            <a href="#horarios" class="dropdown-item">
+              <i data-lucide="map-pin" class="icon-gold"></i>
+              <div>
+                <strong>Cajazeiras - PB (Matriz)</strong>
+                <small>Av. Estrada do Amor</small>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item text-muted">
+              <i data-lucide="building-2"></i>
+              <div>
+                <strong>Novas Unidades</strong>
+                <small>Em expansão no Sertão</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <a href="#horarios" class="nav-item">Horários & Valores</a>
         <a href="#planos" class="nav-item">Planos Família</a>
-        <a href="#graduacao" class="nav-item">Graduações</a>
+        <a href="#loja" class="nav-item" id="openLojaBtn">Loja</a>
+        <a href="#blog" class="nav-item" id="openBlogBtn">Blog</a>
       </nav>
 
+      <!-- Ações do Cabeçalho com o Alternador de Tema à esquerda do Garantir Vaga -->
       <div class="header-actions">
+        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema (Escuro / Claro)">
+          <i data-lucide="moon" id="themeToggleIcon" class="icon-sm"></i>
+        </button>
+
         <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
           <i data-lucide="calendar-check"></i> Garantir Vaga
         </button>
+        
         <button id="openLoginModalBtn" class="btn btn-header-login">
           <i data-lucide="user-check"></i> Área do Aluno
-        </button>
-        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
-          <i data-lucide="moon" class="icon-sm"></i>
         </button>
       </div>
     </div>
@@ -205,6 +236,70 @@
     </div>
   </section>
 
+  <!-- Seção Loja Oficial -->
+  <section id="loja" class="section loja-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">EQUIPAMENTOS & VESTUÁRIO</span>
+        <h2 class="section-title">LOJA <span class="highlight-red">BJ SPORTS</span></h2>
+        <p class="section-subtitle">Kimonos trançados, Rashguards de alta compressão e luvas oficiais do BJ Sports.</p>
+      </div>
+
+      <div class="grid-loja">
+        <div class="loja-card glass-panel">
+          <div class="product-icon">🥋</div>
+          <h4>Kimono Trançado BJ Sports</h4>
+          <p>Super leve, reforçado para treinos diários de Jiu-Jitsu.</p>
+          <span class="price-highlight">R$ 380,00</span>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20comprar%20o%20Kimono%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-sm mt-3">Comprar no WhatsApp</a>
+        </div>
+
+        <div class="loja-card glass-panel">
+          <div class="product-icon">👕</div>
+          <h4>Rashguard de Compressão</h4>
+          <p>Proteção UV, tecido respirável e ajuste perfeito ao corpo.</p>
+          <span class="price-highlight">R$ 140,00</span>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20comprar%20a%20Rashguard%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-sm mt-3">Comprar no WhatsApp</a>
+        </div>
+
+        <div class="loja-card glass-panel">
+          <div class="product-icon">🥊</div>
+          <h4>Luvas de Boxe Profissionais</h4>
+          <p>Absorção máxima de impacto, 12oz e 14oz em couro sintético premium.</p>
+          <span class="price-highlight">R$ 220,00</span>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20comprar%20as%20Luvas%20de%20Boxe%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-sm mt-3">Comprar no WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção Blog & Dicas de Treino -->
+  <section id="blog" class="section blog-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">CONTEÚDO & DICAS</span>
+        <h2 class="section-title">BLOG <span class="highlight-red">DO TATAME</span></h2>
+        <p class="section-subtitle">Artigos técnicos, preparação física e mentalidade de combate sob comando do Mestre Bolivar.</p>
+      </div>
+
+      <div class="grid-blog">
+        <article class="blog-card glass-panel">
+          <span class="blog-date">16 de Agosto, 2026</span>
+          <h4>Como Aumentar Sua Resistência no Jiu-Jitsu</h4>
+          <p>Dicas essenciais de respiração, controle de pegadas e ritmo de treino para aguentar ralas intensos sem fadiga acelerada.</p>
+          <a href="https://wa.me/5583996527997?text=Quero%20saber%20mais%20sobre%20as%20dicas%20do%20blog" target="_blank" class="read-more">Ler artigo completo &rarr;</a>
+        </article>
+
+        <article class="blog-card glass-panel">
+          <span class="blog-date">10 de Agosto, 2026</span>
+          <h4>A Importância da Disciplina no Boxe</h4>
+          <p>Como a constância nos treinos de boxe melhora a agilidade motora, reduz o estresse e desenvolve o foco pessoal.</p>
+          <a href="https://wa.me/5583996527997?text=Quero%20saber%20mais%20sobre%20as%20dicas%20do%20blog" target="_blank" class="read-more">Ler artigo completo &rarr;</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- Graduações & Níveis -->
   <section id="graduacao" class="section graduacao-section">
     <div class="container">
@@ -223,7 +318,7 @@
         <div class="belt-card belt-blue">
           <div class="belt-stripe"></div>
           <h4>Faixa Azul</h4>
-          <p>Construção de repertório técnico e domínio de raspagens et escapadas.</p>
+          <p>Construção de repertório técnico e domínio de raspagens e escapadas.</p>
         </div>
         <div class="belt-card belt-purple">
           <div class="belt-stripe"></div>
