@@ -20,14 +20,14 @@
   <header class="main-header">
     <div class="container header-content">
       <a href="{{ url_for('index') }}" class="brand-link">
-        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="header-logo">
+        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="header-logo">
         <div class="brand-text">
           <span class="brand-name">BJ SPORTS</span>
           <span class="brand-sub">CENTRO DE TREINAMENTO</span>
         </div>
       </a>
 
-      <!-- Menu Principal Minimalista (Sem Botões Duplicados) -->
+      <!-- Menu Principal Minimalista -->
       <nav class="nav-menu">
         <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">Início</a>
         
@@ -154,7 +154,7 @@
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
       
       <div class="modal-header text-center">
-        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="modal-logo">
+        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="modal-logo">
         <h3 id="modalTitleText">RESERVAR MINHA VAGA NA AULA • BJ SPORTS</h3>
         <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma (Máx 20 Alunos)</p>
       </div>
