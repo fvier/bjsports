@@ -109,7 +109,7 @@
       </header>
 
       <main class="erp-content">
-        <!-- BARRA UNIFICADA DE FILTROS SUPERIORES (LOCALIZAÇÃO, MODALIDADE, VENCIMENTO E STATUS) -->
+        <!-- BARRA UNIFICADA DE FILTROS SUPERIORES -->
         <div class="glass-panel" style="margin-bottom: 24px; padding: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(96, 165, 250, 0.35);">
           <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
@@ -185,26 +185,27 @@
           </form>
         </div>
 
-        <!-- PLANILHA DE MENSALIDADES MINIMALISTA COM VALOR DO PLANO E COBRANÇA WHATSAPP -->
+        <!-- PLANILHA DE MENSALIDADES MINIMALISTA COM VALOR DO PLANO, MESES EM ABERTO E COBRANÇA AMIGÁVEL WHATSAPP -->
         <div class="glass-panel" style="background: rgba(14, 14, 22, 0.98); border: 1px solid var(--border-light); padding: 20px;">
           
           <div class="table-responsive">
             <table class="schedule-table minimal-spreadsheet-table">
               <thead>
                 <tr>
-                  <th style="width: 40px; text-align: center;">[+]</th>
-                  <th style="width: 45px;">ID</th>
+                  <th style="width: 35px; text-align: center;">[+]</th>
+                  <th style="width: 40px;">ID</th>
                   <th>ALUNO / CONTATO</th>
                   <th>PLANO CONTRATADO</th>
-                  <th style="width: 130px; text-align: right;">VALOR DO PLANO</th>
-                  <th style="width: 100px; text-align: center;">VENCIMENTO</th>
-                  <th style="width: 120px; text-align: center;">STATUS</th>
-                  <th style="width: 220px; text-align: right;">DAR BAIXA / COBRAR</th>
+                  <th style="width: 110px; text-align: right;">VALOR MENSAL</th>
+                  <th style="width: 90px; text-align: center;">VENCIMENTO</th>
+                  <th style="width: 180px; text-align: center;">DÉBITO / MESES EM ABERTO</th>
+                  <th style="width: 200px; text-align: right;">DAR BAIXA / COBRAR</th>
                 </tr>
               </thead>
               <tbody>
                 {% for u in users %}
                 {% set u_months = u.get_month_schedule() %}
+                {% set details = u.get_overdue_details() %}
                 {% set plan_parts = u.plan.split('—') %}
                 {% set plan_name = plan_parts[0] %}
                 {% set plan_price = plan_parts[1] if plan_parts|length > 1 else 'R$ 120,00/mês' %}
@@ -222,17 +223,17 @@
                   </td>
 
                   <td>
-                    <strong style="color: #ffffff; font-size: 0.9rem;">{{ u.name }}</strong>
-                    <span style="display: block; color: var(--text-muted); font-size: 0.76rem;">@{{ u.username }} • ({{ u.ddd }}) {{ u.phone }}</span>
+                    <strong style="color: #ffffff; font-size: 0.88rem;">{{ u.name }}</strong>
+                    <span style="display: block; color: var(--text-muted); font-size: 0.75rem;">@{{ u.username }} • ({{ u.ddd }}) {{ u.phone }}</span>
                   </td>
 
                   <td>
                     <span style="font-size: 0.82rem; color: #e2e8f0; font-weight: 600;">{{ plan_name }}</span>
                   </td>
 
-                  <!-- COLUNA DO VALOR DO PLANO EXIBIDO DE FORMA MINIMALISTA E DESTAQUE -->
+                  <!-- VALOR DO PLANO -->
                   <td style="text-align: right;">
-                    <strong style="color: var(--accent-gold); font-size: 0.92rem; font-family: var(--font-heading);">
+                    <strong style="color: var(--accent-gold); font-size: 0.9rem; font-family: var(--font-heading);">
                       {{ plan_price.strip() }}
                     </strong>
                   </td>
@@ -243,29 +244,32 @@
                     </span>
                   </td>
 
+                  <!-- CÁLCULO DE MENSALIDADES EM ABERTO E VALOR TOTAL DEVIDO -->
                   <td style="text-align: center;">
-                    {% if u.payment_status == 'Em Dia' %}
-                      <span class="badge-pill-mini bg-green">🟢 PAGO</span>
+                    {% if details['count'] > 0 and u.payment_status == 'Pendente' %}
+                      <span class="badge-pill-mini bg-orange" style="font-weight: 800; font-size: 0.76rem;" title="Devendo {{ details['count'] }} mensalidades ({{ details['months_str'] }})">
+                        🔴 {{ details['count'] }} MÊS(ES) (R$ {{ "%.2f"|format(details['total_debt']) }})
+                      </span>
                     {% else %}
-                      <span class="badge-pill-mini bg-orange">🟠 ATRASADO</span>
+                      <span class="badge-pill-mini bg-green">🟢 EM DIA (R$ 0,00)</span>
                     {% endif %}
                   </td>
 
-                  <!-- AÇÕES: DAR BAIXA E BOTÃO ENVIAR COBRANÇA WHATSAPP -->
+                  <!-- AÇÕES: DAR BAIXA RÁPIDA & ENVIAR MENSAGEM AMIGÁVEL NO WHATSAPP -->
                   <td style="text-align: right;">
                     <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                       
                       <!-- Form de Dar Baixa Rápida -->
                       <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-flex;">
                         <input type="hidden" name="user_id" value="{{ u.id }}">
-                        <select name="payment_status" onchange="this.form.submit()" style="padding: 4px 6px; font-size: 0.76rem; width: 95px; border-radius: 6px;" title="Alterar status de pagamento">
+                        <select name="payment_status" onchange="this.form.submit()" style="padding: 4px 6px; font-size: 0.76rem; width: 90px; border-radius: 6px;" title="Alterar status de pagamento">
                           <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>🟢 Em Dia</option>
-                          <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>🟠 Pendente</option>
+                          <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>🔴 Pendente</option>
                         </select>
                       </form>
 
-                      <!-- BOTÃO AUTOMÁTICO DE COBRANÇA WHATSAPP COM DADOS FORMATADOS DO ALUNO -->
-                      <a href="{{ u.get_whatsapp_billing_link() }}" target="_blank" class="btn-wa-billing" title="Enviar Mensagem de Cobrança no WhatsApp para {{ u.name }}">
+                      <!-- BOTÃO AUTOMÁTICO DE COBRANÇA AMIGÁVEL VIA WHATSAPP COM DÉBITO TOTAL DEVIDO -->
+                      <a href="{{ u.get_whatsapp_billing_link() }}" target="_blank" class="btn-wa-billing" title="Enviar Mensagem Amigável de Cobrança ({{ details['count'] }} meses = R$ {{ '%.2f'|format(details['total_debt']) }}) no WhatsApp">
                         <i data-lucide="message-square"></i> Cobrar
                       </a>
 
@@ -279,8 +283,16 @@
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                       <div>
                         <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem;">
-                          🗓️ Histórico 2026 de {{ u.name }} (Valor: <span style="color: var(--accent-gold);">{{ plan_price }}</span>):
+                          🗓️ Histórico 2026 de {{ u.name }} — 
+                          {% if details['count'] > 0 and u.payment_status == 'Pendente' %}
+                            <span style="color: #f97316; font-weight: 800;">Débito: {{ details['count'] }} mês(es) atrasado(s) = Total R$ {{ "%.2f"|format(details['total_debt']) }}</span>
+                          {% else %}
+                            <span style="color: #4ade80;">Situação: Em Dia</span>
+                          {% endif %}
                         </strong>
+                        <span style="display: block; font-size: 0.74rem; color: var(--text-muted);">
+                          Clique em qualquer mês para dar baixa ou alternar entre Pago (Verde), Atrasado (Laranja) e A Vencer (Branco):
+                        </span>
                       </div>
 
                       <!-- LISTA DE MESES COM MENU DROPDOWN PARA CADA MÊS -->
@@ -289,12 +301,12 @@
                           <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
                             
                             <!-- Botão/Badge do Mês -->
-                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para alterar status do Mês {{ m.month }}">
+                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do Mês {{ m.month }}">
                               <span>{{ m.month }}</span>
                               <small>{{ m.name }}</small>
                             </button>
 
-                            <!-- Menu Dropdown para Dar Baixa no Mês Especifico -->
+                            <!-- Menu Dropdown para Dar Baixa no Mês Específico -->
                             <div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
                               <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
                                 Dar baixa Mês {{ m.month }}:
@@ -355,7 +367,7 @@
     }
 
     .bg-green { background: rgba(37, 211, 102, 0.15); color: #4ade80; border: 1px solid rgba(37, 211, 102, 0.4); }
-    .bg-orange { background: rgba(249, 115, 22, 0.15); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .bg-orange { background: rgba(249, 115, 22, 0.18); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.45); }
 
     .btn-expand-months-mini {
       background: rgba(255, 255, 255, 0.06);
