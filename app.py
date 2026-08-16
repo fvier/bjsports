@@ -35,7 +35,7 @@ class User(db.Model):
 class Plan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    category = db.Column(db.String(80), nullable=False) # 'Planos Individuais', 'Planos Promocionais & Família'
+    category = db.Column(db.String(80), nullable=False)
     price = db.Column(db.String(50), nullable=False)
     sub = db.Column(db.String(200), nullable=True)
     features = db.Column(db.Text, nullable=True)
@@ -50,6 +50,40 @@ class Booking(db.Model):
     shift_time = db.Column(db.String(150), nullable=False)
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Lista de 30 Alunos Hipotéticos para População Inicial do Banco de Dados
+SEED_STUDENTS = [
+    ("bolivarbjj", "Mestre Bolivar", "111.222.333-44", "83", "996527997", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", "instrutor", "Em Dia"),
+    ("fernandovier", "Fernando Vier", "222.333.444-55", "83", "988776655", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", "monitor", "Em Dia"),
+    ("joaosilva", "João Silva", "333.444.555-66", "83", "977665544", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", "aluno", "Em Dia"),
+    ("mariasantos", "Maria Santos", "444.555.666-77", "83", "966554433", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", "aluno", "Em Dia"),
+    ("pedroalbuquerque", "Pedro Albuquerque", "101.202.303-40", "83", "991112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", "aluno", "Em Dia"),
+    ("lucasoliveira", "Lucas Oliveira", "102.203.304-41", "83", "992223344", "Boxe Tradicional — R$ 90,00/mês", "15", "aluno", "Pendente"),
+    ("gabrielcosta", "Gabriel Costa", "103.204.305-42", "83", "993334455", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", "aluno", "Em Dia"),
+    ("camilaferreira", "Camila Ferreira", "104.205.306-43", "83", "994445566", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", "aluno", "Em Dia"),
+    ("brunosouza", "Bruno Souza", "105.206.307-44", "83", "995556677", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", "monitor", "Em Dia"),
+    ("julianalima", "Juliana Lima", "106.207.308-45", "83", "996667788", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", "aluno", "Em Dia"),
+    ("matheusribeiro", "Matheus Ribeiro", "107.208.309-46", "83", "997778899", "Boxe Tradicional — R$ 90,00/mês", "5", "aluno", "Pendente"),
+    ("rafaelabarbosa", "Rafaela Barbosa", "108.209.310-47", "83", "998889900", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", "aluno", "Em Dia"),
+    ("rodrigomartins", "Rodrigo Martins", "109.210.311-48", "83", "999990011", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "25", "aluno", "Em Dia"),
+    ("amandarosario", "Amanda Rosário", "110.211.312-49", "83", "981112233", "Boxe Tradicional — R$ 90,00/mês", "5", "aluno", "Em Dia"),
+    ("felipepereira", "Felipe Pereira", "111.212.313-50", "83", "982223344", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", "aluno", "Pendente"),
+    ("beatrizgomes", "Beatriz Gomes", "112.213.314-51", "83", "983334455", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", "aluno", "Em Dia"),
+    ("diego alves", "Diego Alves", "113.214.315-52", "83", "984445566", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", "aluno", "Em Dia"),
+    ("larissamendes", "Larissa Mendes", "114.215.316-53", "83", "985556677", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "15", "aluno", "Em Dia"),
+    ("thiagomedeiros", "Thiago Medeiros", "115.216.317-54", "83", "986667788", "Boxe Tradicional — R$ 90,00/mês", "25", "aluno", "Pendente"),
+    ("vanessacavalcanti", "Vanessa Cavalcanti", "116.217.318-55", "83", "987778899", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", "aluno", "Em Dia"),
+    ("andrearaujo", "André Araújo", "117.218.319-56", "83", "988889900", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "15", "aluno", "Em Dia"),
+    ("priscilafarias", "Priscila Farias", "118.219.320-57", "83", "989990011", "Plano Família (3 Pessoas) — R$ 280,00/mês", "25", "aluno", "Em Dia"),
+    ("marcelofreitas", "Marcelo Freitas", "119.220.321-58", "83", "971112233", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "5", "aluno", "Pendente"),
+    ("isabelacardoso", "Isabela Cardoso", "120.221.322-59", "83", "972223344", "Boxe Tradicional — R$ 90,00/mês", "15", "aluno", "Em Dia"),
+    ("gustavomoreira", "Gustavo Moreira", "121.222.323-60", "83", "973334455", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "25", "aluno", "Em Dia"),
+    ("carolinaneto", "Carolina Neto", "122.223.324-61", "83", "974445566", "🔥 Plano Casal (2 Pessoas) — R$ 190,00/mês", "5", "aluno", "Em Dia"),
+    ("renatoteixeira", "Renato Teixeira", "123.224.325-62", "83", "975556677", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", "aluno", "Pendente"),
+    ("tatianadantas", "Tatiana Dantas", "124.225.326-63", "83", "976667788", "Boxe Tradicional — R$ 90,00/mês", "25", "aluno", "Em Dia"),
+    ("vitorhugofagundes", "Vitor Hugo Fagundes", "125.226.327-64", "83", "977778899", "Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês", "5", "aluno", "Em Dia"),
+    ("patriciagalvao", "Patrícia Galvão", "126.227.328-65", "83", "978889900", "⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês", "15", "aluno", "Em Dia")
+]
 
 # Ensure Database Tables Created & Seed Sample Data
 with app.app_context():
@@ -92,38 +126,25 @@ with app.app_context():
         db.session.add_all([p1, p2, p3, p4])
         db.session.commit()
 
-    # Seed default sample users if empty
-    if not User.query.filter_by(username='bolivarbjj').first():
-        mestre = User(
-            username='bolivarbjj',
-            name='Mestre Bolivar',
-            cpf='111.222.333-44',
-            ddd='83',
-            phone='996527997',
-            plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
-            due_date='5',
-            role='instrutor',
-            payment_status='Em Dia'
-        )
-        mestre.set_password('123456')
-        db.session.add(mestre)
-
-    if not User.query.filter_by(username='fernandovier').first():
-        aluno1 = User(
-            username='fernandovier',
-            name='Fernando Vier',
-            cpf='222.333.444-55',
-            ddd='83',
-            phone='988776655',
-            plan='⚡ Plano Passe Livre (BJJ & Boxe) — R$ 120,00/mês',
-            due_date='15',
-            role='monitor',
-            payment_status='Em Dia'
-        )
-        aluno1.set_password('123456')
-        db.session.add(aluno1)
-
-    db.session.commit()
+    # Seed 30 realistic students if count < 30
+    if User.query.count() < 30:
+        for u_info in SEED_STUDENTS:
+            username, name, cpf, ddd, phone, plan, due_date, role, status = u_info
+            if not User.query.filter_by(username=username).first():
+                u = User(
+                    username=username,
+                    name=name,
+                    cpf=cpf,
+                    ddd=ddd,
+                    phone=phone,
+                    plan=plan,
+                    due_date=due_date,
+                    role=role,
+                    payment_status=status
+                )
+                u.set_password('123456')
+                db.session.add(u)
+        db.session.commit()
 
 # Context Processor for active navigation and user state across all templates
 @app.context_processor
@@ -269,7 +290,6 @@ def login():
 
 # DEDICATED ROUTES FOR EVERY SIDEBAR ITEM
 
-# 1. SEÇÃO AULAS — Presenças & Treinos
 @app.route('/presencas', methods=['GET', 'POST'])
 @app.route('/presencas.html', methods=['GET', 'POST'])
 def presencas():
@@ -278,19 +298,16 @@ def presencas():
         return redirect(url_for('presencas'))
     return render_template('presencas.html', page_title='Presenças & Treinos')
 
-# 2. SEÇÃO AULAS — Graduação & Faixas
 @app.route('/graduacao')
 @app.route('/graduacao.html')
 def graduacao():
     return render_template('graduacao.html', page_title='Graduação & Faixas')
 
-# 3. SEÇÃO AULAS — Treinoteca / Vídeo Aulas
 @app.route('/treinoteca')
 @app.route('/treinoteca.html')
 def treinoteca():
     return render_template('treinoteca.html', page_title='Treinoteca / Vídeo Aulas')
 
-# 4. SEÇÃO FINANCEIRO — Minhas Mensalidades
 @app.route('/mensalidades_aluno', methods=['GET', 'POST'])
 @app.route('/mensalidades_aluno.html', methods=['GET', 'POST'])
 def mensalidades_aluno():
@@ -301,7 +318,6 @@ def mensalidades_aluno():
         return redirect(url_for('mensalidades_aluno'))
     return render_template('mensalidades_aluno.html', page_title='Minhas Mensalidades')
 
-# 5. SEÇÃO ADMINISTRAÇÃO — Gestão de Planos
 @app.route('/planos_admin', methods=['GET', 'POST'])
 @app.route('/planos_admin.html', methods=['GET', 'POST'])
 def planos_admin():
@@ -353,7 +369,7 @@ def planos_admin():
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
     return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
 
-# 6. SEÇÃO ADMINISTRAÇÃO — Gestão de Mensalidades
+# GESTÃO DE MENSALIDADES DA ACADEMIA (LISTA TODOS OS 30 ALUNOS COM FILTROS DE DIA 5, 15 E 25)
 @app.route('/mensalidades_admin', methods=['GET', 'POST'])
 @app.route('/mensalidades_admin.html', methods=['GET', 'POST'])
 def mensalidades_admin():
@@ -367,14 +383,38 @@ def mensalidades_admin():
             if new_status: user.payment_status = new_status
             if new_due_date: user.due_date = new_due_date
             db.session.commit()
-            flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
+            flash(f'Mensalidade de {user.name} (ID #{user.id}) atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
 
         return redirect(url_for('mensalidades_admin'))
 
-    users_list = User.query.order_by(User.due_date.asc(), User.id.asc()).all()
-    return render_template('mensalidades_admin.html', page_title='Gestão de Mensalidades & Cobrança', users=users_list)
+    filter_day = request.args.get('day', 'todos')
+    query = User.query
+    if filter_day in ['5', '15', '25']:
+        query = query.filter_by(due_date=filter_day)
 
-# 7. SEÇÃO ADMINISTRAÇÃO — Gestão de Privilégios
+    users_list = query.order_by(User.id.asc()).all()
+
+    # Dynamic metrics summary
+    total_count = User.query.count()
+    day5_count = User.query.filter_by(due_date='5').count()
+    day15_count = User.query.filter_by(due_date='15').count()
+    day25_count = User.query.filter_by(due_date='25').count()
+    paid_count = User.query.filter_by(payment_status='Em Dia').count()
+    pending_count = User.query.filter_by(payment_status='Pendente').count()
+
+    return render_template(
+        'mensalidades_admin.html',
+        page_title='Gestão de Mensalidades (30 Alunos)',
+        users=users_list,
+        filter_day=filter_day,
+        total_count=total_count,
+        day5_count=day5_count,
+        day15_count=day15_count,
+        day25_count=day25_count,
+        paid_count=paid_count,
+        pending_count=pending_count
+    )
+
 @app.route('/gestao', methods=['GET', 'POST'])
 @app.route('/gestao.html', methods=['GET', 'POST'])
 def gestao_privilegios():
@@ -395,7 +435,6 @@ def gestao_privilegios():
     users_list = User.query.order_by(User.id.asc()).all()
     return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
 
-# 8. SEÇÃO CONFIGURAÇÕES — Configurações & Perfil
 @app.route('/configuracoes', methods=['GET', 'POST'])
 @app.route('/configuracoes.html', methods=['GET', 'POST'])
 def configuracoes():

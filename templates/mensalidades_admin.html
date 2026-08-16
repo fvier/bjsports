@@ -4,10 +4,8 @@
   <!-- ÁREA DE GESTÃO DE MENSALIDADES COM BARRA LATERAL ERP COMERCIAL -->
   <div class="erp-wrapper">
     
-    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP -->
+    <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
     <aside class="erp-sidebar" id="erpSidebar">
-      
-      <!-- Cabeçalho do Menu com Logo & Título -->
       <div class="erp-brand-header">
         <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
         <div class="erp-brand-info">
@@ -16,29 +14,27 @@
         </div>
       </div>
 
-      <!-- Navegação Categorizada Organizada nas 3 Seções: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
       <nav class="erp-nav">
-        
         <!-- SEÇÃO 1: AULAS -->
         <div class="erp-nav-group">
           <span class="erp-group-title">AULAS</span>
           
           <a href="{{ url_for('login') }}" class="erp-nav-item">
             <i data-lucide="home" class="erp-item-icon"></i>
-            <span class="erp-item-label">Início / Área de Membros</span>
+            <span class="erp-item-label">Início / Visão Geral</span>
           </a>
 
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
+          <a href="{{ url_for('presencas') }}" class="erp-nav-item">
             <i data-lucide="calendar" class="erp-item-icon"></i>
             <span class="erp-item-label">Presenças & Treinos</span>
           </a>
 
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
+          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
             <i data-lucide="award" class="erp-item-icon"></i>
             <span class="erp-item-label">Graduação & Faixas</span>
           </a>
 
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
+          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
             <i data-lucide="sparkles" class="erp-item-icon"></i>
             <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
           </a>
@@ -48,7 +44,7 @@
         <div class="erp-nav-group">
           <span class="erp-group-title">FINANCEIRO</span>
 
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
+          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
             <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
             <span class="erp-item-label">Minhas Mensalidades</span>
           </a>
@@ -66,7 +62,6 @@
           <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
             <i data-lucide="tag" class="erp-item-icon icon-green"></i>
             <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
-            <i data-lucide="chevron-right" class="erp-chevron"></i>
           </a>
 
           <!-- ATIVO: GESTÃO DE MENSALIDADES -->
@@ -79,7 +74,11 @@
           <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
             <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
             <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
-            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
+
+          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
+            <i data-lucide="settings" class="erp-item-icon"></i>
+            <span class="erp-item-label">Configurações & Perfil</span>
           </a>
 
           <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
@@ -87,89 +86,116 @@
             <span class="erp-item-label text-red">Sair da Conta</span>
           </a>
         </div>
-
       </nav>
     </aside>
 
-    <!-- ÁREA PRINCIPAL COM TOPBAR ERP -->
+    <!-- ÁREA PRINCIPAL -->
     <div class="erp-main-container">
-      
-      <!-- Top Bar -->
       <header class="erp-topbar">
         <div class="erp-topbar-left">
           <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
             <i data-lucide="menu"></i>
           </button>
-          <span class="erp-blue-badge">BJ Sports ERP • Gestão de Mensalidades</span>
+          <span class="erp-blue-badge">BJ Sports ERP • Gestão de Mensalidades ({{ total_count }} Alunos)</span>
         </div>
         
         <div class="erp-topbar-right">
           <div class="erp-user-badge">
             <span class="erp-avatar">🥋</span>
             <span class="erp-user-name">{{ user_name }}</span>
-            <span class="badge-pill bg-green" style="font-size: 0.7rem;">GESTOR FINANCEIRO</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">PAINEL FINANCEIRO</span>
           </div>
         </div>
       </header>
 
-      <!-- Conteúdo da Gestão de Mensalidades -->
       <main class="erp-content">
-        
         <div class="erp-hero-banner" style="margin-bottom: 28px;">
           <div class="erp-status-indicator">
-            <span class="live-dot"></span> CONTROLE MENSAL DE COBRANÇA & VENCIMENTOS
+            <span class="live-dot"></span> CONTROLE MENSAL DE COBRANÇA DA ACADEMIA ({{ total_count }} ALUNOS CADASTRADOS)
           </div>
-          <h1 class="erp-hero-heading">Gestão de Mensalidades dos Alunos</h1>
-          <p class="erp-hero-sub">Acompanhe os vencimentos (Dia 5, Dia 15 ou Dia 25 de cada mês) e altere o status de pagamento dos alunos.</p>
+          <h1 class="erp-hero-heading">Gestão de Mensalidades & Vencimentos</h1>
+          <p class="erp-hero-sub">Painel completo com os {{ total_count }} alunos da academia para controle de vencimentos (Dias 5, 15 e 25) e baixa de pagamentos.</p>
         </div>
 
         <!-- Metric Cards por Dia de Vencimento -->
         <div class="erp-cards-grid" style="margin-bottom: 28px;">
           <div class="erp-metric-card">
+            <span class="erp-card-label">Total de Alunos</span>
+            <div class="erp-card-big-number" style="color: #ffffff;">{{ total_count }}</div>
+            <span class="erp-card-foot">Membros cadastrados</span>
+          </div>
+
+          <div class="erp-metric-card">
             <span class="erp-card-label">Vencimento Dia 5</span>
-            <div class="erp-card-big-number" style="color: #60a5fa;">Dia 5</div>
-            <span class="erp-card-foot">Primeira remessa do mês</span>
+            <div class="erp-card-big-number" style="color: #60a5fa;">{{ day5_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 5</span>
           </div>
 
           <div class="erp-metric-card">
             <span class="erp-card-label">Vencimento Dia 15</span>
-            <div class="erp-card-big-number" style="color: var(--accent-gold);">Dia 15</div>
-            <span class="erp-card-foot">Segunda remessa do mês</span>
+            <div class="erp-card-big-number" style="color: var(--accent-gold);">{{ day15_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 15</span>
           </div>
 
           <div class="erp-metric-card">
             <span class="erp-card-label">Vencimento Dia 25</span>
-            <div class="erp-card-big-number" style="color: #4ade80;">Dia 25</div>
-            <span class="erp-card-foot">Terceira remessa do mês</span>
+            <div class="erp-card-big-number" style="color: #4ade80;">{{ day25_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 25</span>
           </div>
         </div>
 
-        <!-- Tabela dos Alunos com Vencimento 5, 15, 25 -->
+        <!-- Filtros por Dia de Vencimento -->
+        <div class="schedule-filters" style="margin-bottom: 24px;">
+          <a href="{{ url_for('mensalidades_admin', day='todos') }}" class="day-btn {% if filter_day == 'todos' %}active{% endif %}">
+            Todos os Alunos ({{ total_count }})
+          </a>
+          <a href="{{ url_for('mensalidades_admin', day='5') }}" class="day-btn {% if filter_day == '5' %}active{% endif %}">
+            📅 Vencimento Dia 5 ({{ day5_count }})
+          </a>
+          <a href="{{ url_for('mensalidades_admin', day='15') }}" class="day-btn {% if filter_day == '15' %}active{% endif %}">
+            📅 Vencimento Dia 15 ({{ day15_count }})
+          </a>
+          <a href="{{ url_for('mensalidades_admin', day='25') }}" class="day-btn {% if filter_day == '25' %}active{% endif %}">
+            📅 Vencimento Dia 25 ({{ day25_count }})
+          </a>
+        </div>
+
+        <!-- Tabela dos 30 Alunos -->
         <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
-          <div style="margin-bottom: 20px;">
-            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
-              <i data-lucide="dollar-sign" class="icon-green"></i> Alunos Cadastrados & Status de Mensalidade
-            </h3>
-            <p style="color: var(--text-muted); font-size: 0.88rem;">Filtre e altere o dia de vencimento (5, 15 ou 25) e confirme pagamentos em tempo real.</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+                <i data-lucide="dollar-sign" class="icon-green"></i> Alunos Cadastrados (Exibindo {{ users|length }} de {{ total_count }})
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.88rem;">Altere o dia de vencimento (5, 15 ou 25) ou confirme a baixa no pagamento PIX.</p>
+            </div>
+            <div>
+              <span class="badge-pill bg-green" style="font-size: 0.8rem;">{{ paid_count }} EM DIA</span>
+              <span class="badge-pill" style="font-size: 0.8rem; background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444; margin-left: 8px;">{{ pending_count }} PENDENTES</span>
+            </div>
           </div>
 
           <div class="table-responsive">
             <table class="schedule-table">
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Aluno / Cadastro</th>
                   <th>Plano Contratado</th>
                   <th>Dia de Vencimento</th>
                   <th>Status Financeiro</th>
-                  <th>Atualizar Fatura</th>
+                  <th>Ação / Atualizar</th>
                 </tr>
               </thead>
               <tbody>
                 {% for u in users %}
                 <tr>
                   <td>
-                    <strong>{{ u.name }}</strong>
-                    <small style="display: block; color: var(--text-muted);">@{{ u.username }} • CPF: {{ u.cpf }}</small>
+                    <strong style="color: var(--text-dim);">#{{ u.id }}</strong>
+                  </td>
+                  <td>
+                    <strong style="color: #ffffff; font-size: 0.95rem;">{{ u.name }}</strong>
+                    <small style="display: block; color: var(--accent-gold);">@{{ u.username }} • CPF: {{ u.cpf }}</small>
                   </td>
                   <td>
                     <span style="font-size: 0.85rem; color: #ffffff;">{{ u.plan }}</span>
@@ -190,13 +216,13 @@
                     <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
                       <input type="hidden" name="user_id" value="{{ u.id }}">
                       
-                      <select name="due_date" style="padding: 6px; font-size: 0.8rem; width: 100px;">
+                      <select name="due_date" style="padding: 6px; font-size: 0.8rem; width: 95px;">
                         <option value="5" {% if u.due_date == '5' %}selected{% endif %}>Dia 5</option>
                         <option value="15" {% if u.due_date == '15' %}selected{% endif %}>Dia 15</option>
                         <option value="25" {% if u.due_date == '25' %}selected{% endif %}>Dia 25</option>
                       </select>
 
-                      <select name="payment_status" style="padding: 6px; font-size: 0.8rem; width: 110px;">
+                      <select name="payment_status" style="padding: 6px; font-size: 0.8rem; width: 105px;">
                         <option value="Em Dia" {% if u.payment_status == 'Em Dia' %}selected{% endif %}>Em Dia</option>
                         <option value="Pendente" {% if u.payment_status == 'Pendente' %}selected{% endif %}>Pendente</option>
                       </select>
