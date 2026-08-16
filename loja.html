@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BJ Sports — Centro de Treinamento | Cajazeiras-PB</title>
+  <title>Loja Oficial — BJ Sports Centro de Treinamento</title>
   <link rel="icon" type="image/png" href="/logo_transparent.png">
   
   <!-- Google Fonts -->
@@ -28,15 +28,15 @@
 
       <!-- Menu Principal Minimalista -->
       <nav class="nav-menu">
-        <a href="/index.html" class="nav-item active">Início</a>
+        <a href="/index.html" class="nav-item">Início</a>
         
-        <!-- Filiais Dropdown em ordem alfabética -->
+        <!-- Filiais Dropdown -->
         <div class="nav-dropdown">
           <button class="nav-item nav-dropdown-trigger">
             Filiais <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
           <div class="dropdown-menu glass-panel">
-            <a href="#horarios" class="dropdown-item">
+            <a href="/index.html#horarios" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
                 <strong>AABB Cajazeiras - PB</strong>
@@ -67,11 +67,11 @@
           </div>
         </div>
 
-        <a href="/loja.html" class="nav-item">Loja</a>
+        <a href="/loja.html" class="nav-item active">Loja</a>
         <a href="/blog.html" class="nav-item">Blog</a>
       </nav>
 
-      <!-- Ações do Cabeçalho com o Alternador de Tema à esquerda do Garantir Vaga -->
+      <!-- Ações do Cabeçalho -->
       <div class="header-actions">
         <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema (Escuro / Claro)">
           <i data-lucide="moon" id="themeToggleIcon" class="icon-sm"></i>
@@ -88,210 +88,109 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-bg-overlay"></div>
-    <div class="container hero-content">
-      <div class="hero-text-block">
-        <div class="badge-pill">
-          <i data-lucide="zap" class="icon-gold"></i> MESTRE BOLIVAR • CAJAZEIRAS - PB
-        </div>
-        <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO TATAME</h1>
-        <p class="hero-desc">
-          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe e Preparação Física em Cajazeiras-PB com turmas limitadas a no máximo 20 alunos para atenção total do Mestre Bolivar.
-        </p>
+  <!-- Hero Banner da Loja -->
+  <section class="hero-section page-hero">
+    <div class="container text-center">
+      <span class="section-badge">EQUIPAMENTOS & ARMAS DE COMBATE</span>
+      <h1 class="hero-title">LOJA OFICIAL <span class="highlight-red">BJ SPORTS</span></h1>
+      <p class="hero-desc" style="margin: 0 auto;">
+        Equipamentos de alta performance testados e aprovados pelo Mestre Bolivar. Kimonos trançados, Rashguards de compressão e acessórios oficiais.
+      </p>
+    </div>
+  </section>
 
-        <div class="hero-buttons">
-          <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
-            <i data-lucide="calendar-check"></i> Garantir Vaga na Turma
-          </button>
-          <a href="#planos" class="btn btn-secondary btn-lg">
-            <i data-lucide="tag"></i> Ver Planos & Descontos
+  <!-- Grade Completa de Produtos da Loja -->
+  <section class="section loja-full-section">
+    <div class="container">
+      <div class="grid-planos">
+        
+        <!-- Produto 1: Kimono -->
+        <div class="plano-card featured-card glass-panel text-center">
+          <div class="plano-badge">MAIS VENDIDO</div>
+          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🥋</div>
+          <h3 class="plano-title">Kimono Trançado BJ Sports</h3>
+          <p class="plano-sub">Jiu-Jitsu High-Performance (A0 ao A4)</p>
+          <div class="plano-price-box">
+            <span class="main-price">R$ 380<small>,00</small></span>
+            <span class="price-detail">100% Algodão Trançado Reforçado</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Lapela de EVA antifúngica</li>
+            <li><i data-lucide="check" class="icon-green"></i> Costuras duplas nos pontos de tensão</li>
+            <li><i data-lucide="check" class="icon-green"></i> Acompanha patch bordado oficial</li>
+          </ul>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20o%20Kimono%20Trancado%20BJ%20Sports" target="_blank" class="btn btn-primary btn-block btn-glow">
+            Comprar no WhatsApp
           </a>
         </div>
 
-        <!-- Stats Bar -->
-        <div class="hero-stats">
-          <div class="stat-card">
-            <span class="stat-number">Máx. 20</span>
-            <span class="stat-label">Alunos por Turma</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-card">
-            <span class="stat-number">R$ 90</span>
-            <span class="stat-label">Mensalidades a partir de</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-card">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Atenção Técnica</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-media-block">
-        <div class="logo-hero-wrapper">
-          <img src="/logo_transparent.png" alt="BJ Sports Logo Emblema" class="hero-logo-img">
-          <div class="glowing-ring"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Planos Especiais & Descontos Família -->
-  <section id="planos" class="section planos-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-badge">ECONOMIA & INCENTIVO</span>
-        <h2 class="section-title">PLANOS <span class="highlight-red">FAMÍLIA & CASAL</span></h2>
-        <p class="section-subtitle">Treine acompanhado e garanta descontos mensais exclusivos para você e sua família.</p>
-      </div>
-
-      <div class="grid-planos">
-        <!-- Plano Família -->
-        <div class="plano-card featured-card glass-panel">
-          <div class="plano-badge">MAIS VANTAJOSO</div>
-          <h3 class="plano-title">Plano Família</h3>
-          <p class="plano-sub">3 pessoas da mesma família</p>
+        <!-- Produto 2: Rashguard -->
+        <div class="plano-card glass-panel text-center">
+          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">👕</div>
+          <h3 class="plano-title">Rashguard de Compressão</h3>
+          <p class="plano-sub">No-Gi & Treinos de Boxe/Funcional</p>
           <div class="plano-price-box">
-            <span class="old-price">R$ 300,00</span>
-            <span class="main-price">R$ 280<small>,00 /mês</small></span>
-            <span class="price-detail">Apenas ~R$ 93,33 por pessoa</span>
+            <span class="main-price">R$ 140<small>,00</small></span>
+            <span class="price-detail">Proteção UV50+ & Tecido Respirável</span>
           </div>
           <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Desconto fixo de R$ 20,00 todo mês</li>
-            <li><i data-lucide="check" class="icon-green"></i> Acesso total às aulas escolhidas</li>
-            <li><i data-lucide="check" class="icon-green"></i> Válido para pais, filhos e irmãos</li>
+            <li><i data-lucide="check" class="icon-green"></i> Ajuste anatômico de alta compressão</li>
+            <li><i data-lucide="check" class="icon-green"></i> Previne queimaduras de tatame</li>
+            <li><i data-lucide="check" class="icon-green"></i> Estampa sublimada que não desbota</li>
           </ul>
-          <button class="btn btn-primary btn-block select-plan-btn" data-plan="Plano Família" data-price="280">
-            Garantir Vaga - Plano Família
-          </button>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20a%20Rashguard%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-block">
+            Comprar no WhatsApp
+          </a>
         </div>
 
-        <!-- Plano Casal -->
-        <div class="plano-card glass-panel">
-          <h3 class="plano-title">Plano Casal</h3>
-          <p class="plano-sub">2 pessoas (dupla / casal)</p>
+        <!-- Produto 3: Luvas de Boxe -->
+        <div class="plano-card glass-panel text-center">
+          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🥊</div>
+          <h3 class="plano-title">Luvas de Boxe Profissionais</h3>
+          <p class="plano-sub">Disponível em 12oz e 14oz</p>
           <div class="plano-price-box">
-            <span class="old-price">R$ 200,00</span>
-            <span class="main-price">R$ 190<small>,00 /mês</small></span>
-            <span class="price-detail">R$ 95,00 por pessoa</span>
+            <span class="main-price">R$ 220<small>,00</small></span>
+            <span class="price-detail">Couro Sintético Premium PU</span>
           </div>
           <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Economia direta no orçamento mensal</li>
-            <li><i data-lucide="check" class="icon-green"></i> Treino em dupla com foco e motivação</li>
-            <li><i data-lucide="check" class="icon-green"></i> Livre escolha de modalidade</li>
+            <li><i data-lucide="check" class="icon-green"></i> Tripla camada de espuma injetada</li>
+            <li><i data-lucide="check" class="icon-green"></i> Fechamento em velcro reforçado no punho</li>
+            <li><i data-lucide="check" class="icon-green"></i> Design anatômico de encaixe perfeito</li>
           </ul>
-          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal" data-price="190">
-            Garantir Vaga - Plano Casal
-          </button>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20as%20Luvas%20de%20Boxe%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-block">
+            Comprar no WhatsApp
+          </a>
         </div>
 
-        <!-- Plano Kids 2 Irmãos -->
-        <div class="plano-card glass-panel">
-          <h3 class="plano-title">Plano Kids (2 Irmãos)</h3>
-          <p class="plano-sub">2 crianças/jovens no programa Kids</p>
+        <!-- Produto 4: Bandagens e Proteto Bucal -->
+        <div class="plano-card glass-panel text-center">
+          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🩹</div>
+          <h3 class="plano-title">Kit Bandagem + Protetor Bucal</h3>
+          <p class="plano-sub">Proteção essencial para Boxe e BJJ</p>
           <div class="plano-price-box">
-            <span class="old-price">R$ 180,00</span>
-            <span class="main-price">R$ 170<small>,00 /mês</small></span>
-            <span class="price-detail">R$ 85,00 por criança</span>
+            <span class="main-price">R$ 65<small>,00</small></span>
+            <span class="price-detail">Segurança total nas articulações</span>
           </div>
           <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Incentivo completo para o esporte</li>
-            <li><i data-lucide="check" class="icon-green"></i> Disciplina, respeito e motor-skills</li>
-            <li><i data-lucide="check" class="icon-green"></i> Turmas direcionadas com segurança</li>
+            <li><i data-lucide="check" class="icon-green"></i> Bandagem elástica de 3,5 metros</li>
+            <li><i data-lucide="check" class="icon-green"></i> Protetor bucal moldável de silicone</li>
+            <li><i data-lucide="check" class="icon-green"></i> Caixinha higiênica inclusa</li>
           </ul>
-          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Kids" data-price="170">
-            Garantir Vaga - Plano Kids
-          </button>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20o%20Kit%20Bandagem%20e%20Protetor%20Bucal" target="_blank" class="btn btn-secondary btn-block">
+            Comprar no WhatsApp
+          </a>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Grade de Horários & Valores Oficiais -->
-  <section id="horarios" class="section horarios-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-badge">TABELA OFICIAL DE AULAS</span>
-        <h2 class="section-title">HORÁRIOS & <span class="highlight-red">VALORES MENSAIS</span></h2>
-        <p class="section-subtitle">Aulas sob comando do Mestre Bolivar em Cajazeiras-PB.</p>
-      </div>
-
-      <!-- Filters -->
-      <div class="schedule-filters" id="scheduleDays">
-        <button class="day-btn active" data-day="seg">Seg, Qua & Sex</button>
-        <button class="day-btn" data-day="ter">Ter & Qui</button>
-        <button class="day-btn" data-day="todos">Todos os Dias (Livre)</button>
-      </div>
-
-      <!-- Timetable Container -->
-      <div class="timetable-card glass-panel">
-        <div class="table-responsive">
-          <table class="schedule-table">
-            <thead>
-              <tr>
-                <th>Modalidade</th>
-                <th>Frequência</th>
-                <th>Horários Disponíveis</th>
-                <th>Investimento Mensal</th>
-                <th>Reserva</th>
-              </tr>
-            </thead>
-            <tbody id="scheduleTableBody">
-              <!-- Content rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Graduações & Níveis -->
-  <section id="graduacao" class="section graduacao-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-badge">EVOLUÇÃO & TRADIÇÃO</span>
-        <h2 class="section-title">SISTEMA DE <span class="highlight-red">GRADUAÇÃO</span></h2>
-        <p class="section-subtitle">Acompanhe a jornada de evolução técnica e faixas no BJ Sports sob supervisão do Mestre Bolivar.</p>
-      </div>
-
-      <div class="belts-timeline">
-        <div class="belt-card belt-white">
-          <div class="belt-stripe"></div>
-          <h4>Faixa Branca</h4>
-          <p>O início da jornada. Foco na base, postura e defesa básica.</p>
-        </div>
-        <div class="belt-card belt-blue">
-          <div class="belt-stripe"></div>
-          <h4>Faixa Azul</h4>
-          <p>Construção de repertório técnico e domínio de raspagens e escapadas.</p>
-        </div>
-        <div class="belt-card belt-purple">
-          <div class="belt-stripe"></div>
-          <h4>Faixa Roxa</h4>
-          <p>Refinamento do estilo de jogo individual e contra-ataques rápidos.</p>
-        </div>
-        <div class="belt-card belt-brown">
-          <div class="belt-stripe"></div>
-          <h4>Faixa Marrom</h4>
-          <p>Consolidação do conhecimento, ajustes de pressão e transição.</p>
-        </div>
-        <div class="belt-card belt-black">
-          <div class="belt-stripe red-bar"></div>
-          <h4>Faixa Preta</h4>
-          <p>Mestria técnica, filosofia marcial e capacidade de ensinar.</p>
-        </div>
       </div>
     </div>
   </section>
 
   <!-- Botão Flutuante do WhatsApp -->
-  <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20garantir%20minha%20vaga%20na%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar no WhatsApp com o Mestre Bolivar">
+  <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20tirar%20duvidas%20sobre%20os%20produtos%20da%20Loja%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar com o Mestre Bolivar">
     <svg class="wa-official-icon" viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
       <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
     </svg>
-    <span class="wa-tooltip">Garantir Vaga com Mestre Bolivar (83) 9 9652-7997</span>
+    <span class="wa-tooltip">Comprar com Mestre Bolivar (83) 9 9652-7997</span>
   </a>
 
   <!-- Footer -->
@@ -320,7 +219,7 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva com Seleção Dinâmica de Horários nas Próximas 48h -->
+  <!-- Modal de Reserva -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
@@ -332,7 +231,6 @@
       </div>
 
       <form id="bookingForm" class="modal-form">
-        <!-- Checkbox de Aula Experimental no início -->
         <div class="experimental-checkbox-box">
           <label class="experimental-checkbox-label">
             <input type="checkbox" id="chkExperimental">
@@ -340,7 +238,6 @@
           </label>
         </div>
 
-        <!-- Inputs: Login (ou Nome) e 3 primeiros digitos do CPF -->
         <div class="form-row" id="formInputsRow">
           <div class="form-group" id="groupLogin">
             <label for="bookLogin" id="lblBookLogin">Login:</label>
@@ -358,7 +255,6 @@
           </div>
         </div>
 
-        <!-- Dropdowns: Modalidade e Horários Dinâmicos Próximas 48h -->
         <div class="form-group">
           <label for="bookModality">Modalidade:</label>
           <select id="bookModality" required>
@@ -371,12 +267,10 @@
         <div class="form-group">
           <label for="bookShift">Aulas Disponíveis (Próximas 48 horas):</label>
           <select id="bookShift" required>
-            <!-- Populated dynamically via JS -->
           </select>
           <span class="field-hint" id="shift48hHint">⏱️ Exibindo apenas horários disponíveis nas próximas 48 horas.</span>
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-booking-btn">
           <i data-lucide="check-circle"></i> Reservar Minha Vaga Agora
         </button>
@@ -384,7 +278,7 @@
     </div>
   </div>
 
-  <!-- Modal de Área do Aluno / Login -->
+  <!-- Modal de Login / Área do Aluno -->
   <div class="modal-backdrop hidden" id="loginModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeLoginModal" title="Fechar (ESC)">&times;</button>
@@ -394,30 +288,25 @@
         <p>Acesse seu painel de frequências, graduações e faturas.</p>
       </div>
 
-      <!-- Login Tabs -->
       <div class="login-tabs">
         <button class="tab-btn active" id="tabStudentLogin">Entrar com CPF</button>
         <button class="tab-btn" id="tabFirstAccess">Primeiro Acesso</button>
       </div>
 
-      <!-- Login Form -->
       <form id="loginForm" class="modal-form">
         <div class="form-group">
           <label for="loginCpf">CPF do Aluno</label>
           <input type="text" id="loginCpf" placeholder="000.000.000-00" required>
         </div>
-
         <div class="form-group">
           <label for="loginPassword">Senha</label>
           <input type="password" id="loginPassword" placeholder="••••••••" required>
         </div>
-
         <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
           <i data-lucide="log-in"></i> Acessar Portal do Aluno
         </button>
       </form>
 
-      <!-- Student Dashboard Simulation View -->
       <div id="studentDashboardView" class="student-dashboard hidden">
         <div class="student-profile-header">
           <div class="student-avatar">🥋</div>
@@ -427,7 +316,6 @@
             <p><small>Faixa Azul • 2 Graus | Plano Família (R$ 280/mês)</small></p>
           </div>
         </div>
-
         <div class="dashboard-stats-grid">
           <div class="dash-stat">
             <span class="dash-val">18</span>
@@ -438,7 +326,6 @@
             <span class="dash-lbl">Fatura Em Dia</span>
           </div>
         </div>
-
         <button id="logoutStudentBtn" class="btn btn-secondary btn-block mt-3">
           Sair da Conta
         </button>
