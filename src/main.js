@@ -17,7 +17,8 @@ import {
   Instagram,
   Phone,
   Tag,
-  Check
+  Check,
+  MapPin
 } from 'lucide';
 
 // Initialize Lucide Icons
@@ -40,7 +41,8 @@ function initIcons() {
       Instagram,
       Phone,
       Tag,
-      Check
+      Check,
+      MapPin
     }
   });
 }
@@ -48,19 +50,19 @@ function initIcons() {
 // Schedule Data based on Mestre Bolivar's exact parameters
 const scheduleData = {
   seg: [
-    { name: 'Boxe Matinal', days: 'Segunda, Quarta e Sexta', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
-    { name: 'Jiu-Jitsu Tarde', days: 'Segunda, Quarta e Sexta', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Jiu-Jitsu Noturno', days: 'Segunda, Quarta e Sexta', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
+    { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
+    { name: 'Jiu-Jitsu Tarde', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
-    { name: 'Jiu-Jitsu Almoço', days: 'Terças e Quintas', time: '12:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Jiu-Jitsu Noturno', days: 'Terças e Quintas', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Boxe Noturno', days: 'Terças e Quintas', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' }
+    { name: 'Jiu-Jitsu Almoço', freq: '2x / semana (Ter, Qui)', time: '12:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' }
   ],
   todos: [
-    { name: 'Plano Passe Livre (BJJ & Boxe)', days: 'Segunda a Sexta (Todos os dias)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-func', tagLabel: 'Livre Acesso' },
-    { name: 'Plano Família (3 pessoas)', days: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Família' },
-    { name: 'Plano Casal (2 pessoas)', days: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Casal' }
+    { name: 'Plano Passe Livre (BJJ & Boxe)', freq: 'Diário (Livre Acesso)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-func', tagLabel: 'Livre Acesso' },
+    { name: 'Plano Família (3 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Família' },
+    { name: 'Plano Casal (2 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Casal' }
   ]
 };
 
@@ -81,13 +83,13 @@ function renderSchedule(day = 'seg') {
         <span class="tag-badge ${item.tag}">${item.tagLabel}</span>
         <strong style="margin-left: 8px;">${item.name}</strong>
       </td>
-      <td>${item.days}</td>
+      <td>${item.freq}</td>
       <td><span class="badge-pill">${item.time}</span></td>
       <td><span class="price-highlight">${item.price}</span></td>
       <td>${item.teacher}</td>
       <td>
         <button class="btn btn-secondary btn-sm quick-book-btn" data-modality="${item.name}">
-          Agendar
+          Reservar
         </button>
       </td>
     </tr>
@@ -132,7 +134,6 @@ function setupBookingModal() {
   const heroCTA = document.getElementById('heroCTA');
   const bookingForm = document.getElementById('bookingForm');
 
-  // Ensure modal starts hidden
   if (modal) modal.classList.add('hidden');
 
   function openModal() {
@@ -165,7 +166,7 @@ function setupBookingModal() {
         origin: { y: 0.6 }
       });
 
-      alert(`OSS! 🥋 Parabéns, ${name}! Seu agendamento para ${modality} no BJ Sports Cajazeiras-PB foi realizado com sucesso! O Mestre Bolivar entrará em contato via WhatsApp.`);
+      alert(`OSS! 🥋 Parabéns, ${name}! Sua reserva para ${modality} no BJ Sports Cajazeiras-PB foi realizada com sucesso! O Mestre Bolivar entrará em contato via WhatsApp.`);
       bookingForm.reset();
       closeModal();
     });
@@ -195,7 +196,6 @@ function setupLoginModal() {
   const dashView = document.getElementById('studentDashboardView');
   const logoutBtn = document.getElementById('logoutStudentBtn');
 
-  // Ensure login modal starts strictly hidden
   if (loginModal) loginModal.classList.add('hidden');
 
   function openLogin() {
