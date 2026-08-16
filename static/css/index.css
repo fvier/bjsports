@@ -344,15 +344,17 @@ body {
 .menu-user-info small { color: var(--text-muted); font-size: 0.8rem; }
 
 /* ==========================================================================
-   GPS PARAÍBA ERP REPLICA STYLES (EXACT MATCH FOR THE USER'S IMAGE)
+   GPS PARAÍBA ERP REPLICA STYLES (STICKY SIDEBAR INDEPENDENT OF SCROLL)
    ========================================================================== */
 .erp-wrapper {
   display: flex;
+  align-items: flex-start;
   min-height: calc(100vh - 80px);
   background-color: var(--erp-bg-main);
+  position: relative;
 }
 
-/* BARRA LATERAL ESTILO ERP GPS PARAÍBA */
+/* BARRA LATERAL FIXA NO SCROLL (STICKY) */
 .erp-sidebar {
   width: 260px;
   background-color: var(--erp-bg-sidebar);
@@ -361,6 +363,12 @@ body {
   flex-direction: column;
   flex-shrink: 0;
   transition: width 0.3s ease;
+  position: sticky;
+  top: 78px;
+  max-height: calc(100vh - 78px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  z-index: 90;
 }
 
 .erp-sidebar.collapsed {
@@ -378,7 +386,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 24px 20px;
+  padding: 20px 20px;
 }
 
 .erp-brand-logo {
@@ -410,7 +418,7 @@ body {
 .erp-nav {
   display: flex;
   flex-direction: column;
-  padding: 0 12px;
+  padding: 0 12px 20px 12px;
   gap: 16px;
 }
 
@@ -487,6 +495,7 @@ body {
   flex-direction: column;
   background-color: var(--erp-bg-main);
   overflow-x: hidden;
+  min-width: 0;
 }
 
 .erp-topbar {
@@ -497,6 +506,9 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
+  position: sticky;
+  top: 78px;
+  z-index: 85;
 }
 
 .erp-topbar-left {
@@ -562,7 +574,7 @@ body {
   padding: 28px;
 }
 
-/* ERP HERO BANNER (PLACAR DE EVOLUÇÃO) */
+/* ERP HERO BANNER */
 .erp-hero-banner {
   background: linear-gradient(135deg, #1a2238 0%, #111524 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -843,7 +855,7 @@ body {
 .icon-green { color: #4ade80; width: 18px; height: 18px; }
 
 .schedule-filters { display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
-.day-btn { padding: 10px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); border-radius: var(--radius-full); color: var(--text-muted); font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.day-btn { padding: 10px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); border-radius: var(--radius-full); color: var(--text-muted); font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
 .day-btn.active { background: var(--primary-red); border-color: var(--primary-red); color: #fff; box-shadow: 0 0 15px var(--primary-red-glow); }
 .table-responsive { overflow-x: auto; }
 .schedule-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -907,7 +919,7 @@ body {
 
 @media (max-width: 900px) {
   .hero-content, .grid-planos, .form-row, .erp-wrapper, .erp-cards-grid, .member-grid-2 { flex-direction: column; grid-template-columns: 1fr; }
-  .erp-sidebar { width: 100% !important; }
+  .erp-sidebar { width: 100% !important; position: relative !important; top: 0 !important; max-height: none !important; }
   .nav-menu { display: none; }
   .hero-title { font-size: 2.6rem; }
   .hero-logo-img { width: 220px; }
