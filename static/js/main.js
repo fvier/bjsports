@@ -379,6 +379,19 @@ function setupTopBarUserAvatar() {
   }
 }
 
+// Hover Expandable Sidebar Toggle Button
+function setupHoverExpandableSidebar() {
+  const sidebar = document.getElementById('hoverExpandableSidebar');
+  const hamburgerBtn = document.getElementById('sidebarHamburgerBtn');
+
+  if (sidebar && hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('expanded');
+    });
+  }
+}
+
 // Member Sidebar Tabs Switching Logic
 function setupMemberSidebarTabs() {
   const sidebarLinks = document.querySelectorAll('.sidebar-link[data-target-tab]');
@@ -450,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBookingModal();
   setupPortalPage();
   setupMemberSidebarTabs();
+  setupHoverExpandableSidebar();
   setupTopBarUserAvatar();
   setupPasswordEyeToggles();
   setupCpfMask();

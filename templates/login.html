@@ -167,7 +167,7 @@
 
   {% else %}
 
-  <!-- Section 2: ÁREA DE MEMBROS FLASK COMPLETA COM BARRA LATERAL RICA (Exibido pós-login) -->
+  <!-- Section 2: ÁREA DE MEMBROS FLASK COM BARRA LATERAL RETRÁTIL EXPANSÍVEL POR HOVER E MENU HAMBÚRGUER -->
   <section class="section member-portal-section" id="memberPortalSection">
     <div class="container">
       
@@ -189,58 +189,79 @@
       </script>
       {% endif %}
 
-      <!-- Layout com Barra Lateral (Sidebar Navigation) -->
+      <!-- Layout com Barra Lateral Retrátil e Expansível -->
       <div class="member-portal-layout">
         
-        <!-- BARRA LATERAL EXTENSA (SIDEBAR COM DIVERSOS CONTEÚDOS HIPOTÉTICOS) -->
-        <aside class="member-sidebar">
+        <!-- BARRA LATERAL COM BOTÃO HAMBÚRGUER & EXPANSÃO HOVER -->
+        <aside class="member-sidebar hover-expandable-sidebar" id="hoverExpandableSidebar">
           
+          <!-- Botão Hambúrguer no Topo da Sidebar -->
+          <div class="sidebar-header-toggle">
+            <button class="sidebar-hamburger-btn" id="sidebarHamburgerBtn" title="Menu Hambúrguer / Expandir Barra Lateral">
+              <i data-lucide="menu" class="icon-gold"></i>
+            </button>
+            <span class="sidebar-brand-title">MENU DO ALUNO</span>
+          </div>
+
+          <!-- Perfil do Aluno com Avatar Reduzido no Ícone -->
           <div class="sidebar-profile">
             <div class="profile-avatar-box">
               <div class="profile-avatar-emoji">🥋</div>
-              <span class="profile-belt-tag">FAIXA AZUL • 2º GRAU</span>
+              <span class="profile-belt-tag">AZUL</span>
             </div>
-            <h3 id="dashNameDisplay">{{ user_name }}</h3>
-            <p id="dashUserDisplay">@{{ username }}</p>
-            <span class="badge-pill bg-green mt-2" style="font-size: 0.72rem;">MATRÍCULA ATIVA</span>
+            <div class="profile-info-details">
+              <h3 id="dashNameDisplay">{{ user_name }}</h3>
+              <p id="dashUserDisplay">@{{ username }}</p>
+              <span class="badge-pill bg-green mt-1" style="font-size: 0.68rem;">MATRÍCULA ATIVA</span>
+            </div>
           </div>
 
-          <!-- Navegação da Barra Lateral Completa com Diversos Conteúdos Hipotéticos -->
+          <!-- Navegação da Barra Lateral Completa com Ícones & Textos Expansíveis -->
           <nav class="sidebar-nav">
-            <button class="sidebar-link active" data-target-tab="tab-overview">
-              <i data-lucide="target" class="icon-gold"></i> Visão Geral
+            <button class="sidebar-link active" data-target-tab="tab-overview" title="Visão Geral">
+              <i data-lucide="target" class="sidebar-icon icon-gold"></i>
+              <span class="sidebar-link-text">Visão Geral</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-frequency">
-              <i data-lucide="swords" class="icon-red"></i> Frequência & Ralas (18)
+            <button class="sidebar-link" data-target-tab="tab-frequency" title="Frequência & Ralas">
+              <i data-lucide="swords" class="sidebar-icon icon-red"></i>
+              <span class="sidebar-link-text">Frequência (18)</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-graduation">
-              <i data-lucide="award" class="icon-gold"></i> Graduação & Graus
+            <button class="sidebar-link" data-target-tab="tab-graduation" title="Graduação & Graus">
+              <i data-lucide="award" class="sidebar-icon icon-gold"></i>
+              <span class="sidebar-link-text">Graduação & Graus</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-schedule">
-              <i data-lucide="calendar-check" class="icon-red"></i> Aulas Reservadas (3)
+            <button class="sidebar-link" data-target-tab="tab-schedule" title="Aulas Reservadas">
+              <i data-lucide="calendar-check" class="sidebar-icon icon-red"></i>
+              <span class="sidebar-link-text">Aulas Reservadas (3)</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-payments">
-              <i data-lucide="check-circle" class="icon-green"></i> Mensalidades (Em Dia)
+            <button class="sidebar-link" data-target-tab="tab-payments" title="Mensalidades">
+              <i data-lucide="check-circle" class="sidebar-icon icon-green"></i>
+              <span class="sidebar-link-text">Mensalidades</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-videotheque">
-              <i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeo Aulas
+            <button class="sidebar-link" data-target-tab="tab-videotheque" title="Treinoteca / Vídeos">
+              <i data-lucide="sparkles" class="sidebar-icon icon-gold"></i>
+              <span class="sidebar-link-text">Treinoteca / Vídeos</span>
             </button>
-            <button class="sidebar-link" data-target-tab="tab-tournaments">
-              <i data-lucide="trophy" class="icon-gold"></i> Torneios & Campeonatos
+            <button class="sidebar-link" data-target-tab="tab-tournaments" title="Torneios">
+              <i data-lucide="trophy" class="sidebar-icon icon-gold"></i>
+              <span class="sidebar-link-text">Torneios & Equipe</span>
             </button>
-            <a href="{{ url_for('loja') }}" class="sidebar-link">
-              <i data-lucide="tag" class="icon-red"></i> Desconto Loja (15% OFF)
+            <a href="{{ url_for('loja') }}" class="sidebar-link" title="Desconto Loja">
+              <i data-lucide="tag" class="sidebar-icon icon-red"></i>
+              <span class="sidebar-link-text">Desconto Loja (15%)</span>
             </a>
-            <button class="sidebar-link" data-target-tab="tab-settings">
-              <i data-lucide="building-2" class="icon-muted"></i> Minhas Configurações
+            <button class="sidebar-link" data-target-tab="tab-settings" title="Configurações">
+              <i data-lucide="building-2" class="sidebar-icon icon-muted"></i>
+              <span class="sidebar-link-text">Minhas Configurações</span>
             </button>
-            <a href="{{ url_for('logout') }}" class="sidebar-link logout-link">
-              <i data-lucide="log-out"></i> Sair da Minha Conta
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout-link" title="Sair da Conta">
+              <i data-lucide="log-out" class="sidebar-icon icon-red"></i>
+              <span class="sidebar-link-text">Sair da Conta</span>
             </a>
           </nav>
         </aside>
 
-        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA COM TABS INTERATIVAS) -->
+        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA) -->
         <main class="member-content">
           
           <!-- TAB 1: VISÃO GERAL -->
