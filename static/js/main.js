@@ -346,65 +346,28 @@ function setupCpfMask() {
   });
 }
 
-// Top Bar User Avatar Dropdown & Edit Profile Handler
-function setupTopBarUserAvatar() {
-  const avatarDropdown = document.querySelector('.user-avatar-dropdown');
-  const avatarBtn = document.getElementById('userAvatarBtn');
-  const editProfileBtn = document.getElementById('editProfileBtn');
-
-  if (avatarBtn && avatarDropdown) {
-    avatarBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      avatarDropdown.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!avatarDropdown.contains(e.target)) {
-        avatarDropdown.classList.remove('active');
-      }
-    });
-  }
-
-  if (editProfileBtn) {
-    editProfileBtn.addEventListener('click', () => {
-      if (window.location.pathname.includes('login')) {
-        const settingsTabBtn = document.querySelector('.sidebar-link[data-target-tab="tab-settings"]');
-        if (settingsTabBtn) {
-          settingsTabBtn.click();
-        }
-      } else {
-        window.location.href = '/login.html';
-      }
-    });
-  }
-}
-
-// Hover Expandable Sidebar Toggle Button
-function setupHoverExpandableSidebar() {
-  const sidebar = document.getElementById('hoverExpandableSidebar');
-  const hamburgerBtn = document.getElementById('sidebarHamburgerBtn');
-
-  if (sidebar && hamburgerBtn) {
-    hamburgerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sidebar.classList.toggle('expanded');
-    });
-  }
-}
-
-// Member Sidebar Tabs Switching Logic
-function setupMemberSidebarTabs() {
-  const sidebarLinks = document.querySelectorAll('.sidebar-link[data-target-tab]');
+// GPS Paraíba ERP Sidebar Toggle & Navigation Logic
+function setupERPSidebar() {
+  const sidebar = document.getElementById('erpSidebar');
+  const hamburgerBtn = document.getElementById('erpHambergerBtn');
+  const erpNavItems = document.querySelectorAll('.erp-nav-item[data-target-tab]');
   const tabContents = document.querySelectorAll('.member-tab-content');
 
-  sidebarLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
+  if (hamburgerBtn && sidebar) {
+    hamburgerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('collapsed');
+    });
+  }
+
+  erpNavItems.forEach(item => {
+    item.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetId = link.getAttribute('data-target-tab');
+      const targetId = item.getAttribute('data-target-tab');
       if (!targetId) return;
 
-      sidebarLinks.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
+      erpNavItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
 
       tabContents.forEach(content => {
         if (content.id === targetId) {
@@ -449,8 +412,6 @@ function setupGlobalKeyListeners() {
     if (e.key === 'Escape') {
       const bookingModal = document.getElementById('bookingModal');
       if (bookingModal) bookingModal.classList.add('hidden');
-      const avatarDropdown = document.querySelector('.user-avatar-dropdown');
-      if (avatarDropdown) avatarDropdown.classList.remove('active');
     }
   });
 }
@@ -462,9 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupPortalPage();
-  setupMemberSidebarTabs();
-  setupHoverExpandableSidebar();
-  setupTopBarUserAvatar();
+  setupERPSidebar();
   setupPasswordEyeToggles();
   setupCpfMask();
   setupGlobalKeyListeners();

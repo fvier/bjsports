@@ -1,25 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- Hero Section do Login & Portal -->
-  <section class="hero-section page-hero">
-    <div class="container text-center">
-      {% if is_logged_in %}
-        <span class="section-badge" id="pageHeroBadge">PAINEL EXCLUSIVO DO ALUNO</span>
-        <h1 class="hero-title" id="pageHeroTitle">ÁREA DE <span class="highlight-red">MEMBROS</span></h1>
-        <p class="hero-desc" id="pageHeroSubtitle" style="margin: 0 auto;">
-          Bem-vindo de volta, {{ user_name }}! Acompanhe suas presenças, graduação e treinos com o Mestre Bolivar.
-        </p>
-      {% else %}
-        <span class="section-badge" id="pageHeroBadge">ACESSO RESTRITO & GESTÃO</span>
-        <h1 class="hero-title" id="pageHeroTitle">LOGIN & <span class="highlight-red">CADASTRO</span></h1>
-        <p class="hero-desc" id="pageHeroSubtitle" style="margin: 0 auto;">
-          Acesse sua conta de aluno ou faça seu novo cadastro para treinar no BJ Sports sob supervisão do Mestre Bolivar.
-        </p>
-      {% endif %}
-    </div>
-  </section>
-
   {% if not is_logged_in %}
   <!-- Section 1: Formulário de Autenticação (Login e Cadastro Flask) -->
   <section class="section portal-section" id="authSection">
@@ -167,291 +148,313 @@
 
   {% else %}
 
-  <!-- Section 2: ÁREA DE MEMBROS FLASK COM BARRA LATERAL RETRÁTIL EXPANSÍVEL POR HOVER E MENU HAMBÚRGUER -->
-  <section class="section member-portal-section" id="memberPortalSection">
-    <div class="container">
+  <!-- Section 2: ÁREA DE MEMBROS ESTILO ERP (IGUAL À IMAGEM DO USUÁRIO) -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP (ESCURA, CATEGORIZADA, HIGHLIGHTED ACTIVE ITEM) -->
+    <aside class="erp-sidebar" id="erpSidebar">
       
-      {% if is_first_reg %}
-      <!-- Welcome Banner for First Registration -->
-      <div id="welcomeFirstRegBanner" class="welcome-banner">
-        <div class="welcome-icon">🎉</div>
-        <div>
-          <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
-          <p>Seu primeiro cadastro foi realizado com sucesso! Sua Área de Membros está liberada e ativa.</p>
+      <!-- Cabeçalho do Menu com Logo & Título -->
+      <div class="erp-brand-header">
+        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
+        <div class="erp-brand-info">
+          <h2 class="erp-brand-name">BJ Sports</h2>
+          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
         </div>
       </div>
-      <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          if (window.confetti) {
-            confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
-          }
-        });
-      </script>
-      {% endif %}
 
-      <!-- Layout com Barra Lateral Retrátil e Expansível -->
-      <div class="member-portal-layout">
+      <!-- Navegação Categorizada com Grupos VISÃO GERAL e MÓDULOS -->
+      <nav class="erp-nav">
         
-        <!-- BARRA LATERAL COM BOTÃO HAMBÚRGUER & EXPANSÃO HOVER -->
-        <aside class="member-sidebar hover-expandable-sidebar" id="hoverExpandableSidebar">
+        <!-- Grupo 1: VISÃO GERAL -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">VISÃO GERAL</span>
           
-          <!-- Botão Hambúrguer no Topo da Sidebar -->
-          <div class="sidebar-header-toggle">
-            <button class="sidebar-hamburger-btn" id="sidebarHamburgerBtn" title="Menu Hambúrguer / Expandir Barra Lateral">
-              <i data-lucide="menu" class="icon-gold"></i>
-            </button>
-            <span class="sidebar-brand-title">MENU DO ALUNO</span>
+          <button class="erp-nav-item active" data-target-tab="tab-overview">
+            <i data-lucide="home" class="erp-item-icon"></i>
+            <span class="erp-item-label">Início</span>
+          </button>
+
+          <button class="erp-nav-item" data-target-tab="tab-dashboard">
+            <i data-lucide="trending-up" class="erp-item-icon"></i>
+            <span class="erp-item-label">Dashboard do Aluno</span>
+          </button>
+        </div>
+
+        <!-- Grupo 2: MÓDULOS -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">MÓDULOS</span>
+
+          <button class="erp-nav-item" data-target-tab="tab-frequency">
+            <i data-lucide="shopping-cart" class="erp-item-icon"></i>
+            <span class="erp-item-label">Presenças & Treinos</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+
+          <button class="erp-nav-item" data-target-tab="tab-graduation">
+            <i data-lucide="award" class="erp-item-icon"></i>
+            <span class="erp-item-label">Graduação & Faixas</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+
+          <button class="erp-nav-item" data-target-tab="tab-payments">
+            <i data-lucide="dollar-sign" class="erp-item-icon"></i>
+            <span class="erp-item-label">Financeiro & Mensalidade</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+
+          <button class="erp-nav-item" data-target-tab="tab-videotheque">
+            <i data-lucide="sparkles" class="erp-item-icon"></i>
+            <span class="erp-item-label">Treinoteca / Vídeos</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="tag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </a>
+
+          <button class="erp-nav-item" data-target-tab="tab-settings">
+            <i data-lucide="settings" class="erp-item-icon"></i>
+            <span class="erp-item-label">Configurações & Perfil</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </button>
+
+          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
+            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label text-red">Sair da Conta</span>
+          </a>
+        </div>
+
+      </nav>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL COM BARRA DE TOPO & CARDS ESTILO ERP -->
+    <div class="erp-main-container">
+      
+      <!-- Top Bar com Ícone Hambúrguer e Badge Azul -->
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">🥋</span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">FAIXA AZUL</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Conteúdo Principal Dinâmico -->
+      <main class="erp-content">
+        
+        {% if is_first_reg %}
+        <!-- Welcome Banner for First Registration -->
+        <div id="welcomeFirstRegBanner" class="welcome-banner">
+          <div class="welcome-icon">🎉</div>
+          <div>
+            <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
+            <p>Seu primeiro cadastro foi realizado com sucesso! Sua Área de Membros está liberada e ativa.</p>
+          </div>
+        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            if (window.confetti) {
+              confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
+            }
+          });
+        </script>
+        {% endif %}
+
+        <!-- TAB 1: INÍCIO (PLACAR DO ALUNO & CARDS ESTILO IMAGEM) -->
+        <div class="member-tab-content active" id="tab-overview">
+          
+          <!-- Banner Placar Comercial / Placar do Aluno -->
+          <div class="erp-hero-banner">
+            <div class="erp-status-indicator">
+              <span class="live-dot"></span> PLACAR DE EVOLUÇÃO • TEMPORADA 2026
+            </div>
+            <h1 class="erp-hero-heading">Arena de Treino & Ralas</h1>
+            <p class="erp-hero-sub">Resultados, presença no tatame e liderança de graduação com Mestre Bolivar.</p>
           </div>
 
-          <!-- Perfil do Aluno com Avatar Reduzido no Ícone -->
-          <div class="sidebar-profile">
-            <div class="profile-avatar-box">
-              <div class="profile-avatar-emoji">🥋</div>
-              <span class="profile-belt-tag">AZUL</span>
-            </div>
-            <div class="profile-info-details">
-              <h3 id="dashNameDisplay">{{ user_name }}</h3>
-              <p id="dashUserDisplay">@{{ username }}</p>
-              <span class="badge-pill bg-green mt-1" style="font-size: 0.68rem;">MATRÍCULA ATIVA</span>
-            </div>
-          </div>
-
-          <!-- Navegação da Barra Lateral Completa com Ícones & Textos Expansíveis -->
-          <nav class="sidebar-nav">
-            <button class="sidebar-link active" data-target-tab="tab-overview" title="Visão Geral">
-              <i data-lucide="target" class="sidebar-icon icon-gold"></i>
-              <span class="sidebar-link-text">Visão Geral</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-frequency" title="Frequência & Ralas">
-              <i data-lucide="swords" class="sidebar-icon icon-red"></i>
-              <span class="sidebar-link-text">Frequência (18)</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-graduation" title="Graduação & Graus">
-              <i data-lucide="award" class="sidebar-icon icon-gold"></i>
-              <span class="sidebar-link-text">Graduação & Graus</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-schedule" title="Aulas Reservadas">
-              <i data-lucide="calendar-check" class="sidebar-icon icon-red"></i>
-              <span class="sidebar-link-text">Aulas Reservadas (3)</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-payments" title="Mensalidades">
-              <i data-lucide="check-circle" class="sidebar-icon icon-green"></i>
-              <span class="sidebar-link-text">Mensalidades</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-videotheque" title="Treinoteca / Vídeos">
-              <i data-lucide="sparkles" class="sidebar-icon icon-gold"></i>
-              <span class="sidebar-link-text">Treinoteca / Vídeos</span>
-            </button>
-            <button class="sidebar-link" data-target-tab="tab-tournaments" title="Torneios">
-              <i data-lucide="trophy" class="sidebar-icon icon-gold"></i>
-              <span class="sidebar-link-text">Torneios & Equipe</span>
-            </button>
-            <a href="{{ url_for('loja') }}" class="sidebar-link" title="Desconto Loja">
-              <i data-lucide="tag" class="sidebar-icon icon-red"></i>
-              <span class="sidebar-link-text">Desconto Loja (15%)</span>
-            </a>
-            <button class="sidebar-link" data-target-tab="tab-settings" title="Configurações">
-              <i data-lucide="building-2" class="sidebar-icon icon-muted"></i>
-              <span class="sidebar-link-text">Minhas Configurações</span>
-            </button>
-            <a href="{{ url_for('logout') }}" class="sidebar-link logout-link" title="Sair da Conta">
-              <i data-lucide="log-out" class="sidebar-icon icon-red"></i>
-              <span class="sidebar-link-text">Sair da Conta</span>
-            </a>
-          </nav>
-        </aside>
-
-        <!-- ÁREA PRINCIPAL DO ALUNO (CONTENT AREA) -->
-        <main class="member-content">
-          
-          <!-- TAB 1: VISÃO GERAL -->
-          <div class="member-tab-content active" id="tab-overview">
+          <!-- Cards de Métricas & Classificação -->
+          <div class="erp-cards-grid">
             
-            <!-- Métrica Rápida -->
-            <div class="member-stats-row">
-              <div class="member-stat-box">
-                <div class="stat-box-icon"><i data-lucide="swords"></i></div>
-                <div class="stat-box-info">
-                  <span>Presenças no Mês</span>
-                  <strong>18 Treinos</strong>
-                </div>
-              </div>
-
-              <div class="member-stat-box">
-                <div class="stat-box-icon" style="color: #4ade80; background: rgba(37, 211, 102, 0.15);"><i data-lucide="check-circle"></i></div>
-                <div class="stat-box-info">
-                  <span>Situação Financeira</span>
-                  <strong style="color: #4ade80;">100% Em Dia</strong>
-                </div>
-              </div>
-
-              <div class="member-stat-box">
-                <div class="stat-box-icon" style="color: var(--accent-gold); background: rgba(255, 215, 0, 0.15);"><i data-lucide="award"></i></div>
-                <div class="stat-box-info">
-                  <span>Plano Contratado</span>
-                  <strong style="font-size: 0.95rem;" id="dashPlanDisplay">{{ user_plan }}</strong>
-                </div>
-              </div>
+            <!-- Card 1: Pontos Distribuídos -->
+            <div class="erp-metric-card">
+              <span class="erp-card-label">Pontos de Treino Acumulados</span>
+              <div class="erp-card-big-number">180</div>
+              <span class="erp-card-foot">Na competição mensal do tatame</span>
             </div>
 
-            <!-- Cards de Conteúdo Principal -->
-            <div class="member-grid-2" style="margin-top: 24px;">
-              
-              <!-- Card 1: Agenda de Treinos da Semana -->
-              <div class="member-card-panel">
-                <h4 class="member-card-title">
-                  <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
-                </h4>
-                <div class="classes-list">
-                  <div class="class-item-card">
-                    <div class="class-item-info">
-                      <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
-                      <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
-                    </div>
-                    <span class="badge-pill">Confirmado</span>
-                  </div>
+            <!-- Card 2: Presenças -->
+            <div class="erp-metric-card">
+              <span class="erp-card-label">Presenças Confirmadas</span>
+              <div class="erp-card-big-number" style="color: #25d366;">18</div>
+              <span class="erp-card-foot">Frequência de 95% no mês</span>
+            </div>
 
-                  <div class="class-item-card">
-                    <div class="class-item-info">
-                      <h5>🥊 Boxe Tradicional Noturno</h5>
-                      <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
-                    </div>
-                    <span class="badge-pill">Confirmado</span>
-                  </div>
-
-                  <div class="class-item-card">
-                    <div class="class-item-info">
-                      <h5>🥋 Jiu-Jitsu Rala Noturno</h5>
-                      <p>Quarta-feira às 19:00h • Cajazeiras (Sede)</p>
-                    </div>
-                    <span class="badge-pill">Confirmado</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card 2: Benefício Loja & Contato Direto -->
-              <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <!-- Card 3: Ranking em Tempo Real -->
+            <div class="erp-ranking-card">
+              <div class="erp-ranking-header">
                 <div>
-                  <h4 class="member-card-title">
-                    <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
-                  </h4>
-                  <div class="promo-store-box">
-                    <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
-                    <span class="coupon-code">BJMESTO15</span>
-                    <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+                  <span class="erp-card-label">CLASSIFICAÇÃO EM TEMPO REAL</span>
+                  <h3>Ranking Ao Vivo do Tatame</h3>
+                </div>
+                <div class="erp-nav-arrows">
+                  <button class="circle-arrow-btn"><i data-lucide="chevron-left"></i></button>
+                  <button class="circle-arrow-btn"><i data-lucide="chevron-right"></i></button>
+                </div>
+              </div>
+              
+              <div class="erp-ranking-list">
+                <div class="ranking-item">
+                  <span class="rank-pos">#1</span>
+                  <div class="rank-info">
+                    <strong>{{ user_name }}</strong>
+                    <small>180 pontos • Faixa Azul (2º Grau)</small>
                   </div>
+                  <span class="badge-pill bg-green">LÍDER</span>
                 </div>
-
-                <div style="margin-top: 20px;">
-                  <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
-                    <i data-lucide="message-square"></i> Falar com Mestre Bolivar
-                  </a>
+                <div class="ranking-item">
+                  <span class="rank-pos">#2</span>
+                  <div class="rank-info">
+                    <strong>Mestre Bolivar</strong>
+                    <small>165 pontos • Faixa Preta 3º Dan</small>
+                  </div>
+                  <span class="badge-pill">MESTRE</span>
                 </div>
               </div>
-
             </div>
 
           </div>
 
-          <!-- TAB 2: FREQUÊNCIA & RALAS -->
-          <div class="member-tab-content hidden" id="tab-frequency">
+          <!-- Grade Secundária: Treinos e Loja -->
+          <div class="member-grid-2" style="margin-top: 24px;">
+            
+            <!-- Card Agenda de Treinos -->
             <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="swords" class="icon-red"></i> Histórico Detalhado de Presenças</h4>
-              <p style="color: var(--text-muted); margin-bottom: 20px;">Seu registro de presença no tatame sob supervisão do Mestre Bolivar.</p>
+              <h4 class="member-card-title">
+                <i data-lucide="calendar-check" class="icon-red"></i> Próximos Treinos Confirmados
+              </h4>
               <div class="classes-list">
                 <div class="class-item-card">
-                  <div><strong>16/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Passagem de Guarda & Rala)</small></div>
-                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+                  <div class="class-item-info">
+                    <h5>🥋 Jiu-Jitsu Tarde (Mestre Bolivar)</h5>
+                    <p>Hoje às 17:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
                 </div>
+
                 <div class="class-item-card">
-                  <div><strong>14/08/2026 — 19:00h</strong><br><small>Boxe Noturno (Combinações & Sparring)</small></div>
-                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
-                </div>
-                <div class="class-item-card">
-                  <div><strong>12/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Defesa Pessoal & Raspagem)</small></div>
-                  <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+                  <div class="class-item-info">
+                    <h5>🥊 Boxe Tradicional Noturno</h5>
+                    <p>Terça-feira às 19:00h • Cajazeiras (Sede)</p>
+                  </div>
+                  <span class="badge-pill">Confirmado</span>
                 </div>
               </div>
             </div>
+
+            <!-- Card Cupom Loja -->
+            <div class="member-card-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h4 class="member-card-title">
+                  <i data-lucide="sparkles" class="icon-gold"></i> Benefício Exclusivo de Membro
+                </h4>
+                <div class="promo-store-box">
+                  <p>Você tem <strong>15% OFF</strong> em Kimonos e Rashguards na Loja Oficial BJ Sports!</p>
+                  <span class="coupon-code">BJMESTO15</span>
+                  <p><small>Apresente este código ao Mestre Bolivar.</small></p>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <a href="https://wa.me/5583996527997?text=Ola%20Mestre%20Bolivar,%20sou%20aluno%20e%20gostaria%20de%20tirar%20uma%20duvida." target="_blank" class="btn btn-primary btn-block btn-glow">
+                  <i data-lucide="message-square"></i> Falar com Mestre Bolivar
+                </a>
+              </div>
+            </div>
+
           </div>
 
-          <!-- TAB 3: GRADUAÇÃO & GRAUS -->
-          <div class="member-tab-content hidden" id="tab-graduation">
-            <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="award" class="icon-gold"></i> Progresso de Graduação no Jiu-Jitsu</h4>
-              <div class="promo-store-box" style="text-align: left; margin-bottom: 20px;">
-                <h4>🥋 Faixa Azul — 2º Grau Atribuído</h4>
-                <p>Tempo de tatame: 1 ano e 4 meses • Mestre Responsável: Mestre Bolivar</p>
-                <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
-                  <div style="background: var(--accent-gold); width: 65%; height: 100%;"></div>
-                </div>
-                <small style="color: var(--text-muted); display: block; margin-top: 6px;">65% do caminho percorrido para o 3º Grau da Faixa Azul.</small>
+        </div>
+
+        <!-- TAB DEMAIS SEÇÕES -->
+        <div class="member-tab-content hidden" id="tab-dashboard">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="trending-up" class="icon-gold"></i> Dashboard Geral do Aluno</h4>
+            <p style="color: var(--text-muted);">Métricas avançadas de acompanhamento físico e frequência.</p>
+          </div>
+        </div>
+
+        <div class="member-tab-content hidden" id="tab-frequency">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="shopping-cart" class="icon-red"></i> Presenças & Módulos de Treino</h4>
+            <div class="classes-list" style="margin-top: 16px;">
+              <div class="class-item-card">
+                <div><strong>16/08/2026 — 17:00h</strong><br><small>Jiu-Jitsu Tarde (Passagem de Guarda)</small></div>
+                <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
+              </div>
+              <div class="class-item-card">
+                <div><strong>14/08/2026 — 19:00h</strong><br><small>Boxe Noturno (Sparring)</small></div>
+                <span class="badge-pill bg-green">PRESENÇA CONFIRMADA</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- TAB 4: MENSALIDADES -->
-          <div class="member-tab-content hidden" id="tab-payments">
-            <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="check-circle" class="icon-green"></i> Histórico de Pagamentos & Faturas</h4>
-              <div class="classes-list">
-                <div class="class-item-card">
-                  <div><strong>Mensalidade Agosto/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
-                  <span class="badge-pill bg-green">PAGO (PIX)</span>
-                </div>
-                <div class="class-item-card">
-                  <div><strong>Mensalidade Julho/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
-                  <span class="badge-pill bg-green">PAGO (PIX)</span>
-                </div>
+        <div class="member-tab-content hidden" id="tab-graduation">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="award" class="icon-gold"></i> Graduação & Graus</h4>
+            <div class="promo-store-box" style="text-align: left; margin-top: 16px;">
+              <h4>🥋 Faixa Azul — 2º Grau Atribuído</h4>
+              <p>Mestre Responsável: Mestre Bolivar</p>
+              <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
+                <div style="background: var(--accent-gold); width: 65%; height: 100%;"></div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- TAB 5: TREINOTECA / VÍDEO AULAS HIPOTÉTICAS -->
-          <div class="member-tab-content hidden" id="tab-videotheque">
-            <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca Oficial (Vídeos Didáticos)</h4>
-              <p style="color: var(--text-muted); margin-bottom: 20px;">Acervo exclusivo de posições gravadas pelo Mestre Bolivar para revisão técnica dos alunos.</p>
-              <div class="classes-list">
-                <div class="class-item-card">
-                  <div><strong>Módulo 1: Passagem de Guarda Aranha</strong><br><small>Duração: 12 min • Mestre Bolivar</small></div>
-                  <button class="btn btn-secondary btn-sm">Assistir Aula</button>
-                </div>
-                <div class="class-item-card">
-                  <div><strong>Módulo 2: Esquivas & Pendular no Boxe</strong><br><small>Duração: 18 min • Mestre Bolivar</small></div>
-                  <button class="btn btn-secondary btn-sm">Assistir Aula</button>
-                </div>
+        <div class="member-tab-content hidden" id="tab-payments">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="dollar-sign" class="icon-green"></i> Financeiro & Mensalidade</h4>
+            <div class="classes-list" style="margin-top: 16px;">
+              <div class="class-item-card">
+                <div><strong>Mensalidade Agosto/2026</strong><br><small>Plano Passe Livre (BJJ & Boxe) — R$ 120,00</small></div>
+                <span class="badge-pill bg-green">PAGO (PIX)</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- TAB 6: TORNEIOS & CAMPEONATOS HIPOTÉTICOS -->
-          <div class="member-tab-content hidden" id="tab-tournaments">
-            <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="trophy" class="icon-gold"></i> Campeonato & Inscrições de Equipe</h4>
-              <div class="promo-store-box" style="text-align: left;">
-                <h4>🏆 Open Sertão de Jiu-Jitsu 2026</h4>
-                <p>Data: 20 de Setembro, 2026 • Local: Cajazeiras-PB</p>
-                <p><small>A equipe BJ Sports estará presente com delegação completa. Fale com Mestre Bolivar para se inscrever.</small></p>
-              </div>
-            </div>
+        <div class="member-tab-content hidden" id="tab-videotheque">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeo Aulas</h4>
+            <p style="color: var(--text-muted); margin-bottom: 16px;">Acervo técnico exclusivo com posições do Mestre Bolivar.</p>
           </div>
+        </div>
 
-          <!-- TAB 7: CONFIGURAÇÕES -->
-          <div class="member-tab-content hidden" id="tab-settings">
-            <div class="member-card-panel">
-              <h4 class="member-card-title"><i data-lucide="building-2" class="icon-muted"></i> Minhas Configurações de Perfil</h4>
-              <p style="color: var(--text-muted); margin-bottom: 16px;">Altere seus dados de cadastro e preferências de notificação.</p>
-              <a href="https://wa.me/5583996527997?text=Solicito%20alteracao%20de%20dados%20cadastrais" target="_blank" class="btn btn-secondary">
-                Solicitar Alteração Cadastral no WhatsApp
-              </a>
-            </div>
+        <div class="member-tab-content hidden" id="tab-settings">
+          <div class="member-card-panel">
+            <h4 class="member-card-title"><i data-lucide="settings" class="icon-muted"></i> Configurações & Perfil</h4>
+            <p style="color: var(--text-muted); margin-bottom: 16px;">Edição de dados pessoais e preferências.</p>
+            <a href="https://wa.me/5583996527997?text=Solicito%20alteracao%20de%20dados%20cadastrais" target="_blank" class="btn btn-secondary">
+              Solicitar Alteração no WhatsApp
+            </a>
           </div>
+        </div>
 
-        </main>
-
-      </div>
+      </main>
     </div>
-  </section>
+  </div>
   {% endif %}
 {% endblock %}
