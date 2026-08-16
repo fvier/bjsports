@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BJ Sports — Centro de Treinamento | Laboratório Local</title>
+  <title>BJ Sports — Centro de Treinamento | Mestre Bolivar</title>
   <link rel="icon" type="image/png" href="/logo_transparent.png">
   
   <!-- Google Fonts -->
@@ -14,14 +14,21 @@
   <link rel="stylesheet" href="/index.css">
 </head>
 <body>
-  <!-- Top Banner / System Status -->
+  <!-- Top Status Bar -->
   <div class="top-status-bar">
     <div class="container status-content">
-      <span class="status-indicator"><span class="pulse-dot"></span> Laboratório Local Ativo — Porta 5173</span>
-      <span class="status-info">🔥 BJ Sports Centro de Treinamento • Sistema de Gestão & Agendamento</span>
-      <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
-        <i data-lucide="moon" class="icon-sm"></i>
-      </button>
+      <span class="status-indicator"><span class="pulse-dot"></span> BJ Sports Centro de Treinamento • Mestre Bolivar</span>
+      <div class="status-contact">
+        <a href="https://wa.me/5583996527997" target="_blank" class="status-link">
+          <i data-lucide="phone"></i> (83) 9 9652-7997
+        </a>
+        <a href="https://www.instagram.com/bjsports_/" target="_blank" class="status-link">
+          <i data-lucide="instagram"></i> @bjsports_
+        </a>
+        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Tema">
+          <i data-lucide="moon" class="icon-sm"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -38,14 +45,18 @@
 
       <nav class="nav-menu">
         <a href="#modalidades" class="nav-item">Modalidades</a>
-        <a href="#horarios" class="nav-item">Grade de Horários</a>
+        <a href="#horarios" class="nav-item">Horários & Valores</a>
+        <a href="#planos" class="nav-item">Planos Família</a>
         <a href="#laboratorio" class="nav-item">Lab Performance</a>
         <a href="#graduacao" class="nav-item">Graduações</a>
       </nav>
 
       <div class="header-actions">
+        <button id="openLoginModalBtn" class="btn btn-secondary btn-login">
+          <i data-lucide="user-check"></i> Área do Aluno
+        </button>
         <button id="openScheduleModal" class="btn btn-primary btn-glow">
-          <i data-lucide="calendar-check"></i> Agendar Aula Grátis
+          <i data-lucide="calendar-check"></i> Agendar Aula
         </button>
       </div>
     </div>
@@ -57,37 +68,37 @@
     <div class="container hero-content">
       <div class="hero-text-block">
         <div class="badge-pill">
-          <i data-lucide="zap" class="icon-gold"></i> ALTA PERFORMANCE & DISCIPLINA
+          <i data-lucide="zap" class="icon-gold"></i> MESTRE BOLIVAR • ALTA PERFORMANCE
         </div>
         <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO MATAME</h1>
         <p class="hero-desc">
-          O <strong>BJ Sports Centro de Treinamento</strong> combina a essência das artes marciais tradicionais com a ciência da preparação física moderna. Treine com campeões e alcance seus objetivos.
+          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe, Muay Thai e Preparação Física com valores acessíveis e planos especiais para família e casal.
         </p>
 
         <div class="hero-buttons">
           <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
-            <i data-lucide="flame"></i> Começar Agora
+            <i data-lucide="flame"></i> Agendar Aula Grátis
           </button>
-          <a href="#horarios" class="btn btn-secondary btn-lg">
-            <i data-lucide="clock"></i> Ver Horários
+          <a href="#planos" class="btn btn-secondary btn-lg">
+            <i data-lucide="tag"></i> Ver Planos & Descontos
           </a>
         </div>
 
         <!-- Stats Bar -->
         <div class="hero-stats">
           <div class="stat-card">
-            <span class="stat-number" data-target="500">500+</span>
+            <span class="stat-number">500+</span>
             <span class="stat-label">Alunos Ativos</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-card">
-            <span class="stat-number" data-target="35">35+</span>
-            <span class="stat-label">Títulos Regionais</span>
+            <span class="stat-number">R$ 90</span>
+            <span class="stat-label">Mensalidades a partir de</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-card">
-            <span class="stat-number" data-target="6">6</span>
-            <span class="stat-label">Modalidades</span>
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Dedicação Marcial</span>
           </div>
         </div>
       </div>
@@ -107,32 +118,100 @@
       <div class="section-header text-center">
         <span class="section-badge">NOSSOS PROGRAMAS</span>
         <h2 class="section-title">MODALIDADES DE <span class="highlight-red">EXCELÊNCIA</span></h2>
-        <p class="section-subtitle">Aulas adaptadas desde iniciantes até atletas de alto rendimento.</p>
+        <p class="section-subtitle">Treinamentos estruturados sob o comando do Mestre Bolivar.</p>
       </div>
 
       <div class="grid-modalidades" id="modalidadesGrid">
-        <!-- Cards injetados via Javascript -->
+        <!-- Rendered via JS -->
       </div>
     </div>
   </section>
 
-  <!-- Grade de Horários Interativa -->
+  <!-- Planos Especiais & Descontos Família -->
+  <section id="planos" class="section planos-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge">ECONOMIA & INCENTIVO</span>
+        <h2 class="section-title">PLANOS <span class="highlight-red">FAMÍLIA & CASAL</span></h2>
+        <p class="section-subtitle">Treine acompanhado e garanta descontos mensais exclusivos para você e sua família.</p>
+      </div>
+
+      <div class="grid-planos">
+        <!-- Plano Família -->
+        <div class="plano-card featured-card glass-panel">
+          <div class="plano-badge">MAIS VANTAJOSO 🔥</div>
+          <h3 class="plano-title">Plano Família</h3>
+          <p class="plano-sub">3 pessoas da mesma família</p>
+          <div class="plano-price-box">
+            <span class="old-price">R$ 300,00</span>
+            <span class="main-price">R$ 280<small>,00 /mês</small></span>
+            <span class="price-detail">Apenas ~R$ 93,33 por pessoa</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Desconto fixo de R$ 20,00 todo mês</li>
+            <li><i data-lucide="check" class="icon-green"></i> Acesso total às aulas escolhidas</li>
+            <li><i data-lucide="check" class="icon-green"></i> Válido para pais, filhos e irmãos</li>
+          </ul>
+          <button class="btn btn-primary btn-block select-plan-btn" data-plan="Plano Família (R$ 280/mês)">
+            Garantir Plano Família
+          </button>
+        </div>
+
+        <!-- Plano Casal -->
+        <div class="plano-card glass-panel">
+          <h3 class="plano-title">Plano Casal</h3>
+          <p class="plano-sub">2 pessoas (dupla / casal)</p>
+          <div class="plano-price-box">
+            <span class="old-price">R$ 200,00</span>
+            <span class="main-price">R$ 190<small>,00 /mês</small></span>
+            <span class="price-detail">R$ 95,00 por pessoa</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Economia direta no orçamento mensal</li>
+            <li><i data-lucide="check" class="icon-green"></i> Treino em dupla com foco e motivação</li>
+            <li><i data-lucide="check" class="icon-green"></i> Livre escolha de modalidade</li>
+          </ul>
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Casal (R$ 190/mês)">
+            Garantir Plano Casal
+          </button>
+        </div>
+
+        <!-- Plano Kids 2 Irmãos -->
+        <div class="plano-card glass-panel">
+          <h3 class="plano-title">Plano Kids (2 Irmãos)</h3>
+          <p class="plano-sub">2 crianças/jovens no programa Kids</p>
+          <div class="plano-price-box">
+            <span class="old-price">R$ 180,00</span>
+            <span class="main-price">R$ 170<small>,00 /mês</small></span>
+            <span class="price-detail">R$ 85,00 por criança</span>
+          </div>
+          <ul class="plano-features">
+            <li><i data-lucide="check" class="icon-green"></i> Incentivo completo para o esporte</li>
+            <li><i data-lucide="check" class="icon-green"></i> Disciplina, respeito e motor-skills</li>
+            <li><i data-lucide="check" class="icon-green"></i> Turmas direcionadas com segurança</li>
+          </ul>
+          <button class="btn btn-secondary btn-block select-plan-btn" data-plan="Plano Kids Irmãos (R$ 170/mês)">
+            Garantir Plano Kids
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grade de Horários & Valores Oficiais -->
   <section id="horarios" class="section horarios-section">
     <div class="container">
       <div class="section-header text-center">
-        <span class="section-badge">AGENDA SEMANAL</span>
-        <h2 class="section-title">GRADE DE <span class="highlight-red">AULAS</span></h2>
-        <p class="section-subtitle">Selecione o dia da semana para visualizar os horários disponíveis.</p>
+        <span class="section-badge">TABELA OFICIAL DE AULAS</span>
+        <h2 class="section-title">HORÁRIOS & <span class="highlight-red">VALORES MENSAIS</span></h2>
+        <p class="section-subtitle">Horários atualizados com o Mestre Bolivar. Escolha sua frequência semanal.</p>
       </div>
 
       <!-- Filters -->
       <div class="schedule-filters" id="scheduleDays">
-        <button class="day-btn active" data-day="seg">Segunda</button>
-        <button class="day-btn" data-day="ter">Terça</button>
-        <button class="day-btn" data-day="qua">Quarta</button>
-        <button class="day-btn" data-day="qui">Quinta</button>
-        <button class="day-btn" data-day="sex">Sexta</button>
-        <button class="day-btn" data-day="sab">Sábado</button>
+        <button class="day-btn active" data-day="seg">Seg, Qua & Sex</button>
+        <button class="day-btn" data-day="ter">Ter & Qui</button>
+        <button class="day-btn" data-day="todos">Todos os Dias (Livre)</button>
       </div>
 
       <!-- Timetable Container -->
@@ -141,11 +220,11 @@
           <table class="schedule-table">
             <thead>
               <tr>
-                <th>Horário</th>
                 <th>Modalidade</th>
-                <th>Professor / Mestre</th>
-                <th>Nível</th>
-                <th>Vagas</th>
+                <th>Dias da Semana</th>
+                <th>Horários Disponíveis</th>
+                <th>Investimento Mensal</th>
+                <th>Professor / Responsável</th>
                 <th>Ação</th>
               </tr>
             </thead>
@@ -158,7 +237,7 @@
     </div>
   </section>
 
-  <!-- Laboratório de Performance (Calculadora & Avaliação) -->
+  <!-- Laboratório de Performance -->
   <section id="laboratorio" class="section lab-section">
     <div class="container">
       <div class="section-header text-center">
@@ -189,7 +268,6 @@
                 <option value="perda_peso">Emagrecimento & Condicionamento</option>
                 <option value="ganho_massa">Ganho de Força & Hipertrofia</option>
                 <option value="competicao">Competição & Atleta de Elite</option>
-                <option value="desestress">Alívio de Estresse & Saúde</option>
               </select>
             </div>
 
@@ -225,8 +303,8 @@
 
             <div class="recommendation-box">
               <h5><i data-lucide="sparkles" class="icon-gold"></i> Modalidade Recomendada:</h5>
-              <p class="rec-name" id="resModalidade">Jiu-Jitsu (BJJ) & Treino Funcional</p>
-              <p class="rec-desc" id="resDesc">Ideal para queima calórica intensa, fortalecimento core e aprendizado técnico de defesa pessoal.</p>
+              <p class="rec-name" id="resModalidade">Jiu-Jitsu (BJJ)</p>
+              <p class="rec-desc" id="resDesc">Ideal para queima calórica intensa, fortalecimento core e aprendizado técnico.</p>
             </div>
 
             <button id="bookRecommendedBtn" class="btn btn-secondary btn-block">
@@ -244,7 +322,7 @@
       <div class="section-header text-center">
         <span class="section-badge">EVOLUÇÃO & TRADIÇÃO</span>
         <h2 class="section-title">SISTEMA DE <span class="highlight-red">GRADUAÇÃO</span></h2>
-        <p class="section-subtitle">Acompanhe a jornada de evolução técnica e faixas no BJ Sports.</p>
+        <p class="section-subtitle">Acompanhe a jornada de evolução técnica e faixas no BJ Sports sob supervisão do Mestre Bolivar.</p>
       </div>
 
       <div class="belts-timeline">
@@ -277,22 +355,32 @@
     </div>
   </section>
 
+  <!-- Botão Flutuante do WhatsApp -->
+  <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20as%20aulas%20na%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar no WhatsApp com o Mestre Bolivar">
+    <i data-lucide="message-square" class="wa-icon"></i>
+    <span class="wa-tooltip">Fale Conosco (83) 9 9652-7997</span>
+  </a>
+
   <!-- Footer -->
   <footer class="main-footer">
     <div class="container footer-content">
       <div class="footer-brand">
         <img src="/logo_transparent.png" alt="BJ Sports Logo Footer" class="footer-logo">
-        <p class="footer-tagline">BJ Sports — Centro de Treinamento de Artes Marciais & Condicionamento Físico.</p>
+        <p class="footer-tagline">BJ Sports — Centro de Treinamento sob comando do Mestre Bolivar.</p>
       </div>
       <div class="footer-links">
-        <span>📍 Rua das Artes Marciais, 100 • Centro</span>
-        <span>📞 (81) 99999-8888</span>
-        <span>✉️ contato@bjsports.com.br</span>
+        <a href="https://wa.me/5583996527997" target="_blank" class="footer-link-item">
+          <i data-lucide="phone"></i> WhatsApp: (83) 9 9652-7997
+        </a>
+        <a href="https://www.instagram.com/bjsports_/" target="_blank" class="footer-link-item">
+          <i data-lucide="instagram"></i> Instagram: @bjsports_
+        </a>
+        <span>📍 BJ Sports Centro de Treinamento</span>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="container text-center">
-        <p>&copy; 2026 BJ Sports Centro de Treinamento. Todos os direitos reservados. • Laboratório Local V1.0</p>
+        <p>&copy; 2026 BJ Sports Centro de Treinamento. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
@@ -315,26 +403,27 @@
 
         <div class="form-group">
           <label for="bookPhone">WhatsApp / Telefone</label>
-          <input type="tel" id="bookPhone" placeholder="(81) 99999-9999" required>
+          <input type="tel" id="bookPhone" placeholder="(83) 99652-7997" required>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="bookModality">Modalidade</label>
+            <label for="bookModality">Modalidade / Plano</label>
             <select id="bookModality" required>
               <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
-              <option value="Muay Thai">Muay Thai</option>
               <option value="Boxe">Boxe</option>
-              <option value="Treino Funcional">Treino Funcional</option>
-              <option value="MMA Submissão">MMA Submissão</option>
+              <option value="Muay Thai">Muay Thai</option>
+              <option value="Plano Família">Plano Família (R$ 280/mês)</option>
+              <option value="Plano Casal">Plano Casal (R$ 190/mês)</option>
+              <option value="Plano Kids">Plano Kids Irmãos (R$ 170/mês)</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="bookShift">Turno Preferido</label>
+            <label for="bookShift">Frequência Escolhida</label>
             <select id="bookShift" required>
-              <option value="Manhã (06:00 - 09:00)">Manhã (06:00 - 09:00)</option>
-              <option value="Tarde (12:00 - 15:00)">Tarde (12:00 - 15:00)</option>
-              <option value="Noite (18:00 - 21:30)">Noite (18:00 - 21:30)</option>
+              <option value="Seg, Qua e Sex (R$ 100/mês)">Seg, Qua e Sex (R$ 100/mês)</option>
+              <option value="Ter e Qui (R$ 90/mês)">Ter e Qui (R$ 90/mês)</option>
+              <option value="Todos os dias (R$ 120/mês)">Todos os dias (R$ 120/mês)</option>
             </select>
           </div>
         </div>
@@ -343,6 +432,68 @@
           <i data-lucide="check-circle"></i> Confirmar Agendamento
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal de Área do Aluno / Login -->
+  <div class="modal-backdrop hidden" id="loginModal">
+    <div class="modal-card glass-panel">
+      <button class="modal-close" id="closeLoginModal">&times;</button>
+      <div class="modal-header text-center">
+        <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
+        <h3>Área do Aluno BJ Sports</h3>
+        <p>Acesse seu painel de frequências, graduações e faturas.</p>
+      </div>
+
+      <!-- Login Tabs -->
+      <div class="login-tabs">
+        <button class="tab-btn active" id="tabStudentLogin">Entrar com CPF</button>
+        <button class="tab-btn" id="tabFirstAccess">Primeiro Acesso</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="modal-form">
+        <div class="form-group">
+          <label for="loginCpf">CPF do Aluno</label>
+          <input type="text" id="loginCpf" placeholder="000.000.000-00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Senha</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">
+          <i data-lucide="log-in"></i> Acessar Portal do Aluno
+        </button>
+      </form>
+
+      <!-- Student Dashboard Simulation View (Hidden by default) -->
+      <div id="studentDashboardView" class="student-dashboard hidden">
+        <div class="student-profile-header">
+          <div class="student-avatar">🥋</div>
+          <div>
+            <h4 id="dashStudentName">Fernando Vier</h4>
+            <span class="badge-pill bg-green">ALUNO ATIVO</span>
+            <p><small>Faixa Azul • 2 Graus | Plano Família (R$ 280/mês)</small></p>
+          </div>
+        </div>
+
+        <div class="dashboard-stats-grid">
+          <div class="dash-stat">
+            <span class="dash-val">18</span>
+            <span class="dash-lbl">Presenças este mês</span>
+          </div>
+          <div class="dash-stat">
+            <span class="dash-val">100%</span>
+            <span class="dash-lbl">Fatura Em Dia</span>
+          </div>
+        </div>
+
+        <button id="logoutStudentBtn" class="btn btn-secondary btn-block mt-3">
+          Sair da Conta
+        </button>
+      </div>
     </div>
   </div>
 

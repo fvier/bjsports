@@ -14,6 +14,7 @@
   
   --accent-gold: #ffd700;
   --accent-gold-glow: rgba(255, 215, 0, 0.3);
+  --accent-green: #25d366;
   
   --text-main: #f5f5f7;
   --text-muted: #a1a1aa;
@@ -97,6 +98,25 @@ body {
   100% { opacity: 1; transform: scale(1); }
 }
 
+.status-contact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+
+.status-link:hover {
+  color: var(--accent-green);
+}
+
 .theme-toggle {
   background: transparent;
   border: 1px solid var(--border-light);
@@ -166,7 +186,7 @@ body {
 
 .nav-menu {
   display: flex;
-  gap: 28px;
+  gap: 24px;
 }
 
 .nav-item {
@@ -179,6 +199,12 @@ body {
 
 .nav-item:hover {
   color: var(--text-main);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* Buttons */
@@ -372,7 +398,6 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--primary-red);
-
 }
 
 .section-title {
@@ -458,6 +483,117 @@ body {
   color: var(--text-dim);
 }
 
+/* Planos & Descontos Section */
+.grid-planos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  align-items: stretch;
+}
+
+.plano-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.plano-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.featured-card {
+  border-color: var(--border-red);
+  background: linear-gradient(180deg, rgba(229, 9, 20, 0.12) 0%, rgba(22, 22, 32, 0.85) 100%);
+  box-shadow: 0 0 30px rgba(229, 9, 20, 0.2);
+}
+
+.plano-badge {
+  position: absolute;
+  top: -14px;
+  right: 24px;
+  background: var(--primary-red);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  letter-spacing: 1px;
+}
+
+.plano-title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.plano-sub {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.plano-price-box {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+.main-price {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: var(--accent-gold);
+  line-height: 1;
+}
+
+.main-price small {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.price-detail {
+  font-size: 0.85rem;
+  color: #4ade80;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.plano-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.plano-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.icon-green {
+  color: #4ade80;
+  width: 18px;
+  height: 18px;
+}
+
 /* Horários Section */
 .schedule-filters {
   display: flex;
@@ -529,6 +665,12 @@ body {
 .tag-muay { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 .tag-boxe { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .tag-func { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+.price-highlight {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--accent-gold);
+}
 
 /* Lab Section */
 .lab-grid {
@@ -612,6 +754,7 @@ body {
 
 .result-header { margin-bottom: 24px; }
 .bg-red { background: var(--primary-red); color: #fff; }
+.bg-green { background: #16a34a; color: #fff; }
 
 .result-metrics {
   display: grid;
@@ -707,15 +850,64 @@ body {
   color: var(--text-muted);
 }
 
-/* Modal */
+/* Botão Flutuante WhatsApp */
+.whatsapp-float-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  background: var(--accent-green);
+  color: #fff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.whatsapp-float-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+}
+
+.wa-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.wa-tooltip {
+  position: absolute;
+  right: 72px;
+  background: rgba(10, 10, 14, 0.95);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.whatsapp-float-btn:hover .wa-tooltip {
+  opacity: 1;
+}
+
+/* Modals */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -741,7 +933,7 @@ body {
 }
 
 .modal-logo {
-  height: 60px;
+  height: 56px;
   margin-bottom: 12px;
 }
 
@@ -762,6 +954,85 @@ body {
   flex-direction: column;
   gap: 16px;
 }
+
+/* Login Modal Tabs & Dashboard */
+.login-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.student-dashboard {
+  padding: 12px 0;
+}
+
+.student-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.student-avatar {
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dash-stat {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.dash-val {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--accent-gold);
+  display: block;
+}
+
+.dash-lbl {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mt-3 { margin-top: 16px; }
 
 /* Footer */
 .main-footer {
@@ -797,9 +1068,22 @@ body {
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.footer-link-item {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.footer-link-item:hover {
+  color: var(--accent-green);
 }
 
 .footer-bottom {
@@ -811,11 +1095,13 @@ body {
 
 /* Responsive */
 @media (max-width: 900px) {
-  .hero-content, .lab-grid {
+  .hero-content, .lab-grid, .grid-planos {
     grid-template-columns: 1fr;
   }
   .nav-menu { display: none; }
   .hero-title { font-size: 2.6rem; }
   .hero-media-block { display: flex; justify-content: center; }
   .hero-logo-img { width: 220px; }
+  .whatsapp-float-btn { bottom: 20px; right: 20px; width: 52px; height: 52px; }
+  .wa-tooltip { display: none; }
 }

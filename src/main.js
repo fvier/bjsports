@@ -17,7 +17,13 @@ import {
   CheckCircle2, 
   CheckCircle, 
   Moon,
-  Sun
+  MessageSquare,
+  UserCheck,
+  LogIn,
+  Instagram,
+  Phone,
+  Tag,
+  Check
 } from 'lucide';
 
 // Initialize Lucide Icons
@@ -40,7 +46,13 @@ function initIcons() {
       CheckCircle2,
       CheckCircle,
       Moon,
-      Sun
+      MessageSquare,
+      UserCheck,
+      LogIn,
+      Instagram,
+      Phone,
+      Tag,
+      Check
     }
   });
 }
@@ -50,83 +62,49 @@ const modalidadesData = [
   {
     icon: 'swords',
     title: 'Jiu-Jitsu (BJJ)',
-    desc: 'Arte suave focada em alavancagens, raspagens, quedas e finalizações no solo (Gi & No-Gi).',
+    desc: 'Sob orientação do Mestre Bolivar. Aulas técnicas de defesa pessoal, raspagens e finalizações.',
     intensity: 'Alta',
-    target: 'Defesa & Combate'
-  },
-  {
-    icon: 'flame',
-    title: 'Muay Thai & Kickboxing',
-    desc: 'A arte das 8 armas: punhos, cotovelos, joelhos e canelas para condicionamento extremo.',
-    intensity: 'Muito Alta',
-    target: 'Queima Calórica'
+    target: 'Seg, Qua, Sex | Ter e Qui'
   },
   {
     icon: 'target',
     title: 'Boxe Tradicional',
-    desc: 'Nobre arte dos punhos. Melhore reflexo, esquivas, agilidade e força de impacto.',
-    intensity: 'Alta',
-    target: 'Agilidade & Foco'
+    desc: 'Treinos focados na nobre arte: esquiva, jogo de pernas e golpes precisos.',
+    intensity: 'Muito Alta',
+    target: 'Seg, Qua, Sex 06h | Ter, Qui 19h'
   },
   {
-    icon: 'dumbbell',
-    title: 'Treino Funcional & CT',
-    desc: 'Preparação física específica para luta, estabilidade de core, força explosiva e cárdio.',
-    intensity: 'Personalizada',
-    target: 'Condicionamento'
-  },
-  {
-    icon: 'trophy',
-    title: 'MMA & Submissão',
-    desc: 'Integração de grappling e trocação para transição completa de combate.',
-    intensity: 'Máxima',
-    target: 'Atletas & Avançado'
+    icon: 'flame',
+    title: 'Muay Thai & Striking',
+    desc: 'Condicionamento físico intenso com cotovelos, joelhadas e combinações de chute.',
+    intensity: 'Muito Alta',
+    target: 'Seg a Sex'
   },
   {
     icon: 'shield-check',
-    title: 'Jiu-Jitsu Kids & Teen',
-    desc: 'Formação marcial focada em disciplina, respeito, desenvolvimento motor e bullying-proof.',
+    title: 'Jiu-Jitsu Kids',
+    desc: 'Formação marcial e autoconfiança para crianças com incentivo no Plano Kids 2 Irmãos.',
     intensity: 'Moderada',
-    target: 'Crianças & Jovens'
+    target: 'Terças e Quintas'
   }
 ];
 
-// Data: Grade de Horários
+// Schedule Data based on Mestre Bolivar's exact parameters
 const scheduleData = {
   seg: [
-    { time: '06:00 - 07:15', name: 'Jiu-Jitsu (Matinal)', teacher: 'Mestre Bruno V.', level: 'Todos os Níveis', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '4 vagas' },
-    { time: '07:30 - 08:30', name: 'Treino Funcional CT', teacher: 'Prof. Carlos A.', level: 'Livre', tag: 'tag-func', tagLabel: 'Funcional', seats: '6 vagas' },
-    { time: '12:00 - 13:00', name: 'Boxe Almoço', teacher: 'Prof. Marcos T.', level: 'Iniciante / Interm.', tag: 'tag-boxe', tagLabel: 'Boxe', seats: '2 vagas' },
-    { time: '18:30 - 19:45', name: 'Muay Thai Noturno', teacher: 'Mestre Anderson R.', level: 'Todos os Níveis', tag: 'tag-muay', tagLabel: 'Muay Thai', seats: '5 vagas' },
-    { time: '20:00 - 21:30', name: 'Jiu-Jitsu Avançado / Competition', teacher: 'Mestre Bruno V.', level: 'Graduados', tag: 'tag-bjj', tagLabel: 'BJJ', seats: 'Livre' }
+    { name: 'Boxe Matinal', days: 'Segunda, Quarta e Sexta', time: '06:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' },
+    { name: 'Jiu-Jitsu Tarde', days: 'Segunda, Quarta e Sexta', time: '17:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', days: 'Segunda, Quarta e Sexta', time: '19:00h', price: 'R$ 100,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
-    { time: '06:30 - 07:30', name: 'Muay Thai Matinal', teacher: 'Mestre Anderson R.', level: 'Todos os Níveis', tag: 'tag-muay', tagLabel: 'Muay Thai', seats: '3 vagas' },
-    { time: '08:00 - 09:15', name: 'Jiu-Jitsu No-Gi (Sem Kimono)', teacher: 'Mestre Bruno V.', level: 'Interm. / Avançado', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '5 vagas' },
-    { time: '17:30 - 18:30', name: 'Jiu-Jitsu Kids', teacher: 'Profª. Fernanda S.', level: 'Infantil (5 a 12 anos)', tag: 'tag-bjj', tagLabel: 'Kids', seats: '4 vagas' },
-    { time: '19:00 - 20:15', name: 'Boxe & Striking', teacher: 'Prof. Marcos T.', level: 'Todos os Níveis', tag: 'tag-boxe', tagLabel: 'Boxe', seats: '6 vagas' },
-    { time: '20:30 - 21:45', name: 'Treino Funcional & Core', teacher: 'Prof. Carlos A.', level: 'Livre', tag: 'tag-func', tagLabel: 'Funcional', seats: '8 vagas' }
+    { name: 'Jiu-Jitsu Almoço', days: 'Terças e Quintas', time: '12:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Noturno', days: 'Terças e Quintas', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Boxe Noturno', days: 'Terças e Quintas', time: '19:00h', price: 'R$ 90,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Boxe' }
   ],
-  qua: [
-    { time: '06:00 - 07:15', name: 'Jiu-Jitsu (Matinal)', teacher: 'Mestre Bruno V.', level: 'Todos os Níveis', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '5 vagas' },
-    { time: '12:00 - 13:00', name: 'Muay Thai Express', teacher: 'Mestre Anderson R.', level: 'Iniciante', tag: 'tag-muay', tagLabel: 'Muay Thai', seats: '3 vagas' },
-    { time: '18:30 - 19:45', name: 'Jiu-Jitsu Fundamental', teacher: 'Profª. Fernanda S.', level: 'Iniciantes / Faixa Branca', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '7 vagas' },
-    { time: '20:00 - 21:30', name: 'MMA & Wrestling Submissão', teacher: 'Mestre Bruno V.', level: 'Avançado', tag: 'tag-bjj', tagLabel: 'MMA', seats: '4 vagas' }
-  ],
-  qui: [
-    { time: '06:30 - 07:30', name: 'Boxe Matinal', teacher: 'Prof. Marcos T.', level: 'Todos os Níveis', tag: 'tag-boxe', tagLabel: 'Boxe', seats: '4 vagas' },
-    { time: '17:30 - 18:30', name: 'Jiu-Jitsu Teen', teacher: 'Profª. Fernanda S.', level: '13 a 17 anos', tag: 'tag-bjj', tagLabel: 'Teen', seats: '5 vagas' },
-    { time: '19:00 - 20:15', name: 'Muay Thai Clinch & Sparring', teacher: 'Mestre Anderson R.', level: 'Interm. / Avançado', tag: 'tag-muay', tagLabel: 'Muay Thai', seats: '2 vagas' },
-    { time: '20:30 - 21:45', name: 'Jiu-Jitsu All Belts', teacher: 'Mestre Bruno V.', level: 'Todos os Níveis', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '8 vagas' }
-  ],
-  sex: [
-    { time: '06:00 - 07:15', name: 'Jiu-Jitsu No-Gi', teacher: 'Mestre Bruno V.', level: 'Todos os Níveis', tag: 'tag-bjj', tagLabel: 'BJJ', seats: '6 vagas' },
-    { time: '12:00 - 13:00', name: 'Treino Funcional de Sexta', teacher: 'Prof. Carlos A.', level: 'Livre', tag: 'tag-func', tagLabel: 'Funcional', seats: '10 vagas' },
-    { time: '18:30 - 20:00', name: 'Open Mat (Treino Livre BJJ & Thai)', teacher: 'Equipe BJ Sports', level: 'Livre para Alunos', tag: 'tag-bjj', tagLabel: 'Open Mat', seats: 'Livre' }
-  ],
-  sab: [
-    { time: '09:00 - 10:30', name: 'Aulão Especial de Sábado (BJJ)', teacher: 'Mestre Bruno V.', level: 'Todos os Níveis', tag: 'tag-bjj', tagLabel: 'BJJ', seats: 'Livre' },
-    { time: '10:45 - 12:00', name: 'Sparring Sparring Striking (Boxe / Thai)', teacher: 'Mestre Anderson R.', level: 'Graduados', tag: 'tag-muay', tagLabel: 'Striking', seats: '4 vagas' }
+  todos: [
+    { name: 'Plano Passe Livre (BJJ & Boxe)', days: 'Segunda a Sexta (Todos os dias)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-func', tagLabel: 'Livre Acesso' },
+    { name: 'Plano Família (3 pessoas)', days: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-bjj', tagLabel: 'Família' },
+    { name: 'Plano Casal (2 pessoas)', days: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', teacher: 'Mestre Bolivar', tag: 'tag-boxe', tagLabel: 'Casal' }
   ]
 };
 
@@ -144,7 +122,7 @@ function renderModalidades() {
       <p class="modality-desc">${item.desc}</p>
       <div class="modality-meta">
         <span>⚡ Intensidade: <strong>${item.intensity}</strong></span>
-        <span>🎯 Foco: <strong>${item.target}</strong></span>
+        <span>🕒 <strong>${item.target}</strong></span>
       </div>
     </div>
   `).join('');
@@ -157,20 +135,20 @@ function renderSchedule(day = 'seg') {
 
   const rows = scheduleData[day] || [];
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum treino agendado para este dia.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum treino listado.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = rows.map(item => `
     <tr>
-      <td><strong>${item.time}</strong></td>
       <td>
         <span class="tag-badge ${item.tag}">${item.tagLabel}</span>
-        <span style="margin-left: 8px;">${item.name}</span>
+        <strong style="margin-left: 8px;">${item.name}</strong>
       </td>
+      <td>${item.days}</td>
+      <td><span class="badge-pill">${item.time}</span></td>
+      <td><span class="price-highlight">${item.price}</span></td>
       <td>${item.teacher}</td>
-      <td><small class="text-muted">${item.level}</small></td>
-      <td><span style="color: #4ade80; font-weight: 600;">${item.seats}</span></td>
       <td>
         <button class="btn btn-secondary btn-sm quick-book-btn" data-modality="${item.name}">
           Agendar
@@ -201,6 +179,16 @@ function setupScheduleFilters() {
   });
 }
 
+// Plan Select Buttons
+function setupPlanButtons() {
+  document.querySelectorAll('.select-plan-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const plan = btn.getAttribute('data-plan');
+      openModalWithModality(plan);
+    });
+  });
+}
+
 // Calculator Logic (Lab Section)
 function setupCalculator() {
   const form = document.getElementById('labForm');
@@ -216,26 +204,18 @@ function setupCalculator() {
 
     const bmi = (weight / (height * height)).toFixed(1);
     let category = 'Atleta em Potencial';
-    let calories = '650 - 850 kcal';
+    let calories = '750 - 950 kcal';
     let recommendedModality = 'Jiu-Jitsu (BJJ)';
     let recDesc = 'Excelente para queima calórica intensa, fortalecimento funcional e agilidade.';
 
     if (goal === 'perda_peso') {
-      recommendedModality = 'Muay Thai & Treino Funcional';
-      calories = '800 - 1050 kcal';
-      recDesc = 'A combinação perfeita entre treinos aeróbicos intensos e fortalecimento de core.';
+      recommendedModality = 'Boxe & Muay Thai';
+      calories = '850 - 1100 kcal';
+      recDesc = 'Treino aeróbico de alta intensidade e gasto calórico máximo.';
     } else if (goal === 'defesa') {
-      recommendedModality = 'Jiu-Jitsu (BJJ) & Boxe';
+      recommendedModality = 'Jiu-Jitsu (BJJ) Mestre Bolivar';
       calories = '700 - 900 kcal';
-      recDesc = 'Foco em controle de distância, gerenciamento de crise e submissão rápida.';
-    } else if (goal === 'ganho_massa') {
-      recommendedModality = 'Treino Funcional CT & Judo';
-      calories = '600 - 750 kcal';
-      recDesc = 'Treinamento de força explosiva, estabilização articular e hipertrofia funcional.';
-    } else if (goal === 'competicao') {
-      recommendedModality = 'MMA & Submissão Avançada';
-      calories = '900 - 1200 kcal';
-      recDesc = 'Preparação de alto rendimento com simulado de luta e periodização atlética.';
+      recDesc = 'Técnica de alavanca, raspagem e controle no solo.';
     }
 
     document.getElementById('resultPlaceholder').classList.add('hidden');
@@ -247,7 +227,6 @@ function setupCalculator() {
     document.getElementById('resModalidade').textContent = recommendedModality;
     document.getElementById('resDesc').textContent = recDesc;
 
-    // Trigger subtle confetti
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
   });
 
@@ -260,8 +239,8 @@ function setupCalculator() {
   }
 }
 
-// Modal Management
-function setupModal() {
+// Booking Modal
+function setupBookingModal() {
   const modal = document.getElementById('bookingModal');
   const openBtn = document.getElementById('openScheduleModal');
   const closeBtn = document.getElementById('closeBookingModal');
@@ -290,14 +269,13 @@ function setupModal() {
       const name = document.getElementById('bookName').value;
       const modality = document.getElementById('bookModality').value;
 
-      // Celebrate booking with full confetti burst
       confetti({
         particleCount: 120,
         spread: 80,
         origin: { y: 0.6 }
       });
 
-      alert(`OSS! 🎉 Parabéns, ${name}! Seu agendamento para a aula de ${modality} foi realizado com sucesso! Nossa equipe entrará em contato via WhatsApp.`);
+      alert(`OSS! 🥋 Parabéns, ${name}! Seu agendamento para ${modality} foi realizado com sucesso! Nossa equipe do Mestre Bolivar entrará em contato via WhatsApp.`);
       bookingForm.reset();
       closeModal();
     });
@@ -318,23 +296,58 @@ function openModalWithModality(modalityName) {
   modal.classList.remove('hidden');
 }
 
-// Theme Toggle
-function setupThemeToggle() {
-  const btn = document.getElementById('themeToggleBtn');
-  if (!btn) return;
+// Login Modal Setup
+function setupLoginModal() {
+  const loginModal = document.getElementById('loginModal');
+  const openLoginBtn = document.getElementById('openLoginModalBtn');
+  const closeLoginBtn = document.getElementById('closeLoginModal');
+  const loginForm = document.getElementById('loginForm');
+  const dashView = document.getElementById('studentDashboardView');
+  const logoutBtn = document.getElementById('logoutStudentBtn');
 
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
+  function openLogin() {
+    loginModal.classList.remove('hidden');
+  }
+
+  function closeLogin() {
+    loginModal.classList.add('hidden');
+  }
+
+  if (openLoginBtn) openLoginBtn.addEventListener('click', openLogin);
+  if (closeLoginBtn) closeLoginBtn.addEventListener('click', closeLogin);
+
+  loginModal.addEventListener('click', (e) => {
+    if (e.target === loginModal) closeLogin();
   });
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const cpf = document.getElementById('loginCpf').value;
+      
+      // Simulate authentication
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
+      loginForm.classList.add('hidden');
+      dashView.classList.remove('hidden');
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      dashView.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+  }
 }
 
-// DOM Content Loaded
+// DOM Loaded
 document.addEventListener('DOMContentLoaded', () => {
   renderModalidades();
   renderSchedule('seg');
   setupScheduleFilters();
+  setupPlanButtons();
   setupCalculator();
-  setupModal();
-  setupThemeToggle();
+  setupBookingModal();
+  setupLoginModal();
   initIcons();
 });
