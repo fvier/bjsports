@@ -1,175 +1,255 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- Hero Section da Administração de Planos -->
-  <section class="hero-section page-hero">
-    <div class="container text-center">
-      <span class="section-badge">AUDITORIA DE PAGAMENTOS & MENSALIDADES</span>
-      <h1 class="hero-title">ADMINISTRAÇÃO DE <span class="highlight-red">PLANOS & AUDITORIA</span></h1>
-      <p class="hero-desc" style="margin: 0 auto;">
-        Gerencie e audite os planos de mensalidade da academia. Cada plano possui um <strong>ID Único de Auditoria (#PLN-XXX)</strong> para garantir a integridade dos históricos financeiros dos alunos.
-      </p>
-    </div>
-  </section>
-
-  <!-- Conteúdo Empilhado Verticalmente (Topo: Cadastrar Plano | Baixo: Planos Cadastrados & Auditoria) -->
-  <section class="section portal-section">
-    <div class="container" style="max-width: 960px;">
+  <!-- ÁREA DE ADMINISTRAÇÃO DE PLANOS COM BARRA LATERAL ERP COMERCIAL -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ESTILO GPS PARAÍBA ERP (100% VISÍVEL NESSA ROTA) -->
+    <aside class="erp-sidebar" id="erpSidebar">
       
-      <!-- 1. BLOCO SUPERIOR (EM CIMA): CADASTRAR NOVO PLANO -->
-      <div class="glass-panel" style="margin-bottom: 40px; border: 1px solid var(--border-red); background: rgba(18, 18, 28, 0.95);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
-              <i data-lucide="plus-circle" class="icon-gold"></i> 1. Cadastrar Novo Plano no Sistema
-            </h3>
-            <p style="color: var(--text-muted); font-size: 0.88rem;">Preencha os dados abaixo para gerar automaticamente um novo código de auditoria.</p>
-          </div>
-          <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">
-            <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
+      <!-- Cabeçalho do Menu com Logo & Título -->
+      <div class="erp-brand-header">
+        <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
+        <div class="erp-brand-info">
+          <h2 class="erp-brand-name">BJ Sports</h2>
+          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </div>
+
+      <!-- Navegação Categorizada com Grupos VISÃO GERAL e MÓDULOS -->
+      <nav class="erp-nav">
+        
+        <!-- Grupo 1: VISÃO GERAL -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">VISÃO GERAL</span>
+          
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="home" class="erp-item-icon"></i>
+            <span class="erp-item-label">Início / Área de Membros</span>
+          </a>
+
+          <a href="{{ url_for('login') }}" class="erp-nav-item">
+            <i data-lucide="trending-up" class="erp-item-icon"></i>
+            <span class="erp-item-label">Dashboard do Aluno</span>
           </a>
         </div>
 
-        <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
-          <input type="hidden" name="action" value="create">
+        <!-- Grupo 2: MÓDULOS & GESTÃO DA ACADEMIA -->
+        <div class="erp-nav-group">
+          <span class="erp-group-title">MÓDULOS & GESTÃO</span>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="name">Nome Oficial do Plano (Imutável após criação) *</label>
-              <input type="text" name="name" id="name" placeholder="Ex: ⚡ Plano Passe Livre VIP" required>
-            </div>
-            <div class="form-group">
-              <label for="category">Categoria do Plano *</label>
-              <select name="category" id="category" required>
-                <option value="Planos Individuais">Planos Individuais</option>
-                <option value="Planos Promocionais & Família">Planos Promocionais & Família</option>
-              </select>
-            </div>
-          </div>
+          <!-- MENU ATIVO: GESTÃO DE PLANOS -->
+          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item active" style="border: 1px solid rgba(37, 211, 102, 0.4); background: rgba(37, 211, 102, 0.12);">
+            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
+            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="price">Valor Mensal (Auditável) *</label>
-              <input type="text" name="price" id="price" placeholder="R$ 120,00/mês" required>
-            </div>
-            <div class="form-group" style="justify-content: flex-end;">
-              <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
-                <input type="checkbox" name="is_featured" value="1">
-                <span>Destacar como "MAIS POPULAR"</span>
-              </label>
-            </div>
-          </div>
+          <!-- MENU: GESTÃO DE PRIVILÉGIOS -->
+          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
+            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
+            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
+            <i data-lucide="chevron-right" class="erp-chevron"></i>
+          </a>
 
-          <div class="form-group">
-            <label for="sub">Subtítulo / Descrição Rápida</label>
-            <input type="text" name="sub" id="sub" placeholder="Ex: Acesso ilimitado a todas as modalidades e horários">
-          </div>
+          <a href="{{ url_for('loja') }}" class="erp-nav-item">
+            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
+            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
+            <i data-lucide="chevron-down" class="erp-chevron"></i>
+          </a>
 
-          <div class="form-group">
-            <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
-            <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã e noite; Avaliação física inclusa">
-            <span class="field-hint">💡 Separe os benefícios com ';' para gerar a lista na página de vendas.</span>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-top: 10px;">
-            <i data-lucide="check-circle"></i> Cadastrar Plano e Gerar ID de Auditoria
-          </button>
-        </form>
-      </div>
-
-      <!-- 2. BLOCO INFERIOR (EMBAIXO): LISTA E EDIÇÃO DE PLANOS POR ID DE AUDITORIA -->
-      <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
-        <div style="margin-bottom: 24px;">
-          <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
-            <i data-lucide="shield-check" class="icon-gold"></i> 2. Planos Cadastrados & Auditoria de Valores (#PLN-XXX)
-          </h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">
-            Os nomes dos planos permanecem <strong>fixos por ID de Auditoria</strong> para manter a precisão dos relatórios de mensalidade. Você pode editar o valor mensal, categoria e benefícios a qualquer momento.
-          </p>
+          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
+            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
+            <span class="erp-item-label text-red">Sair da Conta</span>
+          </a>
         </div>
 
-        <div class="classes-list">
-          {% for plan in plans %}
-          <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 16px; padding: 24px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);">
-            
-            <!-- Cabeçalho do Card com ID de Auditoria e Nome Imutável -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <span class="badge-pill" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold); font-size: 0.75rem; margin-bottom: 4px;">
-                  ID AUDITORIA: #{{ plan.plan_code }}
-                </span>
-                <h4 style="font-family: var(--font-heading); font-weight: 900; font-size: 1.3rem; color: #ffffff; margin-top: 4px;">
-                  {{ plan.name }}
-                </h4>
-              </div>
+      </nav>
+    </aside>
 
-              <div style="text-align: right;">
-                <span class="badge-pill bg-green" style="font-size: 0.7rem;">STATUS: ATIVO EM AUDITORIA</span>
-                <small style="display: block; color: var(--text-dim); margin-top: 4px;">Cadastrado em: {{ plan.created_at.strftime('%d/%m/%Y') }}</small>
+    <!-- ÁREA PRINCIPAL COM TOOPBAR ERP & CONTEÚDO EMPILHADO VERTICALMENTE -->
+    <div class="erp-main-container">
+      
+      <!-- Top Bar com Ícone Hambúrguer e Badge Azul -->
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP • Gestão de Planos</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">
+              {% if user_role == 'instrutor' %}🥋{% elif user_role == 'monitor' %}🔍{% else %}⚡{% endif %}
+            </span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">PAINEL ADMINISTRATIVO</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Conteúdo Principal Empilhado (EM CIMA: Form de Cadastro | EMBAIXO: Planos Cadastrados) -->
+      <main class="erp-content">
+        
+        <!-- Banner de Início -->
+        <div class="erp-hero-banner" style="margin-bottom: 28px;">
+          <div class="erp-status-indicator">
+            <span class="live-dot"></span> ADMINISTRAÇÃO MENSAL DE PLANOS
+          </div>
+          <h1 class="erp-hero-heading">Gestão de Mensalidades & Opções</h1>
+          <p class="erp-hero-sub">Cadastre novos planos ou edite valores dos planos cadastrados no sistema.</p>
+        </div>
+
+        <!-- 1. BLOCO SUPERIOR (EM CIMA): CADASTRAR NOVO PLANO -->
+        <div class="glass-panel" style="margin-bottom: 32px; border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(18, 18, 28, 0.95);">
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+              <i data-lucide="plus-circle" class="icon-green"></i> 1. Cadastrar Novo Plano
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Cadastre o nome, categoria e valor mensal para disponibilizar aos alunos.</p>
+          </div>
+
+          <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
+            <input type="hidden" name="action" value="create">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Nome do Plano *</label>
+                <input type="text" name="name" id="name" placeholder="Ex: ⚡ Plano Passe Livre (BJJ & Boxe)" required>
+              </div>
+              <div class="form-group">
+                <label for="category">Categoria do Plano *</label>
+                <select name="category" id="category" required>
+                  <option value="Planos Individuais">Planos Individuais</option>
+                  <option value="Planos Promocionais & Família">Planos Promocionais & Família</option>
+                </select>
               </div>
             </div>
 
-            <!-- Formulário Inline de Edição por ID de Auditoria -->
-            <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
-              <input type="hidden" name="action" value="update">
-              <input type="hidden" name="plan_id" value="{{ plan.id }}">
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Valor Mensal (Auditado) *</label>
-                  <input type="text" name="price" value="{{ plan.price }}" required style="font-weight: 700; color: var(--accent-gold);">
-                </div>
-
-                <div class="form-group">
-                  <label>Categoria do Plano *</label>
-                  <select name="category" required>
-                    <option value="Planos Individuais" {% if plan.category == 'Planos Individuais' %}selected{% endif %}>Planos Individuais</option>
-                    <option value="Planos Promocionais & Família" {% if plan.category == 'Planos Promocionais & Família' %}selected{% endif %}>Planos Promocionais & Família</option>
-                  </select>
-                </div>
-              </div>
-
+            <div class="form-row">
               <div class="form-group">
-                <label>Subtítulo / Descrição</label>
-                <input type="text" name="sub" value="{{ plan.sub if plan.sub else '' }}">
+                <label for="price">Valor Mensal *</label>
+                <input type="text" name="price" id="price" placeholder="R$ 120,00/mês" required style="font-weight: 700; color: var(--accent-gold);">
               </div>
-
-              <div class="form-group">
-                <label>Benefícios (Separados por ';')</label>
-                <input type="text" name="features" value="{{ plan.features if plan.features else '' }}">
-              </div>
-
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 12px;">
-                <label class="experimental-checkbox-label">
-                  <input type="checkbox" name="is_featured" value="1" {% if plan.is_featured %}checked{% endif %}>
-                  <span style="font-size: 0.85rem;">Exibir selo MAIS POPULAR na página inicial</span>
+              <div class="form-group" style="justify-content: flex-end;">
+                <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
+                  <input type="checkbox" name="is_featured" value="1">
+                  <span>Destacar como "MAIS POPULAR"</span>
                 </label>
+              </div>
+            </div>
 
-                <div style="display: flex; gap: 10px;">
+            <div class="form-group">
+              <label for="sub">Subtítulo / Descrição Rápida</label>
+              <input type="text" name="sub" id="sub" placeholder="Ex: Acesso ilimitado a todas as modalidades e horários">
+            </div>
+
+            <div class="form-group">
+              <label for="features">Benefícios do Plano (Separados por ponto e vírgula ';')</label>
+              <input type="text" name="features" id="features" placeholder="Ex: Treinos ilimitados; Acesso manhã e noite; Acompanhamento de evolução">
+              <span class="field-hint">💡 Separe os benefícios com ';' para exibir em lista na página inicial.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-top: 10px;">
+              <i data-lucide="check-circle"></i> Cadastrar Plano no Sistema
+            </button>
+          </form>
+        </div>
+
+        <!-- 2. BLOCO INFERIOR (EMBAIXO): LISTA DE PLANOS CADASTRAIS E EDIÇÃO DE VALORES -->
+        <div class="glass-panel" style="background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light);">
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff;">
+              <i data-lucide="tag" class="icon-gold"></i> 2. Planos Cadastrados no Banco de Dados (Editar Valores)
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              Edite o nome, valor mensal, categoria ou benefícios dos planos abaixo.
+            </p>
+          </div>
+
+          <div class="classes-list">
+            {% for plan in plans %}
+            <div class="class-item-card" style="flex-direction: column; align-items: stretch; gap: 16px; padding: 24px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);">
+              
+              <!-- Formulário Inline de Edição por ID -->
+              <form action="{{ url_for('planos_admin') }}" method="POST" class="modal-form">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                  <div>
+                    <span class="badge-pill" style="font-size: 0.75rem;">ID DO PLANO: #{{ plan.id }}</span>
+                    <strong style="color: var(--accent-gold); font-size: 1.1rem; margin-left: 8px;">{{ plan.price }}</strong>
+                  </div>
+                  {% if plan.is_featured %}
+                    <span class="badge-pill bg-green" style="font-size: 0.7rem;">MAIS POPULAR</span>
+                  {% endif %}
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nome do Plano *</label>
+                    <input type="text" name="name" value="{{ plan.name }}" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Categoria *</label>
+                    <select name="category" required>
+                      <option value="Planos Individuais" {% if plan.category == 'Planos Individuais' %}selected{% endif %}>Planos Individuais</option>
+                      <option value="Planos Promocionais & Família" {% if plan.category == 'Planos Promocionais & Família' %}selected{% endif %}>Planos Promocionais & Família</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Valor Mensal *</label>
+                    <input type="text" name="price" value="{{ plan.price }}" required style="font-weight: 700; color: var(--accent-gold);">
+                  </div>
+                  <div class="form-group" style="justify-content: flex-end;">
+                    <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
+                      <input type="checkbox" name="is_featured" value="1" {% if plan.is_featured %}checked{% endif %}>
+                      <span style="font-size: 0.85rem;">Exibir selo MAIS POPULAR</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Subtítulo / Descrição</label>
+                  <input type="text" name="sub" value="{{ plan.sub if plan.sub else '' }}">
+                </div>
+
+                <div class="form-group">
+                  <label>Benefícios (Separados por ';')</label>
+                  <input type="text" name="features" value="{{ plan.features if plan.features else '' }}">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 12px; flex-wrap: wrap; gap: 10px;">
                   <button type="submit" class="btn btn-primary btn-sm btn-glow">
-                    <i data-lucide="save"></i> Salvar Alterações (#{{ plan.plan_code }})
+                    <i data-lucide="save"></i> Salvar Alterações no Plano #{{ plan.id }}
                   </button>
                 </div>
-              </div>
-            </form>
-
-            <!-- Ação de Remoção Auditada -->
-            <div style="display: flex; justify-content: flex-end; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
-              <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;" onclick="return confirm('Deseja realmente remover o plano com ID #{{ plan.plan_code }}?');">
-                  <i data-lucide="trash-2"></i> Desativar Plano (#{{ plan.plan_code }})
-                </button>
               </form>
-            </div>
 
+              <!-- Ação de Remoção -->
+              <div style="display: flex; justify-content: flex-end;">
+                <form action="{{ url_for('planos_admin') }}" method="POST" style="display: inline;">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                  <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;" onclick="return confirm('Deseja realmente remover o plano #{{ plan.id }}?');">
+                    <i data-lucide="trash-2"></i> Excluir Plano #{{ plan.id }}
+                  </button>
+                </form>
+              </div>
+
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
+
         </div>
 
-      </div>
-
+      </main>
     </div>
-  </section>
+  </div>
 {% endblock %}

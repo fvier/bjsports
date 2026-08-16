@@ -32,7 +32,6 @@ class User(db.Model):
 
 class Plan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    plan_code = db.Column(db.String(20), unique=True, nullable=False) # ID de Auditoria Exemplo: PLN-001
     name = db.Column(db.String(120), nullable=False)
     category = db.Column(db.String(80), nullable=False) # 'Planos Individuais', 'Planos Promocionais & Família'
     price = db.Column(db.String(50), nullable=False)
@@ -57,7 +56,6 @@ with app.app_context():
     # Seed default sample plans if empty
     if not Plan.query.first():
         p1 = Plan(
-            plan_code='PLN-001',
             name='⚡ Plano Passe Livre',
             category='Planos Individuais',
             price='R$ 120,00/mês',
@@ -66,7 +64,6 @@ with app.app_context():
             is_featured=True
         )
         p2 = Plan(
-            plan_code='PLN-002',
             name='🔥 Plano Casal',
             category='Planos Promocionais & Família',
             price='R$ 190,00/mês',
@@ -75,7 +72,6 @@ with app.app_context():
             is_featured=False
         )
         p3 = Plan(
-            plan_code='PLN-003',
             name='Plano Família',
             category='Planos Promocionais & Família',
             price='R$ 280,00/mês',
@@ -84,7 +80,6 @@ with app.app_context():
             is_featured=False
         )
         p4 = Plan(
-            plan_code='PLN-004',
             name='Jiu-Jitsu (Seg, Qua, Sex)',
             category='Planos Individuais',
             price='R$ 100,00/mês',
@@ -264,7 +259,7 @@ def gestao_privilegios():
     users_list = User.query.order_by(User.id.asc()).all()
     return render_template('gestao.html', page_title='Gestão de Privilégios & Permissões', users=users_list)
 
-# ROUTE: ADMINISTRAÇÃO DE PLANOS COM ID DE AUDITORIA (TOPO: FORM, BAIXO: LISTA)
+# ROUTE: ADMINISTRAÇÃO DE PLANOS (COM BARRA LATERAL ERP)
 @app.route('/planos_admin', methods=['GET', 'POST'])
 @app.route('/planos_admin.html', methods=['GET', 'POST'])
 def planos_admin():
@@ -279,13 +274,7 @@ def planos_admin():
             features = request.form.get('features', '').strip()
             is_featured = 'is_featured' in request.form
 
-            # Generate unique audit ID code (e.g., PLN-005)
-            last_plan = Plan.query.order_by(Plan.id.desc()).first()
-            next_num = (last_plan.id + 1) if last_plan else 1
-            plan_code = f"PLN-{next_num:03d}"
-
             new_plan = Plan(
-                plan_code=plan_code,
                 name=name,
                 category=category,
                 price=price,
@@ -295,20 +284,20 @@ def planos_admin():
             )
             db.session.add(new_plan)
             db.session.commit()
-            flash(f'Plano "{name}" cadastrado com código de auditoria #{plan_code}!', 'success')
+            flash(f'Plano "{name}" cadastrado com sucesso!', 'success')
 
         elif action == 'update':
             plan_id = request.form.get('plan_id')
             plan = Plan.query.get(plan_id)
             if plan:
-                # O nome do plano permanece fixo atrelado ao ID de auditoria!
+                plan.name = request.form.get('name', '').strip()
                 plan.category = request.form.get('category', '').strip()
                 plan.price = request.form.get('price', '').strip()
                 plan.sub = request.form.get('sub', '').strip()
                 plan.features = request.form.get('features', '').strip()
                 plan.is_featured = 'is_featured' in request.form
                 db.session.commit()
-                flash(f'Auditoria #{plan.plan_code}: Plano "{plan.name}" atualizado com sucesso!', 'success')
+                flash(f'Plano #{plan.id} ("{plan.name}") atualizado com sucesso!', 'success')
 
         elif action == 'delete':
             plan_id = request.form.get('plan_id')
@@ -316,12 +305,12 @@ def planos_admin():
             if plan:
                 db.session.delete(plan)
                 db.session.commit()
-                flash(f'Auditoria #{plan.plan_code}: Plano removido do sistema.', 'info')
+                flash(f'Plano #{plan.id} removido do sistema.', 'info')
 
         return redirect(url_for('planos_admin'))
 
     plans_list = Plan.query.order_by(Plan.id.asc()).all()
-    return render_template('planos_admin.html', page_title='Administração de Planos com Auditoria', plans=plans_list)
+    return render_template('planos_admin.html', page_title='Administração de Planos', plans=plans_list)
 
 @app.route('/aluno')
 @app.route('/aluno.html')
