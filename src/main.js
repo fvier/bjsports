@@ -93,7 +93,6 @@ function renderSchedule(day = 'seg') {
     </tr>
   `).join('');
 
-  // Attach click listeners to quick book buttons
   tbody.querySelectorAll('.quick-book-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const modality = btn.getAttribute('data-modality');
@@ -133,21 +132,26 @@ function setupBookingModal() {
   const heroCTA = document.getElementById('heroCTA');
   const bookingForm = document.getElementById('bookingForm');
 
+  // Ensure modal starts hidden
+  if (modal) modal.classList.add('hidden');
+
   function openModal() {
-    modal.classList.remove('hidden');
+    if (modal) modal.classList.remove('hidden');
   }
 
   function closeModal() {
-    modal.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
   }
 
   if (openBtn) openBtn.addEventListener('click', openModal);
   if (heroCTA) heroCTA.addEventListener('click', openModal);
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
 
   if (bookingForm) {
     bookingForm.addEventListener('submit', (e) => {
@@ -179,7 +183,7 @@ function openModalWithModality(modalityName) {
       }
     }
   }
-  modal.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
 }
 
 // Login Modal Setup
@@ -191,36 +195,54 @@ function setupLoginModal() {
   const dashView = document.getElementById('studentDashboardView');
   const logoutBtn = document.getElementById('logoutStudentBtn');
 
+  // Ensure login modal starts strictly hidden
+  if (loginModal) loginModal.classList.add('hidden');
+
   function openLogin() {
-    loginModal.classList.remove('hidden');
+    if (loginModal) loginModal.classList.remove('hidden');
   }
 
   function closeLogin() {
-    loginModal.classList.add('hidden');
+    if (loginModal) loginModal.classList.add('hidden');
   }
 
   if (openLoginBtn) openLoginBtn.addEventListener('click', openLogin);
   if (closeLoginBtn) closeLoginBtn.addEventListener('click', closeLogin);
 
-  loginModal.addEventListener('click', (e) => {
-    if (e.target === loginModal) closeLogin();
-  });
+  if (loginModal) {
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) closeLogin();
+    });
+  }
 
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
       loginForm.classList.add('hidden');
-      dashView.classList.remove('hidden');
+      if (dashView) dashView.classList.remove('hidden');
     });
   }
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      dashView.classList.add('hidden');
-      loginForm.classList.remove('hidden');
+      if (dashView) dashView.classList.add('hidden');
+      if (loginForm) loginForm.classList.remove('hidden');
+      closeLogin();
     });
   }
+}
+
+// Global Keydown Listener for Escape key
+function setupGlobalKeyListeners() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const bookingModal = document.getElementById('bookingModal');
+      const loginModal = document.getElementById('loginModal');
+      if (bookingModal) bookingModal.classList.add('hidden');
+      if (loginModal) loginModal.classList.add('hidden');
+    }
+  });
 }
 
 // DOM Loaded
@@ -230,5 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPlanButtons();
   setupBookingModal();
   setupLoginModal();
+  setupGlobalKeyListeners();
   initIcons();
 });
