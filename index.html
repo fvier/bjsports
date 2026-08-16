@@ -61,7 +61,7 @@
 
         <div class="hero-buttons">
           <button id="heroCTA" class="btn btn-primary btn-lg btn-glow">
-            <i data-lucide="flame"></i> Garantir Vaga na Turma
+            <i data-lucide="calendar-check"></i> Garantir Vaga na Turma
           </button>
           <a href="#planos" class="btn btn-secondary btn-lg">
             <i data-lucide="tag"></i> Ver Planos & Descontos
@@ -108,7 +108,7 @@
       <div class="grid-planos">
         <!-- Plano Família -->
         <div class="plano-card featured-card glass-panel">
-          <div class="plano-badge">MAIS VANTAJOSO 🔥</div>
+          <div class="plano-badge">MAIS VANTAJOSO</div>
           <h3 class="plano-title">Plano Família</h3>
           <p class="plano-sub">3 pessoas da mesma família</p>
           <div class="plano-price-box">
@@ -278,7 +278,7 @@
     </div>
   </footer>
 
-  <!-- Modal de Reserva Exato -->
+  <!-- Modal de Reserva -->
   <div class="modal-backdrop hidden" id="bookingModal">
     <div class="modal-card glass-panel">
       <button class="modal-close" id="closeBookingModal" title="Fechar (ESC)">&times;</button>
@@ -293,7 +293,7 @@
         <!-- Indicativo de Ocupação da Turma em Barra (% Cheio) -->
         <div class="capacity-bar-box" id="capacityBox">
           <div class="capacity-header">
-            <span class="capacity-label"><i data-lucide="flame" class="icon-gold"></i> Ocupação da Turma: <strong id="capacityPercentText">85% Cheio</strong></span>
+            <span class="capacity-label">Ocupação da Turma: <strong id="capacityPercentText">85% Cheio</strong></span>
             <span class="capacity-vagas" id="capacityVagasText">17/20 Vagas Ocupadas</span>
           </div>
           <div class="capacity-track">
@@ -320,11 +320,12 @@
           </div>
         </div>
 
-        <!-- Dropdowns: Modalidade e Horários (até 48h antes) -->
+        <!-- Dropdowns: Modalidade e Horários -->
         <div class="form-group">
           <label for="bookModality">Modalidade:</label>
           <select id="bookModality" required>
             <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
+            <option value="Jiu-Jitsu (Kids)">Jiu-Jitsu (Kids)</option>
             <option value="Boxe Tradicional">Boxe Tradicional</option>
           </select>
         </div>

@@ -1,7 +1,6 @@
 import confetti from 'canvas-confetti';
 import { 
   createIcons, 
-  Flame, 
   Clock, 
   CalendarCheck, 
   Zap, 
@@ -30,7 +29,6 @@ import {
 function initIcons() {
   createIcons({
     icons: {
-      Flame,
       Clock,
       CalendarCheck,
       Zap,
@@ -76,7 +74,7 @@ const scheduleData = {
   ]
 };
 
-// Render Schedule Table (Without redundant teacher column)
+// Render Schedule Table
 function renderSchedule(day = 'seg') {
   const tbody = document.getElementById('scheduleTableBody');
   if (!tbody) return;
