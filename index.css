@@ -426,63 +426,6 @@ body {
   padding: 32px;
 }
 
-/* Modalidades Grid */
-.grid-modalidades {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
-}
-
-.modality-card {
-  position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.modality-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--border-red);
-  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
-}
-
-.modality-icon {
-  width: 56px;
-  height: 56px;
-  background: rgba(229, 9, 20, 0.12);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary-red);
-  margin-bottom: 20px;
-}
-
-.modality-title {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.4rem;
-  margin-bottom: 12px;
-}
-
-.modality-desc {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 20px;
-}
-
-.modality-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-light);
-  color: var(--text-dim);
-}
-
 /* Planos & Descontos Section */
 .grid-planos {
   display: grid;
@@ -662,7 +605,6 @@ body {
 }
 
 .tag-bjj { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-.tag-muay { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 .tag-boxe { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .tag-func { background: rgba(16, 185, 129, 0.15); color: #34d399; }
 
@@ -670,139 +612,6 @@ body {
   font-family: var(--font-heading);
   font-weight: 800;
   color: var(--accent-gold);
-}
-
-/* Lab Section */
-.lab-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-}
-
-.lab-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.3rem;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.lab-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.form-group input, .form-group select {
-  padding: 14px 16px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  color: var(--text-main);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.form-group input:focus, .form-group select:focus {
-  border-color: var(--primary-red);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.result-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 100%;
-  min-height: 280px;
-  gap: 16px;
-  color: var(--text-muted);
-}
-
-.icon-lg { width: 48px; height: 48px; }
-.icon-sm { width: 18px; height: 18px; }
-.icon-gold { color: var(--accent-gold); }
-
-.hidden { display: none !important; }
-
-.result-header { margin-bottom: 24px; }
-.bg-red { background: var(--primary-red); color: #fff; }
-.bg-green { background: #16a34a; color: #fff; }
-
-.result-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.metric-box {
-  background: rgba(0,0,0,0.3);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-}
-
-.metric-val {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.8rem;
-  color: var(--primary-red);
-}
-
-.metric-lbl {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.recommendation-box {
-  background: rgba(255, 215, 0, 0.05);
-  border: 1px dashed rgba(255, 215, 0, 0.3);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  margin-bottom: 24px;
-}
-
-.rec-name {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--accent-gold);
-  margin-top: 4px;
-}
-
-.rec-desc {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: 4px;
 }
 
 /* Belts Section */
@@ -850,7 +659,7 @@ body {
   color: var(--text-muted);
 }
 
-/* Botão Flutuante WhatsApp */
+/* Botão Flutuante WhatsApp Oficial */
 .whatsapp-float-btn {
   position: fixed;
   bottom: 28px;
@@ -858,30 +667,31 @@ body {
   z-index: 999;
   background: var(--accent-green);
   color: #fff;
-  width: 60px;
-  height: 60px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 4px 25px rgba(37, 211, 102, 0.45);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .whatsapp-float-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+  transform: scale(1.12);
+  box-shadow: 0 6px 35px rgba(37, 211, 102, 0.7);
 }
 
-.wa-icon {
-  width: 30px;
-  height: 30px;
+.wa-official-icon {
+  width: 34px;
+  height: 34px;
+  fill: #ffffff;
 }
 
 .wa-tooltip {
   position: absolute;
-  right: 72px;
+  right: 74px;
   background: rgba(10, 10, 14, 0.95);
   border: 1px solid var(--border-light);
   color: var(--text-main);
@@ -1065,6 +875,13 @@ body {
   font-size: 0.9rem;
 }
 
+.footer-address {
+  color: var(--accent-gold);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
 .footer-links {
   display: flex;
   flex-direction: column;
@@ -1095,13 +912,13 @@ body {
 
 /* Responsive */
 @media (max-width: 900px) {
-  .hero-content, .lab-grid, .grid-planos {
+  .hero-content, .grid-planos {
     grid-template-columns: 1fr;
   }
   .nav-menu { display: none; }
   .hero-title { font-size: 2.6rem; }
   .hero-media-block { display: flex; justify-content: center; }
   .hero-logo-img { width: 220px; }
-  .whatsapp-float-btn { bottom: 20px; right: 20px; width: 52px; height: 52px; }
+  .whatsapp-float-btn { bottom: 20px; right: 20px; width: 54px; height: 54px; }
   .wa-tooltip { display: none; }
 }

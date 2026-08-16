@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BJ Sports — Centro de Treinamento | Mestre Bolivar</title>
+  <title>BJ Sports — Centro de Treinamento | Cajazeiras-PB</title>
   <link rel="icon" type="image/png" href="/logo_transparent.png">
   
   <!-- Google Fonts -->
@@ -17,7 +17,9 @@
   <!-- Top Status Bar -->
   <div class="top-status-bar">
     <div class="container status-content">
-      <span class="status-indicator"><span class="pulse-dot"></span> BJ Sports Centro de Treinamento • Mestre Bolivar</span>
+      <span class="status-indicator">
+        <span class="pulse-dot"></span> 📍 Av. Estrada do Amor, Cajazeiras - PB • Mestre Bolivar
+      </span>
       <div class="status-contact">
         <a href="https://wa.me/5583996527997" target="_blank" class="status-link">
           <i data-lucide="phone"></i> (83) 9 9652-7997
@@ -44,10 +46,8 @@
       </a>
 
       <nav class="nav-menu">
-        <a href="#modalidades" class="nav-item">Modalidades</a>
         <a href="#horarios" class="nav-item">Horários & Valores</a>
         <a href="#planos" class="nav-item">Planos Família</a>
-        <a href="#laboratorio" class="nav-item">Lab Performance</a>
         <a href="#graduacao" class="nav-item">Graduações</a>
       </nav>
 
@@ -68,11 +68,11 @@
     <div class="container hero-content">
       <div class="hero-text-block">
         <div class="badge-pill">
-          <i data-lucide="zap" class="icon-gold"></i> MESTRE BOLIVAR • ALTA PERFORMANCE
+          <i data-lucide="zap" class="icon-gold"></i> MESTRE BOLIVAR • CAJAZEIRAS - PB
         </div>
-        <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO MATAME</h1>
+        <h1 class="hero-title">FORJE SUA MELHOR <span class="highlight-red">VERSÃO</span> NO TATAME</h1>
         <p class="hero-desc">
-          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe, Muay Thai e Preparação Física com valores acessíveis e planos especiais para família e casal.
+          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe e Preparação Física em Cajazeiras-PB com treinos de alta performance, horários flexíveis e planos especiais para família e casal.
         </p>
 
         <div class="hero-buttons">
@@ -108,21 +108,6 @@
           <img src="/logo_transparent.png" alt="BJ Sports Logo Emblema" class="hero-logo-img">
           <div class="glowing-ring"></div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Modalidades Section -->
-  <section id="modalidades" class="section modalidades-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-badge">NOSSOS PROGRAMAS</span>
-        <h2 class="section-title">MODALIDADES DE <span class="highlight-red">EXCELÊNCIA</span></h2>
-        <p class="section-subtitle">Treinamentos estruturados sob o comando do Mestre Bolivar.</p>
-      </div>
-
-      <div class="grid-modalidades" id="modalidadesGrid">
-        <!-- Rendered via JS -->
       </div>
     </div>
   </section>
@@ -204,7 +189,7 @@
       <div class="section-header text-center">
         <span class="section-badge">TABELA OFICIAL DE AULAS</span>
         <h2 class="section-title">HORÁRIOS & <span class="highlight-red">VALORES MENSAIS</span></h2>
-        <p class="section-subtitle">Horários atualizados com o Mestre Bolivar. Escolha sua frequência semanal.</p>
+        <p class="section-subtitle">Horários sob o comando do Mestre Bolivar. Escolha sua frequência semanal.</p>
       </div>
 
       <!-- Filters -->
@@ -232,85 +217,6 @@
               <!-- Content rendered via JS -->
             </tbody>
           </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Laboratório de Performance -->
-  <section id="laboratorio" class="section lab-section">
-    <div class="container">
-      <div class="section-header text-center">
-        <span class="section-badge">FERRAMENTA INTERATIVA</span>
-        <h2 class="section-title">LABORATÓRIO DE <span class="highlight-red">PERFORMANCE</span></h2>
-        <p class="section-subtitle">Calcule seu perfil físico e descubra a modalidade ideal para o seu objetivo.</p>
-      </div>
-
-      <div class="lab-grid">
-        <!-- Form Calculator -->
-        <div class="lab-card glass-panel">
-          <h3 class="card-title"><i data-lucide="calculator"></i> Calculadora Física & Recomendador</h3>
-          <form id="labForm" class="lab-form">
-            <div class="form-group">
-              <label for="userWeight">Peso (kg)</label>
-              <input type="number" id="userWeight" placeholder="Ex: 75" required min="30" max="200" step="0.1">
-            </div>
-
-            <div class="form-group">
-              <label for="userHeight">Altura (cm)</label>
-              <input type="number" id="userHeight" placeholder="Ex: 178" required min="120" max="230">
-            </div>
-
-            <div class="form-group">
-              <label for="userGoal">Objetivo Principal</label>
-              <select id="userGoal" required>
-                <option value="defesa">Defesa Pessoal & Autoconfiança</option>
-                <option value="perda_peso">Emagrecimento & Condicionamento</option>
-                <option value="ganho_massa">Ganho de Força & Hipertrofia</option>
-                <option value="competicao">Competição & Atleta de Elite</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block btn-glow">
-              <i data-lucide="cpu"></i> Calcular Perfil & Gerar Recomendação
-            </button>
-          </form>
-        </div>
-
-        <!-- Result Card -->
-        <div class="lab-card glass-panel result-card" id="labResultCard">
-          <div class="result-placeholder" id="resultPlaceholder">
-            <i data-lucide="activity" class="icon-lg text-muted"></i>
-            <p>Preencha os dados ao lado para gerar sua análise de desempenho no laboratório.</p>
-          </div>
-
-          <div class="result-content hidden" id="resultContent">
-            <div class="result-header">
-              <span class="badge-pill bg-red">ANÁLISE GERADA</span>
-              <h4 id="resCategory">Atleta em Potencial</h4>
-            </div>
-
-            <div class="result-metrics">
-              <div class="metric-box">
-                <span class="metric-val" id="resBMI">23.6</span>
-                <span class="metric-lbl">IMC (Índice de Massa Corporal)</span>
-              </div>
-              <div class="metric-box">
-                <span class="metric-val" id="resCalories">650 kcal</span>
-                <span class="metric-lbl">Gasto Médio/Treino</span>
-              </div>
-            </div>
-
-            <div class="recommendation-box">
-              <h5><i data-lucide="sparkles" class="icon-gold"></i> Modalidade Recomendada:</h5>
-              <p class="rec-name" id="resModalidade">Jiu-Jitsu (BJJ)</p>
-              <p class="rec-desc" id="resDesc">Ideal para queima calórica intensa, fortalecimento core e aprendizado técnico.</p>
-            </div>
-
-            <button id="bookRecommendedBtn" class="btn btn-secondary btn-block">
-              <i data-lucide="check-circle-2"></i> Agendar esta Modalidade
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -355,10 +261,12 @@
     </div>
   </section>
 
-  <!-- Botão Flutuante do WhatsApp -->
+  <!-- Botão Flutuante do WhatsApp (Com Ícone Oficial do WhatsApp) -->
   <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20as%20aulas%20na%20BJ%20Sports." target="_blank" class="whatsapp-float-btn" title="Falar no WhatsApp com o Mestre Bolivar">
-    <i data-lucide="message-square" class="wa-icon"></i>
-    <span class="wa-tooltip">Fale Conosco (83) 9 9652-7997</span>
+    <svg class="wa-official-icon" viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+    </svg>
+    <span class="wa-tooltip">Falar com Mestre Bolivar (83) 9 9652-7997</span>
   </a>
 
   <!-- Footer -->
@@ -367,6 +275,7 @@
       <div class="footer-brand">
         <img src="/logo_transparent.png" alt="BJ Sports Logo Footer" class="footer-logo">
         <p class="footer-tagline">BJ Sports — Centro de Treinamento sob comando do Mestre Bolivar.</p>
+        <p class="footer-address">📍 Av. Estrada do Amor, Cajazeiras - PB</p>
       </div>
       <div class="footer-links">
         <a href="https://wa.me/5583996527997" target="_blank" class="footer-link-item">
@@ -375,12 +284,11 @@
         <a href="https://www.instagram.com/bjsports_/" target="_blank" class="footer-link-item">
           <i data-lucide="instagram"></i> Instagram: @bjsports_
         </a>
-        <span>📍 BJ Sports Centro de Treinamento</span>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="container text-center">
-        <p>&copy; 2026 BJ Sports Centro de Treinamento. Todos os direitos reservados.</p>
+        <p>&copy; 2026 BJ Sports Centro de Treinamento • Av. Estrada do Amor, Cajazeiras-PB. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
@@ -392,7 +300,7 @@
       <div class="modal-header text-center">
         <img src="/logo_transparent.png" alt="BJ Sports Logo" class="modal-logo">
         <h3>Agendar Aula Experimental Grátis</h3>
-        <p>Preencha os dados abaixo e venha fazer seu primeiro treino no BJ Sports!</p>
+        <p>Preencha os dados abaixo e venha treinar no BJ Sports em Cajazeiras-PB!</p>
       </div>
 
       <form id="bookingForm" class="modal-form">
@@ -412,7 +320,6 @@
             <select id="bookModality" required>
               <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
               <option value="Boxe">Boxe</option>
-              <option value="Muay Thai">Muay Thai</option>
               <option value="Plano Família">Plano Família (R$ 280/mês)</option>
               <option value="Plano Casal">Plano Casal (R$ 190/mês)</option>
               <option value="Plano Kids">Plano Kids Irmãos (R$ 170/mês)</option>
@@ -468,7 +375,7 @@
         </button>
       </form>
 
-      <!-- Student Dashboard Simulation View (Hidden by default) -->
+      <!-- Student Dashboard Simulation View -->
       <div id="studentDashboardView" class="student-dashboard hidden">
         <div class="student-profile-header">
           <div class="student-avatar">🥋</div>
