@@ -1252,6 +1252,7 @@ def login():
             
             user = User.query.filter(
                 (db.func.lower(User.username) == login_input.casefold()) |
+                (db.func.lower(User.name) == login_input.casefold()) |
                 (User.cpf == login_input) |
                 (db.func.lower(User.email) == login_input.casefold())
             ).first()
@@ -1388,6 +1389,9 @@ def login():
                     session['user_due_date'] = new_due_date
                     flash(f'Dia de vencimento alterado para Dia {new_due_date}!', 'success')
             return redirect(url_for('mensalidades_aluno'))
+
+    if request.args.get('logout') == '1' or request.args.get('switch') == '1':
+        session.clear()
 
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
