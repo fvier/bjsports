@@ -2446,7 +2446,7 @@ body.public-light-theme {
   color: #00f3ff !important;
 }
 
-/* EMBLEMA CENTRAL "VS" 3D HUD */
+/* EMBLEMA CENTRAL "VS" GRAFFITI ESPORTS HUD */
 .theme-area-game .scoreboard-versus {
   display: flex !important;
   justify-content: center !important;
@@ -2458,26 +2458,24 @@ body.public-light-theme {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 58px;
-  height: 58px;
-  background: #0f131d;
-  border: 2px solid #00f3ff;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5), inset 0 0 10px rgba(255, 0, 85, 0.4);
-  animation: vsFloat 3s ease-in-out infinite;
+  width: 95px;
+  height: 95px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.hud-vs-text {
-  font: 900 1.3rem var(--font-heading);
-  background: linear-gradient(135deg, #ff0055, #00f3ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
+.hud-vs-img {
+  width: 125px;
+  height: 125px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.85)) drop-shadow(0 0 35px rgba(0, 0, 0, 0.95));
+  animation: vsAggressivePulse 2.5s ease-in-out infinite;
 }
 
-@keyframes vsFloat {
-  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
-  50% { transform: translateY(-4px) scale(1.06); box-shadow: 0 0 30px rgba(255, 0, 85, 0.7); }
+@keyframes vsAggressivePulse {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.85)) drop-shadow(0 0 25px rgba(255, 0, 85, 0.5)); }
+  50% { transform: scale(1.14) rotate(-3deg); filter: drop-shadow(0 0 35px rgba(255, 153, 0, 1)) drop-shadow(0 0 50px rgba(255, 0, 85, 0.8)); }
 }
 
 /* ANIMAÇÃO DE PULSO AO PONTUAR */
