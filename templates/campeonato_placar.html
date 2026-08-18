@@ -68,7 +68,18 @@
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar">
           <div class="scoreboard-competitors">
             <article class="scoreboard-corner is-red {% if selected_match.winner_side == 'red' %}is-winner{% endif %}">
-              <span class="scoreboard-corner-label"><i></i> CORNER VERMELHO</span><h2>{{ selected_match.red_competitor }}</h2><strong class="scoreboard-points">{{ selected_match.red_score }}</strong>
+              <span class="scoreboard-corner-label"><i></i> CORNER VERMELHO</span><h2>{{ selected_match.red_competitor }}</h2>
+              <strong class="scoreboard-points">
+                {% if is_area_game %}
+                  <span class="hud-graffiti-score">
+                    {% for char in (selected_match.red_score|string) %}
+                      <img src="/static/img/digits/{{ char }}.png" alt="{{ char }}" class="hud-digit-img">
+                    {% endfor %}
+                  </span>
+                {% else %}
+                  {{ selected_match.red_score }}
+                {% endif %}
+              </strong>
               <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.red_advantages }}</b></span><span>Punições <b>{{ selected_match.red_penalties }}</b></span></div>
               {% if can_control and selected_match.status != 'finalizada' %}
               <div class="scoreboard-move-actions" aria-label="Pontuar atleta vermelho">
@@ -85,7 +96,18 @@
               </div>
             </div>
             <article class="scoreboard-corner is-blue {% if selected_match.winner_side == 'blue' %}is-winner{% endif %}">
-              <span class="scoreboard-corner-label"><i></i> CORNER AZUL</span><h2>{{ selected_match.blue_competitor }}</h2><strong class="scoreboard-points">{{ selected_match.blue_score }}</strong>
+              <span class="scoreboard-corner-label"><i></i> CORNER AZUL</span><h2>{{ selected_match.blue_competitor }}</h2>
+              <strong class="scoreboard-points">
+                {% if is_area_game %}
+                  <span class="hud-graffiti-score">
+                    {% for char in (selected_match.blue_score|string) %}
+                      <img src="/static/img/digits/{{ char }}.png" alt="{{ char }}" class="hud-digit-img">
+                    {% endfor %}
+                  </span>
+                {% else %}
+                  {{ selected_match.blue_score }}
+                {% endif %}
+              </strong>
               <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.blue_advantages }}</b></span><span>Punições <b>{{ selected_match.blue_penalties }}</b></span></div>
               {% if can_control and selected_match.status != 'finalizada' %}
               <div class="scoreboard-move-actions" aria-label="Pontuar atleta azul">

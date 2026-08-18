@@ -2452,6 +2452,34 @@ body.public-light-theme {
   position: relative !important;
 }
 
+/* DÍGITOS ILUSTRADOS GRAFFITI EM CHAMAS (EXCLUSIVO ÁREA GAME) */
+.hud-graffiti-score {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+}
+
+.hud-digit-img {
+  width: clamp(75px, 13vh, 125px) !important;
+  height: clamp(75px, 13vh, 125px) !important;
+  object-fit: contain !important;
+  animation: flamePulse 2.8s ease-in-out infinite alternate;
+}
+
+.theme-area-game .scoreboard-corner.is-red .hud-digit-img {
+  filter: drop-shadow(0 0 18px rgba(255, 0, 85, 0.95)) drop-shadow(0 0 30px rgba(255, 102, 0, 0.8));
+}
+
+.theme-area-game .scoreboard-corner.is-blue .hud-digit-img {
+  filter: drop-shadow(0 0 18px rgba(0, 243, 255, 0.95)) drop-shadow(0 0 30px rgba(0, 150, 255, 0.8)) hue-rotate(140deg);
+}
+
+@keyframes flamePulse {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.05) rotate(1deg); }
+}
+
 .theme-area-game .scoreboard-corner {
   position: relative !important;
   z-index: 2 !important;
