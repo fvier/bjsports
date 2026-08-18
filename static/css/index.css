@@ -2442,8 +2442,20 @@ body.public-light-theme {
   color: #ff0055 !important;
 }
 
-.theme-area-game .scoreboard-corner.is-blue .scoreboard-points {
-  color: #00f3ff !important;
+/* ALINHAMENTO DA ÁREA GAME (LARGURA DEDICADA AO VS E SEM SOBREPOSIÇÃO) */
+.theme-area-game .scoreboard-competitors {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 160px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 20px !important;
+  position: relative !important;
+}
+
+.theme-area-game .scoreboard-corner {
+  position: relative !important;
+  z-index: 2 !important;
+  min-width: 0 !important;
 }
 
 /* EMBLEMA CENTRAL "VS" GRAFFITI ESPORTS HUD */
@@ -2451,6 +2463,11 @@ body.public-light-theme {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+  z-index: 10 !important;
+  position: relative !important;
+  overflow: visible !important;
+  min-width: 130px !important;
+  padding: 0 5px !important;
 }
 
 .hud-vs-emblem {
@@ -2458,24 +2475,28 @@ body.public-light-theme {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 95px;
-  height: 95px;
+  width: 120px;
+  height: 120px;
   background: transparent;
   border: none;
   box-shadow: none;
+  overflow: visible !important;
+  z-index: 10 !important;
 }
 
 .hud-vs-img {
-  width: 125px;
-  height: 125px;
+  width: 140px;
+  height: 140px;
+  max-width: 140px;
   object-fit: contain;
-  filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.85)) drop-shadow(0 0 35px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.9)) drop-shadow(0 0 35px rgba(0, 0, 0, 0.95));
   animation: vsAggressivePulse 2.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes vsAggressivePulse {
-  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.85)) drop-shadow(0 0 25px rgba(255, 0, 85, 0.5)); }
-  50% { transform: scale(1.14) rotate(-3deg); filter: drop-shadow(0 0 35px rgba(255, 153, 0, 1)) drop-shadow(0 0 50px rgba(255, 0, 85, 0.8)); }
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 16px rgba(255, 102, 0, 0.9)) drop-shadow(0 0 25px rgba(255, 0, 85, 0.5)); }
+  50% { transform: scale(1.1) rotate(-2deg); filter: drop-shadow(0 0 35px rgba(255, 153, 0, 1)) drop-shadow(0 0 50px rgba(255, 0, 85, 0.85)); }
 }
 
 /* ANIMAÇÃO DE PULSO AO PONTUAR */
@@ -2489,14 +2510,33 @@ body.public-light-theme {
   100% { transform: scale(1); filter: brightness(1); }
 }
 
-/* BOTÕES DE CONTROLE STREAMER HUD */
+/* BOTÕES DE CONTROLE STREAMER HUD SEM COLISÃO */
+.theme-area-game .scoreboard-move-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+  margin-top: 14px !important;
+  width: 100% !important;
+}
+
 .theme-area-game .scoreboard-move-actions button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 42px !important;
+  padding: 8px 14px !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #e2e8f0 !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   font-weight: 800 !important;
+  font-size: 0.8rem !important;
   transition: all 0.15s ease !important;
+}
+
+.theme-area-game .scoreboard-move-actions button b {
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
 }
 
 .theme-area-game .scoreboard-corner.is-red .scoreboard-move-actions button:hover {
@@ -2511,6 +2551,25 @@ body.public-light-theme {
   border-color: #00f3ff !important;
   color: #fff !important;
   box-shadow: 0 0 15px rgba(0, 243, 255, 0.4) !important;
+}
+
+.theme-area-game .scoreboard-special-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+}
+
+.theme-area-game .scoreboard-special-actions button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-height: 38px !important;
+  padding: 6px 8px !important;
+  font-size: 0.74rem !important;
+  border-radius: 7px !important;
 }
 
 /* ENCAIXE EM TELA PAISAGEM / MOBILE WIDESCREEN */
