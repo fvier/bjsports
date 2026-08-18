@@ -1,0 +1,56 @@
+<aside class="erp-sidebar" id="erpSidebar">
+  <div class="erp-brand-header">
+    <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports" class="erp-brand-logo">
+    <div class="erp-brand-info"><h2 class="erp-brand-name">BJ Sports</h2><span class="erp-brand-sub">CENTRO DE TREINAMENTO</span></div>
+  </div>
+  <nav class="erp-nav">
+    <div class="erp-nav-group">
+      <span class="erp-group-title">AULAS</span>
+      <a href="{{ url_for('dashboard') }}" class="erp-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}"><i data-lucide="home" class="erp-item-icon"></i><span class="erp-item-label">Bem-vindo / Resumo</span></a>
+      <a href="{{ url_for('presencas') }}" class="erp-nav-item {% if request.endpoint == 'presencas' %}active{% endif %}"><i data-lucide="calendar" class="erp-item-icon"></i><span class="erp-item-label">Presenças & Treinos</span></a>
+      <a href="{{ url_for('calendario') }}" class="erp-nav-item {% if request.endpoint == 'calendario' %}active{% endif %}"><i data-lucide="calendar-days" class="erp-item-icon"></i><span class="erp-item-label">Calendário de Aulas</span></a>
+      {% if user_role in ['monitor', 'instrutor'] %}<a href="{{ url_for('presencas') }}#confirmacoes-pendentes" class="erp-nav-item"><i data-lucide="user-check" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Confirmar Presenças</span>{% if pending_attendance_count %}<span class="erp-nav-pending-count">{{ pending_attendance_count }}</span>{% endif %}</a>{% endif %}
+      <a href="{{ url_for('treinoteca') }}" class="erp-nav-item {% if request.endpoint == 'treinoteca' %}active{% endif %}"><i data-lucide="sparkles" class="erp-item-icon"></i><span class="erp-item-label">Treinoteca / Vídeo Aulas</span></a>
+    </div>
+    <div class="erp-nav-group">
+      <span class="erp-group-title">FINANCEIRO</span>
+      {% if user_role == 'instrutor' %}<a href="{{ url_for('financeiro_dashboard') }}" class="erp-nav-item {% if request.endpoint == 'financeiro_dashboard' %}active{% endif %}" data-finance-dashboard="true"><i data-lucide="chart-no-axes-combined" class="erp-item-icon"></i><span class="erp-item-label">Dashboard Financeiro</span></a>{% endif %}
+      <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item {% if request.endpoint == 'mensalidades_aluno' %}active{% endif %}"><i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i><span class="erp-item-label">Minhas Mensalidades</span></a>
+      <a href="{{ url_for('loja') }}" class="erp-nav-item {% if request.endpoint == 'loja' %}active{% endif %}"><i data-lucide="shopping-bag" class="erp-item-icon"></i><span class="erp-item-label">Loja Oficial (15% OFF)</span></a>
+    </div>
+    <div class="erp-nav-group">
+      <span class="erp-group-title">CAMPEONATOS</span>
+      <a href="{{ url_for('campeonato_interno') }}" class="erp-nav-item {% if request.endpoint in ['campeonato_interno', 'campeonato_interno_detalhe'] %}active{% endif %}"><i data-lucide="trophy" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Interno</span></a>
+      <a href="{{ url_for('campeonato_pesos') }}" class="erp-nav-item {% if request.endpoint == 'campeonato_pesos' %}active{% endif %}"><i data-lucide="scale" class="erp-item-icon"></i><span class="erp-item-label">Pesos</span></a>
+      <a href="{{ url_for('campeonato_placar') }}" class="erp-nav-item {% if request.endpoint == 'campeonato_placar' %}active{% endif %}"><i data-lucide="timer" class="erp-item-icon"></i><span class="erp-item-label">Placar e Timer</span></a>
+    </div>
+    {% if user_role == 'instrutor' %}
+    <div class="erp-nav-group">
+      <span class="erp-group-title">ADMINISTRAÇÃO</span>
+      <a href="{{ url_for('gestao_turmas') }}" class="erp-nav-item {% if request.endpoint == 'gestao_turmas' %}active{% endif %}"><i data-lucide="calendar-range" class="erp-item-icon"></i><span class="erp-item-label">Gestão de Turmas</span></a>
+      <a href="{{ url_for('planos_admin') }}" class="erp-nav-item {% if request.endpoint == 'planos_admin' %}active{% endif %}"><i data-lucide="tag" class="erp-item-icon icon-green"></i><span class="erp-item-label">Gestão de Planos</span></a>
+      <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item {% if request.endpoint == 'mensalidades_admin' %}active{% endif %}"><i data-lucide="credit-card" class="erp-item-icon"></i><span class="erp-item-label">Gestão de Mensalidades</span></a>
+      <a href="{{ url_for('gestao_graduacoes') }}" class="erp-nav-item {% if request.endpoint == 'gestao_graduacoes' %}active{% endif %}"><i data-lucide="medal" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Administração de Graduação</span></a>
+      <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item {% if request.endpoint == 'gestao_privilegios' %}active{% endif %}"><i data-lucide="shield" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Gestão de Privilégios</span></a>
+    </div>
+    <div class="erp-nav-group">
+      <span class="erp-group-title">INTEGRAÇÕES</span>
+      <a href="{{ url_for('integracoes_pagamentos') }}" class="erp-nav-item {% if request.endpoint == 'integracoes_pagamentos' %}active{% endif %}"><i data-lucide="landmark" class="erp-item-icon icon-green"></i><span class="erp-item-label">Pagamentos</span></a>
+      <a href="{{ url_for('integracoes_catraca') }}" class="erp-nav-item {% if request.endpoint == 'integracoes_catraca' %}active{% endif %}"><i data-lucide="scan-face" class="erp-item-icon"></i><span class="erp-item-label">Catraca</span></a>
+    </div>
+    <div class="erp-nav-group">
+      <span class="erp-group-title">MINHA CONTA</span>
+      <a href="{{ url_for('configuracoes') }}" class="erp-nav-item {% if request.endpoint == 'configuracoes' %}active{% endif %}"><i data-lucide="settings" class="erp-item-icon"></i><span class="erp-item-label">Configurações & Perfil</span></a>
+      <a href="{{ url_for('contrato') }}" class="erp-nav-item {% if request.endpoint == 'contrato' %}active{% endif %}"><i data-lucide="file-signature" class="erp-item-icon"></i><span class="erp-item-label">Contrato</span>{% if contract_pending %}<span class="erp-nav-pending-count" title="Atualização aguardando aceite">!</span>{% endif %}</a>
+      <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item"><i data-lucide="log-out" class="erp-item-icon icon-red"></i><span class="erp-item-label text-red">Sair da Conta</span></a>
+    </div>
+    {% else %}
+    <div class="erp-nav-group">
+      <span class="erp-group-title">MINHA CONTA</span>
+      <a href="{{ url_for('configuracoes') }}" class="erp-nav-item {% if request.endpoint == 'configuracoes' %}active{% endif %}"><i data-lucide="settings" class="erp-item-icon"></i><span class="erp-item-label">Configurações & Perfil</span></a>
+      <a href="{{ url_for('contrato') }}" class="erp-nav-item {% if request.endpoint == 'contrato' %}active{% endif %}"><i data-lucide="file-signature" class="erp-item-icon"></i><span class="erp-item-label">Contrato</span>{% if contract_pending %}<span class="erp-nav-pending-count" title="Atualização aguardando aceite">!</span>{% endif %}</a>
+      <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item"><i data-lucide="log-out" class="erp-item-icon icon-red"></i><span class="erp-item-label text-red">Sair da Conta</span></a>
+    </div>
+    {% endif %}
+  </nav>
+</aside>

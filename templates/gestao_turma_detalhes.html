@@ -1,0 +1,66 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+{% macro brl(value) -%}R$ {{ '{:,.2f}'.format(value).replace(',', 'X').replace('.', ',').replace('X', '.') }}{%- endmacro %}
+
+{% block content %}
+<div class="erp-wrapper class-detail-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Turma • {{ class_group.name }}</span></div>
+      <div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">GESTÃO</span></div></div>
+    </header>
+
+    <main class="erp-content class-detail-content">
+      <section class="class-detail-heading">
+        <div><a href="{{ url_for('gestao_turmas') }}"><i data-lucide="arrow-left"></i>Voltar para turmas</a><span>{{ class_group.modality }} • {{ class_group.audience }}</span><h1>{{ class_group.name }}</h1><p>Análise financeira, frequência e alunos vinculados à turma.</p></div>
+        <div class="class-detail-heading-actions"><span class="class-management-status is-{{ class_group.status }}"><i></i>{{ class_group.status|capitalize }}</span><a href="{{ url_for('gestao_turmas', q=class_group.name) }}"><i data-lucide="pencil"></i>Editar cadastro</a></div>
+      </section>
+
+      {% if demo_count %}<section class="class-detail-demo"><i data-lucide="flask-conical"></i><div><strong>Vínculos iniciais de demonstração</strong><p>{{ demo_count }} aluno(s) foram distribuídos automaticamente para permitir a avaliação desta página. Revise esses vínculos antes de utilizar os indicadores como informação oficial.</p></div></section>{% endif %}
+
+      <form class="class-detail-year" method="get"><label>Ano analisado<select name="year" onchange="this.form.submit()">{% for year in years %}<option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label></form>
+
+      <section class="class-detail-kpis">
+        <article><span><i data-lucide="users"></i>Alunos vinculados</span><strong>{{ enrollments|length }}/{{ class_group.capacity }}</strong><small>{{ ((enrollments|length / class_group.capacity * 100)|round|int) if class_group.capacity else 0 }}% da capacidade</small></article>
+        <article class="is-positive"><span><i data-lucide="badge-dollar-sign"></i>Mensalidades recebidas</span><strong>{{ brl(received_total) }}</strong><small>{{ selected_year }} • pagamentos confirmados</small></article>
+        <article><span><i data-lucide="wallet-cards"></i>Receita prevista</span><strong>{{ brl(expected_total) }}</strong><small>Até a competência analisada</small></article>
+        <article class="is-warning"><span><i data-lucide="circle-alert"></i>Em atraso</span><strong>{{ brl(overdue_total) }}</strong><small>Registros em atraso no período</small></article>
+        <article class="is-blue"><span><i data-lucide="chart-no-axes-combined"></i>Taxa de recebimento</span><strong>{{ receipt_rate }}%</strong><small>Recebido sobre previsto</small></article>
+        <article class="{% if attendance_rate is not none and attendance_rate >= 75 %}is-positive{% elif attendance_rate is not none %}is-warning{% endif %}"><span><i data-lucide="user-check"></i>Taxa de presença</span><strong>{{ attendance_rate ~ '%' if attendance_rate is not none else '—' }}</strong><small>Últimos 90 dias • decisões concluídas</small></article>
+      </section>
+
+      <div class="class-detail-main-grid">
+        <section class="class-detail-panel class-detail-profile">
+          <header><span>CONFIGURAÇÃO</span><h2>Informações da turma</h2></header>
+          <dl><div><dt>Instrutor</dt><dd>{{ class_group.instructor }}</dd></div><div><dt>Duração</dt><dd>{{ class_group.duration_minutes }} minutos</dd></div><div><dt>Capacidade</dt><dd>{{ class_group.capacity }} alunos</dd></div><div><dt>Lista de espera</dt><dd>{{ class_group.waiting }} aluno(s)</dd></div><div><dt>Calendário</dt><dd>{{ 'Publicado' if class_group.publish_public else 'Oculto' }}</dd></div><div><dt>Situação</dt><dd>{{ class_group.status|capitalize }}</dd></div></dl>
+          <div class="class-detail-schedules"><span>DIAS E HORÁRIOS</span>{% for schedule in class_group.schedules %}<strong><i data-lucide="calendar-clock"></i>{{ schedule }}</strong>{% endfor %}</div>
+        </section>
+
+        <section class="class-detail-panel class-detail-attendance">
+          <header><span>FREQUÊNCIA • 90 DIAS</span><h2>Presenças da turma</h2></header>
+          <div class="class-detail-rate"><div style="--rate:{{ attendance_rate or 0 }}"><strong>{{ attendance_rate ~ '%' if attendance_rate is not none else '—' }}</strong><span>frequência</span></div><ul><li><i class="is-confirmed"></i><span>Confirmadas</span><strong>{{ confirmed_count }}</strong></li><li><i class="is-denied"></i><span>Negadas</span><strong>{{ denied_count }}</strong></li><li><i class="is-pending"></i><span>Pendentes</span><strong>{{ pending_count }}</strong></li></ul></div>
+          <p>A taxa considera presenças confirmadas divididas pelas decisões concluídas (confirmadas + negadas). Solicitações pendentes não entram no percentual.</p>
+        </section>
+      </div>
+
+      <section class="class-detail-panel">
+        <header class="class-detail-panel-heading"><div><span>FINANCEIRO DA TURMA</span><h2>Mensalidades recebidas por competência</h2></div><a href="{{ url_for('mensalidades_admin') }}">Abrir gestão financeira<i data-lucide="arrow-up-right"></i></a></header>
+        <div class="class-detail-months">
+          {% for month in monthly_financial %}
+          <article class="{% if month.received %}has-received{% endif %}"><span>{{ ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][month.month-1] }}</span><strong>{{ brl(month.received) }}</strong><small>Previsto {{ brl(month.expected) }}</small>{% if month.overdue %}<em>{{ brl(month.overdue) }} em atraso</em>{% else %}<em>{{ month.payments }} pagamento(s)</em>{% endif %}</article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="class-detail-panel">
+        <header class="class-detail-panel-heading"><div><span>ALUNOS VINCULADOS</span><h2>Financeiro e presença individual</h2></div><small>{{ member_rows|length }} aluno(s)</small></header>
+        <div class="class-detail-table-wrap"><table class="class-detail-table"><thead><tr><th>Aluno</th><th>Plano</th><th>Recebido em {{ selected_year }}</th><th>Débito atual</th><th>Presenças 90 dias</th><th>Taxa</th></tr></thead><tbody>
+          {% for row in member_rows %}<tr><td><div><strong>{{ row.user.name }}</strong><small>@{{ row.user.username }}{% if row.is_demo %}<em>DEMONSTRAÇÃO</em>{% endif %}</small></div></td><td>{{ row.user.plan.split('—')[0] }}</td><td class="is-money-positive">{{ brl(row.received) }}</td><td class="{% if row.overdue %}is-money-warning{% endif %}">{{ brl(row.overdue) }}</td><td>{{ row.confirmed }} confirmada(s)</td><td><span class="class-detail-member-rate {% if row.attendance_rate is not none and row.attendance_rate >= 75 %}is-good{% endif %}">{{ row.attendance_rate ~ '%' if row.attendance_rate is not none else 'Sem dados' }}</span></td></tr>
+          {% else %}<tr><td colspan="6"><div class="class-management-empty"><i data-lucide="users-round"></i><strong>Nenhum aluno vinculado</strong><span>Vincule alunos à turma para gerar os indicadores.</span></div></td></tr>{% endfor %}
+        </tbody></table></div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

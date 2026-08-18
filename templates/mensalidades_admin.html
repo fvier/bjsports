@@ -1,3 +1,4 @@
+{% set erp_page = true %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -5,89 +6,7 @@
   <div class="erp-wrapper">
     
     <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
-    <aside class="erp-sidebar" id="erpSidebar">
-      <div class="erp-brand-header">
-        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
-        <div class="erp-brand-info">
-          <h2 class="erp-brand-name">BJ Sports</h2>
-          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
-        </div>
-      </div>
-
-      <nav class="erp-nav">
-        <!-- SEÇÃO 1: AULAS -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">AULAS</span>
-          
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
-            <i data-lucide="home" class="erp-item-icon"></i>
-            <span class="erp-item-label">Início / Visão Geral</span>
-          </a>
-
-          <a href="{{ url_for('presencas') }}" class="erp-nav-item">
-            <i data-lucide="calendar" class="erp-item-icon"></i>
-            <span class="erp-item-label">Presenças & Treinos</span>
-          </a>
-
-          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
-            <i data-lucide="award" class="erp-item-icon"></i>
-            <span class="erp-item-label">Graduação & Faixas</span>
-          </a>
-
-          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
-            <i data-lucide="sparkles" class="erp-item-icon"></i>
-            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 2: FINANCEIRO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">FINANCEIRO</span>
-
-          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
-            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label">Minhas Mensalidades</span>
-          </a>
-
-          <a href="{{ url_for('loja') }}" class="erp-nav-item">
-            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
-            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">ADMINISTRAÇÃO</span>
-
-          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
-            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
-          </a>
-
-          <!-- ATIVO: GESTÃO DE MENSALIDADES -->
-          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item active" style="border: 1px solid rgba(96, 165, 250, 0.4); background: rgba(96, 165, 250, 0.12);">
-            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
-            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
-            <i data-lucide="chevron-right" class="erp-chevron"></i>
-          </a>
-
-          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
-            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
-            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
-          </a>
-
-          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
-            <i data-lucide="settings" class="erp-item-icon"></i>
-            <span class="erp-item-label">Configurações & Perfil</span>
-          </a>
-
-          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
-            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
-            <span class="erp-item-label text-red">Sair da Conta</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
+{% include "_erp_sidebar.html" %}
 
     <!-- ÁREA PRINCIPAL -->
     <div class="erp-main-container">
@@ -109,19 +28,52 @@
       </header>
 
       <main class="erp-content">
+        <!-- Indicadores superiores de vencimento -->
+        <div class="erp-cards-grid mensalidades-summary-grid mensalidades-summary-minimal">
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Total de Alunos</span>
+            <div class="erp-card-big-number" style="color: #ffffff;">{{ total_count }}</div>
+            <span class="erp-card-foot">Membros cadastrados</span>
+          </div>
+
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 5</span>
+            <div class="erp-card-big-number" style="color: #60a5fa;">{{ day5_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 5</span>
+          </div>
+
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 15</span>
+            <div class="erp-card-big-number" style="color: var(--accent-gold);">{{ day15_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 15</span>
+          </div>
+
+          <div class="erp-metric-card">
+            <span class="erp-card-label">Vencimento Dia 25</span>
+            <div class="erp-card-big-number" style="color: #4ade80;">{{ day25_count }}</div>
+            <span class="erp-card-foot">Alunos com vencimento Dia 25</span>
+          </div>
+        </div>
+
         <!-- BARRA UNIFICADA DE FILTROS SUPERIORES -->
         <div class="glass-panel" style="margin-bottom: 24px; padding: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(96, 165, 250, 0.35);">
           <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
               <i data-lucide="sliders" class="icon-gold"></i> Painel Unificado de Filtros & Busca Detalhada
             </h3>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <span class="badge-pill bg-green" style="font-size: 0.75rem;">
                 {{ paid_count }} Em Dia
               </span>
               <span class="badge-pill bg-orange" style="font-size: 0.75rem;">
                 {{ pending_count }} Pendentes
               </span>
+              <span class="badge-pill fee-exempt-badge" style="font-size: 0.75rem;">
+                {{ exempt_count }} Isentos
+              </span>
+              <button type="button" class="btn btn-sm financial-report-trigger" id="openFinancialReport">
+                <i data-lucide="download"></i> Baixar relatório
+              </button>
             </div>
           </div>
 
@@ -167,12 +119,13 @@
                 <option value="todos" {% if status_filter == 'todos' %}selected{% endif %}>Todos os Status</option>
                 <option value="pago" {% if status_filter == 'pago' %}selected{% endif %}>🟢 PAGO / EM DIA</option>
                 <option value="pendente" {% if status_filter == 'pendente' %}selected{% endif %}>🔴 AGUARDANDO PIX</option>
+                <option value="isento" {% if status_filter == 'isento' %}selected{% endif %}>🟣 ISENTO DE MENSALIDADE</option>
               </select>
             </div>
 
             <!-- Botões de Ação do Filtro -->
             <div style="display: flex; gap: 6px;">
-              <button type="submit" class="btn btn-primary btn-sm btn-glow" style="flex: 1; padding: 9px;">
+              <button type="submit" class="btn btn-sm mensalidades-filter-btn">
                 <i data-lucide="filter"></i> Filtrar
               </button>
               {% if search_query or filter_day != 'todos' or status_filter != 'todos' or modality_filter != 'todos' %}
@@ -233,9 +186,11 @@
 
                   <!-- VALOR DO PLANO -->
                   <td style="text-align: right;">
-                    <strong style="color: var(--accent-gold); font-size: 0.9rem; font-family: var(--font-heading);">
-                      {{ plan_price.strip() }}
-                    </strong>
+                    {% if u.monthly_fee_exempt %}
+                    <strong class="fee-exempt-value">R$ 0,00</strong><small class="fee-exempt-caption">ISENTO</small>
+                    {% else %}
+                    <strong style="color: var(--accent-gold); font-size: 0.9rem; font-family: var(--font-heading);">{{ plan_price.strip() }}</strong>
+                    {% endif %}
                   </td>
 
                   <td style="text-align: center;">
@@ -246,10 +201,12 @@
 
                   <!-- CÁLCULO DE MENSALIDADES EM ABERTO E VALOR TOTAL DEVIDO -->
                   <td style="text-align: center;">
-                    {% if details['count'] > 0 and u.payment_status == 'Pendente' %}
+                    {% if details['count'] > 0 %}
                       <span class="badge-pill-mini bg-orange" style="font-weight: 800; font-size: 0.76rem;" title="Devendo {{ details['count'] }} mensalidades ({{ details['months_str'] }})">
                         🔴 {{ details['count'] }} MÊS(ES) (R$ {{ "%.2f"|format(details['total_debt']) }})
                       </span>
+                    {% elif u.monthly_fee_exempt %}
+                      <span class="badge-pill-mini fee-exempt-badge">🟣 ISENTO ATUAL (R$ 0,00)</span>
                     {% else %}
                       <span class="badge-pill-mini bg-green">🟢 EM DIA (R$ 0,00)</span>
                     {% endif %}
@@ -258,6 +215,9 @@
                   <!-- AÇÕES: DAR BAIXA RÁPIDA & ENVIAR MENSAGEM AMIGÁVEL NO WHATSAPP -->
                   <td style="text-align: right;">
                     <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
+                      {% if u.monthly_fee_exempt and details['count'] == 0 %}
+                      <span class="fee-exempt-no-charge"><i data-lucide="shield-check"></i> Sem cobrança</span>
+                      {% else %}
                       
                       <!-- Form de Dar Baixa Rápida -->
                       <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-flex;">
@@ -272,6 +232,7 @@
                       <a href="{{ u.get_whatsapp_billing_link() }}" target="_blank" class="btn-wa-billing" title="Enviar Mensagem Amigável de Cobrança ({{ details['count'] }} meses = R$ {{ '%.2f'|format(details['total_debt']) }}) no WhatsApp">
                         <i data-lucide="message-square"></i> Cobrar
                       </a>
+                      {% endif %}
 
                     </div>
                   </td>
@@ -279,13 +240,15 @@
 
                 <!-- DRAWER DE MESES MINIMALISTA COM MENU DROPDOWN PARA DAR BAIXA NO MÊS -->
                 <tr id="drawer-{{ u.id }}" class="month-drawer-row hidden">
-                  <td colspan="8" style="background: rgba(8, 8, 14, 0.98); padding: 14px 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                  <td colspan="8" class="monthly-detail-drawer">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                       <div>
                         <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem;">
                           🗓️ Histórico 2026 de {{ u.name }} — 
-                          {% if details['count'] > 0 and u.payment_status == 'Pendente' %}
+                          {% if details['count'] > 0 %}
                             <span style="color: #f97316; font-weight: 800;">Débito: {{ details['count'] }} mês(es) atrasado(s) = Total R$ {{ "%.2f"|format(details['total_debt']) }}</span>
+                          {% elif u.monthly_fee_exempt %}
+                            <span class="fee-exempt-text">Isento desde a competência atual</span>
                           {% else %}
                             <span style="color: #4ade80;">Situação: Em Dia</span>
                           {% endif %}
@@ -293,21 +256,34 @@
                         <span style="display: block; font-size: 0.74rem; color: var(--text-muted);">
                           Clique em qualquer mês para dar baixa ou alternar entre Pago (Verde), Atrasado (Laranja) e A Vencer (Branco):
                         </span>
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="fee-exemption-form">
+                          <input type="hidden" name="action" value="toggle_exemption">
+                          <input type="hidden" name="user_id" value="{{ u.id }}">
+                          <input type="hidden" name="is_exempt" value="{{ '1' if u.monthly_fee_exempt else '0' }}">
+                          <label>
+                            <input type="checkbox" {% if u.monthly_fee_exempt %}checked{% endif %} onchange="this.form.elements.is_exempt.value = this.checked ? '1' : '0'; this.form.submit()">
+                            <span><strong>Isenção de mensalidade</strong><small>Vale da competência atual em diante, sem alterar pagamentos ou débitos anteriores.</small></span>
+                          </label>
+                          {% if u.monthly_fee_exempt and u.fee_exempted_by_username %}<small class="fee-exemption-audit">Ativada por @{{ u.fee_exempted_by_username }}{% if u.fee_exempted_at %} em {{ u.fee_exempted_at.strftime('%d/%m/%Y às %H:%M') }}{% endif %}</small>{% endif %}
+                        </form>
                       </div>
 
                       <!-- LISTA DE MESES COM MENU DROPDOWN PARA CADA MÊS -->
+                      {% if u.monthly_fee_exempt %}
+                      <div class="fee-exempt-summary"><i data-lucide="shield-check"></i><div><strong>Nenhuma cobrança nova</strong><small>Pagamentos e débitos anteriores permanecem no histórico.</small></div></div>
+                      {% endif %}
                       <div class="month-badges-container" style="gap: 10px;">
                         {% for m in u_months %}
                           <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
                             
                             <!-- Botão/Badge do Mês -->
-                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do Mês {{ m.month }}">
+                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do Mês {{ m.month }}"{% endif %}>
                               <span>{{ m.month }}</span>
                               <small>{{ m.name }}</small>
                             </button>
 
                             <!-- Menu Dropdown para Dar Baixa no Mês Específico -->
-                            <div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
+                            {% if m.status != 'isento' %}<div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
                               <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
                                 Dar baixa Mês {{ m.month }}:
                               </span>
@@ -315,6 +291,7 @@
                               <form action="{{ url_for('api_update_month_status') }}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
                                 <input type="hidden" name="user_id" value="{{ u.id }}">
                                 <input type="hidden" name="month" value="{{ m.month }}">
+                                <input type="hidden" name="year" value="{{ now.year }}">
 
                                 <button type="submit" name="status" value="pago" class="btn-pop-option status-pago">
                                   🟢 Marcar PAGO (Verde)
@@ -326,7 +303,7 @@
                                   ⚪ Marcar A VENCER (Branco)
                                 </button>
                               </form>
-                            </div>
+                            </div>{% endif %}
 
                           </div>
                         {% endfor %}
@@ -344,6 +321,55 @@
 
       </main>
     </div>
+  </div>
+
+  <div class="financial-report-backdrop hidden" id="financialReportModal" aria-hidden="true">
+    <section class="financial-report-dialog" role="dialog" aria-modal="true" aria-labelledby="financialReportTitle">
+      <header class="financial-report-header">
+        <div><span>EXPORTAÇÃO FINANCEIRA</span><h2 id="financialReportTitle">Baixar relatório de mensalidades</h2><p>Configure o conteúdo antes de gerar o arquivo.</p></div>
+        <button type="button" id="closeFinancialReport" aria-label="Fechar" title="Fechar"><i data-lucide="x"></i></button>
+      </header>
+      <form action="{{ url_for('exportar_relatorio_mensalidades') }}" method="POST" id="financialReportForm">
+        <input type="hidden" name="filter_day" value="{{ filter_day }}">
+        <input type="hidden" name="filter_status" value="{{ status_filter }}">
+        <input type="hidden" name="filter_modality" value="{{ modality_filter }}">
+        <input type="hidden" name="filter_query" value="{{ search_query }}">
+
+        <fieldset class="financial-report-options">
+          <legend>Formato do arquivo</legend>
+          <label><input type="radio" name="format" value="pdf" checked><span><i data-lucide="file-text"></i><strong>PDF</strong><small>Gerado primeiro em Markdown</small></span></label>
+          <label><input type="radio" name="format" value="xlsx"><span><i data-lucide="sheet"></i><strong>XLSX</strong><small>Planilha editável</small></span></label>
+        </fieldset>
+
+        <fieldset class="financial-report-options">
+          <legend>Nível de informação</legend>
+          <label><input type="radio" name="report_type" value="summary" checked><span><i data-lucide="chart-no-axes-column"></i><strong>Resumido</strong><small>Indicadores e totais mensais</small></span></label>
+          <label><input type="radio" name="report_type" value="detailed"><span><i data-lucide="list-tree"></i><strong>Detalhado</strong><small>Aluno e situação por competência</small></span></label>
+        </fieldset>
+
+        <div class="financial-report-period">
+          <div><label for="reportPeriodStart">Período inicial</label><input type="month" id="reportPeriodStart" name="period_start" value="{{ report_period_start }}" required></div>
+          <i data-lucide="arrow-right"></i>
+          <div><label for="reportPeriodEnd">Período final</label><input type="month" id="reportPeriodEnd" name="period_end" value="{{ report_period_end }}" required></div>
+        </div>
+
+        <div class="financial-report-scope">
+          <label><input type="radio" name="scope" value="current" checked><span>Usar os filtros atuais da tela</span></label>
+          <label><input type="radio" name="scope" value="all"><span>Incluir todos os alunos</span></label>
+        </div>
+
+        <div class="financial-report-progress hidden" id="financialReportProgress" aria-live="polite">
+          <div><span id="financialReportStatus">Preparando os dados...</span><strong id="financialReportPercent">0%</strong></div>
+          <div class="financial-report-progress-track"><span id="financialReportProgressBar"></span></div>
+        </div>
+        <p class="financial-report-error hidden" id="financialReportError"></p>
+
+        <footer class="financial-report-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="cancelFinancialReport">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="submitFinancialReport"><i data-lucide="download"></i> Gerar e baixar</button>
+        </footer>
+      </form>
+    </section>
   </div>
 
   <style>
@@ -431,7 +457,7 @@
     }
 
     .btn-pop-option {
-      background: transparent;
+      background: #141622;
       border: none;
       padding: 6px 8px;
       font-size: 0.75rem;
@@ -480,5 +506,99 @@
         pop.classList.toggle('hidden');
       }
     }
+
+    (() => {
+      const modal = document.getElementById('financialReportModal');
+      const openButton = document.getElementById('openFinancialReport');
+      const closeButton = document.getElementById('closeFinancialReport');
+      const cancelButton = document.getElementById('cancelFinancialReport');
+      const form = document.getElementById('financialReportForm');
+      const submitButton = document.getElementById('submitFinancialReport');
+      const progress = document.getElementById('financialReportProgress');
+      const progressBar = document.getElementById('financialReportProgressBar');
+      const progressPercent = document.getElementById('financialReportPercent');
+      const progressStatus = document.getElementById('financialReportStatus');
+      const errorBox = document.getElementById('financialReportError');
+      let processing = false;
+
+      const setProgress = (value, label) => {
+        progressBar.style.width = `${value}%`;
+        progressPercent.textContent = `${value}%`;
+        if (label) progressStatus.textContent = label;
+      };
+      const openModal = () => {
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        document.getElementById('reportPeriodStart')?.focus();
+      };
+      const closeModal = () => {
+        if (processing) return;
+        form.classList.remove('is-processing');
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        progress.classList.add('hidden');
+        errorBox.classList.add('hidden');
+        setProgress(0, 'Preparando os dados...');
+      };
+      openButton?.addEventListener('click', openModal);
+      closeButton?.addEventListener('click', closeModal);
+      cancelButton?.addEventListener('click', closeModal);
+      modal?.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
+
+      form?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (processing) return;
+        processing = true;
+        form.classList.add('is-processing');
+        submitButton.disabled = true;
+        errorBox.classList.add('hidden');
+        progress.classList.remove('hidden');
+        setProgress(8, 'Consultando mensalidades...');
+
+        let currentProgress = 8;
+        const progressTimer = window.setInterval(() => {
+          currentProgress = Math.min(88, currentProgress + (currentProgress < 55 ? 7 : 3));
+          const label = currentProgress < 40 ? 'Organizando o período...' : currentProgress < 70 ? 'Montando o relatório...' : 'Finalizando o arquivo...';
+          setProgress(currentProgress, label);
+        }, 280);
+
+        try {
+          const minimumVisibleTime = new Promise(resolve => window.setTimeout(resolve, 2200));
+          const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+          await minimumVisibleTime;
+          if (!response.ok) {
+            const payload = await response.json().catch(() => ({ error: 'Não foi possível gerar o relatório.' }));
+            throw new Error(payload.error || 'Não foi possível gerar o relatório.');
+          }
+          const blob = await response.blob();
+          const disposition = response.headers.get('Content-Disposition') || '';
+          const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+          const filename = filenameMatch ? filenameMatch[1] : 'relatorio_mensalidades';
+          setProgress(100, 'Relatório pronto. Download iniciado!');
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(link.href), 1200);
+          window.setTimeout(() => {
+            processing = false;
+            submitButton.disabled = false;
+            closeModal();
+          }, 1400);
+        } catch (error) {
+          errorBox.textContent = error.message;
+          errorBox.classList.remove('hidden');
+          progress.classList.add('hidden');
+          form.classList.remove('is-processing');
+          processing = false;
+          submitButton.disabled = false;
+        } finally {
+          window.clearInterval(progressTimer);
+        }
+      });
+    })();
   </script>
 {% endblock %}

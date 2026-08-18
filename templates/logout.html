@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 560px;">
+    <div class="glass-panel text-center" style="padding: 36px;">
+      <i data-lucide="log-out" class="icon-red" style="width: 42px; height: 42px;"></i>
+      <h1 class="section-title" style="font-size: 1.8rem;">Sair da conta?</h1>
+      <p class="section-subtitle">Sua sessão será encerrada neste dispositivo.</p>
+      <form action="{{ url_for('logout') }}" method="POST" style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Confirmar saída</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper payments-integration-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Integrações • Pagamentos</span>
+      </div>
+      <div class="erp-topbar-right">
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content payments-integration-content">
+      <section class="payments-integration-hero">
+        <div>
+          <span class="payments-integration-eyebrow"><i data-lucide="plug-zap"></i> CENTRAL DE INTEGRAÇÕES</span>
+          <h1>Pagamentos</h1>
+          <p>Conecte um provedor para gerar cobranças Pix, receber confirmações e baixar mensalidades automaticamente.</p>
+        </div>
+        <span class="payments-connection-status {% if provider_configured and webhook_configured %}is-online{% endif %}">
+          <i data-lucide="{{ 'badge-check' if provider_configured and webhook_configured else 'circle-dashed' }}"></i>
+          {{ 'Integração ativa' if provider_configured and webhook_configured else 'Não configurado' }}
+        </span>
+      </section>
+
+      <section class="payments-beginner-note">
+        <i data-lucide="graduation-cap"></i>
+        <div><strong>Primeira integração? Comece tranquilo.</strong><p>O dinheiro não será movimentado diretamente pelo site. Um provedor de pagamentos autorizado gera o Pix, recebe o valor e avisa ao BJ Sports quando a transação for confirmada. Esta página mostra cada etapa antes de qualquer cobrança real ser liberada.</p></div>
+      </section>
+
+      <section class="payments-integration-kpis" aria-label="Estado da integração">
+        <article><span><i data-lucide="building-2"></i>Provedor</span><strong>{{ 'Configurado' if provider_configured else 'Pendente' }}</strong><small>Conta que receberá os pagamentos</small></article>
+        <article><span><i data-lucide="webhook"></i>Webhook</span><strong>{{ 'Configurado' if webhook_configured else 'Pendente' }}</strong><small>Confirmação automática dos recebimentos</small></article>
+        <article><span><i data-lucide="shield-check"></i>Ambiente</span><strong>Laboratório</strong><small>Preparado para testes antes da produção</small></article>
+      </section>
+
+      <div class="payments-integration-grid">
+        <section class="payments-integration-panel">
+          <header><div><span>PROVEDORES</span><h2>Escolha a conexão</h2></div><small>1 de cada vez</small></header>
+          <div class="payment-provider-list">
+            <article class="payment-provider-card is-recommended">
+              <div class="payment-provider-icon"><i data-lucide="scan-line"></i></div>
+              <div><span class="payment-provider-tag">RECOMENDADO PARA COMEÇAR</span><h3>Asaas</h3><p>Pix dinâmico, QR Code, código Copia e Cola e confirmação por webhook.</p></div>
+              <span class="payment-provider-state">A configurar</span>
+            </article>
+            <article class="payment-provider-card">
+              <div class="payment-provider-icon"><i data-lucide="wallet-cards"></i></div>
+              <div><h3>Mercado Pago</h3><p>Checkout Pix e notificações de atualização de pagamentos.</p></div>
+              <span class="payment-provider-state is-muted">Planejado</span>
+            </article>
+            <article class="payment-provider-card">
+              <div class="payment-provider-icon"><i data-lucide="landmark"></i></div>
+              <div><h3>Efí Bank</h3><p>API Pix bancária com cobranças imediatas e conciliação.</p></div>
+              <span class="payment-provider-state is-muted">Planejado</span>
+            </article>
+          </div>
+        </section>
+
+        <aside class="payments-integration-panel payments-setup-panel">
+          <header><div><span>CONFIGURAÇÃO</span><h2>Etapas da ativação</h2></div></header>
+          <ol class="payments-setup-list">
+            <li class="{% if provider_configured %}is-complete{% endif %}"><span>{{ '✓' if provider_configured else '1' }}</span><div><strong>Credenciais do provedor</strong><small>Chave armazenada somente no servidor</small></div></li>
+            <li class="{% if webhook_configured %}is-complete{% endif %}"><span>{{ '✓' if webhook_configured else '2' }}</span><div><strong>Webhook de confirmação</strong><small>URL segura para receber pagamentos</small></div></li>
+            <li><span>3</span><div><strong>Teste no laboratório</strong><small>Gerar, pagar e conciliar uma cobrança</small></div></li>
+            <li><span>4</span><div><strong>Ativação em produção</strong><small>Liberar o botão Pix para os alunos</small></div></li>
+          </ol>
+          <div class="payments-next-step"><i data-lucide="info"></i><p><strong>Próxima etapa</strong><span>Criar a conta sandbox do provedor escolhido e cadastrar as credenciais de teste.</span></p></div>
+        </aside>
+      </div>
+
+      <section class="payments-flow-panel">
+        <header><span>COMO FUNCIONARÁ</span><h2>Fluxo automático da mensalidade</h2></header>
+        <div class="payments-flow-steps">
+          <div><i data-lucide="qr-code"></i><strong>Gerar Pix</strong><small>QR Code por competência</small></div>
+          <i data-lucide="arrow-right"></i>
+          <div><i data-lucide="smartphone"></i><strong>Aluno paga</strong><small>Banco confirma a transação</small></div>
+          <i data-lucide="arrow-right"></i>
+          <div><i data-lucide="webhook"></i><strong>Receber webhook</strong><small>Validação segura e única</small></div>
+          <i data-lucide="arrow-right"></i>
+          <div><i data-lucide="badge-check"></i><strong>Dar baixa</strong><small>Mensalidade atualizada</small></div>
+        </div>
+      </section>
+
+      <section class="payments-guide-panel">
+        <header class="payments-guide-heading"><div><span>GUIA PARA COMEÇAR DO ZERO</span><h2>Como faremos a implantação</h2><p>Nenhuma etapa de produção será ativada antes de funcionar completamente no ambiente de testes.</p></div><span class="payments-guide-time"><i data-lucide="route"></i> 6 etapas</span></header>
+        <div class="payments-guide-steps">
+          <article><span>1</span><div><h3>Escolher e abrir a conta</h3><p>A BJ Sports cria uma conta empresarial no provedor escolhido. É nessa conta que os pagamentos aparecerão e de onde o dinheiro poderá ser transferido.</p><small><i data-lucide="user-round-check"></i> Responsável: BJ Sports</small></div></article>
+          <article><span>2</span><div><h3>Acessar o ambiente de testes</h3><p>O provedor oferece um espaço chamado <strong>sandbox</strong>. Nele geramos cobranças fictícias, sem movimentar dinheiro verdadeiro.</p><small><i data-lucide="flask-conical"></i> Sem risco financeiro</small></div></article>
+          <article><span>3</span><div><h3>Conectar as credenciais</h3><p>O provedor entrega uma chave secreta para o sistema se identificar. Ela será configurada no servidor e nunca ficará visível para alunos ou no código público.</p><small><i data-lucide="key-round"></i> Guardada como segredo do servidor</small></div></article>
+          <article><span>4</span><div><h3>Gerar um Pix de teste</h3><p>O aluno seleciona uma mensalidade. O BJ Sports envia aluno, competência e valor ao provedor, que devolve o QR Code e o código Pix Copia e Cola.</p><small><i data-lucide="qr-code"></i> Uma cobrança identificada por competência</small></div></article>
+          <article><span>5</span><div><h3>Confirmar pelo webhook</h3><p>Depois do pagamento, o provedor chama uma URL segura do BJ Sports. O sistema valida a origem, consulta o pagamento e só então registra a mensalidade como paga.</p><small><i data-lucide="webhook"></i> Baixa automática e auditável</small></div></article>
+          <article><span>6</span><div><h3>Repetir em produção</h3><p>Após os testes, substituímos as credenciais de laboratório pelas credenciais reais. O botão “Pagar com Pix” só será liberado depois da validação final.</p><small><i data-lucide="rocket"></i> Ativação controlada</small></div></article>
+        </div>
+      </section>
+
+      <section class="payments-responsibility-grid">
+        <article class="payments-info-card">
+          <header><i data-lucide="building-2"></i><div><span>PROVEDOR</span><h2>O que ele faz</h2></div></header>
+          <ul><li>Gera o QR Code e o Pix Copia e Cola.</li><li>Processa e confirma o recebimento.</li><li>Mantém o saldo na conta da BJ Sports.</li><li>Notifica pagamento, expiração ou estorno.</li></ul>
+        </article>
+        <article class="payments-info-card">
+          <header><i data-lucide="panels-top-left"></i><div><span>SISTEMA BJ SPORTS</span><h2>O que nós controlamos</h2></div></header>
+          <ul><li>Relaciona a cobrança ao aluno e ao mês correto.</li><li>Não gera cobrança para aluno isento.</li><li>Evita baixa duplicada do mesmo pagamento.</li><li>Libera o check-in quando não houver outras dívidas.</li></ul>
+        </article>
+        <article class="payments-info-card">
+          <header><i data-lucide="smartphone"></i><div><span>ALUNO</span><h2>O que ele verá</h2></div></header>
+          <ul><li>Botão “Pagar com Pix” na mensalidade pendente.</li><li>QR Code, Copia e Cola, valor e vencimento.</li><li>Status “Aguardando confirmação” durante o processo.</li><li>Comprovante e mensalidade paga após a confirmação.</li></ul>
+        </article>
+      </section>
+
+      <section class="payments-faq-panel">
+        <header><span>DÚVIDAS IMPORTANTES</span><h2>Termos e cuidados explicados</h2></header>
+        <div class="payments-faq-list">
+          <details open><summary><span>O dinheiro passa pelo servidor do BJ Sports?</span><i data-lucide="chevron-down"></i></summary><p>Não. O pagamento acontece entre o aplicativo bancário do aluno e o provedor. Nosso sistema guarda apenas os identificadores, valores e estados necessários para conciliar a mensalidade.</p></details>
+          <details><summary><span>O que é uma credencial de API?</span><i data-lucide="chevron-down"></i></summary><p>É uma chave secreta que autoriza o BJ Sports a criar e consultar cobranças na conta do provedor. Ela nunca deve ser enviada por mensagem, mostrada em tela ou salva no repositório do projeto.</p></details>
+          <details><summary><span>O que é webhook?</span><i data-lucide="chevron-down"></i></summary><p>É o aviso automático enviado pelo provedor quando o pagamento muda de estado. Mesmo recebendo o aviso, o BJ Sports consultará o provedor para confirmar os dados antes de dar baixa.</p></details>
+          <details><summary><span>O que acontece se o aluno clicar duas vezes?</span><i data-lucide="chevron-down"></i></summary><p>O sistema reutilizará a cobrança pendente da mesma competência e usará uma chave de idempotência. Assim, cliques repetidos não devem criar pagamentos ou baixas duplicadas.</p></details>
+          <details><summary><span>E se o webhook atrasar ou falhar?</span><i data-lucide="chevron-down"></i></summary><p>A mensalidade permanece aguardando confirmação. Teremos consulta manual e reconciliação para confirmar o pagamento com segurança, sem marcar como pago apenas pela palavra do navegador.</p></details>
+          <details><summary><span>Pix comum e Pix Automático são iguais?</span><i data-lucide="chevron-down"></i></summary><p>Não. Primeiro implantaremos o Pix dinâmico, pago individualmente pelo aluno. O Pix Automático exige uma autorização de recorrência e será avaliado somente depois que o fluxo básico estiver estável.</p></details>
+        </div>
+      </section>
+
+      <section class="payments-current-state">
+        <i data-lucide="construction"></i><div><strong>Situação atual</strong><p>A página e o planejamento estão prontos, mas nenhum provedor está conectado e nenhuma cobrança real pode ser criada. A gestão manual de mensalidades continua funcionando normalmente.</p></div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

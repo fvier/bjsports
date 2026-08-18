@@ -1,0 +1,50 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper championship-weights-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar"><div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Campeonatos • Pesos</span></div><div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div></div></header>
+
+    <main class="erp-content championship-weights-content">
+      <section class="championship-weights-heading">
+        <div><span><i data-lucide="scale"></i> REFERÊNCIA PARA CAMPEONATOS</span><h1>Tabela de pesos</h1><p>Consulte os limites por divisão, idade e categoria. Células sem valor indicam que a referência fornecida não definiu aquela categoria.</p></div>
+        {% if user_role in ['monitor', 'instrutor'] %}<span class="championship-weights-editable"><i data-lucide="pencil"></i>Edição liberada</span>{% else %}<span class="championship-weights-readonly"><i data-lucide="eye"></i>Somente consulta</span>{% endif %}
+      </section>
+
+      <section class="championship-weights-note"><i data-lucide="triangle-alert"></i><div><strong>Conferência antes de publicar um campeonato</strong><p>Esta tabela foi cadastrada a partir da referência enviada. Monitores e instrutores podem corrigir os valores; qualquer alteração fica registrada com usuário e horário.</p></div></section>
+
+      <div class="championship-weight-tabs" data-weight-tabs>
+        <div class="championship-weight-tablist" role="tablist" aria-label="Tabela por gênero">
+          <button type="button" id="weight-tab-masculino" class="active" role="tab" aria-selected="true" aria-controls="weight-panel-masculino" data-weight-tab="masculino"><i data-lucide="user"></i><span>Masculino</span><small>{{ weight_tables['masculino']|length }}</small></button>
+          <button type="button" id="weight-tab-feminino" role="tab" aria-selected="false" aria-controls="weight-panel-feminino" data-weight-tab="feminino"><i data-lucide="user-round"></i><span>Feminino</span><small>{{ weight_tables['feminino']|length }}</small></button>
+        </div>
+
+      {% for gender in ['masculino', 'feminino'] %}
+      <section id="weight-panel-{{ gender }}" class="championship-weight-panel is-{{ gender }}{% if gender == 'masculino' %} active{% endif %}" role="tabpanel" aria-labelledby="weight-tab-{{ gender }}" data-weight-panel="{{ gender }}" {% if gender != 'masculino' %}hidden{% endif %}>
+        <header><div><span>TABELA DE PESOS</span><h2>{{ gender|upper }} — FBJJMMA</h2></div><small>{{ weight_tables[gender]|length }} categorias</small></header>
+        <div class="championship-weight-table-wrap">
+          <table class="championship-weight-table">
+            <thead><tr><th>Categoria</th>{% for field, label, ages in weight_columns %}<th><strong>{{ label }}</strong>{% if ages %}<small>{{ ages }}</small>{% endif %}</th>{% endfor %}{% if user_role in ['monitor', 'instrutor'] %}<th>Ação</th>{% endif %}</tr></thead>
+            <tbody>
+              {% for division in weight_tables[gender] %}
+              {% set form_id = 'weight-row-' ~ division.id %}
+              <tr>
+                <th>{% if user_role in ['monitor', 'instrutor'] %}<input form="{{ form_id }}" name="category" value="{{ division.category }}" maxlength="40" required aria-label="Categoria">{% else %}{{ division.category }}{% endif %}</th>
+                {% for field, label, ages in weight_columns %}{% set cell_value = division|attr(field) %}<td>{% if user_role in ['monitor', 'instrutor'] %}<input form="{{ form_id }}" name="{{ field }}" value="{{ cell_value }}" maxlength="40" placeholder="Sem categoria" aria-label="{{ division.category }} — {{ label }}">{% else %}<span class="{% if not cell_value %}is-empty{% endif %}">{{ cell_value or '—' }}</span>{% endif %}</td>{% endfor %}
+                {% if user_role in ['monitor', 'instrutor'] %}<td><form id="{{ form_id }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="division_id" value="{{ division.id }}"><button type="submit" title="Salvar {{ division.category }}"><i data-lucide="save"></i><span>Salvar</span></button></form></td>{% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {% endfor %}
+      </div>
+
+      <section class="championship-weights-footer"><i data-lucide="history"></i><div><strong>Histórico de correções</strong>{% if last_revision %}<p>Última alteração registrada por <b>@{{ last_revision.updated_by_username }}</b> em {{ last_revision.created_at.strftime('%d/%m/%Y às %H:%M') }}.</p>{% else %}<p>Nenhuma correção foi realizada desde o cadastro inicial da referência.</p>{% endif %}</div></section>
+    </main>
+  </div>
+</div>
+{% endblock %}

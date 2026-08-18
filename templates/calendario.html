@@ -1,0 +1,142 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper class-calendar-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Calendário de Aulas</span>
+      </div>
+      <div class="erp-topbar-right">
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">GRADE SEMANAL</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content class-calendar-content">
+      <section class="class-calendar-heading">
+        <div><span><i data-lucide="calendar-clock"></i> AGENDA DE TREINOS</span><h1>Calendário de Aulas</h1><p>Visualize aulas e horários livres para organizar o uso da academia.</p></div>
+        <div class="class-calendar-heading-actions">
+          <button type="button" class="is-secondary" data-calendar-sync-open><i data-lucide="bell-ring"></i>Lembretes e Google</button>
+          {% if user_role in ['monitor', 'instrutor'] %}<button type="button" data-special-event-open><i data-lucide="calendar-plus-2"></i>Adicionar aula especial</button>{% endif %}
+          {% if user_role == 'instrutor' %}<a href="{{ url_for('gestao_turmas') }}"><i data-lucide="calendar-cog"></i>Gerenciar turmas</a>{% endif %}
+        </div>
+      </section>
+
+      <section class="class-calendar-toolbar">
+        <nav aria-label="Navegação entre semanas">
+          <a href="{{ url_for('calendario', week=previous_week, modality=modality_filter, audience=audience_filter) }}" title="Semana anterior"><i data-lucide="chevron-left"></i></a>
+          <div><span>SEMANA EXIBIDA</span><strong>{{ week_start.strftime('%d/%m') }} — {{ week_end.strftime('%d/%m/%Y') }}</strong></div>
+          <a href="{{ url_for('calendario', week=next_week, modality=modality_filter, audience=audience_filter) }}" title="Próxima semana"><i data-lucide="chevron-right"></i></a>
+          <a class="class-calendar-today" href="{{ url_for('calendario', week=current_week, modality=modality_filter, audience=audience_filter) }}">Hoje</a>
+        </nav>
+        <form method="get">
+          <input type="hidden" name="week" value="{{ week_start.isoformat() }}">
+          <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
+          <label><span>Público</span><select name="audience"><option value="todos">Todos</option><option value="Adulto" {% if audience_filter == 'Adulto' %}selected{% endif %}>Adulto</option><option value="Kids" {% if audience_filter == 'Kids' %}selected{% endif %}>Kids</option></select></label>
+          <button type="submit"><i data-lucide="list-filter"></i>Aplicar</button>
+        </form>
+      </section>
+
+      <section class="class-calendar-summary">
+        <span><i data-lucide="calendar-check-2"></i><strong>{{ event_count }}</strong> aula(s) nesta semana{% if special_event_count %} • {{ special_event_count }} especial(is){% endif %}</span>
+        <div><span class="is-bjj"><i></i>Jiu-Jitsu</span><span class="is-boxe"><i></i>Boxe</span><span class="is-muay"><i></i>Muay Thai</span><span class="is-kids"><i></i>Kids</span><span class="is-special"><i></i>Especial</span></div>
+      </section>
+
+      <section class="class-calendar-board" aria-label="Calendário semanal de aulas">
+        {% for day in calendar_days %}
+        <article class="class-calendar-day {% if day.is_today %}is-today{% endif %} {% if not day.events %}is-empty{% endif %}">
+          <header><span>{{ day.label }}</span><strong>{{ day.date.strftime('%d') }}</strong><small>{{ day.date.strftime('%m/%Y') }}</small>{% if day.is_today %}<em>HOJE</em>{% endif %}</header>
+          <div class="class-calendar-events">
+            {% for event in day.events %}
+            <div class="class-calendar-event is-{{ event.modality|lower|replace(' ', '')|replace('-', '') }} {% if event.audience == 'Kids' %}is-kids{% endif %} {% if event.special %}is-special{% endif %}">
+              <time>{{ event.start_time }}–{{ event.end_time }}</time>
+              <strong>{{ event.name }}</strong>
+              <span>{{ event.modality }} • {{ event.audience }}</span>
+              <small><i data-lucide="user-round"></i>{% if event.special %}Criado por {{ event.instructor }}{% else %}{{ event.instructor }}{% endif %}</small>
+              {% if event.notes %}<small class="class-calendar-event-notes">{{ event.notes }}</small>{% endif %}
+              {% if event.special %}<em class="is-special-label">Aula especial</em>{% elif event.status == 'lotada' %}<em>Turma lotada</em>{% else %}<em class="is-available">Programada</em>{% endif %}
+            </div>
+            {% else %}
+            <div class="class-calendar-empty"><i data-lucide="calendar-off"></i><span>Sem aulas</span></div>
+            {% endfor %}
+          </div>
+          <div class="class-calendar-free">
+            <strong><i data-lucide="clock-3"></i>Horários livres</strong>
+            <div>
+              {% for slot in day.free_slots %}<span title="{{ slot.duration }} minutos disponíveis">{{ slot.start_time }}–{{ slot.end_time }}</span>{% else %}<em>Agenda ocupada</em>{% endfor %}
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+
+      <section class="class-calendar-help"><i data-lucide="info"></i><div><strong>Como ler o calendário</strong><p>Os horários livres consideram toda a ocupação entre 06:00 e 21:30, mesmo quando um filtro está aplicado. Monitores e instrutores podem incluir aulas especiais; qualquer choque com uma turma ou outro evento é recusado.</p></div></section>
+    </main>
+  </div>
+</div>
+
+{% if user_role in ['monitor', 'instrutor'] %}
+<div class="class-special-modal hidden" data-special-event-modal role="dialog" aria-modal="true" aria-labelledby="specialEventTitle">
+  <div class="class-special-dialog">
+    <header>
+      <div><span>AGENDA DA ACADEMIA</span><h2 id="specialEventTitle">Adicionar aula ou treino especial</h2><p>Escolha um dos horários livres. O sistema impedirá conflitos automaticamente.</p></div>
+      <button type="button" data-special-event-close aria-label="Fechar"><i data-lucide="x"></i></button>
+    </header>
+    <form method="post" action="{{ url_for('calendario') }}" class="class-special-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="week" value="{{ week_start.isoformat() }}">
+      <input type="hidden" name="modality" value="{{ modality_filter }}">
+      <input type="hidden" name="audience" value="{{ audience_filter }}">
+      <label class="is-wide"><span>Nome da aula ou treino</span><input type="text" name="title" maxlength="120" required placeholder="Ex.: Treino aberto de sábado"></label>
+      <label><span>Data</span><input type="date" name="event_date" value="{{ default_event_date.isoformat() }}" min="{{ today.isoformat() }}" required></label>
+      <label><span>Modalidade</span><select name="event_modality" required><option>Treino especial</option><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option></select></label>
+      <label><span>Início</span><input type="time" name="start_time" min="06:00" max="21:00" step="1800" required></label>
+      <label><span>Fim</span><input type="time" name="end_time" min="06:30" max="21:30" step="1800" required></label>
+      <label class="is-wide"><span>Observações opcionais</span><textarea name="notes" maxlength="300" rows="3" placeholder="Informações úteis para a equipe"></textarea></label>
+      <div class="class-special-notice is-wide"><i data-lucide="shield-check"></i><span>A agenda é compartilhada: nenhum evento pode ocupar o mesmo intervalo de outra aula.</span></div>
+      <footer class="is-wide"><button type="button" data-special-event-close>Cancelar</button><button type="submit"><i data-lucide="calendar-plus"></i>Adicionar ao calendário</button></footer>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="class-special-modal hidden" data-calendar-sync-modal role="dialog" aria-modal="true" aria-labelledby="calendarSyncTitle">
+  <div class="class-special-dialog calendar-sync-dialog">
+    <header>
+      <div><span>MINHA AGENDA</span><h2 id="calendarSyncTitle">Lembretes e Google Agenda</h2><p>Somente as turmas das quais você participa serão usadas.</p></div>
+      <button type="button" data-calendar-sync-close aria-label="Fechar"><i data-lucide="x"></i></button>
+    </header>
+    <div class="calendar-sync-content" data-vapid-public-key="{{ vapid_public_key }}" data-push-enabled="{{ 'true' if push_enabled else 'false' }}">
+      <section class="calendar-sync-option">
+        <div class="calendar-sync-icon"><i data-lucide="bell-ring"></i></div>
+        <div><span>NOTIFICAÇÕES PUSH</span><h3>Receber lembrete antes do treino</h3><p>O navegador será avisado aproximadamente 1 hora antes das aulas em que você está matriculado.</p></div>
+        {% if push_available %}
+        <div class="calendar-sync-actions"><button type="button" data-push-toggle>{% if push_enabled %}Desativar push{% else %}Ativar push{% endif %}</button>{% if push_enabled %}<button type="button" class="is-quiet" data-push-test>Enviar teste</button>{% endif %}</div>
+        {% else %}
+        <small class="calendar-sync-unavailable"><i data-lucide="info"></i>Disponível após configurar as chaves VAPID do servidor.</small>
+        {% endif %}
+      </section>
+
+      <section class="calendar-sync-option">
+        <div class="calendar-sync-icon is-google"><i data-lucide="calendar-plus"></i></div>
+        <div><span>GOOGLE AGENDA</span><h3>Adicionar somente minhas turmas</h3><p>O calendário pessoal contém {{ enrolled_groups|length }} turma(s) ativa(s) e já inclui lembretes de 1 hora.</p></div>
+        <div class="calendar-sync-actions">
+          <a href="{{ calendar_download_url }}"><i data-lucide="download"></i>Baixar .ICS</a>
+          {% if google_calendar_url %}<a class="is-google" href="{{ google_calendar_url }}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Assinar no Google</a>{% else %}<a class="is-google" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Abrir importação</a>{% endif %}
+        </div>
+        {% if not google_feed_available %}<small class="calendar-sync-unavailable"><i data-lucide="flask-conical"></i>No laboratório local, use “Baixar .ICS”. A assinatura automática do Google será liberada no endereço HTTPS público.</small>{% endif %}
+      </section>
+
+      <section class="calendar-enrolled-groups">
+        <strong><i data-lucide="shield-check"></i>Turmas incluídas</strong>
+        <div>{% for group in enrolled_groups %}<span>{{ group.name }}<small>{{ group.schedules|join(' / ') }}</small></span>{% else %}<em>Você ainda não possui uma turma ativa vinculada.</em>{% endfor %}</div>
+      </section>
+      <div class="calendar-sync-feedback hidden" data-calendar-sync-feedback></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

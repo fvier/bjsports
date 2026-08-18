@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ page_title }} — BJ Sports Centro de Treinamento</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   
@@ -14,13 +15,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body>
+<body class="{% if erp_page %}erp-page{% endif %}" data-user-role="{{ user_role }}" data-belt-color="{{ user_belt_color }}" data-pending-attendance-count="{{ pending_attendance_count }}" data-contract-pending="{{ 'true' if contract_pending else 'false' }}">
 
   <!-- Header Navigation -->
+  {% if not erp_page %}
   <header class="main-header">
     <div class="container header-content">
       <a href="{{ url_for('index') }}" class="brand-link">
-        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="header-logo">
+        <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports" class="header-logo">
         <div class="brand-text">
           <span class="brand-name">BJ SPORTS</span>
           <span class="brand-sub">CENTRO DE TREINAMENTO</span>
@@ -81,8 +83,12 @@
 
       <!-- Ações do Cabeçalho -->
       <div class="header-actions">
+        <button type="button" class="public-theme-toggle" id="publicThemeToggle" title="Ativar tema claro" aria-label="Ativar tema claro" aria-pressed="false">
+          <i data-lucide="sun"></i>
+        </button>
+
         <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
-          <i data-lucide="calendar-check"></i> Garantir Vaga
+          <i data-lucide="calendar-check"></i> Check-in
         </button>
 
         {% if is_logged_in %}
@@ -118,13 +124,15 @@
               </div>
             </a>
 
-            <a href="{{ url_for('logout') }}" class="dropdown-item logout-dropdown-item">
+            <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit" class="dropdown-item logout-dropdown-item" style="width:100%; border:0; text-align:left; cursor:pointer;">
               <i data-lucide="log-out" class="icon-red"></i>
               <div>
                 <strong style="color: #ef4444;">Sair da Conta</strong>
                 <small>Encerrar sessão ativa</small>
               </div>
-            </a>
+            </button>
+            </form>
           </div>
         </div>
 
@@ -137,6 +145,22 @@
       </div>
     </div>
   </header>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack" role="status" aria-live="polite" aria-atomic="true">
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}" data-flash-message data-flash-duration="{{ 4500 if category in ['error', 'warning'] else 2800 }}">
+            <i data-lucide="{% if category == 'success' %}circle-check{% elif category == 'error' %}circle-x{% else %}circle-alert{% endif %}" class="flash-message-icon"></i>
+            <span class="flash-message-copy">{{ message }}</span>
+            <button type="button" class="flash-message-close" data-flash-close aria-label="Fechar aviso" title="Fechar"><i data-lucide="x"></i></button>
+            <span class="flash-message-timer" aria-hidden="true"></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
 
   {% block content %}{% endblock %}
 
@@ -155,7 +179,7 @@
       
       <div class="modal-header text-center">
         <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="modal-logo">
-        <h3 id="modalTitleText">RESERVAR MINHA VAGA NA AULA • BJ SPORTS</h3>
+        <h3 id="modalTitleText">FAZER CHECK-IN NA AULA • BJ SPORTS</h3>
         <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma (Máx 20 Alunos)</p>
       </div>
 
@@ -179,7 +203,7 @@
             <label for="bookCpf3" id="lblBookCpf3">3 primeiros números do CPF *</label>
             <div class="input-with-icon">
               <i data-lucide="shield-check" class="input-icon"></i>
-              <input type="text" id="bookCpf3" placeholder="123" maxlength="3" required>
+              <input type="text" id="bookCpf3" placeholder="123" inputmode="numeric" maxlength="3" required>
             </div>
           </div>
         </div>
@@ -190,6 +214,8 @@
             <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
             <option value="Jiu-Jitsu (Kids)">Jiu-Jitsu (Kids)</option>
             <option value="Boxe Tradicional">Boxe Tradicional</option>
+            <option value="Muay Thai">Muay Thai</option>
+            <option value="Muay Thai Kids">Muay Thai Kids</option>
           </select>
         </div>
 
@@ -200,8 +226,18 @@
           <span class="field-hint" id="shift48hHint">⏱️ Exibindo apenas horários disponíveis nas próximas 48 horas.</span>
         </div>
 
+        <div class="booking-feedback hidden" id="bookingFeedback" role="alert" aria-live="assertive">
+          <span class="booking-feedback-icon"><i data-lucide="triangle-alert"></i></span>
+          <div class="booking-feedback-copy">
+            <strong id="bookingFeedbackTitle">Não foi possível fazer o check-in</strong>
+            <p id="bookingFeedbackMessage"></p>
+            <a href="{{ url_for('mensalidades_aluno') }}" id="bookingFeedbackAction" class="hidden">Ver minhas mensalidades <i data-lucide="arrow-right"></i></a>
+          </div>
+          <button type="button" id="closeBookingFeedback" title="Fechar aviso"><i data-lucide="x"></i></button>
+        </div>
+
         <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-booking-btn">
-          <i data-lucide="check-circle"></i> Reservar Minha Vaga Agora
+          <i data-lucide="check-circle"></i> Check-in
         </button>
       </form>
     </div>

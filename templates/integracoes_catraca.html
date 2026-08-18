@@ -1,0 +1,104 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper turnstile-integration-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Integrações • Catraca</span>
+      </div>
+      <div class="erp-topbar-right">
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content turnstile-content">
+      <section class="turnstile-hero">
+        <div>
+          <span><i data-lucide="scan-face"></i> CONTROLE DE ACESSO</span>
+          <h1>Catraca</h1>
+          <p>Integração planejada para a catraca {{ device_model }} com leitor facial da {{ device_brand }}.</p>
+        </div>
+        <span class="payments-connection-status {% if device_configured and device_identified %}is-online{% endif %}">
+          <i data-lucide="{{ 'badge-check' if device_configured and device_identified else 'circle-dashed' }}"></i>
+          {{ 'Equipamento conectado' if device_configured and device_identified else 'Não configurado' }}
+        </span>
+      </section>
+
+      <section class="turnstile-warning">
+        <i data-lucide="shield-alert"></i>
+        <div><strong>Liberação física exige uma implantação controlada.</strong><p>Nenhuma catraca está sendo comandada neste momento. Primeiro definiremos o equipamento e testaremos identificação, regras de acesso, funcionamento offline e abertura manual de emergência.</p></div>
+      </section>
+
+      <section class="turnstile-kpis" aria-label="Estado da integração da catraca">
+        <article><span><i data-lucide="door-open"></i>Equipamento</span><strong>{{ device_model }}</strong><small>{{ device_brand }} • leitor facial</small></article>
+        <article><span><i data-lucide="plug-zap"></i>Conexão</span><strong>{{ 'Configurada' if device_configured else 'Pendente' }}</strong><small>API local ou serviço do fabricante</small></article>
+        <article><span><i data-lucide="flask-conical"></i>Ambiente</span><strong>Laboratório</strong><small>Sem comando físico ativo</small></article>
+        <article><span><i data-lucide="history"></i>Eventos</span><strong>0</strong><small>Nenhum acesso recebido</small></article>
+      </section>
+
+      <div class="turnstile-main-grid">
+        <section class="turnstile-panel">
+          <header><div><span>FORMAS DE IDENTIFICAÇÃO</span><h2>Como o aluno poderá entrar</h2></div><small>Definir após escolher o hardware</small></header>
+          <div class="turnstile-methods">
+            <article><i data-lucide="qr-code"></i><div><strong>QR Code pessoal</strong><p>Poderá ser avaliado como alternativa, se o leitor instalado oferecer suporte.</p></div><em>Opcional</em></article>
+            <article class="is-recommended"><i data-lucide="scan-face"></i><div><strong>Reconhecimento facial</strong><p>Identificação principal já prevista no modelo {{ device_model }}.</p></div><em>Selecionado</em></article>
+            <article><i data-lucide="contactless"></i><div><strong>Cartão ou chaveiro</strong><p>Leitura RFID vinculada ao cadastro do aluno.</p></div><em>A avaliar</em></article>
+            <article><i data-lucide="fingerprint"></i><div><strong>Biometria digital</strong><p>Disponibilidade e armazenamento dependem do fabricante.</p></div><em>A avaliar</em></article>
+          </div>
+        </section>
+
+        <aside class="turnstile-panel turnstile-rules">
+          <header><div><span>REGRAS DE LIBERAÇÃO</span><h2>Decisão do sistema</h2></div></header>
+          <ul>
+            <li><i data-lucide="circle-check"></i><div><strong>Matrícula ativa</strong><small>O usuário precisa estar ativo no sistema.</small></div></li>
+            <li><i data-lucide="calendar-check"></i><div><strong>Turma e horário</strong><small>Acesso relacionado às turmas em que participa.</small></div></li>
+            <li><i data-lucide="badge-dollar-sign"></i><div><strong>Situação financeira</strong><small>Regra de inadimplência definida pela gestão.</small></div></li>
+            <li><i data-lucide="shield-check"></i><div><strong>Exceções autorizadas</strong><small>Isenções e liberações manuais ficam auditadas.</small></div></li>
+          </ul>
+        </aside>
+      </div>
+
+      <section class="turnstile-panel turnstile-compatibility">
+        <header><div><span>COMPATIBILIDADE INICIAL</span><h2>{{ device_brand }} {{ device_model }} com leitor facial</h2></div><small>Modelo confirmado</small></header>
+        <div>
+          <article><i data-lucide="badge-check"></i><strong>Integração prevista pelo fabricante</strong><p>A linha Easy foi projetada para comunicação direta com o leitor facial e integração com sistemas de gestão.</p></article>
+          <article><i data-lucide="braces"></i><strong>APIs abertas informadas</strong><p>A Topdata informa documentação e APIs para cadastro de usuários, horários e validação de acesso.</p></article>
+          <article><i data-lucide="file-search"></i><strong>Documentação ainda necessária</strong><p>Precisamos do manual/API da unidade adquirida, modelo exato do leitor e versão do firmware.</p></article>
+          <article><i data-lucide="network"></i><strong>Dados da instalação</strong><p>Também serão necessários IP, identificador, topologia da rede e credenciais técnicas próprias.</p></article>
+        </div>
+      </section>
+
+      <section class="turnstile-flow">
+        <header><span>FLUXO PREVISTO</span><h2>Da identificação ao registro de entrada</h2></header>
+        <div>
+          <article><i data-lucide="scan-line"></i><strong>1. Identificar</strong><small>QR, cartão, face ou biometria</small></article>
+          <i data-lucide="arrow-right"></i>
+          <article><i data-lucide="database"></i><strong>2. Consultar</strong><small>Cadastro, turma e restrições</small></article>
+          <i data-lucide="arrow-right"></i>
+          <article><i data-lucide="door-open"></i><strong>3. Liberar</strong><small>Comando seguro para a catraca</small></article>
+          <i data-lucide="arrow-right"></i>
+          <article><i data-lucide="clipboard-check"></i><strong>4. Registrar</strong><small>Data, hora, resultado e motivo</small></article>
+        </div>
+      </section>
+
+      <section class="turnstile-bottom-grid">
+        <article class="turnstile-panel">
+          <header><div><span>ANTES DE CONECTAR</span><h2>Informações necessárias</h2></div></header>
+          <ol><li><span>1</span>Marca e modelo exatos da catraca.</li><li><span>2</span>Manual técnico e protocolos disponíveis.</li><li><span>3</span>Forma de identificação escolhida.</li><li><span>4</span>Rede local e computador controlador.</li><li><span>5</span>Política para internet indisponível.</li></ol>
+        </article>
+        <article class="turnstile-panel">
+          <header><div><span>SEGURANÇA OPERACIONAL</span><h2>O que não pode faltar</h2></div></header>
+          <ul class="turnstile-safety"><li><i data-lucide="key-round"></i>Credenciais guardadas apenas no servidor.</li><li><i data-lucide="wifi-off"></i>Plano de contingência para falha de rede.</li><li><i data-lucide="siren"></i>Saída livre e abertura de emergência.</li><li><i data-lucide="scroll-text"></i>Histórico de liberações e bloqueios.</li></ul>
+        </article>
+      </section>
+
+      <section class="turnstile-current-state"><i data-lucide="construction"></i><div><strong>Situação atual</strong><p>Modelo selecionado: {{ device_brand }} {{ device_model }} com leitor facial. O próximo passo é obter a documentação da API, identificar o leitor e o firmware e depois conectar uma unidade no laboratório.</p></div></section>
+    </main>
+  </div>
+</div>
+{% endblock %}

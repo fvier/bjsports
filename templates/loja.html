@@ -1,108 +1,132 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- Hero Banner da Loja -->
-  <section class="hero-section page-hero">
-    <div class="container text-center">
-      {% if is_logged_in %}
-      <div style="margin-bottom: 20px;">
-        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm" style="background: rgba(255,215,0,0.15); border-color: var(--accent-gold); color: var(--accent-gold);">
-          <i data-lucide="arrow-left"></i> Voltar para Área do Aluno
-        </a>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">
+
+<main class="store-page">
+  <section class="store-hero">
+    <div class="container store-hero-grid">
+      <div>
+        <span class="store-eyebrow"><i data-lucide="shopping-bag"></i> CATÁLOGO CONCEITUAL • BJ SPORTS</span>
+        <h1>Equipamentos para sua <span>evolução</span></h1>
+        <p>Uma primeira proposta de loja organizada por esporte e categoria. Produtos, estoque e preços abaixo são hipotéticos e servem para planejarmos a experiência.</p>
+        <div class="store-hero-actions">
+          <button class="store-primary-btn" data-quick-filter="jiu-jitsu">Explorar Jiu-Jitsu</button>
+          <button class="store-outline-btn" data-quick-filter="boxe">Explorar Boxe</button>
+        </div>
       </div>
-      {% endif %}
-
-      <span class="section-badge">EQUIPAMENTOS & ARMAS DE COMBATE</span>
-      <h1 class="hero-title">LOJA OFICIAL <span class="highlight-red">BJ SPORTS</span></h1>
-      <p class="hero-desc" style="margin: 0 auto;">
-        Equipamentos de alta performance testados e aprovados pelo Mestre Bolivar. Kimonos trançados, Rashguards de compressão e acessórios oficiais.
-      </p>
-    </div>
-  </section>
-
-  <!-- Grade Completa de Produtos da Loja -->
-  <section class="section loja-full-section">
-    <div class="container">
-      <div class="grid-planos">
-        
-        <!-- Produto 1: Kimono -->
-        <div class="plano-card featured-card glass-panel text-center">
-          <div class="plano-badge">MAIS VENDIDO</div>
-          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🥋</div>
-          <h3 class="plano-title">Kimono Trançado BJ Sports</h3>
-          <p class="plano-sub">Jiu-Jitsu High-Performance (A0 ao A4)</p>
-          <div class="plano-price-box">
-            <span class="main-price">R$ 380<small>,00</small></span>
-            <span class="price-detail">100% Algodão Trançado Reforçado</span>
-          </div>
-          <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Lapela de EVA antifúngica</li>
-            <li><i data-lucide="check" class="icon-green"></i> Costuras duplas nos pontos de tensão</li>
-            <li><i data-lucide="check" class="icon-green"></i> Acompanha patch bordado oficial</li>
-          </ul>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20o%20Kimono%20Trancado%20BJ%20Sports" target="_blank" class="btn btn-primary btn-block btn-glow">
-            Comprar no WhatsApp
-          </a>
-        </div>
-
-        <!-- Produto 2: Rashguard -->
-        <div class="plano-card glass-panel text-center">
-          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">👕</div>
-          <h3 class="plano-title">Rashguard de Compressão</h3>
-          <p class="plano-sub">No-Gi & Treinos de Boxe/Funcional</p>
-          <div class="plano-price-box">
-            <span class="main-price">R$ 140<small>,00</small></span>
-            <span class="price-detail">Proteção UV50+ & Tecido Respirável</span>
-          </div>
-          <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Ajuste anatômico de alta compressão</li>
-            <li><i data-lucide="check" class="icon-green"></i> Previne queimaduras de tatame</li>
-            <li><i data-lucide="check" class="icon-green"></i> Estampa sublimada que não desbota</li>
-          </ul>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20a%20Rashguard%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-block">
-            Comprar no WhatsApp
-          </a>
-        </div>
-
-        <!-- Produto 3: Luvas de Boxe -->
-        <div class="plano-card glass-panel text-center">
-          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🥊</div>
-          <h3 class="plano-title">Luvas de Boxe Profissionais</h3>
-          <p class="plano-sub">Disponível em 12oz e 14oz</p>
-          <div class="plano-price-box">
-            <span class="main-price">R$ 220<small>,00</small></span>
-            <span class="price-detail">Couro Sintético Premium PU</span>
-          </div>
-          <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Tripla camada de espuma injetada</li>
-            <li><i data-lucide="check" class="icon-green"></i> Fechamento em velcro reforçado no punho</li>
-            <li><i data-lucide="check" class="icon-green"></i> Design anatômico de encaixe perfeito</li>
-          </ul>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20as%20Luvas%20de%20Boxe%20BJ%20Sports" target="_blank" class="btn btn-secondary btn-block">
-            Comprar no WhatsApp
-          </a>
-        </div>
-
-        <!-- Produto 4: Bandagens e Proteto Bucal -->
-        <div class="plano-card glass-panel text-center">
-          <div class="product-icon" style="font-size: 3.5rem; margin-top: 10px;">🩹</div>
-          <h3 class="plano-title">Kit Bandagem + Protetor Bucal</h3>
-          <p class="plano-sub">Proteção essencial para Boxe e BJJ</p>
-          <div class="plano-price-box">
-            <span class="main-price">R$ 65<small>,00</small></span>
-            <span class="price-detail">Segurança total nas articulações</span>
-          </div>
-          <ul class="plano-features">
-            <li><i data-lucide="check" class="icon-green"></i> Bandagem elástica de 3,5 metros</li>
-            <li><i data-lucide="check" class="icon-green"></i> Protetor bucal moldável de silicone</li>
-            <li><i data-lucide="check" class="icon-green"></i> Caixinha higiênica inclusa</li>
-          </ul>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1%20Mestre%20Bolivar!%20Gostaria%20de%20comprar%20o%20Kit%20Bandagem%20e%20Protetor%20Bucal" target="_blank" class="btn btn-secondary btn-block">
-            Comprar no WhatsApp
-          </a>
-        </div>
-
+      <div class="store-concept-card">
+        <div class="concept-icon">BJ</div>
+        <div><strong>Loja em planejamento</strong><span>Nenhuma compra será processada nesta etapa.</span></div>
       </div>
     </div>
   </section>
+
+  <section class="container store-metrics" aria-label="Resumo do catálogo">
+    <div><span>{{ products|length }}</span><small>produtos conceituais</small></div>
+    <div><span>2</span><small>esportes principais</small></div>
+    <div><span>{{ store_categories|length }}</span><small>categorias organizadas</small></div>
+    <div><span id="interestCount">0</span><small>na lista de interesse</small></div>
+  </section>
+
+  <section class="container store-layout">
+    <aside class="store-filter-panel">
+      <div class="store-filter-title">
+        <div><small>CATÁLOGO</small><h2>Filtros</h2></div>
+        <div class="store-filter-actions">
+          <button id="storeMobileFilterToggle" type="button">Abrir</button>
+          <button id="clearStoreFilters" type="button">Limpar</button>
+        </div>
+      </div>
+
+      <label class="store-search">
+        <i data-lucide="search"></i>
+        <input id="storeSearch" type="search" placeholder="Buscar produto..." autocomplete="off">
+      </label>
+
+      <fieldset class="store-filter-group">
+        <legend>Esporte</legend>
+        <label><input type="radio" name="sport" value="all" checked> Todos <span>{{ products|length }}</span></label>
+        <label><input type="radio" name="sport" value="jiu-jitsu"> Jiu-Jitsu <span>{{ products|selectattr('sport', 'equalto', 'jiu-jitsu')|list|length }}</span></label>
+        <label><input type="radio" name="sport" value="boxe"> Boxe <span>{{ products|selectattr('sport', 'equalto', 'boxe')|list|length }}</span></label>
+      </fieldset>
+
+      <fieldset class="store-filter-group">
+        <legend>Categorias</legend>
+        {% for category in store_categories %}
+        <label><input class="category-filter" type="checkbox" value="{{ category }}"> {{ category }}</label>
+        {% endfor %}
+      </fieldset>
+
+      <fieldset class="store-filter-group">
+        <legend>Faixa de preço</legend>
+        <label><input type="radio" name="price" value="all" checked> Todos os preços</label>
+        <label><input type="radio" name="price" value="0-100"> Até R$ 100</label>
+        <label><input type="radio" name="price" value="100-250"> R$ 100 a R$ 250</label>
+        <label><input type="radio" name="price" value="250-500"> R$ 250 a R$ 500</label>
+        <label><input type="radio" name="price" value="500-9999"> Acima de R$ 500</label>
+      </fieldset>
+    </aside>
+
+    <div class="store-catalog">
+      <div class="store-toolbar">
+        <div>
+          <p><span id="visibleProductCount">{{ products|length }}</span> produtos encontrados</p>
+          <small>Valores ilustrativos para discussão</small>
+        </div>
+        <label>Ordenar por
+          <select id="storeSort">
+            <option value="featured">Destaques</option>
+            <option value="name">Nome</option>
+            <option value="price-asc">Menor preço</option>
+            <option value="price-desc">Maior preço</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="store-active-filter" id="activeStoreFilter">Todos os esportes e categorias</div>
+
+      <div class="store-product-grid" id="storeProductGrid">
+        {% for product in products %}
+        <article class="store-product-card" data-id="{{ product.id }}" data-sport="{{ product.sport }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-name="{{ product.name|lower }}">
+          <div class="store-product-media store-media-{{ product.sport }}">
+            {% if product.badge %}<span class="store-product-badge">{{ product.badge }}</span>{% endif %}
+            <span class="store-product-code">{{ product.id }}</span>
+            <span class="store-product-icon" aria-hidden="true">{{ product.icon }}</span>
+            <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
+          </div>
+          <div class="store-product-body">
+            <div class="store-product-meta"><span>{{ 'Jiu-Jitsu' if product.sport == 'jiu-jitsu' else 'Boxe' }}</span><span>{{ product.category }}</span></div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <div class="store-product-size"><i data-lucide="ruler"></i> {{ product.sizes }}</div>
+            <div class="store-product-footer">
+              <div class="store-price">
+                {% if product.old_price %}<del>R$ {{ '%.2f'|format(product.old_price)|replace('.', ',') }}</del>{% endif %}
+                <strong>R$ {{ '%.2f'|format(product.price)|replace('.', ',') }}</strong>
+                <small>preço hipotético</small>
+              </div>
+              <button class="store-add-btn" type="button" data-interest="{{ product.id }}" title="Adicionar à lista de interesse"><i data-lucide="plus"></i></button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="store-empty hidden" id="storeEmpty">
+        <i data-lucide="package-search"></i>
+        <h3>Nenhum produto encontrado</h3>
+        <p>Tente remover algum filtro ou buscar outro termo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container store-next-steps">
+    <div><span>01</span><strong>Validar catálogo</strong><p>Definir quais produtos realmente farão parte da loja.</p></div>
+    <div><span>02</span><strong>Escolher fornecedores</strong><p>Substituir preços hipotéticos por custos, margens e estoque.</p></div>
+    <div><span>03</span><strong>Definir compra</strong><p>Decidir entre WhatsApp, retirada local ou checkout completo.</p></div>
+  </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/store.js') }}"></script>
 {% endblock %}

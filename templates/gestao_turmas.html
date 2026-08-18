@@ -1,0 +1,93 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper class-management-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Gestão de Turmas</span>
+      </div>
+      <div class="erp-topbar-right">
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content class-management-content">
+      <section class="class-management-heading">
+        <div><span><i data-lucide="clipboard-list"></i> PROTÓTIPO PARA AVALIAÇÃO</span><h1>Gestão de Turmas</h1><p>Visualize horários, capacidade e ocupação antes de transformarmos esta tela no cadastro oficial da grade pública.</p></div>
+        <button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>
+      </section>
+
+      <section class="class-management-notice"><i data-lucide="info"></i><p><strong>As edições agora são salvas.</strong><span>Os vínculos iniciais de alunos foram distribuídos apenas para demonstração e aparecem identificados na página de cada turma. A publicação controla a exibição no calendário interno.</span></p></section>
+
+      <section class="class-management-kpis">
+        <article><i data-lucide="layout-grid"></i><div><span>Turmas cadastradas</span><strong>{{ overview.classes }}</strong><small>Cadastros persistentes</small></div></article>
+        <article><i data-lucide="calendar-days"></i><div><span>Aulas por semana</span><strong>{{ overview.weekly_sessions }}</strong><small>Sessões previstas na grade</small></div></article>
+        <article><i data-lucide="users-round"></i><div><span>Alunos vinculados</span><strong>{{ overview.enrolled }}</strong><small>Acesse a turma para analisar</small></div></article>
+        <article class="{% if overview.occupancy >= 90 %}is-warning{% else %}is-positive{% endif %}"><i data-lucide="gauge"></i><div><span>Ocupação geral</span><strong>{{ overview.occupancy }}%</strong><small>{{ overview.waiting }} aluno(s) em espera</small></div></article>
+      </section>
+
+      <form class="class-management-filters" method="get">
+        <label class="class-management-search"><span>Buscar turma</span><div><i data-lucide="search"></i><input type="search" name="q" value="{{ search_query }}" placeholder="Nome, modalidade ou instrutor"></div></label>
+        <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
+        <label><span>Situação</span><select name="status"><option value="todos">Todas</option><option value="ativa" {% if status_filter == 'ativa' %}selected{% endif %}>Ativa</option><option value="lotada" {% if status_filter == 'lotada' %}selected{% endif %}>Lotada</option><option value="rascunho" {% if status_filter == 'rascunho' %}selected{% endif %}>Rascunho</option><option value="suspensa" {% if status_filter == 'suspensa' %}selected{% endif %}>Suspensa</option></select></label>
+        <button type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
+        {% if search_query or modality_filter != 'todas' or status_filter != 'todos' %}<a href="{{ url_for('gestao_turmas') }}" title="Limpar filtros"><i data-lucide="x"></i></a>{% endif %}
+      </form>
+
+      <section class="class-management-panel">
+        <header><div><span>GRADE CADASTRADA</span><h2>Turmas e capacidade</h2></div><small>{{ classes|length }} resultado(s)</small></header>
+        <div class="class-management-table-wrap">
+          <table class="class-management-table">
+            <thead><tr><th>Turma</th><th>Dias e horários</th><th>Instrutor</th><th>Ocupação</th><th>Situação</th><th aria-label="Ações"></th></tr></thead>
+            <tbody>
+              {% for class_item in classes %}
+              {% set occupancy = (class_item.enrolled / class_item.capacity * 100)|round|int %}
+              <tr>
+                <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><i data-lucide="{% if class_item.modality == 'Jiu-Jitsu' %}circle-dot{% elif class_item.modality == 'Boxe' %}swords{% else %}flame{% endif %}"></i></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small></div></div></td>
+                <td><div class="class-management-schedules">{% for schedule in class_item.schedules %}<span><i data-lucide="clock-3"></i>{{ schedule }}</span>{% endfor %}</div></td>
+                <td><strong class="class-management-instructor">{{ class_item.instructor }}</strong></td>
+                <td><div class="class-management-occupancy"><span><strong>{{ class_item.enrolled }}/{{ class_item.capacity }}</strong><small>{{ occupancy }}%</small></span><div><i style="width:{{ occupancy }}%"></i></div>{% if class_item.waiting %}<em>{{ class_item.waiting }} em espera</em>{% endif %}</div></td>
+                <td><span class="class-management-status is-{{ class_item.status }}"><i></i>{{ class_item.status|capitalize }}</span></td>
+                <td><button type="button" class="class-management-edit" title="Editar turma" data-class-modal-open data-class-id="{{ class_item.id }}" data-class-name="{{ class_item.name }}" data-class-modality="{{ class_item.modality }}" data-class-audience="{{ class_item.audience }}" data-class-capacity="{{ class_item.capacity }}" data-class-schedule="{{ class_item.schedules|join(' / ') }}" data-class-instructor="{{ class_item.instructor }}" data-class-duration="{{ class_item.duration_minutes }}" data-class-status="{{ class_item.status }}" data-class-published="{{ '1' if class_item.publish_public else '0' }}"><i data-lucide="pencil"></i></button></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="6"><div class="class-management-empty"><i data-lucide="search-x"></i><strong>Nenhuma turma encontrada</strong><span>Ajuste ou limpe os filtros para visualizar a grade.</span></div></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="class-management-evaluation">
+        <header><span>PONTOS PARA AVALIAR</span><h2>O que esta gestão poderá controlar</h2></header>
+        <div><article><i data-lucide="calendar-cog"></i><strong>Grade e horários</strong><small>Dias, turnos, duração e conflitos de agenda.</small></article><article><i data-lucide="users"></i><strong>Capacidade</strong><small>Limite, ocupação e lista de espera por turma.</small></article><article><i data-lucide="user-round-cog"></i><strong>Responsáveis</strong><small>Instrutor principal e possíveis substituições.</small></article><article><i data-lucide="eye"></i><strong>Publicação</strong><small>Definir o que aparece na landing page e no check-in.</small></article></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="class-editor-backdrop hidden" data-class-modal>
+  <section class="class-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="classEditorTitle">
+    <header><div><span>CADASTRO DE TURMA</span><h2 id="classEditorTitle" data-class-modal-title>Nova turma</h2><p>Preencha os dados que serão utilizados na gestão e no calendário.</p></div><button type="button" data-class-modal-close aria-label="Fechar"><i data-lucide="x"></i></button></header>
+    <form class="class-editor-form" method="post" action="{{ url_for('gestao_turmas') }}">
+      <input type="hidden" name="action" value="create">
+      <input type="hidden" name="class_id" value="">
+      <label class="is-wide"><span>Nome da turma</span><input type="text" name="class_name" placeholder="Ex.: Jiu-Jitsu Iniciante"></label>
+      <label><span>Modalidade</span><select name="class_modality"><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option></select></label>
+      <label><span>Público</span><select name="class_audience"><option>Adulto</option><option>Kids</option><option>Todos</option></select></label>
+      <label class="is-wide"><span>Dias e horários</span><input type="text" name="class_schedule" placeholder="Ex.: Seg, Qua, Sex • 19:00"></label>
+      <label><span>Instrutor responsável</span><input type="text" name="class_instructor" value="Mestre Bolivar"></label>
+      <label><span>Capacidade máxima</span><input type="number" name="class_capacity" min="1" max="100" value="20"></label>
+      <label><span>Duração da aula</span><select name="class_duration"><option value="45">45 minutos</option><option value="60" selected>60 minutos</option><option value="75">75 minutos</option><option value="90">90 minutos</option><option value="120">120 minutos</option></select></label>
+      <label><span>Situação</span><select name="class_status"><option value="ativa">Ativa</option><option value="lotada">Lotada</option><option value="rascunho">Rascunho</option><option value="suspensa">Suspensa</option></select></label>
+      <label class="is-wide class-editor-check"><input type="checkbox" name="publish_public" value="1" checked><span><strong>Publicar no calendário</strong><small>Disponibilizar esta turma no Calendário de Aulas.</small></span></label>
+      <footer><button type="button" data-class-modal-close>Cancelar</button><button type="submit" class="is-primary"><i data-lucide="save"></i>Salvar turma</button></footer>
+    </form>
+  </section>
+</div>
+{% endblock %}

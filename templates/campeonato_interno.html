@@ -1,0 +1,53 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper internal-championship-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Campeonatos • Interno</span></div>
+      <div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div></div>
+    </header>
+
+    <main class="erp-content championship-cards-content">
+      <section class="championship-cards-heading">
+        <div><span><i data-lucide="trophy"></i> CAMPEONATOS BJ SPORTS</span><h1>Campeonatos internos</h1><p>Escolha um campeonato para consultar as informações e realizar sua inscrição.</p></div>
+        {% if user_role in ['monitor', 'instrutor'] %}<button type="button" data-championship-create-open><i data-lucide="plus"></i>Novo campeonato</button>{% endif %}
+      </section>
+
+      <section class="championship-cards-grid" aria-label="Campeonatos internos disponíveis">
+        {% for championship in championships %}
+        {% set is_full = championship.registered_count >= championship.max_participants %}
+        {% set is_closed = championship.status != 'inscricoes_abertas' or championship.registration_deadline < today %}
+        <a class="championship-card {% if championship.id in registered_ids %}is-registered{% endif %} {% if is_closed or is_full %}is-closed{% endif %}" href="{{ url_for('campeonato_interno_detalhe', championship_id=championship.id) }}">
+          <div class="championship-card-cover is-{{ championship.modality|lower|replace(' ', '')|replace('-', '') }}"><i data-lucide="trophy"></i><span>{{ championship.modality }}</span>{% if championship.id in registered_ids %}<em><i data-lucide="badge-check"></i>Inscrito</em>{% endif %}</div>
+          <div class="championship-card-body"><div class="championship-card-date"><strong>{{ championship.event_date.strftime('%d') }}</strong><span>{{ championship.event_date.strftime('%m/%Y') }}</span></div><div><h2>{{ championship.name }}</h2><p><i data-lucide="map-pin"></i>{{ championship.location }}</p></div></div>
+          <div class="championship-card-info"><span><i data-lucide="users"></i>{{ championship.registered_count }}/{{ championship.max_participants }} inscritos</span><span><i data-lucide="calendar-clock"></i>Até {{ championship.registration_deadline.strftime('%d/%m') }}</span></div>
+          <footer><span>{% if is_closed %}Inscrições encerradas{% elif is_full %}Vagas esgotadas{% else %}Ver e fazer inscrição{% endif %}</span><i data-lucide="arrow-right"></i></footer>
+        </a>
+        {% else %}<div class="championship-cards-empty"><i data-lucide="trophy"></i><strong>Nenhum campeonato publicado</strong><p>{% if user_role in ['monitor', 'instrutor'] %}Use “Novo campeonato” para criar o primeiro evento.{% else %}Os próximos campeonatos aparecerão aqui quando forem publicados.{% endif %}</p></div>{% endfor %}
+      </section>
+    </main>
+  </div>
+</div>
+
+{% if user_role in ['monitor', 'instrutor'] %}
+<div class="class-special-modal hidden" data-championship-create-modal role="dialog" aria-modal="true" aria-labelledby="championshipCreateTitle">
+  <div class="class-special-dialog championship-create-dialog">
+    <header><div><span>NOVO EVENTO</span><h2 id="championshipCreateTitle">Criar campeonato interno</h2><p>Após salvar, o campeonato ficará disponível para inscrição nos cards.</p></div><button type="button" data-championship-create-close aria-label="Fechar"><i data-lucide="x"></i></button></header>
+    <form method="post" class="championship-create-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="is-wide"><span>Nome do campeonato</span><input type="text" name="name" maxlength="120" required placeholder="Ex.: Interno BJ Sports 2026"></label>
+      <label><span>Modalidade</span><select name="modality" required><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option><option>Multimodalidade</option></select></label>
+      <label><span>Limite de participantes</span><input type="number" name="max_participants" min="2" max="500" value="40" required></label>
+      <label><span>Data do evento</span><input type="date" name="event_date" min="{{ today.isoformat() }}" required></label>
+      <label><span>Inscrições até</span><input type="date" name="registration_deadline" min="{{ today.isoformat() }}" required></label>
+      <label class="is-wide"><span>Local</span><input type="text" name="location" maxlength="160" required placeholder="Ex.: Sede BJ Sports"></label>
+      <label class="is-wide"><span>Descrição opcional</span><textarea name="description" rows="3" maxlength="500" placeholder="Informações essenciais do evento"></textarea></label>
+      <footer class="is-wide"><button type="button" data-championship-create-close>Cancelar</button><button type="submit"><i data-lucide="save"></i>Criar campeonato</button></footer>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

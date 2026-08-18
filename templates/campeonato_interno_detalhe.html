@@ -1,0 +1,21 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper championship-detail-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar"><div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Campeonato Interno</span></div><div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div></div></header>
+    <main class="erp-content championship-detail-content">
+      <a class="championship-detail-back" href="{{ url_for('campeonato_interno') }}"><i data-lucide="arrow-left"></i>Todos os campeonatos</a>
+      <section class="championship-detail-hero"><div><span>{{ championship.modality }}</span><h1>{{ championship.name }}</h1><p>{{ championship.description or 'Campeonato interno da BJ Sports.' }}</p></div>{% if registration and registration.status == 'inscrito' %}<em class="is-confirmed"><i data-lucide="badge-check"></i>Inscrição confirmada</em>{% elif registration_open %}<em><i data-lucide="circle-dot"></i>Inscrições abertas</em>{% else %}<em class="is-closed"><i data-lucide="circle-x"></i>Inscrições indisponíveis</em>{% endif %}</section>
+      <section class="championship-detail-facts"><article><i data-lucide="calendar-days"></i><span>Data do evento</span><strong>{{ championship.event_date.strftime('%d/%m/%Y') }}</strong></article><article><i data-lucide="map-pin"></i><span>Local</span><strong>{{ championship.location }}</strong></article><article><i data-lucide="calendar-clock"></i><span>Prazo</span><strong>{{ championship.registration_deadline.strftime('%d/%m/%Y') }}</strong></article><article><i data-lucide="users"></i><span>Vagas</span><strong>{{ championship.registered_count }}/{{ championship.max_participants }}</strong></article></section>
+      {% if registration and registration.status == 'inscrito' %}
+      <section class="championship-registration-confirmed"><i data-lucide="circle-check-big"></i><div><span>VOCÊ ESTÁ INSCRITO</span><h2>Participação confirmada</h2><p>Divisão {{ registration.age_division }} • {{ '%.1f'|format(registration.weight) }} kg • Faixa {{ belt_labels.get(registration.belt_color_snapshot, registration.belt_color_snapshot)|capitalize }}</p><small>Inscrição realizada em {{ registration.registered_at.strftime('%d/%m/%Y às %H:%M') }}</small></div></section>
+      {% elif registration_open %}
+      <section class="championship-registration-panel"><header><span>MINHA INSCRIÇÃO</span><h2>Confirmar participação</h2><p>Os dados abaixo serão usados para organizar as divisões e deverão ser conferidos na pesagem.</p></header><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label><span>Peso atual (kg)</span><input type="number" name="weight" min="15" max="250" step="0.1" required placeholder="Ex.: 78,5"></label><label><span>Divisão de idade</span><select name="age_division" required><option value="">Selecione</option><option>Kids</option><option>Juvenil</option><option>Adulto</option><option>Master</option></select></label><div><i data-lucide="medal"></i><span>Faixa registrada no sistema</span><strong>{{ belt_labels.get(user_belt_color, user_belt_color)|capitalize }} • {{ user_belt_degree }}º grau</strong></div><button type="submit"><i data-lucide="badge-check"></i>Confirmar minha inscrição</button></form></section>
+      {% else %}<section class="championship-registration-closed"><i data-lucide="calendar-x"></i><div><strong>Inscrição indisponível</strong><p>O prazo terminou, as vagas foram preenchidas ou o campeonato não está mais recebendo participantes.</p></div></section>{% endif %}
+    </main>
+  </div>
+</div>
+{% endblock %}

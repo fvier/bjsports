@@ -1,0 +1,42 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+{% block content %}
+<div class="erp-wrapper welcome-dashboard-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Bem-vindo</span></div>
+      <div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">{{ first_name[0] }}</span><span class="erp-user-name">{{ user_name }}</span></div></div>
+    </header>
+    <main class="erp-content welcome-dashboard-content">
+      {% if is_first_reg %}<div class="welcome-banner"><div class="welcome-icon">🎉</div><div><h4>Bem-vindo ao BJ Sports!</h4><p>Seu cadastro foi concluído. Este é o resumo inicial da sua conta.</p></div></div>{% endif %}
+
+      <section class="welcome-account-hero">
+        <div><span class="welcome-account-kicker">ÁREA DO ALUNO</span><h1>Bem-vindo, {{ first_name }}.</h1><p>Aqui está um resumo atualizado da sua conta na BJ Sports.</p></div>
+        <a href="{{ url_for('presencas') }}" class="welcome-checkin-cta"><i data-lucide="calendar-check"></i><span><strong>Fazer Check-in</strong><small>Registrar treino de hoje</small></span></a>
+      </section>
+
+      {% if overdue.count %}<div class="welcome-finance-alert"><i data-lucide="circle-alert"></i><div><strong>Você possui {{ overdue.count }} mensalidade(s) pendente(s).</strong><span>Regularize o financeiro para liberar novos check-ins.</span></div><a href="{{ url_for('mensalidades_aluno') }}">Consultar</a></div>{% endif %}
+
+      <div class="welcome-section-heading"><div><span>VISÃO GERAL</span><h2>Resumo da sua conta</h2></div><small>Dados atualizados automaticamente</small></div>
+      <section class="welcome-summary-grid welcome-summary-grid-three">
+        <article class="welcome-summary-card"><i data-lucide="wallet-cards"></i><span>Plano atual</span><strong>{{ plan_name }}</strong><small>{{ plan_price or 'Valor conforme cadastro' }}</small></article>
+        <article class="welcome-summary-card {% if overdue.count %}is-warning{% else %}is-success{% endif %}"><i data-lucide="badge-dollar-sign"></i><span>Situação financeira</span><strong>{% if overdue.count %}Pendente{% elif profile_user.monthly_fee_exempt %}Isento{% else %}Em dia{% endif %}</strong><small>{% if overdue.count and profile_user.monthly_fee_exempt %}Isenção atual; existem débitos anteriores{% elif profile_user.monthly_fee_exempt %}Sem novas cobranças mensais{% else %}Vencimento todo dia {{ profile_user.due_date }}{% endif %}</small></article>
+        <article class="welcome-summary-card"><i data-lucide="calendar-check-2"></i><span>Presenças</span><strong>{{ attendance_month }} neste mês</strong><small>{{ attendance_total }} registro(s) no total</small><small class="welcome-enrollment-time"><i data-lucide="clock-3"></i> Matriculado há {{ enrollment_duration }}</small></article>
+      </section>
+
+      <section class="welcome-details-grid">
+        <article class="welcome-panel">
+          <div class="welcome-panel-title"><span><i data-lucide="user-round"></i>Informações da conta</span><a href="{{ url_for('configuracoes') }}">Gerenciar</a></div>
+          <dl class="welcome-account-list"><div><dt>Nome</dt><dd>{{ profile_user.name }}</dd></div><div><dt>Usuário</dt><dd>@{{ profile_user.username }}</dd></div><div><dt>CPF</dt><dd>{{ masked_cpf }}</dd></div><div><dt>WhatsApp</dt><dd>({{ profile_user.ddd }}) {{ profile_user.phone }}</dd></div><div><dt>Perfil</dt><dd>{{ profile_user.role|capitalize }}</dd></div></dl>
+        </article>
+        <article class="welcome-panel">
+          <div class="welcome-panel-title"><span><i data-lucide="zap"></i>Acessos rápidos</span></div>
+          <div class="welcome-quick-links"><a href="{{ url_for('presencas') }}"><i data-lucide="calendar-check"></i><span><strong>Presenças e treinos</strong><small>Acompanhar frequência</small></span><i data-lucide="chevron-right"></i></a><a href="{{ url_for('mensalidades_aluno') }}"><i data-lucide="dollar-sign"></i><span><strong>Minhas mensalidades</strong><small>Pagamentos e vencimentos</small></span><i data-lucide="chevron-right"></i></a><a href="{{ url_for('treinoteca') }}"><i data-lucide="play-square"></i><span><strong>Treinoteca</strong><small>Conteúdo para seus treinos</small></span><i data-lucide="chevron-right"></i></a></div>
+          <div class="welcome-checkin-count"><span>Solicitações de check-in</span><strong>{{ checkin_requests }}</strong></div>
+        </article>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

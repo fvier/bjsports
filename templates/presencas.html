@@ -1,3 +1,4 @@
+{% set erp_page = true %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -5,89 +6,7 @@
   <div class="erp-wrapper">
     
     <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
-    <aside class="erp-sidebar" id="erpSidebar">
-      <div class="erp-brand-header">
-        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
-        <div class="erp-brand-info">
-          <h2 class="erp-brand-name">BJ Sports</h2>
-          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
-        </div>
-      </div>
-
-      <nav class="erp-nav">
-        <!-- SEÇÃO 1: AULAS -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">AULAS</span>
-          
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
-            <i data-lucide="home" class="erp-item-icon"></i>
-            <span class="erp-item-label">Início / Visão Geral</span>
-          </a>
-
-          <!-- ATIVO: PRESENÇAS & TREINOS -->
-          <a href="{{ url_for('presencas') }}" class="erp-nav-item active" style="border: 1px solid rgba(229, 9, 20, 0.4); background: rgba(229, 9, 20, 0.12);">
-            <i data-lucide="calendar" class="erp-item-icon icon-red"></i>
-            <span class="erp-item-label" style="color: var(--primary-red); font-weight: 700;">Presenças & Treinos</span>
-            <i data-lucide="chevron-right" class="erp-chevron"></i>
-          </a>
-
-          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
-            <i data-lucide="award" class="erp-item-icon"></i>
-            <span class="erp-item-label">Graduação & Faixas</span>
-          </a>
-
-          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
-            <i data-lucide="sparkles" class="erp-item-icon"></i>
-            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 2: FINANCEIRO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">FINANCEIRO</span>
-
-          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
-            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label">Minhas Mensalidades</span>
-          </a>
-
-          <a href="{{ url_for('loja') }}" class="erp-nav-item">
-            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
-            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">ADMINISTRAÇÃO</span>
-
-          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
-            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
-          </a>
-
-          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
-            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
-            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
-          </a>
-
-          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
-            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
-            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
-          </a>
-
-          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item">
-            <i data-lucide="settings" class="erp-item-icon"></i>
-            <span class="erp-item-label">Configurações & Perfil</span>
-          </a>
-
-          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
-            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
-            <span class="erp-item-label text-red">Sair da Conta</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
+{% include "_erp_sidebar.html" %}
 
     <!-- ÁREA PRINCIPAL -->
     <div class="erp-main-container">
@@ -103,7 +22,7 @@
           <div class="erp-user-badge">
             <span class="erp-avatar">🥋</span>
             <span class="erp-user-name">{{ user_name }}</span>
-            <span class="badge-pill bg-green" style="font-size: 0.7rem;">95% FREQUÊNCIA</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">{% if attendance_metric_available[30] %}{{ attendance_windows[30] }} PRESENÇAS • 30 DIAS{% else %}FREQUÊNCIA EM FORMAÇÃO{% endif %}</span>
           </div>
         </div>
       </header>
@@ -114,43 +33,94 @@
             <span class="live-dot"></span> REGISTRO DE PRESENÇA NO TATAME
           </div>
           <h1 class="erp-hero-heading">Frequência & Histórico de Treinos</h1>
-          <p class="erp-hero-sub">Acompanhe seus ralas e confirme sua presença na aula de hoje com Mestre Bolivar.</p>
+          <p class="erp-hero-sub">Acompanhe sua frequência e consulte apenas as datas dos registros realizados.</p>
         </div>
 
-        <div class="erp-cards-grid" style="margin-bottom: 28px;">
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Presenças no Mês</span>
-            <div class="erp-card-big-number" style="color: #4ade80;">18</div>
-            <span class="erp-card-foot">Frequência de 95% das aulas</span>
-          </div>
-
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Ralas de Jiu-Jitsu</span>
-            <div class="erp-card-big-number" style="color: var(--accent-gold);">12</div>
-            <span class="erp-card-foot">Treinos com e sem kimono</span>
-          </div>
-
-          <div class="erp-metric-card">
-            <span class="erp-card-label">Treinos de Boxe</span>
-            <div class="erp-card-big-number" style="color: var(--primary-red);">6</div>
-            <span class="erp-card-foot">Manopla e sparring tático</span>
+        {% if user_role in ['monitor', 'instrutor'] %}
+        <div class="glass-panel attendance-approval-panel" id="confirmacoes-pendentes">
+          <div class="attendance-approval-heading"><div><span>VALIDAÇÃO DE PRESENÇA</span><h3>Check-ins pendentes</h3></div><strong>{{ pending_confirmations|length }}</strong></div>
+          <div class="attendance-approval-list">
+            {% for group in pending_confirmation_groups %}
+            <section class="attendance-approval-group">
+              <header><span><i data-lucide="calendar-days"></i>{{ group.date.strftime('%d/%m/%Y') }}</span><strong><i data-lucide="activity"></i>{{ group.modality }}</strong><small>{{ group['items']|length }} pendente(s)</small></header>
+              {% for attendance in group['items'] %}
+              <div class="attendance-approval-item">
+                <div><strong>{{ attendance.user.name }}</strong><small>@{{ attendance.user.username }}</small></div>
+                <div class="attendance-approval-actions">
+                  <form action="{{ url_for('presencas') }}" method="POST"><input type="hidden" name="action" value="confirm_attendance"><input type="hidden" name="attendance_id" value="{{ attendance.id }}"><button type="submit" class="btn btn-secondary btn-sm"><i data-lucide="user-check"></i> Confirmar</button></form>
+                  <form action="{{ url_for('presencas') }}" method="POST" data-confirm-rejection data-student-name="{{ attendance.user.name }}"><input type="hidden" name="action" value="reject_attendance"><input type="hidden" name="attendance_id" value="{{ attendance.id }}"><button type="submit" class="btn btn-sm btn-deny-attendance"><i data-lucide="user-x"></i> Negar</button></form>
+                </div>
+              </div>
+              {% endfor %}
+            </section>
+            {% else %}
+            <div class="attendance-approval-empty"><i data-lucide="circle-check-big"></i><span>Nenhum check-in aguardando confirmação.</span></div>
+            {% endfor %}
           </div>
         </div>
+        {% endif %}
+
+        {% if attendance_metric_available[30] or attendance_metric_available[90] or attendance_metric_available[180] %}
+        <section class="attendance-summary-grid" aria-label="Resumo de presenças">
+          {% if attendance_metric_available[30] %}
+          <article class="attendance-summary-card is-30 {% if attendance_percentages[30] is none %}is-neutral{% elif attendance_percentages[30] >= 75 %}is-good{% else %}is-below-target{% endif %}">
+            <span class="attendance-summary-icon"><i data-lucide="calendar-days"></i></span>
+            <div><span>Últimos 30 dias</span><small>{% if attendance_expected[30] %}{{ attendance_windows[30] }} de {{ attendance_expected[30] }} treinos previstos{% else %}{{ attendance_windows[30] }} presenças registradas{% endif %}</small></div>
+            <strong>{{ attendance_percentages[30] ~ '%' if attendance_percentages[30] is not none else '—' }}</strong>
+          </article>
+          {% endif %}
+          {% if attendance_metric_available[90] %}
+          <article class="attendance-summary-card is-90 {% if attendance_percentages[90] is none %}is-neutral{% elif attendance_percentages[90] >= 75 %}is-good{% else %}is-below-target{% endif %}">
+            <span class="attendance-summary-icon"><i data-lucide="calendar-range"></i></span>
+            <div><span>Últimos 90 dias</span><small>{% if attendance_expected[90] %}{{ attendance_windows[90] }} de {{ attendance_expected[90] }} treinos previstos{% else %}{{ attendance_windows[90] }} presenças registradas{% endif %}</small></div>
+            <strong>{{ attendance_percentages[90] ~ '%' if attendance_percentages[90] is not none else '—' }}</strong>
+          </article>
+          {% endif %}
+          {% if attendance_metric_available[180] %}
+          <article class="attendance-summary-card is-180 {% if attendance_percentages[180] is none %}is-neutral{% elif attendance_percentages[180] >= 75 %}is-good{% else %}is-below-target{% endif %}">
+            <span class="attendance-summary-icon"><i data-lucide="history"></i></span>
+            <div><span>Últimos 180 dias</span><small>{% if attendance_expected[180] %}{{ attendance_windows[180] }} de {{ attendance_expected[180] }} treinos previstos{% else %}{{ attendance_windows[180] }} presenças registradas{% endif %}</small></div>
+            <strong>{{ attendance_percentages[180] ~ '%' if attendance_percentages[180] is not none else '—' }}</strong>
+          </article>
+          {% endif %}
+        </section>
+        {% else %}
+        <div class="attendance-metrics-empty">
+          <span><i data-lucide="chart-no-axes-column-increasing"></i></span>
+          <div><strong>Frequência em formação</strong><small>As métricas de 30, 90 e 180 dias aparecerão conforme seu histórico de presenças confirmadas for completando cada período.</small></div>
+        </div>
+        {% endif %}
 
         <!-- Confirmar Presença de Hoje -->
-        <div class="glass-panel" style="margin-bottom: 28px; background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.3);">
+        <div class="glass-panel checkin-status-panel {% if has_overdue %}is-blocked{% elif today_attendance and today_attendance.status == 'pendente' %}is-pending{% elif today_attendance and today_attendance.status == 'confirmado' %}is-confirmed{% elif today_attendance and today_attendance.status == 'negado' %}is-rejected{% else %}is-available{% endif %}">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
               <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: #ffffff;">
-                <i data-lucide="check-circle" class="icon-green"></i> Confirmar Presença no Rala de Hoje
+                <i data-lucide="{% if has_overdue %}lock-keyhole{% elif today_attendance and today_attendance.status == 'pendente' %}clock-3{% elif today_attendance and today_attendance.status == 'negado' %}circle-x{% else %}check-circle{% endif %}" class="{% if has_overdue or (today_attendance and today_attendance.status == 'negado') %}icon-red{% elif today_attendance and today_attendance.status == 'pendente' %}icon-gold{% else %}icon-green{% endif %}"></i>
+                {% if has_overdue %}Check-in bloqueado{% elif today_attendance and today_attendance.status == 'pendente' %}Aguardando confirmação{% elif today_attendance and today_attendance.status == 'confirmado' %}Presença confirmada{% elif today_attendance and today_attendance.status == 'negado' %}Check-in não confirmado{% else %}Fazer check-in de hoje{% endif %}
               </h3>
-              <p style="color: var(--text-muted); font-size: 0.9rem;">Treino: 🥋 Jiu-Jitsu Tarde (17:00h) — Mestre Bolivar (Sede)</p>
+              {% if has_overdue %}
+              <p class="checkin-blocked-copy">Existem mensalidades pendentes. Regularize o financeiro para registrar novas aulas.</p>
+              {% elif today_attendance and today_attendance.status == 'pendente' %}
+              <p class="checkin-pending-copy">Sua solicitação foi enviada e precisa ser confirmada pelo instrutor.</p>
+              {% elif today_attendance and today_attendance.status == 'confirmado' %}
+              <p style="color: var(--text-muted); font-size: 0.9rem;">O instrutor já confirmou sua presença de hoje.</p>
+              {% elif today_attendance and today_attendance.status == 'negado' %}
+              <p class="checkin-rejected-copy">O instrutor não confirmou este registro. Ele não será contabilizado na sua frequência.</p>
+              {% else %}
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Check-in disponível para a aula de hoje.</p>
+              {% endif %}
             </div>
+            {% if has_overdue %}
+            <a href="{{ url_for('mensalidades_aluno') }}" class="btn btn-secondary btn-lg"><i data-lucide="wallet-cards"></i> Ver mensalidades</a>
+            {% elif not today_attendance %}
             <form action="{{ url_for('presencas') }}" method="POST">
+              <input type="hidden" name="action" value="request_checkin">
               <button type="submit" class="btn btn-primary btn-lg btn-glow">
-                <i data-lucide="check"></i> Confirmar Check-in Hoje
+                <i data-lucide="check"></i> Enviar Check-in
               </button>
             </form>
+            {% endif %}
           </div>
         </div>
 
@@ -160,30 +130,18 @@
             <i data-lucide="list" class="icon-gold"></i> Histórico Recente de Presenças
           </h3>
 
-          <div class="classes-list">
-            <div class="class-item-card">
+          <div class="classes-list attendance-history-list">
+            {% for attendance in recent_attendances %}
+            <div class="class-item-card attendance-history-item">
               <div>
-                <strong style="color: #ffffff;">16/08/2026 — 17:00h</strong><br>
-                <small style="color: var(--text-muted);">Jiu-Jitsu Tarde • Passagem de Guarda Emborcando com Mestre Bolivar</small>
+                <strong>{{ attendance.training_date.strftime('%d/%m/%Y') }}</strong>
+                <small>Presença registrada</small>
               </div>
               <span class="badge-pill bg-green">CONFIRMADO</span>
             </div>
-
-            <div class="class-item-card">
-              <div>
-                <strong style="color: #ffffff;">14/08/2026 — 19:00h</strong><br>
-                <small style="color: var(--text-muted);">Boxe Tradicional • Combinações Jab-Direto e Sparring Tático</small>
-              </div>
-              <span class="badge-pill bg-green">CONFIRMADO</span>
-            </div>
-
-            <div class="class-item-card">
-              <div>
-                <strong style="color: #ffffff;">12/08/2026 — 17:00h</strong><br>
-                <small style="color: var(--text-muted);">Jiu-Jitsu Tarde • Armlock da Guarda Fechada e Raspagem Tesoura</small>
-              </div>
-              <span class="badge-pill bg-green">CONFIRMADO</span>
-            </div>
+            {% else %}
+            <div class="attendance-empty-state"><i data-lucide="calendar-x"></i><strong>Nenhuma presença registrada</strong><small>Os próximos check-ins aparecerão aqui somente com a data.</small></div>
+            {% endfor %}
           </div>
         </div>
 

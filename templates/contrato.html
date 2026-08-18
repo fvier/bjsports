@@ -1,0 +1,108 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Minha Conta • Contrato</span>
+      </div>
+      <div class="erp-topbar-right">
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content account-contract-content">
+      <div class="account-contract-heading">
+        <div>
+          <span class="account-contract-kicker">MINHA CONTA</span>
+          <h1>Contrato</h1>
+          <p>Consulte o documento completo, acompanhe seus aceites e imprima uma cópia.</p>
+        </div>
+        <button type="button" class="btn account-contract-print" data-contract-print><i data-lucide="printer"></i> Imprimir contrato</button>
+      </div>
+
+      <section class="account-contract-status {{ 'is-pending' if contract_pending else 'is-current' }}" aria-live="polite">
+        <i data-lucide="{{ 'file-warning' if contract_pending else 'badge-check' }}"></i>
+        <div>
+          <strong>{{ 'Atualização aguardando seu aceite' if contract_pending else 'Contrato atualizado' }}</strong>
+          <p>{% if contract_pending %}Há uma nova versão disponível. Leia o texto abaixo e confirme no final da página.{% else %}Seu aceite corresponde à versão atual do contrato, do aviso de privacidade e da autorização registrada.{% endif %}</p>
+        </div>
+      </section>
+
+      <section class="contract-meta-grid" aria-label="Resumo do contrato">
+        <article><span>Contratante</span><strong>{{ contract_user.name }}</strong></article>
+        <article><span>Plano contratado</span><strong>{{ contract_user.plan }}</strong></article>
+        <article><span>Vencimento</span><strong>Dia {{ contract_user.due_date }} de cada mês</strong></article>
+        <article><span>Versão atual</span><strong>{{ current_terms_version }}</strong></article>
+        <article><span>Último aceite</span><strong>{{ contract_user.membership_terms_accepted_at.strftime('%d/%m/%Y às %H:%M') if contract_user.membership_terms_accepted_at else 'Ainda não registrado' }}</strong></article>
+        <article><span>Autorização de imagem</span><strong>{{ image_consent_label }}</strong></article>
+      </section>
+
+      <article class="account-contract-document" id="contractDocument">
+        <header class="account-contract-document-head">
+          <div class="account-contract-brand">
+            <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports">
+            <div><strong>BJ Sports Centro de Treinamento</strong><span>Termo de adesão e condições de matrícula</span></div>
+          </div>
+          <div class="account-contract-version"><span>VERSÃO</span><strong>{{ current_terms_version }}</strong></div>
+        </header>
+        <div class="account-contract-party">
+          <span>Aluno ou responsável</span><strong>{{ contract_user.name }}</strong>
+          <small>CPF {{ contract_user.cpf }} • Plano: {{ contract_user.plan }} • Vencimento: dia {{ contract_user.due_date }}</small>
+        </div>
+        <div class="portal-contract-scroll" role="region" aria-label="Texto completo do contrato">
+          {% include "_membership_contract_content.html" %}
+        </div>
+        <footer class="account-contract-document-foot">
+          <span>Documento vigente em {{ now.strftime('%d/%m/%Y') }}</span>
+          {% if contract_user.membership_terms_accepted_at and not contract_pending %}
+          <strong>Aceite eletrônico registrado em {{ contract_user.membership_terms_accepted_at.strftime('%d/%m/%Y às %H:%M') }}</strong>
+          {% else %}<strong>Aceite eletrônico pendente</strong>{% endif %}
+        </footer>
+      </article>
+
+      {% if contract_pending %}
+      <section class="contract-accept-panel" id="aceitar-atualizacao">
+        <div><span>ACEITE NECESSÁRIO</span><h2>Confirme a versão atualizada</h2><p>O sistema guardará a versão, a data, o horário e o vínculo com sua conta.</p></div>
+        <form method="POST" action="{{ url_for('contrato') }}">
+          <input type="hidden" name="action" value="accept_contract_update">
+          {% if image_authorization_required %}
+          <fieldset class="contract-image-authorization" data-contract-image-choice>
+            <legend>Autorização de imagem necessária</legend>
+            <p>Para aceitar esta versão, escolha quem concede a autorização descrita nos itens 12 a 14.</p>
+            <div class="contract-image-options">
+              <label><input type="radio" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><strong>Aluno adulto</strong><small>Tenho 18 anos ou mais e autorizo.</small></span></label>
+              <label><input type="radio" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><strong>Responsável pelo menor</strong><small>Autorizo como responsável legal.</small></span></label>
+            </div>
+            <div class="contract-guardian-fields hidden" data-contract-minor-fields>
+              <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" maxlength="120" autocomplete="name"></label>
+              <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
+              <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
+            </div>
+          </fieldset>
+          {% endif %}
+          <label class="contract-accept-check"><input type="checkbox" name="acceptContractUpdate" required><span><strong>Li e aceito o contrato, o aviso de privacidade e a autorização indicada.</strong><small>Versões {{ current_terms_version }} e {{ current_privacy_version }}.</small></span></label>
+          <button class="btn btn-primary" type="submit"><i data-lucide="file-check-2"></i> Aceitar atualização</button>
+        </form>
+      </section>
+      {% endif %}
+
+      <section class="contract-history">
+        <div class="contract-history-head"><div><span>HISTÓRICO</span><h2>Registros de aceite</h2></div><i data-lucide="history"></i></div>
+        {% if acceptance_history %}
+        <div class="contract-history-list">
+          {% for item in acceptance_history %}
+          <article><i data-lucide="circle-check-big"></i><div><strong>Contrato {{ item.membership_terms_version }}</strong><span>Privacidade {{ item.privacy_notice_version }} • {{ 'Cadastro inicial' if item.source == 'registration' else 'Atualização na conta' }}</span></div><time>{{ item.accepted_at.strftime('%d/%m/%Y às %H:%M') }}</time></article>
+          {% endfor %}
+        </div>
+        {% else %}<p class="contract-history-empty">Nenhum aceite anterior foi encontrado. A versão atual aparecerá aqui após a confirmação.</p>{% endif %}
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper championship-scoreboard-page">
+  {% include "_erp_sidebar.html" %}
+  <div class="erp-main-container">
+    <header class="erp-topbar"><div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Campeonatos • Placar e Timer</span></div><div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div></div></header>
+
+    <main class="erp-content championship-scoreboard-content">
+      <section class="scoreboard-heading"><div><span><i data-lucide="timer"></i> ÁREA DE COMPETIÇÃO</span><h1>Placar e Timer</h1><p>Acompanhe pontos, vantagens, punições e o tempo oficial de cada confronto.</p></div>{% if can_control %}<button type="button" data-scoreboard-create-open {% if not championships %}disabled title="Crie um campeonato primeiro"{% endif %}><i data-lucide="plus"></i>Nova luta</button>{% endif %}</section>
+
+      <nav class="scoreboard-view-tabs" role="tablist" aria-label="Visualização da luta">
+        <button type="button" role="tab" data-scoreboard-tab="placar" aria-controls="scoreboardPanelPlacar" aria-selected="{{ 'true' if scoreboard_view == 'placar' else 'false' }}" class="{{ 'active' if scoreboard_view == 'placar' else '' }}"><i data-lucide="tally-5"></i><span><strong>Placar</strong><small>Pontos, vantagens e punições</small></span></button>
+        <button type="button" role="tab" data-scoreboard-tab="timer" aria-controls="scoreboardPanelTimer" aria-selected="{{ 'true' if scoreboard_view == 'timer' else 'false' }}" class="{{ 'active' if scoreboard_view == 'timer' else '' }}"><i data-lucide="timer"></i><span><strong>Cronômetro</strong><small>Tempo oficial da luta</small></span></button>
+      </nav>
+
+      {% if selected_match %}
+      <nav class="scoreboard-match-tabs" aria-label="Áreas e confrontos">
+        <header><span>ÁREAS E CONFRONTOS</span><small>{{ matches|length }} luta{% if matches|length != 1 %}s{% endif %} preparada{% if matches|length != 1 %}s{% endif %}</small></header>
+        <div>{% for match in matches %}<a class="{% if match.id == selected_match.id %}active{% endif %}" href="{{ url_for('campeonato_placar', match=match.id, view=scoreboard_view) }}" {% if match.id == selected_match.id %}aria-current="page"{% endif %}><span><strong>{{ match.mat_area }}</strong><em class="scoreboard-match-state"><i class="is-{{ match.status }}"></i>{{ match.status|replace('_', ' ')|capitalize }}</em></span><b><span class="is-red-dot"></span>{{ match.red_competitor }} <i>×</i> {{ match.blue_competitor }}<span class="is-blue-dot"></span></b><small>{{ match.category }}{% if match.id == selected_match.id %}<u>Em exibição</u>{% endif %}</small></a>{% endfor %}</div>
+      </nav>
+
+      <section class="scoreboard-stage {% if selected_match.status == 'finalizada' %}is-finished{% endif %}">
+        <header><div><span>{{ selected_match.championship.name }}</span><strong>{{ selected_match.category }}</strong></div><div><span>{{ selected_match.mat_area }}</span><strong>{{ selected_match.status|replace('_', ' ')|upper }}</strong></div></header>
+        <div class="scoreboard-stage-tools">
+          <span><i data-lucide="radio"></i> CONTROLE DA LUTA</span>
+          <div>
+            {% if can_control and recent_score_events %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar"><button name="action" value="undo_score_event" class="is-undo"><i data-lucide="undo-2"></i>Desfazer última ação</button></form>{% endif %}
+            <span class="scoreboard-sound-ready"><i data-lucide="volume-2"></i>Alertas: início • 30s • fim</span><button type="button" data-scoreboard-stage-fullscreen><i data-lucide="maximize"></i>Tela cheia</button>
+          </div>
+        </div>
+        <section class="scoreboard-fight-console" aria-label="Tempo e início da luta">
+          <div class="scoreboard-fight-time"><span>TEMPO DA LUTA</span><time data-score-clock data-seconds="{{ remaining_seconds }}" data-running="{{ 'true' if selected_match.timer_running else 'false' }}">{{ '%02d:%02d'|format(remaining_seconds // 60, remaining_seconds % 60) }}</time><small>{% if selected_match.timer_running %}Em andamento{% else %}{{ selected_match.status|replace('_', ' ')|capitalize }}{% endif %}</small></div>
+          {% if can_control and selected_match.status != 'finalizada' %}
+          <form method="post" class="scoreboard-console-presets"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar"><span>Tempo rápido</span><div>{% for minutes in [3, 4, 5, 6] %}<button name="action" value="set_duration_{{ minutes }}" class="{% if selected_match.duration_seconds == minutes * 60 %}active{% endif %}">{{ minutes }} min</button>{% endfor %}</div></form>
+          <form method="post" class="scoreboard-console-custom"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar"><input type="hidden" name="action" value="set_custom_duration"><span>Personalizado</span><div><label><input type="number" name="custom_minutes" min="0" max="99" value="{{ selected_match.duration_seconds // 60 }}" aria-label="Minutos" required><small>min</small></label><b>:</b><label><input type="number" name="custom_seconds" min="0" max="59" value="{{ '%02d'|format(selected_match.duration_seconds % 60) }}" aria-label="Segundos" required><small>seg</small></label><button type="submit" aria-label="Aplicar tempo"><i data-lucide="check"></i></button></div></form>
+          <form method="post" class="scoreboard-console-start"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar">{% if selected_match.timer_running %}<button name="action" value="pause_timer"><i data-lucide="pause"></i>Pausar</button>{% else %}<button class="is-start" name="action" value="start_timer"><i data-lucide="play"></i>Iniciar luta</button>{% endif %}</form>
+          {% endif %}
+        </section>
+        <div id="scoreboardPanelPlacar" class="scoreboard-view-panel {{ 'active' if scoreboard_view == 'placar' else '' }}" role="tabpanel" data-scoreboard-panel="placar" {% if scoreboard_view != 'placar' %}hidden{% endif %}>
+        <form method="post" class="scoreboard-control-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar">
+          <div class="scoreboard-competitors">
+            <article class="scoreboard-corner is-red {% if selected_match.winner_side == 'red' %}is-winner{% endif %}">
+              <span class="scoreboard-corner-label"><i></i> CORNER VERMELHO</span><h2>{{ selected_match.red_competitor }}</h2><strong class="scoreboard-points">{{ selected_match.red_score }}</strong>
+              <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.red_advantages }}</b></span><span>Punições <b>{{ selected_match.red_penalties }}</b></span></div>
+              {% if can_control and selected_match.status != 'finalizada' %}
+              <div class="scoreboard-move-actions" aria-label="Pontuar atleta vermelho">
+                <button name="action" value="red_mount_back"><span>Montada ou costas</span><b>+4</b></button>
+                <button name="action" value="red_guard_pass"><span>Passagem de guarda</span><b>+3</b></button>
+                <button name="action" value="red_two_points"><span>Queda, raspagem ou joelho na barriga</span><b>+2</b></button>
+              </div>
+              <div class="scoreboard-special-actions"><button name="action" value="red_advantage"><i data-lucide="chevrons-up"></i><span>Vantagem</span><b>+V</b></button><button class="is-penalty" name="action" value="red_penalty"><i data-lucide="triangle-alert"></i><span>Punição<small>{% set red_next = selected_match.red_penalties + 1 %}{% if red_next == 1 %}1ª: registrar{% elif red_next == 2 %}2ª: vantagem ao azul{% elif red_next >= selected_match.penalty_limit %}{{ red_next }}ª: desclassificação{% else %}{{ red_next }}ª: +2 ao azul{% endif %}</small></span><b>+P</b></button><button class="is-disqualify" name="action" value="red_disqualify" data-disqualify><i data-lucide="shield-x"></i><span>Desclassificar<small data-disqualify-copy>Exige confirmação</small></span></button></div>
+              {% endif %}{% if selected_match.winner_side == 'red' %}<em><i data-lucide="trophy"></i>Vencedor</em>{% endif %}
+            </article>
+            <div class="scoreboard-versus">×</div>
+            <article class="scoreboard-corner is-blue {% if selected_match.winner_side == 'blue' %}is-winner{% endif %}">
+              <span class="scoreboard-corner-label"><i></i> CORNER AZUL</span><h2>{{ selected_match.blue_competitor }}</h2><strong class="scoreboard-points">{{ selected_match.blue_score }}</strong>
+              <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.blue_advantages }}</b></span><span>Punições <b>{{ selected_match.blue_penalties }}</b></span></div>
+              {% if can_control and selected_match.status != 'finalizada' %}
+              <div class="scoreboard-move-actions" aria-label="Pontuar atleta azul">
+                <button name="action" value="blue_mount_back"><span>Montada ou costas</span><b>+4</b></button>
+                <button name="action" value="blue_guard_pass"><span>Passagem de guarda</span><b>+3</b></button>
+                <button name="action" value="blue_two_points"><span>Queda, raspagem ou joelho na barriga</span><b>+2</b></button>
+              </div>
+              <div class="scoreboard-special-actions"><button name="action" value="blue_advantage"><i data-lucide="chevrons-up"></i><span>Vantagem</span><b>+V</b></button><button class="is-penalty" name="action" value="blue_penalty"><i data-lucide="triangle-alert"></i><span>Punição<small>{% set blue_next = selected_match.blue_penalties + 1 %}{% if blue_next == 1 %}1ª: registrar{% elif blue_next == 2 %}2ª: vantagem ao vermelho{% elif blue_next >= selected_match.penalty_limit %}{{ blue_next }}ª: desclassificação{% else %}{{ blue_next }}ª: +2 ao vermelho{% endif %}</small></span><b>+P</b></button><button class="is-disqualify" name="action" value="blue_disqualify" data-disqualify><i data-lucide="shield-x"></i><span>Desclassificar<small data-disqualify-copy>Exige confirmação</small></span></button></div>
+              {% endif %}{% if selected_match.winner_side == 'blue' %}<em><i data-lucide="trophy"></i>Vencedor</em>{% endif %}
+            </article>
+          </div>
+          <section class="scoreboard-event-stream" aria-label="Últimos lançamentos">
+            <header><span>ÚLTIMAS AÇÕES</span></header>
+            {% if recent_score_events %}<div>{% for event in recent_score_events %}<article class="is-{{ event.side }}"><i></i><span><strong>{{ event.label }}</strong><small>{{ event.consequence }} • {{ event.created_at.strftime('%H:%M:%S') }}</small></span></article>{% endfor %}</div>{% else %}<p>As pontuações aparecerão aqui para facilitar conferência e correção.</p>{% endif %}
+          </section>
+          {% if selected_match.winner_side == 'draw' %}<div class="scoreboard-draw"><i data-lucide="equal"></i>Resultado empatado</div>{% endif %}
+          {% if can_control %}<footer class="scoreboard-main-actions">{% if selected_match.status == 'finalizada' %}<button name="action" value="reopen_match"><i data-lucide="rotate-ccw"></i>Reabrir luta</button>{% else %}<button class="is-finish" name="action" value="finish_match"><i data-lucide="flag"></i>Encerrar luta e calcular resultado</button>{% endif %}</footer>{% endif %}
+        </form>
+        </div>
+
+        <div id="scoreboardPanelTimer" class="scoreboard-view-panel scoreboard-timer-panel {{ 'active' if scoreboard_view == 'timer' else '' }}" role="tabpanel" data-scoreboard-panel="timer" {% if scoreboard_view != 'timer' %}hidden{% endif %}>
+          <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 1 bipe ao iniciar · 2 aos 30s · 1 ao finalizar · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
+          <div class="scoreboard-clock">
+            <span class="scoreboard-clock-label">CRONÔMETRO OFICIAL</span>
+            <time data-score-clock data-seconds="{{ remaining_seconds }}" data-running="{{ 'true' if selected_match.timer_running else 'false' }}">{{ '%02d:%02d'|format(remaining_seconds // 60, remaining_seconds % 60) }}</time>
+            {% if selected_match.status == 'finalizada' %}<span>LUTA ENCERRADA</span>{% elif selected_match.timer_running %}<span class="is-live"><i></i>EM ANDAMENTO</span>{% else %}<span>CRONÔMETRO PAUSADO</span>{% endif %}
+          </div>
+          {% if can_control and selected_match.status != 'finalizada' %}
+          <form method="post" class="scoreboard-time-presets" aria-label="Tempos predefinidos do cronômetro">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="timer">
+            <small>Tempo pré-cadastrado</small>
+            <div>{% for minutes in [2, 3, 4, 5, 6, 10] %}<button type="submit" name="action" value="set_duration_{{ minutes }}" class="{% if selected_match.duration_seconds == minutes * 60 %}active{% endif %}">{{ minutes }} min</button>{% endfor %}</div>
+          </form>
+          <form method="post" class="scoreboard-custom-time" aria-label="Informar tempo personalizado">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="timer"><input type="hidden" name="action" value="set_custom_duration">
+            <span>Tempo personalizado</span>
+            <label><input type="number" name="custom_minutes" min="0" max="99" value="{{ selected_match.duration_seconds // 60 }}" required aria-label="Minutos"><small>min</small></label><b>:</b><label><input type="number" name="custom_seconds" min="0" max="59" value="{{ '%02d'|format(selected_match.duration_seconds % 60) }}" required aria-label="Segundos"><small>seg</small></label>
+            <button type="submit"><i data-lucide="check"></i>Aplicar tempo</button>
+          </form>
+          <form method="post" class="scoreboard-main-actions scoreboard-timer-actions">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="timer">
+            {% if selected_match.timer_running %}<button name="action" value="pause_timer"><i data-lucide="pause"></i>Pausar cronômetro</button>{% else %}<button class="is-start" name="action" value="start_timer"><i data-lucide="play"></i>Iniciar cronômetro</button>{% endif %}
+            <button name="action" value="reset_timer"><i data-lucide="timer-reset"></i>Reiniciar cronômetro</button>
+          </form>
+          {% endif %}
+          <div class="scoreboard-timer-match"><span>{{ selected_match.red_competitor }}</span><b>×</b><span>{{ selected_match.blue_competitor }}</span></div>
+        </div>
+      </section>
+      {% else %}
+      <div id="scoreboardPanelPlacar" class="scoreboard-view-panel {{ 'active' if scoreboard_view == 'placar' else '' }}" role="tabpanel" data-scoreboard-panel="placar" {% if scoreboard_view != 'placar' %}hidden{% endif %}><section class="scoreboard-empty"><i data-lucide="tally-5"></i><strong>Nenhum placar preparado</strong><p>{% if can_control and championships %}Use “Nova luta” para configurar o primeiro confronto e liberar o placar.{% elif can_control %}Crie primeiro um campeonato interno e depois prepare o confronto.{% else %}O placar aparecerá quando a organização preparar um confronto.{% endif %}</p></section></div>
+      <div id="scoreboardPanelTimer" class="scoreboard-view-panel scoreboard-timer-panel scoreboard-standalone-timer {{ 'active' if scoreboard_view == 'timer' else '' }}" role="tabpanel" data-scoreboard-panel="timer" {% if scoreboard_view != 'timer' %}hidden{% endif %}>
+        <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 1 bipe ao iniciar · 2 aos 30s · 1 ao finalizar · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
+        <div class="scoreboard-clock">
+          <span class="scoreboard-clock-label">CRONÔMETRO LIVRE</span>
+          <time data-standalone-clock data-seconds="300">05:00</time>
+          <span data-standalone-status>PRONTO PARA INICIAR</span>
+        </div>
+        <div class="scoreboard-time-presets" aria-label="Tempos predefinidos do cronômetro">
+          <small>Escolha o tempo</small>
+          <div>{% for minutes in [2, 3, 4, 5, 6, 10] %}<button type="button" data-standalone-duration="{{ minutes }}" class="{% if minutes == 5 %}active{% endif %}">{{ minutes }} min</button>{% endfor %}</div>
+        </div>
+        <form class="scoreboard-custom-time" data-standalone-custom aria-label="Informar tempo personalizado">
+          <span>Tempo personalizado</span>
+          <label><input type="number" name="custom_minutes" min="0" max="99" value="5" required aria-label="Minutos"><small>min</small></label><b>:</b><label><input type="number" name="custom_seconds" min="0" max="59" value="00" required aria-label="Segundos"><small>seg</small></label>
+          <button type="submit"><i data-lucide="check"></i>Aplicar tempo</button>
+        </form>
+        <div class="scoreboard-main-actions scoreboard-timer-actions">
+          <button type="button" class="is-start" data-standalone-action="toggle"><i data-lucide="play"></i><span>Iniciar cronômetro</span></button>
+          <button type="button" data-standalone-action="reset"><i data-lucide="timer-reset"></i>Reiniciar cronômetro</button>
+        </div>
+        <p class="scoreboard-standalone-note"><i data-lucide="info"></i>Modo livre: funciona imediatamente no navegador, sem precisar cadastrar uma luta.</p>
+      </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+{% if can_control %}<div class="class-special-modal hidden" data-scoreboard-create-modal role="dialog" aria-modal="true" aria-labelledby="scoreboardCreateTitle"><div class="class-special-dialog scoreboard-create-dialog"><header><div><span>NOVO CONFRONTO</span><h2 id="scoreboardCreateTitle">Preparar placar</h2><p>Vincule a luta a um campeonato e informe os dois competidores.</p></div><button type="button" data-scoreboard-create-close aria-label="Fechar"><i data-lucide="x"></i></button></header><form method="post" class="championship-create-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create_match"><label class="is-wide"><span>Campeonato</span><select name="championship_id" required><option value="">Selecione</option>{% for championship in championships %}<option value="{{ championship.id }}">{{ championship.name }} — {{ championship.event_date.strftime('%d/%m/%Y') }}</option>{% endfor %}</select></label><label><span>Competidor vermelho</span><input type="text" name="red_competitor" maxlength="120" required></label><label><span>Competidor azul</span><input type="text" name="blue_competitor" maxlength="120" required></label><label class="is-wide"><span>Categoria</span><input type="text" name="category" maxlength="120" required placeholder="Ex.: Adulto • Faixa Azul • Leve"></label><label><span>Área</span><input type="text" name="mat_area" maxlength="40" value="Área 1" required></label><label><span>Regra de punições</span><select name="penalty_limit" required><option value="4">Padrão — desclassifica na 4ª</option><option value="6">Sub-15 — desclassifica na 6ª</option></select></label><fieldset class="scoreboard-duration-field"><legend>Duração</legend><div>{% for minutes in [2, 3, 4, 5, 6, 10] %}<label><input type="radio" name="duration_minutes" value="{{ minutes }}" {% if minutes == 5 %}checked{% endif %}><span>{{ minutes }} min</span></label>{% endfor %}</div></fieldset><footer class="is-wide"><button type="button" data-scoreboard-create-close>Cancelar</button><button type="submit"><i data-lucide="timer"></i>Preparar placar</button></footer></form></div></div>{% endif %}
+{% endblock %}

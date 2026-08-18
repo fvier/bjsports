@@ -1,0 +1,82 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper graduation-admin-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Administração de Graduação</span>
+      </div>
+      <div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div></div>
+    </header>
+
+    <main class="erp-content graduation-admin-content">
+      <section class="graduation-admin-heading">
+        <div><span><i data-lucide="medal"></i> REGISTRO ADMINISTRATIVO</span><h1>Administração de Graduação</h1><p>Atualize faixa e grau com data, responsável e histórico permanente de alterações.</p></div>
+        <span class="graduation-admin-rule"><i data-lucide="shield-check"></i>Somente instrutores</span>
+      </section>
+
+      <section class="graduation-admin-kpis">
+        <article><span>Praticantes cadastrados</span><strong>{{ total_users }}</strong><small>Alunos, monitores e instrutores</small></article>
+        {% for color in ['branca', 'azul', 'roxa', 'marrom', 'preta'] %}
+        <article class="is-{{ color }}"><span>Faixa {{ belt_labels[color] }}</span><strong>{{ belt_counts[color] }}</strong><small>{{ ((belt_counts[color] / total_users * 100) if total_users else 0)|round|int }}% dos cadastrados</small></article>
+        {% endfor %}
+      </section>
+
+      <section class="graduation-admin-panel">
+        <header class="graduation-admin-panel-heading"><div><span>CADASTROS</span><h2>Faixas e graus atuais</h2></div><small>{{ users|length }} resultado(s)</small></header>
+        <form method="get" class="graduation-admin-filters">
+          <label><span>Buscar</span><input type="search" name="search" value="{{ search_query }}" placeholder="Nome, usuário ou CPF"></label>
+          <label><span>Faixa</span><select name="belt"><option value="todas">Todas</option>{% for color, label in belt_labels.items() %}<option value="{{ color }}" {% if belt_filter == color %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+          <label><span>Perfil</span><select name="role"><option value="todos">Todos</option><option value="aluno" {% if role_filter == 'aluno' %}selected{% endif %}>Aluno</option><option value="monitor" {% if role_filter == 'monitor' %}selected{% endif %}>Monitor</option><option value="instrutor" {% if role_filter == 'instrutor' %}selected{% endif %}>Instrutor</option></select></label>
+          <button type="submit"><i data-lucide="search"></i>Filtrar</button>
+        </form>
+
+        <div class="graduation-admin-table-wrap">
+          <table class="graduation-admin-table">
+            <thead><tr><th>Praticante</th><th>Faixa atual</th><th>Grau</th><th>Última alteração</th><th>Ação</th></tr></thead>
+            <tbody>
+              {% for member in users %}
+              {% set last_record = member.graduation_records|sort(attribute='graduation_date', reverse=true)|first %}
+              <tr>
+                <td><div class="graduation-member"><span>{{ member.name[:1]|upper }}</span><div><strong>{{ member.name }}</strong><small>@{{ member.username }} • {{ member.role|capitalize }}</small></div></div></td>
+                <td><div class="graduation-belt is-{{ member.belt_color }}"><i></i><strong>{{ belt_labels.get(member.belt_color, member.belt_color|capitalize) }}</strong></div></td>
+                <td><span class="graduation-degree"><strong>{{ member.belt_degree }}º</strong><span>{% for degree in range(4) %}<i class="{% if degree < member.belt_degree %}is-filled{% endif %}"></i>{% endfor %}</span></span></td>
+                <td>{% if last_record %}<div class="graduation-last"><strong>{{ last_record.graduation_date.strftime('%d/%m/%Y') }}</strong><small>por @{{ last_record.updated_by_username }}</small></div>{% else %}<span class="graduation-no-history">Sem histórico</span>{% endif %}</td>
+                <td>
+                  <details class="graduation-editor">
+                    <summary><i data-lucide="pencil"></i>Atualizar</summary>
+                    <form method="post">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="user_id" value="{{ member.id }}">
+                      <strong>Atualizar {{ member.name }}</strong>
+                      <div><label><span>Nova faixa</span><select name="belt_color">{% for color, label in belt_labels.items() %}<option value="{{ color }}" {% if member.belt_color == color %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><label><span>Grau</span><select name="belt_degree">{% for degree in range(5) %}<option value="{{ degree }}" {% if member.belt_degree == degree %}selected{% endif %}>{{ degree }}º grau</option>{% endfor %}</select></label></div>
+                      <label><span>Data da graduação</span><input type="date" name="graduation_date" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+                      <label><span>Observação opcional</span><textarea name="notes" maxlength="300" rows="2" placeholder="Ex.: avaliação técnica realizada"></textarea></label>
+                      <footer><button type="submit"><i data-lucide="save"></i>Salvar graduação</button></footer>
+                    </form>
+                  </details>
+                </td>
+              </tr>
+              {% else %}<tr><td colspan="5"><div class="graduation-empty"><i data-lucide="search-x"></i>Nenhum praticante encontrado.</div></td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="graduation-admin-panel">
+        <header class="graduation-admin-panel-heading"><div><span>AUDITORIA</span><h2>Histórico recente</h2></div><small>Últimos 12 registros</small></header>
+        <div class="graduation-history">
+          {% for record in recent_records %}
+          <article><time>{{ record.graduation_date.strftime('%d/%m/%Y') }}</time><div class="graduation-history-member"><strong>{{ record.user.name }}</strong><small>@{{ record.user.username }}</small></div><div class="graduation-history-change"><span class="is-{{ record.previous_belt_color }}">{{ belt_labels[record.previous_belt_color] }} {{ record.previous_belt_degree }}º</span><i data-lucide="arrow-right"></i><span class="is-{{ record.new_belt_color }}">{{ belt_labels[record.new_belt_color] }} {{ record.new_belt_degree }}º</span></div><small>Registrado por @{{ record.updated_by_username }}{% if record.notes %} • {{ record.notes }}{% endif %}</small></article>
+          {% else %}<div class="graduation-empty"><i data-lucide="history"></i>Nenhuma alteração de graduação registrada ainda.</div>{% endfor %}
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

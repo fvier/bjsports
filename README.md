@@ -1,119 +1,68 @@
-<div align="center">
-  <img src="logo_transparent.png" alt="BJ Sports Logo" width="220" />
-  <h1>BJ Sports — Centro de Treinamento</h1>
-</div>
+# BJ Sports — Centro de Treinamento
 
-![Automação de Issues](https://github.com/fvier/bjsports/actions/workflows/automatizar_issues.yml/badge.svg)
+Aplicação Flask para o portal de alunos e a administração de planos, mensalidades, presenças e reservas.
 
-Bem-vindo(a) ao repositório oficial do **BJ Sports — Centro de Treinamento**! 🚀  
-Este repositório reúne automações, documentos de governança, scripts reutilizáveis e receitas operacionais. 
+## Execução local
 
----
+Requer Python 3.11 ou superior.
 
-## 🗺️ Mapa do Repositório
-
-Entenda como nosso repositório está organizado e onde encontrar o que você precisa:
-
-```mermaid
-graph TD
-    A[📦 dxcdc/Receitas] --> B[📁 .github/]
-    A --> C[📁 docs/]
-    A --> D[📁 templates/]
-    A --> E[📁 scripts/]
-    B --> B1[📄 workflows/]
-    C --> C1[📄 manuais e guias]
-    D --> D1[📄 boilerplates]
-    E --> E1[📄 automações base]
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+flask --app app run --debug
 ```
 
----
+Acesse `http://127.0.0.1:5000`. O banco padrão fica em `instance/bjsports.db` e não deve ser adicionado ao Git. Em uma instalação vazia, crie o primeiro instrutor de forma interativa:
 
-## 📖 Índice de Documentação
-
-Nossa documentação foi projetada para ser ágil e direta. Consulte a tabela abaixo para navegar rapidamente pelos guias essenciais:
-
-| Documento | Descrição |
-|-----------|-----------|
-| `docs/plano_personalizacao.md` | Estratégias e arquitetura das nossas integrações. |
-| `docs/politica_backup.md` | Como garantir a integridade dos nossos dados. |
-| `docs/diretrizes_documentacao.md` | ADRs e padrões adotados na escrita de código e documentação. |
-| `docs/troubleshooting.md` | Postmortems e resolução de problemas comuns. (Lembrete: Novas adições sempre no **TOPO**). |
-| `docs/onboarding.md` | Guia rápido para novos membros da equipe. |
-| `docs/seguranca_basica.md` | Boas práticas de gestão de segredos e acessos. |
-| `docs/padroes_git.md` | Como nomear branches e formatar mensagens de commit. |
-| `docs/arquitetura_cloud.md` | Visão geral dos componentes em nuvem utilizados pela equipe. |
-| `docs/guia_estilo_python.md` | Linter, formatação e padrões adotados nos scripts Python. |
-
-*(Nota: Os arquivos `docs/` serão preenchidos incrementalmente. Siga os links correspondentes à medida que as issues são concluídas).*
-
----
-
-## 🚀 Quick Start
-
-**Siga os passos abaixo para preparar seu ambiente local:**
-
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/dxcdc/Receitas.git
-   cd Receitas
-   ```
-
-2. **Configure o Ambiente:**
-   ```bash
-   # Copie as variáveis de exemplo
-   cp .env.example .env
-   ```
-   *Nunca commite o seu arquivo `.env`!*
-
-3. **Explore e utilize!**
-   Abra a pasta `scripts/` e encontre o que precisa, seja direto e prático!
-
----
-
-## 🌳 Visualização de Branches
-
-Uma das melhores maneiras de entender o ciclo de vida do nosso código é visualizar o histórico. Utilize aliases do git como `git log --graph --oneline --all` ou aproveite o formato abaixo para visualizar como trabalhamos com *branches*:
-
-```mermaid
-gitGraph
-    commit id: "Initial Commit"
-    branch feature/api-gemini
-    checkout feature/api-gemini
-    commit id: "add: script base"
-    commit id: "docs: uso da api"
-    checkout main
-    merge feature/api-gemini
-    branch docs/troubleshooting
-    checkout docs/troubleshooting
-    commit id: "docs: postmortem db"
-    checkout main
-    merge docs/troubleshooting
+```bash
+flask --app app create-admin
 ```
 
----
+## Papéis
 
-## 🔐 Segurança
+- `aluno`: portal, mensalidades próprias, presença, treinoteca e perfil.
+- `monitor`: permissões de aluno, confirmação de presenças e criação de aulas especiais no calendário.
+- `instrutor`: todas as anteriores, gestão de planos e privilégios.
 
-Para garantir a integridade do nosso hub, temos políticas estritas e inegociáveis:
-- **ZERO SENHAS no Código**: Nunca coloque tokens, webhooks ou senhas "hardcoded".
-- **Use Variáveis de Ambiente**: Sempre puxe informações sensíveis via `os.getenv` ou equivalente.
-- **Placeholders Explícitos**: Se precisar dar exemplo no código ou na documentação, use formatação clara como `<GEMINI_API_KEY>` ou `<MATTERMOST_WEBHOOK_URL>`.
+Rotas protegidas conferem sessão e papel no servidor. Formulários e APIs mutáveis exigem token CSRF.
 
----
+## Banco e atualização
 
-## 🤝 Contribuição
+As tabelas principais são `user`, `plan`, `monthly_payment`, `attendance` e `booking`. Na primeira inicialização atualizada, os estados do JSON legado são copiados para competências anuais em `monthly_payment`.
 
-Quer adicionar uma nova receita incrível? 
-- Crie uma branch a partir da `main`.
-- Desenvolva seu script e a respectiva documentação.
-- Abra um **Pull Request (PR)** explicando "o que", "por que" e "como".
-- Se for adicionar logs de incidentes em arquivos de *troubleshooting*, **coloque sua nova entrada sempre no TOPO do arquivo**, preservando o histórico antigo.
+Faça backup antes de atualizar uma instalação:
 
----
+```bash
+cp instance/bjsports.db "instance/bjsports-$(date +%Y%m%d-%H%M%S).db.backup"
+```
 
-## 📋 ADRs (Decisões de Arquitetura)
+## Testes
 
-Todas as nossas Decisões de Arquitetura (Architecture Decision Records) e convenções de projeto encontram-se sumarizadas no documento [Diretrizes de Documentação](docs/diretrizes_documentacao.md).
+```bash
+venv/bin/python -m unittest discover -s tests -v
+venv/bin/python -m py_compile app.py
+node --check static/js/main.js
+```
 
----
-*Equipe DevOps dxcdc — Mantido com 🩵 e café.*
+Os testes usam SQLite em memória e não alteram o banco local.
+
+## Calendário pessoal e notificações
+
+O arquivo `.ics` de cada usuário inclui somente suas matrículas ativas. Para assinatura automática no Google Agenda, configure `PUBLIC_BASE_URL` com o endereço HTTPS público.
+
+O push usa VAPID e exige `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT`. Depois de configurar o agendador da hospedagem, execute a cada 10 minutos:
+
+```bash
+flask --app app send-calendar-reminders --minutes-ahead 60
+```
+
+O comando evita repetir o mesmo lembrete para uma inscrição e considera somente as turmas ativas do usuário.
+
+## Produção
+
+Defina obrigatoriamente `SECRET_KEY`, configure `DATABASE_URL`, use HTTPS e execute atrás de um servidor WSGI. `FLASK_ENV=production` ativa cookie seguro e impede inicialização sem segredo. Não use o servidor de desenvolvimento nem `debug=True`.
+
+O SQLite, `.env`, backups, chaves e certificados são ignorados. Versões antigas rastrearam banco e dados demonstrativos; antes de tornar o repositório público, limpe o histórico e troque credenciais expostas.

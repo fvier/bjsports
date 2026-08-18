@@ -1,3 +1,4 @@
+{% set erp_page = true %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -5,89 +6,7 @@
   <div class="erp-wrapper">
     
     <!-- BARRA LATERAL ORGANIZADA NAS 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
-    <aside class="erp-sidebar" id="erpSidebar">
-      <div class="erp-brand-header">
-        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="erp-brand-logo">
-        <div class="erp-brand-info">
-          <h2 class="erp-brand-name">BJ Sports</h2>
-          <span class="erp-brand-sub">CENTRO DE TREINAMENTO</span>
-        </div>
-      </div>
-
-      <nav class="erp-nav">
-        <!-- SEÇÃO 1: AULAS -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">AULAS</span>
-          
-          <a href="{{ url_for('login') }}" class="erp-nav-item">
-            <i data-lucide="home" class="erp-item-icon"></i>
-            <span class="erp-item-label">Início / Visão Geral</span>
-          </a>
-
-          <a href="{{ url_for('presencas') }}" class="erp-nav-item">
-            <i data-lucide="calendar" class="erp-item-icon"></i>
-            <span class="erp-item-label">Presenças & Treinos</span>
-          </a>
-
-          <a href="{{ url_for('graduacao') }}" class="erp-nav-item">
-            <i data-lucide="award" class="erp-item-icon"></i>
-            <span class="erp-item-label">Graduação & Faixas</span>
-          </a>
-
-          <a href="{{ url_for('treinoteca') }}" class="erp-nav-item">
-            <i data-lucide="sparkles" class="erp-item-icon"></i>
-            <span class="erp-item-label">Treinoteca / Vídeo Aulas</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 2: FINANCEIRO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">FINANCEIRO</span>
-
-          <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item">
-            <i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label">Minhas Mensalidades</span>
-          </a>
-
-          <a href="{{ url_for('loja') }}" class="erp-nav-item">
-            <i data-lucide="shopping-bag" class="erp-item-icon"></i>
-            <span class="erp-item-label">Loja Oficial (15% OFF)</span>
-          </a>
-        </div>
-
-        <!-- SEÇÃO 3: ADMINISTRAÇÃO -->
-        <div class="erp-nav-group">
-          <span class="erp-group-title">ADMINISTRAÇÃO</span>
-
-          <a href="{{ url_for('planos_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05);">
-            <i data-lucide="tag" class="erp-item-icon icon-green"></i>
-            <span class="erp-item-label" style="color: #4ade80; font-weight: 700;">Gestão de Planos</span>
-          </a>
-
-          <a href="{{ url_for('mensalidades_admin') }}" class="erp-nav-item" style="border: 1px solid rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.05);">
-            <i data-lucide="credit-card" class="erp-item-icon" style="color: #60a5fa;"></i>
-            <span class="erp-item-label" style="color: #60a5fa; font-weight: 700;">Gestão de Mensalidades</span>
-          </a>
-
-          <a href="{{ url_for('gestao_privilegios') }}" class="erp-nav-item" style="border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);">
-            <i data-lucide="shield" class="erp-item-icon icon-gold"></i>
-            <span class="erp-item-label" style="color: var(--accent-gold); font-weight: 700;">Gestão de Privilégios</span>
-          </a>
-
-          <!-- ATIVO: CONFIGURAÇÕES -->
-          <a href="{{ url_for('configuracoes') }}" class="erp-nav-item active">
-            <i data-lucide="settings" class="erp-item-icon"></i>
-            <span class="erp-item-label">Configurações & Perfil</span>
-            <i data-lucide="chevron-right" class="erp-chevron"></i>
-          </a>
-
-          <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item">
-            <i data-lucide="log-out" class="erp-item-icon icon-red"></i>
-            <span class="erp-item-label text-red">Sair da Conta</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
+{% include "_erp_sidebar.html" %}
 
     <!-- ÁREA PRINCIPAL -->
     <div class="erp-main-container">
@@ -134,7 +53,24 @@
 
             <div class="form-group">
               <label>WhatsApp / Telefone</label>
-              <input type="tel" name="phone" value="(83) 9 98877-6655" required>
+              <input type="tel" name="phone" value="({{ profile_user.ddd }}) {{ profile_user.phone }}" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Faixa no Jiu-Jitsu</label>
+                <select name="belt_color">
+                  {% for color, label in [('branca','Branca'),('azul','Azul'),('roxa','Roxa'),('marrom','Marrom'),('preta','Preta')] %}
+                  <option value="{{ color }}" {% if profile_user.belt_color == color %}selected{% endif %}>Faixa {{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Grau atual</label>
+                <select name="belt_degree">
+                  {% for degree in range(0, 5) %}<option value="{{ degree }}" {% if profile_user.belt_degree == degree %}selected{% endif %}>{{ degree }}º grau</option>{% endfor %}
+                </select>
+              </div>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block btn-glow">
