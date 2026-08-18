@@ -27,7 +27,7 @@
           <span><i data-lucide="radio"></i> CONTROLE DA LUTA</span>
           <div>
             {% if can_control and recent_score_events %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar"><button name="action" value="undo_score_event" class="is-undo"><i data-lucide="undo-2"></i>Desfazer última ação</button></form>{% endif %}
-            <span class="scoreboard-sound-ready"><i data-lucide="volume-2"></i>Alertas: início • 30s • fim</span><button type="button" data-scoreboard-stage-fullscreen><i data-lucide="maximize"></i>Tela cheia</button>
+            <span class="scoreboard-sound-ready"><i data-lucide="volume-2"></i>Buzina de Caminhão: início • 30s • fim</span><button type="button" class="btn-test-horn" data-test-truck-horn title="Testar som da buzina de caminhão"><i data-lucide="volume-2"></i> 📢 Testar Buzina</button><button type="button" data-scoreboard-stage-fullscreen><i data-lucide="maximize"></i>Tela cheia</button>
           </div>
         </div>
         <section class="scoreboard-fight-console" aria-label="Tempo e início da luta">
@@ -78,7 +78,7 @@
         </div>
 
         <div id="scoreboardPanelTimer" class="scoreboard-view-panel scoreboard-timer-panel {{ 'active' if scoreboard_view == 'timer' else '' }}" role="tabpanel" data-scoreboard-panel="timer" {% if scoreboard_view != 'timer' %}hidden{% endif %}>
-          <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 1 bipe ao iniciar · 2 aos 30s · 1 ao finalizar · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
+          <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 📢 Buzina de Caminhão: início • 30s • fim · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" class="btn-test-horn" data-test-truck-horn title="Testar som da buzina de caminhão"><i data-lucide="volume-2"></i> 📢 Testar Buzina</button><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
           <div class="scoreboard-clock">
             <span class="scoreboard-clock-label">CRONÔMETRO OFICIAL</span>
             <time data-score-clock data-seconds="{{ remaining_seconds }}" data-running="{{ 'true' if selected_match.timer_running else 'false' }}">{{ '%02d:%02d'|format(remaining_seconds // 60, remaining_seconds % 60) }}</time>
@@ -108,7 +108,7 @@
       {% else %}
       <div id="scoreboardPanelPlacar" class="scoreboard-view-panel {{ 'active' if scoreboard_view == 'placar' else '' }}" role="tabpanel" data-scoreboard-panel="placar" {% if scoreboard_view != 'placar' %}hidden{% endif %}><section class="scoreboard-empty"><i data-lucide="tally-5"></i><strong>Nenhum placar preparado</strong><p>{% if can_control and championships %}Use “Nova luta” para configurar o primeiro confronto e liberar o placar.{% elif can_control %}Crie primeiro um campeonato interno e depois prepare o confronto.{% else %}O placar aparecerá quando a organização preparar um confronto.{% endif %}</p></section></div>
       <div id="scoreboardPanelTimer" class="scoreboard-view-panel scoreboard-timer-panel scoreboard-standalone-timer {{ 'active' if scoreboard_view == 'timer' else '' }}" role="tabpanel" data-scoreboard-panel="timer" {% if scoreboard_view != 'timer' %}hidden{% endif %}>
-        <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 1 bipe ao iniciar · 2 aos 30s · 1 ao finalizar · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
+        <div class="scoreboard-timer-toolbar"><span><i data-lucide="volume-2"></i> 📢 Buzina de Caminhão: início • 30s • fim · <kbd>Espaço</kbd> iniciar/pausar <kbd>R</kbd> reiniciar <kbd>F</kbd> tela cheia</span><button type="button" class="btn-test-horn" data-test-truck-horn title="Testar som da buzina de caminhão"><i data-lucide="volume-2"></i> 📢 Testar Buzina</button><button type="button" data-timer-fullscreen><i data-lucide="maximize"></i>Tela cheia</button></div>
         <div class="scoreboard-clock">
           <span class="scoreboard-clock-label">CRONÔMETRO LIVRE</span>
           <time data-standalone-clock data-seconds="300">05:00</time>

@@ -1276,29 +1276,60 @@ function setupChampionshipScoreboard() {
   const playTimerSignal = signal => {
     const context = prepareTimerSound();
     if (!context) return;
-    const startAt = context.currentTime + .025;
-    const patterns = {
-      start: [{offset: 0, frequency: 660, duration: .18}],
-      warning: [{offset: 0, frequency: 880, duration: .16}, {offset: .24, frequency: 880, duration: .16}],
-      end: [{offset: 0, frequency: 440, duration: .62}],
+    const startAt = context.currentTime + 0.02;
+
+    // Rajadas de Buzina de Caminhão (Truck/Arena Horn Blast)
+    const hornBlasts = {
+      start: [{ offset: 0, duration: 0.7 }],
+      warning: [{ offset: 0, duration: 0.4 }, { offset: 0.55, duration: 0.4 }],
+      end: [{ offset: 0, duration: 1.8 }]
     };
-    (patterns[signal] || []).forEach(note => {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      const noteStart = startAt + note.offset;
-      const noteEnd = noteStart + note.duration;
-      oscillator.type = 'triangle';
-      oscillator.frequency.setValueAtTime(note.frequency, noteStart);
-      oscillator.frequency.exponentialRampToValueAtTime(note.frequency * .82, noteEnd);
-      gain.gain.setValueAtTime(.0001, noteStart);
-      gain.gain.exponentialRampToValueAtTime(.16, noteStart + .018);
-      gain.gain.exponentialRampToValueAtTime(.0001, noteEnd);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(noteStart);
-      oscillator.stop(noteEnd + .02);
+
+    const blasts = hornBlasts[signal] || [{ offset: 0, duration: 1.2 }];
+    // Harmônicos reais de buzina pneumática dupla de caminhão (A / C# / E / A)
+    const hornFrequencies = [108, 136, 162, 216, 272];
+
+    blasts.forEach(blast => {
+      const blastStart = startAt + blast.offset;
+      const blastEnd = blastStart + blast.duration;
+
+      const masterGain = context.createGain();
+      masterGain.gain.setValueAtTime(0.0001, blastStart);
+      masterGain.gain.exponentialRampToValueAtTime(0.85, blastStart + 0.015);
+      masterGain.gain.setValueAtTime(0.85, blastEnd - 0.06);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, blastEnd);
+      masterGain.connect(context.destination);
+
+      hornFrequencies.forEach((freq, idx) => {
+        const osc = context.createOscillator();
+        osc.type = 'sawtooth'; // O formato 'sawtooth' gera a vibração metálica de buzina a ar
+        const detuneAmount = (idx % 2 === 0 ? 1 : -1) * (idx * 3.5);
+        
+        osc.frequency.setValueAtTime(freq, blastStart);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.94, blastEnd); // Queda de ar ao fim da buzinada
+        osc.detune.setValueAtTime(detuneAmount, blastStart);
+
+        const oscGain = context.createGain();
+        const layerGain = idx === 0 ? 0.35 : (idx === 1 ? 0.30 : 0.20);
+        oscGain.gain.setValueAtTime(layerGain, blastStart);
+
+        osc.connect(oscGain);
+        oscGain.connect(masterGain);
+
+        osc.start(blastStart);
+        osc.stop(blastEnd + 0.05);
+      });
     });
   };
+
+  // Botão manual para testar a Buzina de Caminhão (Truck Horn)
+  document.querySelectorAll('[data-test-truck-horn], .btn-test-horn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      prepareTimerSound();
+      playTimerSignal('end');
+    });
+  });
   const viewTabs = [...document.querySelectorAll('[data-scoreboard-tab]')];
   const viewPanels = [...document.querySelectorAll('[data-scoreboard-panel]')];
   const activateView = (view, focus = false) => {
