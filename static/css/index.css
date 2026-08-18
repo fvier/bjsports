@@ -2214,31 +2214,55 @@ body.public-light-theme {
 .scoreboard-draw { display:flex; align-items:center; justify-content:center; gap:6px; padding:0 18px 15px; color:#fbbf24; font-size:.55rem; font-weight:800; }.scoreboard-draw svg { width:14px; }
 .scoreboard-event-stream { margin:0 18px 14px; padding:11px 13px; background:transparent; border:1px solid rgba(255,255,255,.08); border-radius:9px; text-align:left; }.scoreboard-event-stream > header { display:flex; align-items:center; justify-content:space-between; gap:10px; }.scoreboard-event-stream > header > span { color:#6f7c90; font-size:.44rem; font-weight:900; letter-spacing:.12em; }.scoreboard-event-stream > header button { display:flex; align-items:center; gap:5px; min-height:29px; padding:0 9px; color:#cbd5e1; background:transparent; border:1px solid rgba(255,255,255,.1); border-radius:6px; cursor:pointer; font:750 .45rem var(--font-body); }.scoreboard-event-stream > header button svg { width:13px; }.scoreboard-event-stream > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 12px; margin-top:9px; }.scoreboard-event-stream article { display:grid; grid-template-columns:7px minmax(0,1fr); align-items:center; gap:7px; padding:6px 0; border-top:1px solid rgba(255,255,255,.05); }.scoreboard-event-stream article > i { width:6px; height:6px; border-radius:50%; }.scoreboard-event-stream article.is-red > i { background:#ef4444; }.scoreboard-event-stream article.is-blue > i { background:#3b82f6; }.scoreboard-event-stream article strong,.scoreboard-event-stream article small { display:block; }.scoreboard-event-stream article strong { color:#cbd5e1; font-size:.48rem; }.scoreboard-event-stream article small,.scoreboard-event-stream > p { margin:2px 0 0; color:#69768a; font-size:.42rem; }
 .scoreboard-stage.is-just-updated { box-shadow:0 0 0 2px rgba(74,222,128,.16),0 18px 42px rgba(0,0,0,.22); }
-.scoreboard-stage:fullscreen { width:100vw; height:100vh; overflow:auto; color:#e5e7eb; background:#080b10; border:0; border-radius:0; }.scoreboard-stage:fullscreen > header { position:sticky; top:0; z-index:3; }.scoreboard-stage:fullscreen .scoreboard-stage-tools { position:sticky; top:51px; z-index:3; }.scoreboard-stage:fullscreen .scoreboard-competitors { min-height:calc(100vh - 205px); align-items:stretch; padding:clamp(16px,2vw,28px); }.scoreboard-stage:fullscreen .scoreboard-corner { justify-content:center; }.scoreboard-stage:fullscreen .scoreboard-points { font-size:clamp(7rem,14vw,13rem); }.scoreboard-stage:fullscreen .scoreboard-move-actions,.scoreboard-stage:fullscreen .scoreboard-special-actions { max-width:560px; }.scoreboard-stage:fullscreen .scoreboard-move-actions button,.scoreboard-stage:fullscreen .scoreboard-special-actions button { min-height:58px; }
-.scoreboard-main-actions { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px; padding:13px 18px; background:#11151e; border-top:1px solid rgba(255,255,255,.07); }
-.scoreboard-main-actions button { display:flex; align-items:center; gap:5px; min-height:35px; padding:0 12px; font-size:.52rem; }.scoreboard-main-actions button svg { width:14px; }
-.scoreboard-main-actions button.is-start { color:#07150c; background:#4ade80; border-color:#4ade80; }.scoreboard-main-actions button.is-finish { color:#fecaca; background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.22); }
-.scoreboard-timer-panel { min-height:410px; padding:28px 18px 22px; background:radial-gradient(circle at 50% 30%,rgba(59,130,246,.07),transparent 46%); }
-.scoreboard-timer-toolbar { display:flex; align-items:center; justify-content:flex-end; gap:16px; margin:-12px 0 0; }
-.scoreboard-timer-toolbar > span { display:flex; align-items:center; gap:4px; color:#69768a; font-size:.46rem; }.scoreboard-timer-toolbar > span > svg { width:13px; height:13px; color:#4ade80; }.scoreboard-timer-toolbar kbd { display:inline-grid; min-width:20px; min-height:20px; place-items:center; margin:0 2px; padding:0 5px; color:#aeb8c6; background:#11151e; border:1px solid rgba(255,255,255,.12); border-radius:5px; font:800 .43rem var(--font-body); }
-.scoreboard-timer-toolbar button { display:flex; align-items:center; gap:6px; min-height:34px; padding:0 11px; color:#cbd5e1; background:#171d27; border:1px solid rgba(255,255,255,.1); border-radius:7px; cursor:pointer; font:800 .5rem var(--font-body); }.scoreboard-timer-toolbar button:hover { color:#fff; background:#202936; }.scoreboard-timer-toolbar button svg { width:14px; }
-.scoreboard-timer-panel .scoreboard-clock { padding-top:22px; }.scoreboard-timer-panel .scoreboard-clock time { font-size:clamp(4.5rem,13vw,9rem); }
-.scoreboard-timer-panel .scoreboard-time-presets { margin:22px 0 0; }.scoreboard-timer-panel .scoreboard-time-presets button { min-width:64px; min-height:38px; font-size:.58rem; }
-.scoreboard-custom-time { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px; margin:14px auto 0; }
-.scoreboard-custom-time > span { width:100%; color:#657287; font-size:.43rem; font-weight:800; letter-spacing:.11em; text-align:center; text-transform:uppercase; }
-.scoreboard-custom-time label { display:flex; align-items:center; gap:5px; min-height:40px; padding:0 8px; background:#11151e; border:1px solid rgba(255,255,255,.1); border-radius:7px; }
-.scoreboard-custom-time input { width:48px; padding:0; color:#f8fafc; background:transparent; border:0; outline:0; font:850 .75rem var(--font-body); text-align:center; }.scoreboard-custom-time input::-webkit-inner-spin-button { opacity:.5; }
-.scoreboard-custom-time label small { color:#69768a; font-size:.43rem; font-weight:750; }.scoreboard-custom-time > b { color:#69768a; }
-.scoreboard-custom-time button { display:flex; align-items:center; gap:5px; min-height:40px; padding:0 13px; color:#fde68a; background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3); border-radius:7px; cursor:pointer; font:800 .5rem var(--font-body); }.scoreboard-custom-time button:hover { color:#111827; background:#fbbf24; }.scoreboard-custom-time button svg { width:14px; }
-.scoreboard-timer-actions { margin:22px auto 0; padding:16px 0 0; background:transparent; border-top:1px solid rgba(255,255,255,.08); }
-.scoreboard-timer-actions button { min-height:42px; padding-inline:17px; font-size:.58rem; }
-.scoreboard-timer-actions button.is-running { color:#78350f; background:#fde68a; border-color:#fbbf24; }
-.scoreboard-timer-match { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:26px; color:#8692a3; font-size:.57rem; font-weight:800; }.scoreboard-timer-match b { color:#4b5565; }.scoreboard-timer-match span { overflow:hidden; max-width:220px; text-overflow:ellipsis; white-space:nowrap; }
-.scoreboard-standalone-note { display:flex; align-items:center; justify-content:center; gap:6px; margin:20px 0 0; color:#69768a; font-size:.5rem; }.scoreboard-standalone-note svg { width:14px; }
-.scoreboard-timer-panel:fullscreen { display:flex!important; min-height:100vh; justify-content:center; flex-direction:column; padding:clamp(20px,4vw,60px); color:#fff; background:#05070b; border:0; }
-.scoreboard-timer-panel:fullscreen .scoreboard-timer-toolbar { position:absolute; top:28px; right:28px; margin:0; }.scoreboard-timer-panel:fullscreen .scoreboard-timer-toolbar > span { display:none; }
-.scoreboard-timer-panel:fullscreen .scoreboard-clock time { font-size:clamp(8rem,25vw,22rem); }.scoreboard-timer-panel:fullscreen .scoreboard-clock-label { font-size:.8rem; }.scoreboard-timer-panel:fullscreen .scoreboard-time-presets button { min-width:80px; min-height:48px; font-size:.7rem; }.scoreboard-timer-panel:fullscreen .scoreboard-timer-actions button { min-height:54px; padding-inline:24px; font-size:.72rem; }
-.scoreboard-timer-panel:fullscreen .scoreboard-custom-time label,.scoreboard-timer-panel:fullscreen .scoreboard-custom-time button { min-height:48px; }.scoreboard-timer-panel:fullscreen .scoreboard-custom-time input { font-size:.9rem; }
+/* TELAS CHEIAS — SEM BARRA DE ROLAGEM */
+:fullscreen, :-webkit-full-screen, :-moz-full-screen {
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.scoreboard-stage:fullscreen, .scoreboard-stage:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 12px 24px !important;
+  background: #080b10 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.scoreboard-stage:fullscreen > header { position: relative !important; top: 0 !important; flex: 0 0 auto !important; }
+.scoreboard-stage:fullscreen .scoreboard-stage-tools { position: relative !important; top: 0 !important; flex: 0 0 auto !important; }
+.scoreboard-stage:fullscreen .scoreboard-competitors { flex: 1 1 auto !important; min-height: 0 !important; max-height: calc(100vh - 160px) !important; padding: 6px 0 !important; align-items: center !important; overflow: hidden !important; }
+.scoreboard-stage:fullscreen .scoreboard-corner { justify-content: center !important; }
+.scoreboard-stage:fullscreen .scoreboard-points { font-size: clamp(4.5rem, 14vh, 10rem) !important; line-height: 1 !important; }
+.scoreboard-stage:fullscreen .scoreboard-event-stream { display: none !important; }
+
+.scoreboard-timer-panel:fullscreen, .scoreboard-timer-panel:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 32px !important;
+  background: #05070b !important;
+  border: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.scoreboard-timer-panel:fullscreen .scoreboard-timer-toolbar { position: relative !important; top: 0 !important; right: 0 !important; width: 100% !important; justify-content: space-between !important; margin: 0 !important; }
+.scoreboard-timer-panel:fullscreen .scoreboard-clock { flex: 1 1 auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; padding: 0 !important; }
+.scoreboard-timer-panel:fullscreen .scoreboard-clock time { font-size: clamp(6rem, 24vh, 18rem) !important; line-height: 1 !important; }
+.scoreboard-timer-panel:fullscreen .scoreboard-clock-label { font-size: 0.9rem !important; }
 .scoreboard-empty { display:flex; min-height:360px; align-items:center; justify-content:center; flex-direction:column; gap:7px; padding:30px; color:#5f6c80; background:#171b25; border:1px dashed rgba(255,255,255,.11); border-radius:13px; text-align:center; }.scoreboard-empty > svg { width:34px; height:34px; color:#fbbf24; }.scoreboard-empty strong { color:#b4becb; font-size:.7rem; }.scoreboard-empty p { max-width:480px; margin:0; font-size:.54rem; line-height:1.5; }
 .scoreboard-create-dialog { width:min(650px,100%); }
 .scoreboard-duration-field { min-width:0; padding:0; margin:0; border:0; }

@@ -1411,103 +1411,194 @@ function setupChampionshipScoreboard() {
   setupServerClock();
 
   const standaloneClock = document.querySelector('[data-standalone-clock]');
+  const cronTabsList = document.getElementById('cronTabsList');
+  const btnAddCronTimer = document.getElementById('btnAddCronTimer');
+
   if (standaloneClock) {
-    const status = document.querySelector('[data-standalone-status]');
-    const toggleButton = document.querySelector('[data-standalone-action="toggle"]');
-    const toggleLabel = toggleButton?.querySelector('span');
-    const durationButtons = [...document.querySelectorAll('[data-standalone-duration]')];
-    let duration = Number(standaloneClock.dataset.seconds) || 300;
-    let seconds = duration;
-    let deadline = 0;
-    let running = false;
-    let interval = null;
-    let warningSoundPlayed = false;
-    let endSoundPlayed = false;
-    const render = () => {
-      standaloneClock.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-      standaloneClock.classList.toggle('is-ending', seconds > 0 && seconds <= 30);
+    let cronTimers = [
+      { id: 1, name: 'Cron 1', duration: 300, seconds: 300, deadline: 0, running: false, warningSoundPlayed: false, endSoundPlayed: false }
+    ];
+    let activeCronId = 1;
+    let nextCronNum = 2;
+
+    const getActiveTimer = () => cronTimers.find(t => t.id === activeCronId) || cronTimers[0];
+
+    const renderCronTabs = () => {
+      if (!cronTabsList) return;
+      cronTabsList.innerHTML = '';
+      cronTimers.forEach(timer => {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.className = `cron-tab-item ${timer.id === activeCronId ? 'active' : ''}`;
+        const isActive = timer.id === activeCronId;
+        tab.style.cssText = `
+          display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+          background: ${isActive ? 'rgba(229, 9, 20, 0.85)' : 'rgba(255, 255, 255, 0.05)'};
+          border: 1px solid ${isActive ? '#f87171' : 'rgba(255, 255, 255, 0.12)'};
+          color: ${isActive ? '#ffffff' : '#94a3b8'};
+          border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease;
+          box-shadow: ${isActive ? '0 0 12px rgba(229, 9, 20, 0.4)' : 'none'};
+        `;
+        
+        const isLiveDot = timer.running ? '<span style="width: 7px; height: 7px; border-radius: 50%; background: #4ade80; display: inline-block; box-shadow: 0 0 8px #4ade80;"></span>' : '';
+        const closeBtn = cronTimers.length > 1 ? `<span class="btn-del-cron" data-cron-id="${timer.id}" title="Remover este cronômetro" style="margin-left: 4px; padding: 0 4px; border-radius: 3px; background: rgba(0,0,0,0.3); font-size: 0.85rem;">&times;</span>` : '';
+
+        tab.innerHTML = `${isLiveDot} ⏱️ ${timer.name} ${closeBtn}`;
+
+        tab.addEventListener('click', (e) => {
+          if (e.target.classList.contains('btn-del-cron')) {
+            e.stopPropagation();
+            deleteCronTimer(timer.id);
+            return;
+          }
+          activeCronId = timer.id;
+          renderCronTabs();
+          syncUIWithActiveTimer();
+        });
+
+        cronTabsList.appendChild(tab);
+      });
+    };
+
+    const syncUIWithActiveTimer = () => {
+      const current = getActiveTimer();
+      if (!current) return;
+
+      const mins = Math.floor(current.seconds / 60);
+      const secs = current.seconds % 60;
+      standaloneClock.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      standaloneClock.classList.toggle('is-ending', current.seconds > 0 && current.seconds <= 30);
+
+      const status = document.querySelector('[data-standalone-status]');
       if (status) {
-        status.textContent = seconds === 0 ? 'TEMPO ENCERRADO' : (running ? 'EM ANDAMENTO' : 'CRONÔMETRO PAUSADO');
-        status.classList.toggle('is-live', running);
+        status.textContent = current.seconds === 0 ? 'TEMPO ENCERRADO' : (current.running ? 'EM ANDAMENTO' : 'CRONÔMETRO PAUSADO');
+        status.classList.toggle('is-live', current.running);
       }
-      if (toggleLabel) toggleLabel.textContent = running ? 'Pausar cronômetro' : (seconds === 0 ? 'Iniciar novamente' : 'Iniciar cronômetro');
-      toggleButton?.classList.toggle('is-running', running);
-    };
-    const stopInterval = () => {
-      if (interval) window.clearInterval(interval);
-      interval = null;
-    };
-    const tick = () => {
-      const previousSeconds = seconds;
-      const wasRunning = running && previousSeconds > 0;
-      seconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      if (wasRunning && previousSeconds > 30 && seconds <= 30 && seconds > 0 && !warningSoundPlayed) {
-        warningSoundPlayed = true;
-        playTimerSignal('warning');
+
+      const toggleButton = document.querySelector('[data-standalone-action="toggle"]');
+      if (toggleButton) {
+        const toggleLabel = toggleButton.querySelector('span');
+        if (toggleLabel) toggleLabel.textContent = current.running ? 'Pausar cronômetro' : (current.seconds === 0 ? 'Iniciar novamente' : 'Iniciar cronômetro');
+        toggleButton.classList.toggle('is-running', current.running);
       }
-      if (seconds === 0) {
-        running = false;
-        stopInterval();
-        if (wasRunning && !endSoundPlayed) {
-          endSoundPlayed = true;
-          playTimerSignal('end');
+
+      document.querySelectorAll('[data-standalone-duration]').forEach(btn => {
+        const btnMins = Number(btn.dataset.standaloneDuration);
+        btn.classList.toggle('active', btnMins * 60 === current.duration);
+      });
+    };
+
+    const deleteCronTimer = (id) => {
+      if (cronTimers.length <= 1) return;
+      cronTimers = cronTimers.filter(t => t.id !== id);
+      if (activeCronId === id) {
+        activeCronId = cronTimers[0].id;
+      }
+      renderCronTabs();
+      syncUIWithActiveTimer();
+    };
+
+    if (btnAddCronTimer) {
+      btnAddCronTimer.addEventListener('click', () => {
+        const newId = Date.now();
+        const newName = `Cron ${nextCronNum++}`;
+        cronTimers.push({
+          id: newId, name: newName, duration: 300, seconds: 300, deadline: 0, running: false, warningSoundPlayed: false, endSoundPlayed: false
+        });
+        activeCronId = newId;
+        renderCronTabs();
+        syncUIWithActiveTimer();
+      });
+    }
+
+    // Intervalo único para atualização de TODOS os cronômetros ativos
+    window.setInterval(() => {
+      cronTimers.forEach(t => {
+        if (t.running) {
+          const prevSecs = t.seconds;
+          t.seconds = Math.max(0, Math.ceil((t.deadline - Date.now()) / 1000));
+          if (prevSecs > 30 && t.seconds <= 30 && t.seconds > 0 && !t.warningSoundPlayed) {
+            t.warningSoundPlayed = true;
+            playTimerSignal('warning');
+          }
+          if (t.seconds === 0) {
+            t.running = false;
+            if (prevSecs > 0 && !t.endSoundPlayed) {
+              t.endSoundPlayed = true;
+              playTimerSignal('end');
+            }
+          }
         }
-      }
-      render();
-    };
-    const toggle = () => {
-      if (running) {
-        tick();
-        running = false;
-        stopInterval();
+      });
+      renderCronTabs();
+      syncUIWithActiveTimer();
+    }, 400);
+
+    // Botão Iniciar / Pausar
+    document.querySelector('[data-standalone-action="toggle"]')?.addEventListener('click', () => {
+      prepareTimerSound();
+      const current = getActiveTimer();
+      if (current.running) {
+        current.running = false;
       } else {
-        prepareTimerSound();
-        if (seconds === 0) seconds = duration;
-        warningSoundPlayed = false;
-        endSoundPlayed = false;
+        if (current.seconds === 0) current.seconds = current.duration;
+        current.warningSoundPlayed = false;
+        current.endSoundPlayed = false;
+        current.deadline = Date.now() + (current.seconds * 1000);
+        current.running = true;
         playTimerSignal('start');
-        running = true;
-        deadline = Date.now() + (seconds * 1000);
-        interval = window.setInterval(tick, 200);
       }
-      render();
-    };
-    const reset = () => {
-      running = false;
-      stopInterval();
-      seconds = duration;
-      warningSoundPlayed = false;
-      endSoundPlayed = false;
-      render();
-    };
-    toggleButton?.addEventListener('click', toggle);
-    document.querySelector('[data-standalone-action="reset"]')?.addEventListener('click', reset);
-    durationButtons.forEach(button => button.addEventListener('click', () => {
-      duration = Number(button.dataset.standaloneDuration) * 60;
-      seconds = duration;
-      warningSoundPlayed = false;
-      endSoundPlayed = false;
-      running = false;
-      stopInterval();
-      durationButtons.forEach(item => item.classList.toggle('active', item === button));
-      render();
-    }));
-    const customTimeForm = document.querySelector('[data-standalone-custom]');
-    customTimeForm?.addEventListener('submit', event => {
-      event.preventDefault();
-      const minutesInput = customTimeForm.elements.custom_minutes;
-      const secondsInput = customTimeForm.elements.custom_seconds;
-      const minutes = Number(minutesInput.value);
-      const customSeconds = Number(secondsInput.value);
-      secondsInput.setCustomValidity('');
-      if (!customTimeForm.checkValidity()) { customTimeForm.reportValidity(); return; }
-      const customDuration = (minutes * 60) + customSeconds;
-      if (customDuration < 1 || customDuration > 5999) {
-        secondsInput.setCustomValidity('Informe um tempo entre 00:01 e 99:59.');
-        customTimeForm.reportValidity();
-        return;
-      }
-      duration = customDuration;
+      renderCronTabs();
+      syncUIWithActiveTimer();
+    });
+
+    // Botão Reiniciar
+    document.querySelector('[data-standalone-action="reset"]')?.addEventListener('click', () => {
+      const current = getActiveTimer();
+      current.running = false;
+      current.seconds = current.duration;
+      current.warningSoundPlayed = false;
+      current.endSoundPlayed = false;
+      renderCronTabs();
+      syncUIWithActiveTimer();
+    });
+
+    // Botoes de Presets (2, 3, 4, 5, 6, 10 min)
+    document.querySelectorAll('[data-standalone-duration]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const current = getActiveTimer();
+        const mins = Number(btn.dataset.standaloneDuration);
+        current.duration = mins * 60;
+        current.seconds = current.duration;
+        current.running = false;
+        current.warningSoundPlayed = false;
+        current.endSoundPlayed = false;
+        renderCronTabs();
+        syncUIWithActiveTimer();
+      });
+    });
+
+    // Form de Tempo Personalizado
+    const customForm = document.querySelector('[data-standalone-custom]');
+    if (customForm) {
+      customForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const current = getActiveTimer();
+        const m = Number(customForm.querySelector('input[name="custom_minutes"]').value) || 0;
+        const s = Number(customForm.querySelector('input[name="custom_seconds"]').value) || 0;
+        current.duration = Math.max(1, (m * 60) + s);
+        current.seconds = current.duration;
+        current.running = false;
+        current.warningSoundPlayed = false;
+        current.endSoundPlayed = false;
+        renderCronTabs();
+        syncUIWithActiveTimer();
+      });
+    }
+
+    renderCronTabs();
+    syncUIWithActiveTimer();
+  }
       seconds = customDuration;
       warningSoundPlayed = false;
       endSoundPlayed = false;
