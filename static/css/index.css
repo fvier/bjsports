@@ -2377,6 +2377,165 @@ body.public-light-theme {
 @media (max-width:1000px) { .class-detail-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }.class-detail-main-grid { grid-template-columns:1fr; }.class-detail-months { grid-template-columns:repeat(4,minmax(0,1fr)); } }
 @media (max-width:640px) { .class-detail-heading { align-items:flex-start; flex-direction:column; }.class-detail-heading-actions { width:100%; justify-content:space-between; }.class-detail-kpis { grid-template-columns:1fr; }.class-detail-months { grid-template-columns:repeat(2,minmax(0,1fr)); }.class-detail-rate { grid-template-columns:1fr; }.class-detail-rate > div { margin:auto; } }
 
+/* ==========================================================================
+   🎮 TEMA "ÁREA GAME" (STREAMER PACK / ESPORTS HUD)
+   ========================================================================== */
+.championship-scoreboard-content.theme-area-game {
+  background: #050508 !important;
+  color: #f1f5f9;
+}
+
+.theme-area-game .scoreboard-heading h1 {
+  color: #00f3ff !important;
+  text-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+  font-family: var(--font-heading), 'Orbitron', sans-serif !important;
+  letter-spacing: 0.04em;
+}
+
+.theme-area-game-stage {
+  background: radial-gradient(circle at 50% 20%, rgba(0, 243, 255, 0.08), transparent 70%), #08090e !important;
+  border: 1px solid rgba(0, 243, 255, 0.25) !important;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 243, 255, 0.05) !important;
+  border-radius: 14px !important;
+}
+
+.theme-area-game-stage > header {
+  background: rgba(11, 13, 20, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.3) !important;
+}
+
+.theme-area-game-stage > header span {
+  color: #00f3ff !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.15em !important;
+}
+
+.theme-area-game-stage > header strong {
+  color: #ff0055 !important;
+  text-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+}
+
+/* CARDS DOS CANTOS DA ÁREA GAME (HUD CUTOUTS) */
+.theme-area-game .scoreboard-corner.is-red {
+  background: linear-gradient(145deg, rgba(255, 0, 85, 0.12), rgba(15, 10, 18, 0.9)) !important;
+  border: 1px solid rgba(255, 0, 85, 0.4) !important;
+  box-shadow: 0 0 25px rgba(255, 0, 85, 0.15) !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.theme-area-game .scoreboard-corner.is-blue {
+  background: linear-gradient(145deg, rgba(0, 243, 255, 0.12), rgba(10, 15, 24, 0.9)) !important;
+  border: 1px solid rgba(0, 243, 255, 0.4) !important;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.15) !important;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+
+/* NÚMEROS DO PLACAR (NEON FLIPPER) */
+.theme-area-game .scoreboard-points {
+  font-family: 'Orbitron', var(--font-heading), sans-serif !important;
+  letter-spacing: -3px !important;
+  text-shadow: 0 0 25px currentColor !important;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-area-game .scoreboard-corner.is-red .scoreboard-points {
+  color: #ff0055 !important;
+}
+
+.theme-area-game .scoreboard-corner.is-blue .scoreboard-points {
+  color: #00f3ff !important;
+}
+
+/* EMBLEMA CENTRAL "VS" 3D HUD */
+.theme-area-game .scoreboard-versus {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.hud-vs-emblem {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 58px;
+  height: 58px;
+  background: #0f131d;
+  border: 2px solid #00f3ff;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5), inset 0 0 10px rgba(255, 0, 85, 0.4);
+  animation: vsFloat 3s ease-in-out infinite;
+}
+
+.hud-vs-text {
+  font: 900 1.3rem var(--font-heading);
+  background: linear-gradient(135deg, #ff0055, #00f3ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+@keyframes vsFloat {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
+  50% { transform: translateY(-4px) scale(1.06); box-shadow: 0 0 30px rgba(255, 0, 85, 0.7); }
+}
+
+/* ANIMAÇÃO DE PULSO AO PONTUAR */
+.is-point-flash {
+  animation: neonPointBurst 0.6s ease-out;
+}
+
+@keyframes neonPointBurst {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.04); filter: brightness(1.8) drop-shadow(0 0 30px currentColor); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* BOTÕES DE CONTROLE STREAMER HUD */
+.theme-area-game .scoreboard-move-actions button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  font-weight: 800 !important;
+  transition: all 0.15s ease !important;
+}
+
+.theme-area-game .scoreboard-corner.is-red .scoreboard-move-actions button:hover {
+  background: rgba(255, 0, 85, 0.25) !important;
+  border-color: #ff0055 !important;
+  color: #fff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.4) !important;
+}
+
+.theme-area-game .scoreboard-corner.is-blue .scoreboard-move-actions button:hover {
+  background: rgba(0, 243, 255, 0.25) !important;
+  border-color: #00f3ff !important;
+  color: #fff !important;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4) !important;
+}
+
+/* ENCAIXE EM TELA PAISAGEM / MOBILE WIDESCREEN */
+@media (max-height: 520px) and (orientation: landscape) {
+  .championship-scoreboard-page .erp-sidebar { display: none !important; }
+  .championship-scoreboard-page .erp-topbar { display: none !important; }
+  .championship-scoreboard-page .scoreboard-heading { display: none !important; }
+  .championship-scoreboard-page .scoreboard-match-tabs { display: none !important; }
+  .championship-scoreboard-page .scoreboard-view-tabs { display: none !important; }
+  .championship-scoreboard-content { padding: 0 !important; margin: 0 !important; max-width: 100vw !important; }
+  .theme-area-game-stage {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    padding: 8px 16px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+}
+
 /* ALWAYS PUT HIDDEN AT THE VERY BOTTOM SO IT OVERRIDES ALL DISPLAY RULES */
 .hidden {
   display: none !important;

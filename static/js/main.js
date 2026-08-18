@@ -1623,6 +1623,14 @@ function setupChampionshipScoreboard() {
       }, 4500);
       return;
     }
+    const toggleGameThemeBtn = event.target.closest('[data-toggle-game-theme]');
+    if (toggleGameThemeBtn) {
+      const main = document.getElementById('scoreboardMainContent');
+      const stg = document.querySelector('.scoreboard-stage');
+      main?.classList.toggle('theme-area-game');
+      stg?.classList.toggle('theme-area-game-stage');
+      return;
+    }
     const timerFullscreen = event.target.closest('[data-timer-fullscreen]');
     const stageFullscreen = event.target.closest('[data-scoreboard-stage-fullscreen]');
     const target = timerFullscreen?.closest('[data-scoreboard-panel="timer"]') || stageFullscreen?.closest('.scoreboard-stage');
@@ -1632,6 +1640,11 @@ function setupChampionshipScoreboard() {
       else await target.requestFullscreen();
     } catch (_) {}
   });
+
+  if ('wakeLock' in navigator) {
+    try { navigator.wakeLock.request('screen'); } catch (_) {}
+  }
+
   scoreboardContent?.addEventListener('submit', async event => {
     const form = event.target.closest('.scoreboard-stage form[method="post"]');
     if (!form || form.matches('[data-standalone-custom]')) return;
@@ -1660,7 +1673,15 @@ function setupChampionshipScoreboard() {
       const updatedMatchTabs = parsed.querySelector('.scoreboard-match-tabs');
       if (currentMatchTabs && updatedMatchTabs) currentMatchTabs.innerHTML = updatedMatchTabs.innerHTML;
       stage.classList.add('is-just-updated');
-      window.setTimeout(() => stage.classList.remove('is-just-updated'), 350);
+      const redCorner = stage.querySelector('.scoreboard-corner.is-red');
+      const blueCorner = stage.querySelector('.scoreboard-corner.is-blue');
+      if (submitter?.name?.startsWith('red_')) redCorner?.classList.add('is-point-flash');
+      if (submitter?.name?.startsWith('blue_')) blueCorner?.classList.add('is-point-flash');
+      window.setTimeout(() => {
+        stage.classList.remove('is-just-updated');
+        redCorner?.classList.remove('is-point-flash');
+        blueCorner?.classList.remove('is-point-flash');
+      }, 550);
       const responseFlash = parsed.querySelector('.flash-stack');
       if (responseFlash) {
         document.querySelector('.flash-stack')?.remove();
