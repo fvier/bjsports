@@ -1599,16 +1599,6 @@ function setupChampionshipScoreboard() {
     renderCronTabs();
     syncUIWithActiveTimer();
   }
-      seconds = customDuration;
-      warningSoundPlayed = false;
-      endSoundPlayed = false;
-      running = false;
-      stopInterval();
-      durationButtons.forEach(item => item.classList.remove('active'));
-      render();
-    });
-    render();
-  }
 
   const scoreboardContent = document.querySelector('.championship-scoreboard-content');
   scoreboardContent?.addEventListener('click', async event => {
