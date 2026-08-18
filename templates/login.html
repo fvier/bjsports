@@ -1,44 +1,10 @@
-{% set erp_page = is_logged_in %}
 {% extends "base.html" %}
 
 {% block content %}
   {% if not is_logged_in %}
   <!-- Section 1: Formulário de Autenticação (Login e Cadastro Flask) -->
-  <section class="section portal-section login-page-section" id="authSection">
-    <div class="container portal-auth-container">
-      <div class="portal-auth-shell">
-      <aside class="portal-auth-intro">
-        <div class="portal-intro-brand">
-          <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports">
-          <div><strong>BJ Sports</strong><span>Centro de Treinamento</span></div>
-        </div>
-        <div data-portal-login-intro>
-        <div class="portal-intro-copy">
-          <span class="portal-intro-eyebrow">ÁREA DO ALUNO</span>
-          <h1>Seu treino continua aqui.</h1>
-          <p>Acesse sua rotina de aulas, acompanhe mensalidades e consulte sua evolução no tatame.</p>
-        </div>
-        <ul class="portal-intro-benefits">
-          <li><i data-lucide="calendar-check"></i><span><strong>Treinos organizados</strong><small>Horários e registros em um só lugar</small></span></li>
-          <li><i data-lucide="shield-check"></i><span><strong>Acesso protegido</strong><small>Seus dados permanecem seguros</small></span></li>
-          <li><i data-lucide="activity"></i><span><strong>Treinos acompanhados</strong><small>Frequência e presença no tatame</small></span></li>
-        </ul>
-        <span class="portal-intro-support"><i data-lucide="message-circle"></i> Precisa de ajuda? Fale com o Mestre Bolivar.</span>
-        </div>
-
-        <div class="portal-membership-contract hidden" data-portal-membership-contract>
-          <header>
-            <span><i data-lucide="file-check-2"></i> TERMO DE ADESÃO</span>
-            <h2>Seu contrato, sem letras miúdas</h2>
-            <p>Leia com calma antes de concluir. Versão {{ membership_terms_version }}.</p>
-          </header>
-          <div class="portal-contract-scroll" tabindex="0" role="region" aria-label="Texto completo do termo de adesão">
-            {% include "_membership_contract_content.html" %}
-          </div>
-          <footer><i data-lucide="shield-check"></i><span>Os aceites ficam registrados com versão, data e horário.</span></footer>
-        </div>
-      </aside>
-
+  <section class="section portal-section" id="authSection">
+    <div class="container" style="max-width: 650px;">
       <div class="glass-panel portal-card">
         
         <!-- Tabs de Alternância: Entrar vs Criar Conta -->
@@ -96,7 +62,7 @@
             <label for="regUsername">Usuário (Login Único) *</label>
             <div class="input-with-icon">
               <i data-lucide="user-check" class="input-icon"></i>
-              <input type="text" name="regUsername" id="regUsername" placeholder="bolivarbjj" required>
+              <input type="text" name="regUsername" id="regUsername" placeholder="ex: fernandovier" required>
             </div>
             <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
           </div>
@@ -110,48 +76,70 @@
             </div>
           </div>
 
-          <!-- 3. CPF Numérico -->
+          <!-- 3. Checkbox para Aluno Menor de Idade (Localizado logo abaixo do nome) -->
+          <div class="form-group checkbox-group" style="margin-top: 4px; margin-bottom: 16px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
+            <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #ffffff; cursor: pointer; margin: 0;">
+              <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)">
+              <span>👶 <strong>Aluno é menor de idade</strong> (marque se o aluno tiver menos de 18 anos)</span>
+            </label>
+          </div>
+
+          <!-- 4. Data de Nascimento -->
+          <div class="form-group">
+            <label for="regBirthDate">Data de Nascimento *</label>
+            <div class="input-with-icon">
+              <i data-lucide="calendar" class="input-icon" style="color: var(--accent-gold);"></i>
+              <input type="date" name="regBirthDate" id="regBirthDate" required style="padding-left: 40px !important;">
+            </div>
+            <span class="field-hint">📅 Informe a data de nascimento do aluno.</span>
+          </div>
+
+          <!-- 5. CPF Numérico -->
           <div class="form-group">
             <label for="regCpf">CPF (11 dígitos) *</label>
             <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
             <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
           </div>
 
-          <!-- 4. WhatsApp -->
+          <!-- 6. WhatsApp / Celular -->
           <div class="form-group">
             <label>WhatsApp / Celular *</label>
             <div class="phone-split-group">
               <div style="width: 85px;">
-                <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="83" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
+                <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="81" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
               </div>
               <div style="flex: 1;">
-                <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="996527997" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+                <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="984472771" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
               </div>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="regEmail">E-mail *</label>
-              <div class="input-with-icon">
-                <i data-lucide="mail" class="input-icon"></i>
-                <input type="email" name="regEmail" id="regEmail" placeholder="voce@exemplo.com" maxlength="254" autocomplete="email" required>
-              </div>
-              <span class="field-hint">Usado para contato e recuperação da conta.</span>
+          <!-- 7. Endereço de E-mail Ajustado -->
+          <div class="form-group">
+            <label for="regEmail">Endereço de E-mail *</label>
+            <div class="input-with-icon">
+              <i data-lucide="mail" class="input-icon" style="color: var(--accent-gold);"></i>
+              <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" required style="padding-left: 40px !important;">
             </div>
-            <div class="form-group">
-              <label for="regSex">Sexo *</label>
-              <select name="regSex" id="regSex" required>
-                <option value="">Selecione</option>
-                <option value="feminino">Feminino</option>
+            <span class="field-hint">✉️ E-mail para confirmação de matrica, recibos e avisos da academia.</span>
+          </div>
+
+          <!-- 8. Gênero (Anteriormente Sexo) -->
+          <div class="form-group">
+            <label for="regSex">Gênero *</label>
+            <div class="input-with-icon">
+              <i data-lucide="user-check" class="input-icon" style="color: var(--accent-gold);"></i>
+              <select name="regSex" id="regSex" required style="padding-left: 40px !important;">
+                <option value="">Selecione o Gênero</option>
                 <option value="masculino">Masculino</option>
-                <option value="prefer_not">Prefiro não responder</option>
+                <option value="feminino">Feminino</option>
+                <option value="prefer_not">Prefiro não informar / Outro</option>
               </select>
-              <span class="field-hint">Você pode escolher não informar.</span>
             </div>
+            <span class="field-hint">👤 Identificação de gênero do aluno.</span>
           </div>
 
-          <!-- 5. Seleção de Plano -->
+          <!-- 9. Seleção de Plano -->
           <div class="form-group">
             <label for="regPlan">Plano Desejado *</label>
             <select name="regPlan" id="regPlan" required>
@@ -161,7 +149,7 @@
             </select>
           </div>
 
-          <!-- 6. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
+          <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
           <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
             <label for="regDueDate" style="color: #4ade80; font-weight: 700;">Dia de Vencimento da Mensalidade *</label>
             <select name="regDueDate" id="regDueDate" required>
@@ -172,7 +160,7 @@
             <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
           </div>
 
-          <!-- 7. Senha & Confirmação -->
+          <!-- 11. Senha & Confirmação -->
           <div class="form-row">
             <div class="form-group">
               <label for="regPass">Criar Senha *</label>
@@ -204,13 +192,13 @@
             <fieldset class="portal-image-consent">
               <legend><i data-lucide="shield-check"></i><span><strong>Autorização de imagem obrigatória para o cadastro</strong><small>Escolha quem está concedendo a autorização descrita nos itens 12 a 14 do contrato.</small></span></legend>
               <div class="portal-image-consent-note is-required"><i data-lucide="info"></i><span><strong>Nenhuma foto será enviada agora.</strong> Esta confirmação autoriza somente os usos e finalidades descritos no contrato. <strong>Sem a autorização, o cadastro não será concluído.</strong></span></div>
-              <label class="is-approved"><input type="radio" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
-              <label class="is-minor-approved"><input type="radio" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
-              <div class="portal-minor-consent-fields hidden" data-minor-consent-fields>
+              <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
+              <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
+              <div class="portal-minor-consent-fields hidden" data-minor-consent-fields id="minorConsentFields">
                 <p><i data-lucide="shield-check"></i><span><strong>Identificação do responsável pelo menor</strong><small>Necessária somente para esta modalidade de autorização.</small></span></p>
-                <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" maxlength="120" autocomplete="name"></label>
-                <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
-                <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
+                <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name"></label>
+                <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
+                <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
                 <small>Ao escolher esta opção, declaro que possuo autoridade legal para decidir sobre a imagem do menor e aceito as finalidades e limites descritos nos itens 12 a 14.</small>
               </div>
             </fieldset>
@@ -225,13 +213,29 @@
     </div>
   </section>
 
+  <script>
+    function handleMinorCheckbox(checkbox) {
+      const minorFields = document.getElementById('minorConsentFields');
+      const radioMinor = document.getElementById('radioMinorConsent');
+      const radioAdult = document.getElementById('radioAdultConsent');
+
+      if (checkbox.checked) {
+        if (radioMinor) radioMinor.checked = true;
+        if (minorFields) minorFields.classList.remove('hidden');
+      } else {
+        if (radioAdult) radioAdult.checked = true;
+        if (minorFields) minorFields.classList.add('hidden');
+      }
+    }
+  </script>
+
   {% else %}
 
   <!-- Section 2: ÁREA DE MEMBROS COM BARRA LATERAL ORGANIZADA EM 3 SEÇÕES: AULAS, FINANCEIRO, ADMINISTRAÇÃO -->
   <div class="erp-wrapper">
     
     <!-- BARRA LATERAL ORGANIZADA EXATAMENTE CONFORME SOLICITADO -->
-{% include "_erp_sidebar.html" %}
+    {% include "_erp_sidebar.html" %}
 
     <!-- ÁREA PRINCIPAL COM BARRA DE TOPO & CARDS -->
     <div class="erp-main-container">
@@ -247,133 +251,23 @@
         
         <div class="erp-topbar-right">
           <div class="erp-user-badge">
-            <span class="erp-avatar">
-              {% if user_role == 'instrutor' %}🥋{% elif user_role == 'monitor' %}🔍{% else %}⚡{% endif %}
-            </span>
+            <span class="erp-avatar">🥋</span>
             <span class="erp-user-name">{{ user_name }}</span>
-            <span class="badge-pill bg-green" style="font-size: 0.7rem;">FAIXA AZUL</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">PAINEL FINANCEIRO</span>
           </div>
         </div>
       </header>
 
-      <!-- Conteúdo Principal -->
       <main class="erp-content">
-        
-        {% if is_first_reg %}
-        <div id="welcomeFirstRegBanner" class="welcome-banner">
-          <div class="welcome-icon">🎉</div>
-          <div>
-            <h4>Bem-vindo ao BJ Sports Centro de Treinamento!</h4>
-            <p>Seu cadastro foi realizado com sucesso! Vencimento definido para o <strong>Dia {{ user_due_date }} de cada mês</strong>.</p>
-          </div>
-        </div>
-        <script>
-          document.addEventListener('DOMContentLoaded', () => {
-            if (window.confetti) {
-              confetti({ particleCount: 220, spread: 100, origin: { y: 0.5 } });
-            }
-          });
-        </script>
-        {% endif %}
 
-        <!-- TAB 1: INÍCIO / VISÃO GERAL -->
-        <div class="member-tab-content active" id="tab-overview">
-          <div class="erp-hero-banner">
-            <div class="erp-status-indicator">
-              <span class="live-dot"></span> PLACAR DE EVOLUÇÃO • TEMPORADA 2026
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="member-tab-content" id="tab-overview">
+          <div class="welcome-hero-banner">
+            <div class="hero-text-content">
+              <span class="badge-pill bg-gold">PORTAL DO ALUNO</span>
+              <h1 class="welcome-title">Bem-vindo, {{ user_name }}! 👋</h1>
+              <p class="welcome-sub">Seu progresso nos treinos, pagamentos e graduações no tatame em um só lugar.</p>
             </div>
-            <h1 class="erp-hero-heading">Arena de Treino & Ralas</h1>
-            <p class="erp-hero-sub">Resultados, frequência e constância nos treinos com Mestre Bolivar.</p>
-          </div>
-
-          <div class="erp-cards-grid">
-            <div class="erp-metric-card">
-              <span class="erp-card-label">Pontos de Treino Acumulados</span>
-              <div class="erp-card-big-number">180</div>
-              <span class="erp-card-foot">Na competição mensal do tatame</span>
-            </div>
-
-            <div class="erp-metric-card">
-              <span class="erp-card-label">Vencimento da Mensalidade</span>
-              <div class="erp-card-big-number" style="color: #60a5fa;">Dia {{ user_due_date }}</div>
-              <span class="erp-card-foot">Vencimento em todo Dia {{ user_due_date }} do mês</span>
-            </div>
-
-            <div class="erp-ranking-card">
-              <div class="erp-ranking-header">
-                <div>
-                  <span class="erp-card-label">CLASSIFICAÇÃO EM TEMPO REAL</span>
-                  <h3>Ranking Ao Vivo do Tatame</h3>
-                </div>
-              </div>
-              <div class="erp-ranking-list">
-                <div class="ranking-item">
-                  <span class="rank-pos">#1</span>
-                  <div class="rank-info">
-                    <strong>{{ user_name }}</strong>
-                    <small>180 pontos • {{ user_role.upper() }}</small>
-                  </div>
-                  <span class="badge-pill bg-green">LÍDER</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 2: MINHAS MENSALIDADES (EXIBE VENCIMENTO DIA 5, 15, 25 E PERMITE TROCA) -->
-        <div class="member-tab-content hidden" id="tab-payments">
-          <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="dollar-sign" class="icon-green"></i> Minhas Mensalidades & Data de Vencimento</h4>
-            
-            <div class="promo-store-box" style="text-align: left; margin-top: 16px; margin-bottom: 24px;">
-              <h4 style="font-family: var(--font-heading); color: #ffffff;">Status da Mensalidade: <span style="color: #4ade80;">🟢 EM DIA / PAGO</span></h4>
-              <p>Plano Contratado: <strong>{{ user_plan }}</strong></p>
-              <p>Data de Vencimento Atual: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>
-            </div>
-
-            <!-- Form para Aluno Escolher/Alterar seu Vencimento para 5, 15 ou 25 -->
-            <div class="glass-panel" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-light);">
-              <h5 style="font-family: var(--font-heading); color: var(--accent-gold); margin-bottom: 12px;">
-                <i data-lucide="calendar"></i> Alterar meu Dia de Vencimento (Dia 5, 15 ou 25)
-              </h5>
-              
-              <form action="{{ url_for('login') }}" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <input type="hidden" name="action" value="update_due_date">
-                
-                <select name="due_date" style="padding: 8px 16px; font-weight: 700; width: auto;" required>
-                  <option value="5" {% if user_due_date == '5' %}selected{% endif %}>📅 Dia 5 de cada mês</option>
-                  <option value="15" {% if user_due_date == '15' %}selected{% endif %}>📅 Dia 15 de cada mês</option>
-                  <option value="25" {% if user_due_date == '25' %}selected{% endif %}>📅 Dia 25 de cada mês</option>
-                </select>
-
-                <button type="submit" class="btn btn-primary btn-sm btn-glow">
-                  Atualizar Data de Vencimento
-                </button>
-              </form>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- OUTRAS TABS -->
-        <div class="member-tab-content hidden" id="tab-frequency">
-          <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="calendar" class="icon-red"></i> Presenças & Treinos</h4>
-            <p>Registro de frequência de treinos.</p>
-          </div>
-        </div>
-
-        <div class="member-tab-content hidden" id="tab-videotheque">
-          <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="sparkles" class="icon-gold"></i> Treinoteca / Vídeos</h4>
-            <p>Vídeo-aulas técnicas exclusivas.</p>
-          </div>
-        </div>
-
-        <div class="member-tab-content hidden" id="tab-settings">
-          <div class="member-card-panel">
-            <h4 class="member-card-title"><i data-lucide="settings" class="icon-muted"></i> Configurações</h4>
-            <p>Alteração de dados pessoais.</p>
           </div>
         </div>
 
