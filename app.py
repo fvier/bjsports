@@ -2414,18 +2414,31 @@ def campeonato_placar():
         requested_view = request.form.get('scoreboard_view', 'placar')
         requested_view = requested_view if requested_view in {'placar', 'timer'} else 'placar'
         if action == 'create_match':
-            championship = db.session.get(InternalChampionship, request.form.get('championship_id', type=int))
+            championship_id = request.form.get('championship_id', type=int)
+            championship = db.session.get(InternalChampionship, championship_id) if championship_id else None
+            if not championship:
+                championship = InternalChampionship.query.first()
+                if not championship:
+                    championship = InternalChampionship(
+                        name="Torneio Interno BJ Sports 2026",
+                        event_date=datetime.now(),
+                        location="Centro de Treinamento BJ Sports",
+                        status="em_andamento"
+                    )
+                    db.session.add(championship)
+                    db.session.flush()
+
             red_name = request.form.get('red_competitor', '').strip()
             blue_name = request.form.get('blue_competitor', '').strip()
             category = request.form.get('category', '').strip()
-            mat_area = request.form.get('mat_area', '').strip()
-            duration_minutes = request.form.get('duration_minutes', type=int)
-            penalty_limit = request.form.get('penalty_limit', type=int)
-            if (not championship or not red_name or not blue_name or red_name.casefold() == blue_name.casefold()
+            mat_area = request.form.get('mat_area', '').strip() or 'Área 1'
+            duration_minutes = request.form.get('duration_minutes', type=int) or 5
+            penalty_limit = request.form.get('penalty_limit', type=int) or 4
+            if (not red_name or not blue_name or red_name.casefold() == blue_name.casefold()
                     or len(red_name) > 120 or len(blue_name) > 120 or not category
                     or len(category) > 120 or not mat_area or len(mat_area) > 40
                     or duration_minutes not in CHAMPIONSHIP_MATCH_DURATIONS or penalty_limit not in {4, 6}):
-                flash('Revise campeonato, atletas, categoria, área e duração da luta.', 'error')
+                flash('Revise atletas, categoria, área e duração da luta.', 'error')
                 return redirect(url_for('campeonato_placar'))
             match = ChampionshipMatch(
                 championship_id=championship.id, red_competitor=red_name,
@@ -2436,12 +2449,18 @@ def campeonato_placar():
             )
             db.session.add(match)
             db.session.commit()
-            flash('Confronto criado e pronto para o placar.', 'success')
+            flash('Novo confronto/área criado e pronto para o placar.', 'success')
             return redirect(url_for('campeonato_placar', match=match.id))
 
         match = db.session.get(ChampionshipMatch, request.form.get('match_id', type=int))
         if not match:
             flash('Confronto não encontrado.', 'error')
+            return redirect(url_for('campeonato_placar'))
+
+        if action == 'delete_match':
+            db.session.delete(match)
+            db.session.commit()
+            flash('Confronto/Área removido com sucesso.', 'success')
             return redirect(url_for('campeonato_placar'))
         was_running = match.timer_running
         remaining = match_remaining_seconds(match)
