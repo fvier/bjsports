@@ -1273,12 +1273,17 @@ function setupChampionshipScoreboard() {
       return null;
     }
   };
-  const playTimerSignal = signal => {
+  const audioMap = {
+    start: '/static/audio/time_start.mp3',
+    warning: '/static/audio/time_30.mp3',
+    end: '/static/audio/time_end.mp3'
+  };
+
+  const playSynthHorn = signal => {
     const context = prepareTimerSound();
     if (!context) return;
     const startAt = context.currentTime + 0.02;
 
-    // Rajadas de Buzina de Caminhão (Truck/Arena Horn Blast)
     const hornBlasts = {
       start: [{ offset: 0, duration: 0.7 }],
       warning: [{ offset: 0, duration: 0.4 }, { offset: 0.55, duration: 0.4 }],
@@ -1286,7 +1291,6 @@ function setupChampionshipScoreboard() {
     };
 
     const blasts = hornBlasts[signal] || [{ offset: 0, duration: 1.2 }];
-    // Harmônicos reais de buzina pneumática dupla de caminhão (A / C# / E / A)
     const hornFrequencies = [108, 136, 162, 216, 272];
 
     blasts.forEach(blast => {
@@ -1302,11 +1306,11 @@ function setupChampionshipScoreboard() {
 
       hornFrequencies.forEach((freq, idx) => {
         const osc = context.createOscillator();
-        osc.type = 'sawtooth'; // O formato 'sawtooth' gera a vibração metálica de buzina a ar
+        osc.type = 'sawtooth';
         const detuneAmount = (idx % 2 === 0 ? 1 : -1) * (idx * 3.5);
         
         osc.frequency.setValueAtTime(freq, blastStart);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.94, blastEnd); // Queda de ar ao fim da buzinada
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.94, blastEnd);
         osc.detune.setValueAtTime(detuneAmount, blastStart);
 
         const oscGain = context.createGain();
@@ -1322,12 +1326,24 @@ function setupChampionshipScoreboard() {
     });
   };
 
-  // Botão manual para testar a Buzina de Caminhão (Truck Horn)
-  document.querySelectorAll('[data-test-truck-horn], .btn-test-horn').forEach(btn => {
+  const playTimerSignal = signal => {
+    const audioPath = audioMap[signal];
+    if (audioPath) {
+      const audio = new Audio(audioPath);
+      audio.play().catch(() => {
+        playSynthHorn(signal);
+      });
+    } else {
+      playSynthHorn(signal);
+    }
+  };
+
+  // Botões manuais para testar cada som individualmente (Início, 30s, Fim)
+  document.querySelectorAll('[data-test-sound], [data-test-truck-horn], .btn-test-horn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      prepareTimerSound();
-      playTimerSignal('end');
+      const soundType = btn.dataset.testSound || 'end';
+      playTimerSignal(soundType);
     });
   });
   const viewTabs = [...document.querySelectorAll('[data-scoreboard-tab]')];
