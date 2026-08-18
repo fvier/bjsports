@@ -2442,11 +2442,11 @@ body.public-light-theme {
   color: #ff0055 !important;
 }
 
-/* ALINHAMENTO DA ÁREA GAME (LARGURA DEDICADA AO VS E SEM SOBREPOSIÇÃO) */
+/* ALINHAMENTO DA ÁREA GAME (VS CENTRALIZADO NO CANTO SUPERIOR ENTRE OS CARDS) */
 .theme-area-game .scoreboard-competitors {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(130px, 160px) minmax(0, 1fr) !important;
-  align-items: center !important;
+  align-items: start !important;
   gap: 14px !important;
   padding: 16px 20px !important;
   position: relative !important;
@@ -2486,16 +2486,17 @@ body.public-light-theme {
   min-width: 0 !important;
 }
 
-/* EMBLEMA CENTRAL "VS" GRAFFITI ESPORTS HUD */
+/* EMBLEMA CENTRAL "VS" GRAFFITI ESPORTS HUD (CANTO SUPERIOR) */
 .theme-area-game .scoreboard-versus {
   display: flex !important;
   justify-content: center !important;
-  align-items: center !important;
+  align-items: flex-start !important;
+  padding-top: 14px !important;
   z-index: 10 !important;
   position: relative !important;
   overflow: visible !important;
   min-width: 130px !important;
-  padding: 0 5px !important;
+  padding-inline: 5px !important;
 }
 
 .hud-vs-emblem {

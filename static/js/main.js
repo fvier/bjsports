@@ -1627,8 +1627,11 @@ function setupChampionshipScoreboard() {
     if (toggleGameThemeBtn) {
       const main = document.getElementById('scoreboardMainContent');
       const stg = document.querySelector('.scoreboard-stage');
-      main?.classList.toggle('theme-area-game');
+      const isGameMode = main?.classList.toggle('theme-area-game');
       stg?.classList.toggle('theme-area-game-stage');
+
+      document.querySelectorAll('.hud-graffiti-score').forEach(el => el.classList.toggle('hidden', !isGameMode));
+      document.querySelectorAll('.hud-plain-score').forEach(el => el.classList.toggle('hidden', isGameMode));
       return;
     }
     const timerFullscreen = event.target.closest('[data-timer-fullscreen]');
