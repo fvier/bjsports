@@ -1,214 +1,255 @@
+{% set erp_page = is_logged_in %}
 {% extends "base.html" %}
 
 {% block content %}
   {% if not is_logged_in %}
-  <!-- Section 1: Formulário de Autenticação (Login e Cadastro Flask) -->
-  <section class="section portal-section" id="authSection">
-    <div class="container" style="max-width: 650px;">
-      <div class="glass-panel portal-card">
+  <!-- Section 1: Formulário de Autenticação com Painel Lateral Explicativo (Login e Cadastro Flask) -->
+  <section class="section portal-section login-page-section" id="authSection">
+    <div class="container portal-auth-container">
+      <div class="portal-auth-shell">
         
-        <!-- Tabs de Alternância: Entrar vs Criar Conta -->
-        <div class="portal-tabs" id="portalTabs">
-          <button class="portal-tab-btn active" id="tabBtnLogin">
-            <i data-lucide="log-in" class="icon-sm"></i> Entrar na Conta
-          </button>
-          <button class="portal-tab-btn" id="tabBtnRegister">
-            <i data-lucide="user-plus" class="icon-sm"></i> Criar Nova Conta
-          </button>
-        </div>
+        <!-- PAINEL LATERAL DE TEXTO E APRESENTAÇÃO (LADO ESQUERDO) -->
+        <aside class="portal-auth-intro">
+          <div class="portal-intro-brand">
+            <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports">
+            <div><strong>BJ Sports</strong><span>Centro de Treinamento</span></div>
+          </div>
 
-        <!-- Formulário 1: Login de Aluno (POST /login) -->
-        <form action="{{ url_for('login') }}" method="POST" id="portalLoginForm" class="modal-form portal-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" name="action" value="login">
+          <div data-portal-login-intro>
+            <div class="portal-intro-copy">
+              <span class="portal-intro-eyebrow">ÁREA DO ALUNO</span>
+              <h1>Seu treino continua aqui.</h1>
+              <p>Acesse sua rotina de aulas, acompanhe mensalidades e consulte sua evolução no tatame.</p>
+            </div>
+
+            <ul class="portal-intro-benefits">
+              <li><i data-lucide="calendar-check"></i><span><strong>Treinos organizados</strong><small>Horários e registros em um só lugar</small></span></li>
+              <li><i data-lucide="shield-check"></i><span><strong>Acesso protegido</strong><small>Seus dados permanecem seguros</small></span></li>
+              <li><i data-lucide="activity"></i><span><strong>Treinos acompanhados</strong><small>Frequência e presença no tatame</small></span></li>
+            </ul>
+
+            <span class="portal-intro-support"><i data-lucide="message-circle"></i> Precisa de ajuda? Fale com o Mestre Bolivar.</span>
+          </div>
+
+          <div class="portal-membership-contract hidden" data-portal-membership-contract>
+            <header>
+              <span><i data-lucide="file-check-2"></i> TERMO DE ADESÃO</span>
+              <h2>Seu contrato, sem letras miúdas</h2>
+              <p>Leia com calma antes de concluir. Versão {{ membership_terms_version }}.</p>
+            </header>
+            <div class="portal-contract-scroll" tabindex="0" role="region" aria-label="Texto completo do termo de adesão">
+              {% include "_membership_contract_content.html" %}
+            </div>
+            <footer><i data-lucide="shield-check"></i><span>Os aceites ficam registrados com versão, data e horário.</span></footer>
+          </div>
+        </aside>
+
+        <!-- CARTÃO DO FORMULÁRIO DE LOGIN E CADASTRO (LADO DIREITO) -->
+        <div class="glass-panel portal-card">
           
-          <div class="form-group">
-            <label for="portalCpf">Usuário ou CPF *</label>
-            <div class="input-with-icon">
-              <i data-lucide="user" class="input-icon"></i>
-              <input type="text" name="portalCpf" id="portalCpf" placeholder="seu usuário ou 000.000.000-00" required autocomplete="username">
-            </div>
+          <!-- Tabs de Alternância: Entrar vs Criar Conta -->
+          <div class="portal-tabs" id="portalTabs">
+            <button class="portal-tab-btn active" id="tabBtnLogin">
+              <i data-lucide="log-in" class="icon-sm"></i> Entrar na Conta
+            </button>
+            <button class="portal-tab-btn" id="tabBtnRegister">
+              <i data-lucide="user-plus" class="icon-sm"></i> Criar Nova Conta
+            </button>
           </div>
 
-          <div class="form-group">
-            <label for="portalPassword">Senha de Acesso *</label>
-            <div class="input-with-eye">
-              <i data-lucide="shield-check" class="input-icon"></i>
-              <input type="password" name="portalPassword" id="portalPassword" placeholder="••••••••" required autocomplete="current-password">
-              <button type="button" class="btn-toggle-eye" data-target="portalPassword" title="Mostrar/Ocultar Senha">
-                <i data-lucide="eye"></i>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" id="btnLoginSubmit">
-            <i data-lucide="log-in"></i> Acessar Portal do Aluno
-          </button>
-
-          <div class="text-center mt-2">
-            <a href="https://wa.me/5583996527997?text=Esqueci%20minha%20senha%20do%20portal%20do%20aluno" target="_blank" class="forgot-pass-link">
-              Esqueceu sua senha? Falar com Mestre Bolivar
-            </a>
-          </div>
-        </form>
-
-        <!-- Formulário 2: Cadastro de Novo Aluno (POST /login) -->
-        <form action="{{ url_for('login') }}" method="POST" id="portalRegisterForm" class="modal-form portal-form hidden">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" name="action" value="register">
-
-          <!-- 1. Usuário (Único) -->
-          <div class="form-group">
-            <label for="regUsername">Usuário (Login Único) *</label>
-            <div class="input-with-icon">
-              <i data-lucide="user-check" class="input-icon"></i>
-              <input type="text" name="regUsername" id="regUsername" placeholder="ex: fernandovier" required>
-            </div>
-            <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
-          </div>
-
-          <!-- 2. Nome Completo -->
-          <div class="form-group">
-            <label for="regName">Nome Completo *</label>
-            <div class="input-with-icon">
-              <i data-lucide="user" class="input-icon"></i>
-              <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" required>
-            </div>
-          </div>
-
-          <!-- 3. Checkbox para Aluno Menor de Idade (Localizado logo abaixo do nome) -->
-          <div class="form-group checkbox-group" style="margin-top: 4px; margin-bottom: 16px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
-            <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #ffffff; cursor: pointer; margin: 0;">
-              <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)">
-              <span>👶 <strong>Aluno é menor de idade</strong> (marque se o aluno tiver menos de 18 anos)</span>
-            </label>
-          </div>
-
-          <!-- 4. Data de Nascimento -->
-          <div class="form-group">
-            <label for="regBirthDate">Data de Nascimento *</label>
-            <div class="input-with-icon">
-              <i data-lucide="calendar" class="input-icon" style="color: var(--accent-gold);"></i>
-              <input type="date" name="regBirthDate" id="regBirthDate" required style="padding-left: 40px !important;">
-            </div>
-            <span class="field-hint">📅 Informe a data de nascimento do aluno.</span>
-          </div>
-
-          <!-- 5. CPF Numérico -->
-          <div class="form-group">
-            <label for="regCpf">CPF (11 dígitos) *</label>
-            <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
-            <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
-          </div>
-
-          <!-- 6. WhatsApp / Celular -->
-          <div class="form-group">
-            <label>WhatsApp / Celular *</label>
-            <div class="phone-split-group">
-              <div style="width: 85px;">
-                <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="81" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
-              </div>
-              <div style="flex: 1;">
-                <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="984472771" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+          <!-- Formulário 1: Login de Aluno (POST /login) -->
+          <form action="{{ url_for('login') }}" method="POST" id="portalLoginForm" class="modal-form portal-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="login">
+            
+            <div class="form-group">
+              <label for="portalCpf">Usuário ou CPF *</label>
+              <div class="input-with-icon">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" name="portalCpf" id="portalCpf" placeholder="seu usuário ou 000.000.000-00" required autocomplete="username">
               </div>
             </div>
-          </div>
 
-          <!-- 7. Endereço de E-mail Ajustado -->
-          <div class="form-group">
-            <label for="regEmail">Endereço de E-mail *</label>
-            <div class="input-with-icon">
-              <i data-lucide="mail" class="input-icon" style="color: var(--accent-gold);"></i>
-              <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" required style="padding-left: 40px !important;">
+            <div class="form-group">
+              <label for="portalPassword">Senha de Acesso *</label>
+              <div class="input-with-eye">
+                <i data-lucide="shield-check" class="input-icon"></i>
+                <input type="password" name="portalPassword" id="portalPassword" placeholder="••••••••" required autocomplete="current-password">
+                <button type="button" class="btn-toggle-eye" data-target="portalPassword" title="Mostrar/Ocultar Senha">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
-            <span class="field-hint">✉️ E-mail para confirmação de matrica, recibos e avisos da academia.</span>
-          </div>
 
-          <!-- 8. Gênero (Anteriormente Sexo) -->
-          <div class="form-group">
-            <label for="regSex">Gênero *</label>
-            <div class="input-with-icon">
-              <i data-lucide="user-check" class="input-icon" style="color: var(--accent-gold);"></i>
-              <select name="regSex" id="regSex" required style="padding-left: 40px !important;">
-                <option value="">Selecione o Gênero</option>
-                <option value="masculino">Masculino</option>
-                <option value="feminino">Feminino</option>
-                <option value="prefer_not">Prefiro não informar / Outro</option>
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" id="btnLoginSubmit">
+              <i data-lucide="log-in"></i> Acessar Portal do Aluno
+            </button>
+
+            <div class="text-center mt-2">
+              <a href="https://wa.me/5583996527997?text=Esqueci%20minha%20senha%20do%20portal%20do%20aluno" target="_blank" class="forgot-pass-link">
+                Esqueceu sua senha? Falar com Mestre Bolivar
+              </a>
+            </div>
+          </form>
+
+          <!-- Formulário 2: Cadastro de Novo Aluno (POST /login) -->
+          <form action="{{ url_for('login') }}" method="POST" id="portalRegisterForm" class="modal-form portal-form hidden">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="register">
+
+            <!-- 1. Usuário (Único) -->
+            <div class="form-group">
+              <label for="regUsername">Usuário (Login Único) *</label>
+              <div class="input-with-icon">
+                <i data-lucide="user-check" class="input-icon"></i>
+                <input type="text" name="regUsername" id="regUsername" placeholder="ex: fernandovier" required>
+              </div>
+              <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
+            </div>
+
+            <!-- 2. Nome Completo -->
+            <div class="form-group">
+              <label for="regName">Nome Completo *</label>
+              <div class="input-with-icon">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" required>
+              </div>
+            </div>
+
+            <!-- 3. Checkbox para Aluno Menor de Idade (Localizado logo abaixo do nome) -->
+            <div class="form-group checkbox-group" style="margin-top: 4px; margin-bottom: 16px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
+              <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #ffffff; cursor: pointer; margin: 0;">
+                <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)">
+                <span>👶 <strong>Aluno é menor de idade</strong> (marque se o aluno tiver menos de 18 anos)</span>
+              </label>
+            </div>
+
+            <!-- 4. Data de Nascimento -->
+            <div class="form-group">
+              <label for="regBirthDate">Data de Nascimento *</label>
+              <div class="input-with-icon">
+                <i data-lucide="calendar" class="input-icon" style="color: var(--accent-gold);"></i>
+                <input type="date" name="regBirthDate" id="regBirthDate" required style="padding-left: 40px !important;">
+              </div>
+              <span class="field-hint">📅 Informe a data de nascimento do aluno.</span>
+            </div>
+
+            <!-- 5. CPF Numérico -->
+            <div class="form-group">
+              <label for="regCpf">CPF (11 dígitos) *</label>
+              <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
+              <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
+            </div>
+
+            <!-- 6. WhatsApp / Celular -->
+            <div class="form-group">
+              <label>WhatsApp / Celular *</label>
+              <div class="phone-split-group">
+                <div style="width: 85px;">
+                  <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="81" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
+                </div>
+                <div style="flex: 1;">
+                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="984472771" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. Endereço de E-mail Ajustado -->
+            <div class="form-group">
+              <label for="regEmail">Endereço de E-mail *</label>
+              <div class="input-with-icon">
+                <i data-lucide="mail" class="input-icon" style="color: var(--accent-gold);"></i>
+                <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" required style="padding-left: 40px !important;">
+              </div>
+              <span class="field-hint">✉️ E-mail para confirmação de matrícula, recibos e avisos da academia.</span>
+            </div>
+
+            <!-- 8. Gênero (Anteriormente Sexo) -->
+            <div class="form-group">
+              <label for="regSex">Gênero *</label>
+              <div class="input-with-icon">
+                <i data-lucide="user-check" class="input-icon" style="color: var(--accent-gold);"></i>
+                <select name="regSex" id="regSex" required style="padding-left: 40px !important;">
+                  <option value="">Selecione o Gênero</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="prefer_not">Prefiro não informar / Outro</option>
+                </select>
+              </div>
+              <span class="field-hint">👤 Identificação de gênero do aluno.</span>
+            </div>
+
+            <!-- 9. Seleção de Plano -->
+            <div class="form-group">
+              <label for="regPlan">Plano Desejado *</label>
+              <select name="regPlan" id="regPlan" required>
+                {% for plan in available_plans %}
+                  <option value="{{ plan.name }} — {{ plan.price }}">{{ plan.name }} — {{ plan.price }}</option>
+                {% endfor %}
               </select>
             </div>
-            <span class="field-hint">👤 Identificação de gênero do aluno.</span>
-          </div>
 
-          <!-- 9. Seleção de Plano -->
-          <div class="form-group">
-            <label for="regPlan">Plano Desejado *</label>
-            <select name="regPlan" id="regPlan" required>
-              {% for plan in available_plans %}
-                <option value="{{ plan.name }} — {{ plan.price }}">{{ plan.name }} — {{ plan.price }}</option>
-              {% endfor %}
-            </select>
-          </div>
+            <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
+            <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
+              <label for="regDueDate" style="color: #4ade80; font-weight: 700;">Dia de Vencimento da Mensalidade *</label>
+              <select name="regDueDate" id="regDueDate" required>
+                <option value="5">📅 Dia 5 de cada mês</option>
+                <option value="15" selected>📅 Dia 15 de cada mês</option>
+                <option value="25">📅 Dia 25 de cada mês</option>
+              </select>
+              <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
+            </div>
 
-          <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
-          <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
-            <label for="regDueDate" style="color: #4ade80; font-weight: 700;">Dia de Vencimento da Mensalidade *</label>
-            <select name="regDueDate" id="regDueDate" required>
-              <option value="5">📅 Dia 5 de cada mês</option>
-              <option value="15" selected>📅 Dia 15 de cada mês</option>
-              <option value="25">📅 Dia 25 de cada mês</option>
-            </select>
-            <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
-          </div>
-
-          <!-- 11. Senha & Confirmação -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="regPass">Criar Senha *</label>
-              <div class="input-with-eye">
-                <i data-lucide="shield-check" class="input-icon"></i>
-                <input type="password" name="regPass" id="regPass" placeholder="••••••••" required>
-                <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar/Ocultar Senha">
-                  <i data-lucide="eye"></i>
-                </button>
+            <!-- 11. Senha & Confirmação -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regPass">Criar Senha *</label>
+                <div class="input-with-eye">
+                  <i data-lucide="shield-check" class="input-icon"></i>
+                  <input type="password" name="regPass" id="regPass" placeholder="••••••••" required>
+                  <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar/Ocultar Senha">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="regPassConfirm">Confirmar Senha *</label>
+                <div class="input-with-eye">
+                  <i data-lucide="shield-check" class="input-icon"></i>
+                  <input type="password" id="regPassConfirm" placeholder="••••••••" required>
+                  <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="regPassConfirm">Confirmar Senha *</label>
-              <div class="input-with-eye">
-                <i data-lucide="shield-check" class="input-icon"></i>
-                <input type="password" id="regPassConfirm" placeholder="••••••••" required>
-                <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
-                  <i data-lucide="eye"></i>
-                </button>
-              </div>
+
+            <div class="portal-acceptance-box">
+              <div class="portal-acceptance-heading"><i data-lucide="list-checks"></i><div><strong>Revise e confirme suas escolhas</strong><small>Todos os aceites abaixo são necessários para concluir o cadastro.</small></div></div>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="acceptMembershipTerms" required><span><i data-lucide="check"></i></span><p>Li e aceito o <strong>Termo de Adesão</strong>, inclusive o compromisso de pagamento das mensalidades e as regras de acesso. <em>Obrigatório</em></p></label>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="acknowledgePrivacy" required><span><i data-lucide="check"></i></span><p>Estou ciente do tratamento dos meus dados para cadastro, pagamentos, presenças, segurança e execução do serviço, conforme o aviso de privacidade versão {{ privacy_notice_version }}. <em>Obrigatório</em></p></label>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="confirmLegalCapacity" required><span><i data-lucide="check"></i></span><p>Declaro que sou maior de 18 anos ou responsável legal pelo aluno cadastrado. <em>Obrigatório</em></p></label>
+              <fieldset class="portal-image-consent">
+                <legend><i data-lucide="shield-check"></i><span><strong>Autorização de imagem obrigatória para o cadastro</strong><small>Escolha quem está concedendo a autorização descrita nos itens 12 a 14 do contrato.</small></span></legend>
+                <div class="portal-image-consent-note is-required"><i data-lucide="info"></i><span><strong>Nenhuma foto será enviada agora.</strong> Esta confirmação autoriza somente os usos e finalidades descritos no contrato. <strong>Sem a autorização, o cadastro não será concluído.</strong></span></div>
+                <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
+                <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
+                <div class="portal-minor-consent-fields hidden" data-minor-consent-fields id="minorConsentFields">
+                  <p><i data-lucide="shield-check"></i><span><strong>Identificação do responsável pelo menor</strong><small>Necessária somente para esta modalidade de autorização.</small></span></p>
+                  <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name"></label>
+                  <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
+                  <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
+                  <small>Ao escolher esta opção, declaro que possuo autoridade legal para decidir sobre a imagem do menor e aceito as finalidades e limites descritos nos itens 12 a 14.</small>
+                </div>
+              </fieldset>
             </div>
-          </div>
 
-          <div class="portal-acceptance-box">
-            <div class="portal-acceptance-heading"><i data-lucide="list-checks"></i><div><strong>Revise e confirme suas escolhas</strong><small>Todos os aceites abaixo são necessários para concluir o cadastro.</small></div></div>
-            <label class="portal-consent-check is-required"><input type="checkbox" name="acceptMembershipTerms" required><span><i data-lucide="check"></i></span><p>Li e aceito o <strong>Termo de Adesão</strong>, inclusive o compromisso de pagamento das mensalidades e as regras de acesso. <em>Obrigatório</em></p></label>
-            <label class="portal-consent-check is-required"><input type="checkbox" name="acknowledgePrivacy" required><span><i data-lucide="check"></i></span><p>Estou ciente do tratamento dos meus dados para cadastro, pagamentos, presenças, segurança e execução do serviço, conforme o aviso de privacidade versão {{ privacy_notice_version }}. <em>Obrigatório</em></p></label>
-            <label class="portal-consent-check is-required"><input type="checkbox" name="confirmLegalCapacity" required><span><i data-lucide="check"></i></span><p>Declaro que sou maior de 18 anos ou responsável legal pelo aluno cadastrado. <em>Obrigatório</em></p></label>
-            <fieldset class="portal-image-consent">
-              <legend><i data-lucide="shield-check"></i><span><strong>Autorização de imagem obrigatória para o cadastro</strong><small>Escolha quem está concedendo a autorização descrita nos itens 12 a 14 do contrato.</small></span></legend>
-              <div class="portal-image-consent-note is-required"><i data-lucide="info"></i><span><strong>Nenhuma foto será enviada agora.</strong> Esta confirmação autoriza somente os usos e finalidades descritos no contrato. <strong>Sem a autorização, o cadastro não será concluído.</strong></span></div>
-              <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
-              <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
-              <div class="portal-minor-consent-fields hidden" data-minor-consent-fields id="minorConsentFields">
-                <p><i data-lucide="shield-check"></i><span><strong>Identificação do responsável pelo menor</strong><small>Necessária somente para esta modalidade de autorização.</small></span></p>
-                <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name"></label>
-                <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
-                <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
-                <small>Ao escolher esta opção, declaro que possuo autoridade legal para decidir sobre a imagem do menor e aceito as finalidades e limites descritos nos itens 12 a 14.</small>
-              </div>
-            </fieldset>
-          </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit">
+              <i data-lucide="user-plus"></i> Aceitar e Finalizar Cadastro
+            </button>
+          </form>
+        </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit">
-            <i data-lucide="user-plus"></i> Aceitar e Finalizar Cadastro
-          </button>
-        </form>
-      </div>
       </div>
     </div>
   </section>
