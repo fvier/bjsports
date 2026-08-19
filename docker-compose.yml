@@ -36,6 +36,9 @@ services:
       - "traefik.http.routers.bjsports-www.rule=Host(`www.bjsports.com.br`)"
       - "traefik.http.routers.bjsports-www.tls=true"
       - "traefik.http.routers.bjsports-www.tls.certresolver=letsencrypt"
+      # Router 5: Direct IP access http://147.79.110.132 (Port 80 HTTP)
+      - "traefik.http.routers.bjsports-ip.entrypoints=http"
+      - "traefik.http.routers.bjsports-ip.rule=Host(`147.79.110.132`)"
       # Service LoadBalancer Port
       - "traefik.http.services.bjsports.loadbalancer.server.port=5050"
     networks:
