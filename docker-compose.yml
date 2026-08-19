@@ -13,6 +13,18 @@ services:
       - PORT=5050
       - HOST=0.0.0.0
       - SECRET_KEY=bjsports-production-secret-key-2026-cajazeiras
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=coolify"
+      - "traefik.http.middlewares.bjsports-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.bjsports-http.entrypoints=http"
+      - "traefik.http.routers.bjsports-http.middlewares=bjsports-https"
+      - "traefik.http.routers.bjsports-http.rule=Host(`bjsports.com.br`) || Host(`www.bjsports.com.br`)"
+      - "traefik.http.routers.bjsports.entrypoints=https"
+      - "traefik.http.routers.bjsports.rule=Host(`bjsports.com.br`) || Host(`www.bjsports.com.br`)"
+      - "traefik.http.routers.bjsports.tls=true"
+      - "traefik.http.routers.bjsports.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bjsports.loadbalancer.server.port=5050"
     networks:
       - coolify
 
