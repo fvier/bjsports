@@ -16,7 +16,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=coolify"
-      # Middlewares: HTTPS Redirect
+      # Middlewares: HTTPS Redirect (only for domain)
       - "traefik.http.middlewares.bjsports-https.redirectscheme.scheme=https"
       # Router 1: Apex Domain bjsports.com.br (HTTP -> HTTPS)
       - "traefik.http.routers.bjsports-http.entrypoints=http"
@@ -36,9 +36,10 @@ services:
       - "traefik.http.routers.bjsports-www.rule=Host(`www.bjsports.com.br`)"
       - "traefik.http.routers.bjsports-www.tls=true"
       - "traefik.http.routers.bjsports-www.tls.certresolver=letsencrypt"
-      # Router 5: Direct IP access http://147.79.110.132 (Port 80 HTTP)
+      # Router 5: Direct IP access http://147.79.110.132 (Port 80 HTTP directly - NO HTTPS REDIRECT)
       - "traefik.http.routers.bjsports-ip.entrypoints=http"
       - "traefik.http.routers.bjsports-ip.rule=Host(`147.79.110.132`)"
+      - "traefik.http.routers.bjsports-ip.service=bjsports"
       # Service LoadBalancer Port
       - "traefik.http.services.bjsports.loadbalancer.server.port=5050"
     networks:
