@@ -781,7 +781,10 @@ def ensure_championship_weights():
     db.session.commit()
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception:
+        db.session.rollback()
 
     # Migração compatível com a base SQLite já existente.
     user_columns = {column['name'] for column in inspect(db.engine).get_columns('user')}
