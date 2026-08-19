@@ -16,7 +16,7 @@ from store_catalog import STORE_PRODUCTS
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or secrets.token_hex(32)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'bjsports-production-secret-key-2026-cajazeiras')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///bjsports.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
