@@ -35,6 +35,19 @@ class CustomSessionInterface(Flask.session_interface.__class__):
 
 app.session_interface = CustomSessionInterface()
 
+class HTTPFixMiddleware:
+    def __init__(self, app_wsgi):
+        self.app_wsgi = app_wsgi
+
+    def __call__(self, environ, start_response):
+        if '147.79.110.132' in environ.get('HTTP_HOST', '') or '5050' in environ.get('HTTP_HOST', '') or environ.get('SERVER_PORT') == '5050':
+            environ['wsgi.url_scheme'] = 'http'
+            environ.pop('HTTP_X_FORWARDED_PROTO', None)
+        return self.app_wsgi(environ, start_response)
+
+app.wsgi_app = HTTPFixMiddleware(app.wsgi_app)
+
+
 
 
 
