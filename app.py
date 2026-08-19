@@ -22,6 +22,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
+app.session_interface.get_cookie_secure = lambda app: False
 
 if os.getenv('FLASK_ENV') == 'production' and not os.getenv('SECRET_KEY'):
     raise RuntimeError('SECRET_KEY é obrigatória em produção.')
