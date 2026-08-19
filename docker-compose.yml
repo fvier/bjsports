@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  bjsports-app:
+    build: .
+    container_name: bjsports-app
+    restart: always
+    ports:
+      - "5050:5050"
+    volumes:
+      - bjsports_data:/app/instance
+    environment:
+      - PORT=5050
+      - HOST=0.0.0.0
+      - SECRET_KEY=bjsports-production-secret-key-2026-cajazeiras
+    networks:
+      - coolify
+
+volumes:
+  bjsports_data:
+
+networks:
+  coolify:
+    external: true
