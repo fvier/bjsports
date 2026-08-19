@@ -22,14 +22,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
-_orig_save_session = app.session_interface.save_session
-def _custom_save_session(a, s, r):
-    a.config['SESSION_COOKIE_SECURE'] = False
-    _orig_save_session(a, s, r)
-    if 'Set-Cookie' in r.headers:
-        scs = r.headers.getlist('Set-Cookie')
-        r.headers.setlist('Set-Cookie', [c.replace('; Secure', '').replace('; secure', '') if 'session=' in c else c for c in scs])
-app.session_interface.save_session = _custom_save_session
+class CustomSessionInterface(app.session_interface.__class__):
+    def get_cookie_secure(self, app):
+        return False
+app.session_interface = CustomSessionInterface()
+
 
 
 if os.getenv('FLASK_ENV') == 'production' and not os.getenv('SECRET_KEY'):
