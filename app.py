@@ -22,10 +22,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
-class CustomSessionInterface(app.session_interface.__class__):
+class CustomSessionInterface(Flask.session_interface.__class__):
     def get_cookie_secure(self, app):
         return False
+    def save_session(self, app, session, response):
+        app.config['SESSION_COOKIE_SECURE'] = False
+        super().save_session(app, session, response)
+        if 'Set-Cookie' in response.headers:
+            cookies = response.headers.getlist('Set-Cookie')
+            new_cookies = ['; '.join([p.strip() for p in c.split(';') if p.strip().lower() != 'secure']) for c in cookies]
+            response.headers.setlist('Set-Cookie', new_cookies)
+
 app.session_interface = CustomSessionInterface()
+
 
 
 
