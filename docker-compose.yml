@@ -16,14 +16,27 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=coolify"
+      # Middlewares: HTTPS Redirect
       - "traefik.http.middlewares.bjsports-https.redirectscheme.scheme=https"
+      # Router 1: Apex Domain bjsports.com.br (HTTP -> HTTPS)
       - "traefik.http.routers.bjsports-http.entrypoints=http"
       - "traefik.http.routers.bjsports-http.middlewares=bjsports-https"
-      - "traefik.http.routers.bjsports-http.rule=Host(`bjsports.com.br`) || Host(`www.bjsports.com.br`)"
+      - "traefik.http.routers.bjsports-http.rule=Host(`bjsports.com.br`)"
+      # Router 2: Apex Domain bjsports.com.br (HTTPS SSL)
       - "traefik.http.routers.bjsports.entrypoints=https"
-      - "traefik.http.routers.bjsports.rule=Host(`bjsports.com.br`) || Host(`www.bjsports.com.br`)"
+      - "traefik.http.routers.bjsports.rule=Host(`bjsports.com.br`)"
       - "traefik.http.routers.bjsports.tls=true"
       - "traefik.http.routers.bjsports.tls.certresolver=letsencrypt"
+      # Router 3: Subdomain www.bjsports.com.br (HTTP -> HTTPS)
+      - "traefik.http.routers.bjsports-www-http.entrypoints=http"
+      - "traefik.http.routers.bjsports-www-http.middlewares=bjsports-https"
+      - "traefik.http.routers.bjsports-www-http.rule=Host(`www.bjsports.com.br`)"
+      # Router 4: Subdomain www.bjsports.com.br (HTTPS SSL Independent)
+      - "traefik.http.routers.bjsports-www.entrypoints=https"
+      - "traefik.http.routers.bjsports-www.rule=Host(`www.bjsports.com.br`)"
+      - "traefik.http.routers.bjsports-www.tls=true"
+      - "traefik.http.routers.bjsports-www.tls.certresolver=letsencrypt"
+      # Service LoadBalancer Port
       - "traefik.http.services.bjsports.loadbalancer.server.port=5050"
     networks:
       - coolify
