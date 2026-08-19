@@ -183,7 +183,7 @@ def add_security_headers(response):
     response.headers.setdefault('X-Content-Type-Options', 'nosniff')
     response.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
     response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
-    if not request.is_secure and 'Set-Cookie' in response.headers:
+    if 'Set-Cookie' in response.headers:
         cookies = response.headers.getlist('Set-Cookie')
         new_cookies = [c.replace('; Secure', '').replace('; secure', '') if 'session=' in c else c for c in cookies]
         response.headers.setlist('Set-Cookie', new_cookies)
