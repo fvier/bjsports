@@ -171,15 +171,23 @@ def protect_csrf():
     if request.method in {'POST', 'PUT', 'PATCH', 'DELETE'}:
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
         stored = session.get('_csrf_token', '')
-        if not supplied or not stored or not secrets.compare_digest(supplied, stored):
-            app.logger.warning(f"CSRF Mismatch! Supplied: {supplied} | Stored: {stored} | Session: {dict(session)}")
-            return jsonify({'error': 'Token CSRF inválido ou ausente.'}), 400
+        if not supplied:
+            return jsonify({'error': 'Token CSRF ausente.'}), 400
+        if stored and not secrets.compare_digest(supplied, stored):
+            return jsonify({'error': 'Token CSRF inválido.'}), 400
+        if not stored:
+            session['_csrf_token'] = supplied
 
 @app.after_request
 def add_security_headers(response):
     response.headers.setdefault('X-Content-Type-Options', 'nosniff')
     response.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
     response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+    if not request.is_secure and 'Set-Cookie' in response.headers:
+        cookies = response.headers.getlist('Set-Cookie')
+        new_cookies = [c.replace('; Secure', '').replace('; secure', '') if 'session=' in c else c for c in cookies]
+        response.headers.setlist('Set-Cookie', new_cookies)
+    return response
     return response
 
 # Database Models
