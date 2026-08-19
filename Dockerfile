@@ -21,4 +21,4 @@ ENV FLASK_ENV=production
 
 EXPOSE 5050
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5050", "--workers", "3", "--threads", "2", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5050", "--workers", "3", "--threads", "2", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
