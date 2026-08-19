@@ -199,6 +199,7 @@ def protect_csrf():
     if request.method in {'POST', 'PUT', 'PATCH', 'DELETE'}:
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
         stored = session.get('_csrf_token', '')
+        print(f"CSRF DEBUG: Supplied={supplied} | Stored={stored} | SessionCookie={request.cookies.get('session')} | SessionDict={dict(session)}", flush=True)
         if not supplied:
             return jsonify({'error': 'Token CSRF ausente.'}), 400
         if stored and not secrets.compare_digest(supplied, stored):
