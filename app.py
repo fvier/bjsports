@@ -170,7 +170,9 @@ def format_enrollment_duration(started_at, reference=None):
 def protect_csrf():
     if request.method in {'POST', 'PUT', 'PATCH', 'DELETE'}:
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
-        if not supplied or not secrets.compare_digest(supplied, session.get('_csrf_token', '')):
+        stored = session.get('_csrf_token', '')
+        if not supplied or not stored or not secrets.compare_digest(supplied, stored):
+            app.logger.warning(f"CSRF Mismatch! Supplied: {supplied} | Stored: {stored} | Session: {dict(session)}")
             return jsonify({'error': 'Token CSRF inválido ou ausente.'}), 400
 
 @app.after_request
