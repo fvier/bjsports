@@ -1623,15 +1623,10 @@ function setupChampionshipScoreboard() {
       }, 4500);
       return;
     }
-    const toggleGameThemeBtn = event.target.closest('[data-toggle-game-theme]');
-    if (toggleGameThemeBtn) {
-      const main = document.getElementById('scoreboardMainContent');
-      const stg = document.querySelector('.scoreboard-stage');
-      const isGameMode = main?.classList.toggle('theme-area-game');
-      stg?.classList.toggle('theme-area-game-stage');
-
-      document.querySelectorAll('.hud-graffiti-score').forEach(el => el.classList.toggle('hidden', !isGameMode));
-      document.querySelectorAll('.hud-plain-score').forEach(el => el.classList.toggle('hidden', isGameMode));
+    const toggleArenaBtn = event.target.closest('[data-toggle-game-theme]');
+    if (toggleArenaBtn) {
+      document.getElementById('scoreboardMainContent')?.classList.toggle('theme-arena');
+      document.querySelector('.scoreboard-stage')?.classList.toggle('theme-arena-stage');
       return;
     }
     const timerFullscreen = event.target.closest('[data-timer-fullscreen]');
@@ -1671,6 +1666,9 @@ function setupChampionshipScoreboard() {
       const updatedStage = parsed.querySelector('.scoreboard-stage');
       if (!updatedStage) throw new Error('Resposta do placar incompleta.');
       stage.className = updatedStage.className;
+      if (document.getElementById('scoreboardMainContent')?.classList.contains('theme-arena')) {
+        stage.classList.add('theme-arena-stage');
+      }
       stage.innerHTML = updatedStage.innerHTML;
       const currentMatchTabs = scoreboardContent.querySelector('.scoreboard-match-tabs');
       const updatedMatchTabs = parsed.querySelector('.scoreboard-match-tabs');

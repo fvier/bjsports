@@ -102,7 +102,7 @@
               <label for="regUsername">Usuário (Login Único) *</label>
               <div class="input-with-icon">
                 <i data-lucide="user-check" class="input-icon"></i>
-                <input type="text" name="regUsername" id="regUsername" placeholder="ex: fernandovier" required>
+                <input type="text" name="regUsername" id="regUsername" placeholder="ex: fernandovier" value="{{ register_form_data.get('regUsername', '') }}" required>
               </div>
               <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
             </div>
@@ -112,14 +112,14 @@
               <label for="regName">Nome Completo *</label>
               <div class="input-with-icon">
                 <i data-lucide="user" class="input-icon"></i>
-                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" required>
+                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" value="{{ register_form_data.get('regName', '') }}" required>
               </div>
             </div>
 
             <!-- 3. Checkbox para Aluno Menor de Idade (Localizado logo abaixo do nome) -->
             <div class="form-group checkbox-group" style="margin-top: 4px; margin-bottom: 16px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
               <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #ffffff; cursor: pointer; margin: 0;">
-                <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)">
+                <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)" {% if register_form_data.get('isMinorStudent') %}checked{% endif %}>
                 <span>👶 <strong>Aluno é menor de idade</strong> (marque se o aluno tiver menos de 18 anos)</span>
               </label>
             </div>
@@ -129,7 +129,7 @@
               <label for="regBirthDate">Data de Nascimento *</label>
               <div class="input-with-icon">
                 <i data-lucide="calendar" class="input-icon" style="color: var(--accent-gold);"></i>
-                <input type="date" name="regBirthDate" id="regBirthDate" required>
+                <input type="date" name="regBirthDate" id="regBirthDate" value="{{ register_form_data.get('regBirthDate', '') }}" required>
               </div>
               <span class="field-hint">📅 Informe a data de nascimento do aluno.</span>
             </div>
@@ -137,7 +137,7 @@
             <!-- 5. CPF Numérico -->
             <div class="form-group">
               <label for="regCpf">CPF (11 dígitos) *</label>
-              <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required>
+              <input type="text" name="regCpf" id="regCpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" value="{{ register_form_data.get('regCpf', '') }}" required>
               <span class="field-hint">🔢 Digite 11 números para formatar automaticamente.</span>
             </div>
 
@@ -146,10 +146,10 @@
               <label>WhatsApp / Celular *</label>
               <div class="phone-split-group">
                 <div style="width: 85px;">
-                  <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="81" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
+                  <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="81" maxlength="2" inputmode="numeric" value="{{ register_form_data.get('regDDD', '') }}" required title="DDD (2 dígitos)">
                 </div>
                 <div style="flex: 1;">
-                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="984472771" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="984472771" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" value="{{ register_form_data.get('regPhoneNumber', '') }}" required title="Número do Celular (exatamente 9 dígitos)">
                 </div>
               </div>
             </div>
@@ -159,7 +159,7 @@
               <label for="regEmail">Endereço de E-mail *</label>
               <div class="input-with-icon">
                 <i data-lucide="mail" class="input-icon" style="color: var(--accent-gold);"></i>
-                <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" required>
+                <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" value="{{ register_form_data.get('regEmail', '') }}" required>
               </div>
               <span class="field-hint">✉️ E-mail para confirmação de matrícula, recibos e avisos da academia.</span>
             </div>
@@ -170,10 +170,10 @@
               <div class="input-with-icon">
                 <i data-lucide="user-check" class="input-icon" style="color: var(--accent-gold);"></i>
                 <select name="regSex" id="regSex" required>
-                  <option value="">Selecione o Gênero</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="feminino">Feminino</option>
-                  <option value="prefer_not">Prefiro não informar / Outro</option>
+                  <option value="" {% if not register_form_data.get('regSex') %}selected{% endif %}>Selecione o Gênero</option>
+                  <option value="masculino" {% if register_form_data.get('regSex') == 'masculino' %}selected{% endif %}>Masculino</option>
+                  <option value="feminino" {% if register_form_data.get('regSex') == 'feminino' %}selected{% endif %}>Feminino</option>
+                  <option value="prefer_not" {% if register_form_data.get('regSex') == 'prefer_not' %}selected{% endif %}>Prefiro não informar / Outro</option>
                 </select>
               </div>
               <span class="field-hint">👤 Identificação de gênero do aluno.</span>
@@ -184,7 +184,7 @@
               <label for="regPlan">Plano Desejado *</label>
               <select name="regPlan" id="regPlan" required>
                 {% for plan in available_plans %}
-                  <option value="{{ plan.name }} — {{ plan.price }}">{{ plan.name }} — {{ plan.price }}</option>
+                  <option value="{{ plan.name }} — {{ plan.price }}" {% if register_form_data.get('regPlan') == plan.name ~ ' — ' ~ plan.price %}selected{% endif %}>{{ plan.name }} — {{ plan.price }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -193,9 +193,9 @@
             <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
               <label for="regDueDate" style="color: #4ade80; font-weight: 700;">Dia de Vencimento da Mensalidade *</label>
               <select name="regDueDate" id="regDueDate" required>
-                <option value="5">📅 Dia 5 de cada mês</option>
-                <option value="15" selected>📅 Dia 15 de cada mês</option>
-                <option value="25">📅 Dia 25 de cada mês</option>
+                <option value="5" {% if register_form_data.get('regDueDate', '15') == '5' %}selected{% endif %}>📅 Dia 5 de cada mês</option>
+                <option value="15" {% if register_form_data.get('regDueDate', '15') == '15' %}selected{% endif %}>📅 Dia 15 de cada mês</option>
+                <option value="25" {% if register_form_data.get('regDueDate', '15') == '25' %}selected{% endif %}>📅 Dia 25 de cada mês</option>
               </select>
               <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
             </div>
@@ -226,19 +226,19 @@
 
             <div class="portal-acceptance-box">
               <div class="portal-acceptance-heading"><i data-lucide="list-checks"></i><div><strong>Revise e confirme suas escolhas</strong><small>Todos os aceites abaixo são necessários para concluir o cadastro.</small></div></div>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="acceptMembershipTerms" required><span><i data-lucide="check"></i></span><p>Li e aceito o <strong>Termo de Adesão</strong>, inclusive o compromisso de pagamento das mensalidades e as regras de acesso. <em>Obrigatório</em></p></label>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="acknowledgePrivacy" required><span><i data-lucide="check"></i></span><p>Estou ciente do tratamento dos meus dados para cadastro, pagamentos, presenças, segurança e execução do serviço, conforme o aviso de privacidade versão {{ privacy_notice_version }}. <em>Obrigatório</em></p></label>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="confirmLegalCapacity" required><span><i data-lucide="check"></i></span><p>Declaro que sou maior de 18 anos ou responsável legal pelo aluno cadastrado. <em>Obrigatório</em></p></label>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="acceptMembershipTerms" {% if register_form_data.get('acceptMembershipTerms') %}checked{% endif %} required><span><i data-lucide="check"></i></span><p>Li e aceito o <strong>Termo de Adesão</strong>, inclusive o compromisso de pagamento das mensalidades e as regras de acesso. <em>Obrigatório</em></p></label>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="acknowledgePrivacy" {% if register_form_data.get('acknowledgePrivacy') %}checked{% endif %} required><span><i data-lucide="check"></i></span><p>Estou ciente do tratamento dos meus dados para cadastro, pagamentos, presenças, segurança e execução do serviço, conforme o aviso de privacidade versão {{ privacy_notice_version }}. <em>Obrigatório</em></p></label>
+              <label class="portal-consent-check is-required"><input type="checkbox" name="confirmLegalCapacity" {% if register_form_data.get('confirmLegalCapacity') %}checked{% endif %} required><span><i data-lucide="check"></i></span><p>Declaro que sou maior de 18 anos ou responsável legal pelo aluno cadastrado. <em>Obrigatório</em></p></label>
               <fieldset class="portal-image-consent">
                 <legend><i data-lucide="shield-check"></i><span><strong>Autorização de imagem obrigatória para o cadastro</strong><small>Escolha quem está concedendo a autorização descrita nos itens 12 a 14 do contrato.</small></span></legend>
                 <div class="portal-image-consent-note is-required"><i data-lucide="info"></i><span><strong>Nenhuma foto será enviada agora.</strong> Esta confirmação autoriza somente os usos e finalidades descritos no contrato. <strong>Sem a autorização, o cadastro não será concluído.</strong></span></div>
-                <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
-                <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
-                <div class="portal-minor-consent-fields hidden" data-minor-consent-fields id="minorConsentFields">
+                <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" {% if register_form_data.get('imageConsentScope') == 'adult' %}checked{% endif %} required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
+                <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" {% if register_form_data.get('imageConsentScope') == 'minor_guardian' %}checked{% endif %} required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
+                <div class="portal-minor-consent-fields{{ '' if register_form_data.get('imageConsentScope') == 'minor_guardian' else ' hidden' }}" data-minor-consent-fields id="minorConsentFields">
                   <p><i data-lucide="shield-check"></i><span><strong>Identificação do responsável pelo menor</strong><small>Necessária somente para esta modalidade de autorização.</small></span></p>
-                  <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name"></label>
-                  <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
-                  <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
+                  <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name" value="{{ register_form_data.get('imageGuardianName', '') }}"></label>
+                  <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14" value="{{ register_form_data.get('imageGuardianCpf', '') }}"></label>
+                  <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="" {% if not register_form_data.get('imageGuardianRelationship') %}selected{% endif %}>Selecione</option><option value="mae" {% if register_form_data.get('imageGuardianRelationship') == 'mae' %}selected{% endif %}>Mãe</option><option value="pai" {% if register_form_data.get('imageGuardianRelationship') == 'pai' %}selected{% endif %}>Pai</option><option value="responsavel_legal" {% if register_form_data.get('imageGuardianRelationship') == 'responsavel_legal' %}selected{% endif %}>Responsável legal</option></select></label>
                   <small>Ao escolher esta opção, declaro que possuo autoridade legal para decidir sobre a imagem do menor e aceito as finalidades e limites descritos nos itens 12 a 14.</small>
                 </div>
               </fieldset>
