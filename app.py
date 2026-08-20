@@ -1364,7 +1364,22 @@ def login():
                     errors.append('Informe o vínculo do responsável legal pelo menor.')
             valid_plans = {f'{p.name} — {p.price}' for p in Plan.query.all()}
             if plan not in valid_plans: errors.append('Plano inválido.')
+
+            register_form_data = {
+                'regUsername': username, 'regName': name, 'regCpf': cpf,
+                'regDDD': ddd, 'regPhoneNumber': phone, 'regEmail': email,
+                'regSex': sex, 'regPlan': plan, 'regDueDate': due_date,
+                'regBirthDate': request.form.get('regBirthDate', '').strip(),
+                'isMinorStudent': request.form.get('isMinorStudent') == 'on',
+                'acceptMembershipTerms': accepted_membership_terms,
+                'acknowledgePrivacy': acknowledged_privacy,
+                'confirmLegalCapacity': accepted_legal_capacity,
+                'imageConsentScope': image_consent_scope,
+                'imageGuardianName': guardian_name, 'imageGuardianCpf': guardian_cpf,
+                'imageGuardianRelationship': guardian_relationship,
+            }
             if errors:
+                session['register_form_data'] = register_form_data
                 for error in errors: flash(error, 'error')
                 return redirect(url_for('login', mode='register'))
 
@@ -1415,6 +1430,7 @@ def login():
                 session['user_due_date'] = new_user.due_date
                 session['first_registration'] = True
             else:
+                session['register_form_data'] = register_form_data
                 flash('Usuário, CPF ou e-mail já cadastrado. Entre com sua senha.', 'error')
                 return redirect(url_for('login', mode='register'))
             return redirect(url_for('dashboard'))
@@ -1440,7 +1456,8 @@ def login():
     return render_template('login.html', page_title='Área de Membros', is_logged_in=False,
                            available_plans=Plan.query.order_by(Plan.category, Plan.id).all(),
                            membership_terms_version=MEMBERSHIP_TERMS_VERSION,
-                           privacy_notice_version=PRIVACY_NOTICE_VERSION)
+                           privacy_notice_version=PRIVACY_NOTICE_VERSION,
+                           register_form_data=session.pop('register_form_data', None) or {})
 
 @app.route('/dashboard.html')
 @app.route('/dashboard')
@@ -2460,11 +2477,15 @@ def campeonato_placar():
             if not championship:
                 championship = InternalChampionship.query.first()
                 if not championship:
+                    today = datetime.now().date()
                     championship = InternalChampionship(
                         name="Torneio Interno BJ Sports 2026",
-                        event_date=datetime.now(),
+                        modality="Multimodalidade",
+                        event_date=today,
+                        registration_deadline=today,
                         location="Centro de Treinamento BJ Sports",
-                        status="em_andamento"
+                        status="em_andamento",
+                        created_by_username=session.get('username', ''),
                     )
                     db.session.add(championship)
                     db.session.flush()

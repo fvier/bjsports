@@ -7,12 +7,11 @@
   <div class="erp-main-container">
     <header class="erp-topbar"><div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Campeonatos • Placar e Timer</span></div><div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span></div></div></header>
 
-    {% set is_area_game = selected_match and ('game' in selected_match.mat_area|lower or 'área 2' in selected_match.mat_area|lower or 'area 2' in selected_match.mat_area|lower) %}
-    <main class="erp-content championship-scoreboard-content {% if is_area_game %}theme-area-game{% endif %}" id="scoreboardMainContent">
+    <main class="erp-content championship-scoreboard-content" id="scoreboardMainContent">
       <section class="scoreboard-heading">
         <div>
-          <span><i data-lucide="timer"></i> {% if is_area_game %}🎮 ÁREA GAME • STREAM BROADCAST{% else %}ÁREA DE COMPETIÇÃO{% endif %}</span>
-          <h1>Placar e Timer {% if is_area_game %}<small style="font-size:0.5em; color:#00f3ff; text-shadow:0 0 10px rgba(0,243,255,0.6); margin-left:8px;">[STREAMER HUD]</small>{% endif %}</h1>
+          <span><i data-lucide="timer"></i> ÁREA DE COMPETIÇÃO</span>
+          <h1>Placar e Timer</h1>
           <p>Acompanhe pontos, vantagens, punições e o tempo oficial de cada confronto.</p>
         </div>
         {% if can_control %}<button type="button" data-scoreboard-create-open><i data-lucide="plus"></i>Nova Luta / Área</button>{% endif %}
@@ -36,13 +35,13 @@
         <div>{% for match in matches %}<a class="{% if match.id == selected_match.id %}active{% endif %}" href="{{ url_for('campeonato_placar', match=match.id, view=scoreboard_view) }}" {% if match.id == selected_match.id %}aria-current="page"{% endif %}><span><strong>{{ match.mat_area }}</strong><em class="scoreboard-match-state"><i class="is-{{ match.status }}"></i>{{ match.status|replace('_', ' ')|capitalize }}</em></span><b><span class="is-red-dot"></span>{{ match.red_competitor }} <i>×</i> {{ match.blue_competitor }}<span class="is-blue-dot"></span></b><small>{{ match.category }}{% if match.id == selected_match.id %}<u>Em exibição</u>{% endif %}</small></a>{% endfor %}</div>
       </nav>
 
-      <section class="scoreboard-stage {% if selected_match.status == 'finalizada' %}is-finished{% endif %} {% if is_area_game %}theme-area-game-stage{% endif %}">
+      <section class="scoreboard-stage {% if selected_match.status == 'finalizada' %}is-finished{% endif %}">
         <header><div><span>{{ selected_match.championship.name }}</span><strong>{{ selected_match.category }}</strong></div><div><span>{{ selected_match.mat_area }}</span><strong>{{ selected_match.status|replace('_', ' ')|upper }}</strong></div></header>
         <div class="scoreboard-stage-tools">
           <span><i data-lucide="radio"></i> CONTROLE DA LUTA</span>
           <div>
-            <button type="button" data-toggle-game-theme class="btn-toggle-game-theme" title="Alternar Visual Gaming Streamer HUD" style="padding: 3px 10px; font-size: 0.76rem; background: rgba(0, 243, 255, 0.15); border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-              <i data-lucide="gamepad-2"></i> 🎮 Modo Game
+            <button type="button" data-toggle-game-theme class="btn-toggle-arena" title="Alternar para o visual Arena">
+              <i data-lucide="swords"></i> Modo Arena
             </button>
             {% if can_control and recent_score_events %}<form method="post" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><input type="hidden" name="scoreboard_view" value="placar"><button name="action" value="undo_score_event" class="is-undo"><i data-lucide="undo-2"></i>Desfazer ação</button></form>{% endif %}
             {% if can_control %}<form method="post" style="display:inline;" onsubmit="return confirm('Deseja realmente excluir esta luta/área?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="match_id" value="{{ selected_match.id }}"><button name="action" value="delete_match" class="is-undo" style="background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); color: #fca5a5;" title="Remover esta luta e área"><i data-lucide="trash-2"></i>Excluir Luta</button></form>{% endif %}
@@ -69,17 +68,7 @@
           <div class="scoreboard-competitors">
             <article class="scoreboard-corner is-red {% if selected_match.winner_side == 'red' %}is-winner{% endif %}">
               <span class="scoreboard-corner-label"><i></i> CORNER VERMELHO</span><h2>{{ selected_match.red_competitor }}</h2>
-              <span class="scoreboard-corner-label"><i></i> CORNER VERMELHO</span><h2>{{ selected_match.red_competitor }}</h2>
-              <strong class="scoreboard-points">
-                <span class="hud-graffiti-score {% if not is_area_game %}hidden{% endif %}">
-                  {% for char in (selected_match.red_score|string) %}
-                    <img src="/static/img/digits/{{ char }}.png" alt="{{ char }}" class="hud-digit-img">
-                  {% endfor %}
-                </span>
-                <span class="hud-plain-score {% if is_area_game %}hidden{% endif %}">
-                  {{ selected_match.red_score }}
-                </span>
-              </strong>
+              <strong class="scoreboard-points">{{ selected_match.red_score }}</strong>
               <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.red_advantages }}</b></span><span>Punições <b>{{ selected_match.red_penalties }}</b></span></div>
               {% if can_control and selected_match.status != 'finalizada' %}
               <div class="scoreboard-move-actions" aria-label="Pontuar atleta vermelho">
@@ -90,23 +79,10 @@
               <div class="scoreboard-special-actions"><button name="action" value="red_advantage"><i data-lucide="chevrons-up"></i><span>Vantagem</span><b>+V</b></button><button class="is-penalty" name="action" value="red_penalty"><i data-lucide="triangle-alert"></i><span>Punição<small>{% set red_next = selected_match.red_penalties + 1 %}{% if red_next == 1 %}1ª: registrar{% elif red_next == 2 %}2ª: vantagem ao azul{% elif red_next >= selected_match.penalty_limit %}{{ red_next }}ª: desclassificação{% else %}{{ red_next }}ª: +2 ao azul{% endif %}</small></span><b>+P</b></button><button class="is-disqualify" name="action" value="red_disqualify" data-disqualify><i data-lucide="shield-x"></i><span>Desclassificar<small data-disqualify-copy>Exige confirmação</small></span></button></div>
               {% endif %}{% if selected_match.winner_side == 'red' %}<em><i data-lucide="trophy"></i>Vencedor</em>{% endif %}
             </article>
-            <div class="scoreboard-versus">
-              <div class="hud-vs-emblem">
-                <img src="/static/img/vs_graffiti_orange.png" alt="VS" class="hud-vs-img">
-              </div>
-            </div>
+            <div class="scoreboard-versus">VS</div>
             <article class="scoreboard-corner is-blue {% if selected_match.winner_side == 'blue' %}is-winner{% endif %}">
               <span class="scoreboard-corner-label"><i></i> CORNER AZUL</span><h2>{{ selected_match.blue_competitor }}</h2>
-              <strong class="scoreboard-points">
-                <span class="hud-graffiti-score {% if not is_area_game %}hidden{% endif %}">
-                  {% for char in (selected_match.blue_score|string) %}
-                    <img src="/static/img/digits/{{ char }}.png" alt="{{ char }}" class="hud-digit-img">
-                  {% endfor %}
-                </span>
-                <span class="hud-plain-score {% if is_area_game %}hidden{% endif %}">
-                  {{ selected_match.blue_score }}
-                </span>
-              </strong>
+              <strong class="scoreboard-points">{{ selected_match.blue_score }}</strong>
               <div class="scoreboard-secondary"><span>Vantagens <b>{{ selected_match.blue_advantages }}</b></span><span>Punições <b>{{ selected_match.blue_penalties }}</b></span></div>
               {% if can_control and selected_match.status != 'finalizada' %}
               <div class="scoreboard-move-actions" aria-label="Pontuar atleta azul">
