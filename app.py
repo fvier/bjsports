@@ -831,7 +831,20 @@ def ensure_class_groups():
                 ))
         db.session.commit()
 
+def ensure_schema_updates():
+    try:
+        from sqlalchemy import inspect, text
+        inspector = inspect(db.engine)
+        columns = [c['name'] for c in inspector.get_columns('plan')]
+        if 'modality' not in columns:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE plan ADD COLUMN modality VARCHAR(150)'))
+                conn.commit()
+    except Exception as e:
+        print('Schema migration note:', e)
+
 def ensure_mma_classes_and_plans():
+    ensure_schema_updates()
     old_group = ClassGroup.query.filter_by(name='Jiu-Jitsu Almoço').first()
     if old_group:
         old_group.name = 'Jiu-Jitsu / Meio dia'
@@ -999,6 +1012,7 @@ with app.app_context():
                     ))
         db.session.commit()
     
+    ensure_schema_updates()
     if not Plan.query.first():
         p1 = Plan(name='⚡ Plano Passe Livre', category='Planos Individuais', price='R$ 120,00/mês', sub='Acesso total a todas as modalidades e horários', features='Liberdade de treinar todos os dias;Acesso aos treinos da manhã, tarde e noite;Acompanhamento individual de evolução', is_featured=True)
         p2 = Plan(name='🔥 Plano Casal', category='Planos Promocionais & Família', price='R$ 190,00/mês', sub='Para 2 pessoas treinando juntas', features='Válido para qualquer modalidade;Matrícula conjunta simplificada;Incentivo mútuo nos treinos', is_featured=False)
