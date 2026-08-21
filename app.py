@@ -69,7 +69,7 @@ CLASS_MANAGEMENT_PREVIEW = [
     {'id': 2, 'name': 'Jiu-Jitsu Kids 2', 'modality': 'Jiu-Jitsu', 'audience': 'Kids',
      'schedules': ['Seg, Qua • 16:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
      'capacity': 16, 'enrolled': 12, 'waiting': 0, 'status': 'ativa'},
-    {'id': 3, 'name': 'Jiu-Jitsu Almoço', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
+    {'id': 3, 'name': 'Jiu-Jitsu / Meio dia', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
      'schedules': ['Ter, Qui • 12:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
      'capacity': 20, 'enrolled': 8, 'waiting': 0, 'status': 'ativa'},
     {'id': 4, 'name': 'Jiu-Jitsu Tarde', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
@@ -812,6 +812,11 @@ def ensure_class_groups():
         db.session.commit()
 
 def ensure_mma_classes_and_plans():
+    old_group = ClassGroup.query.filter_by(name='Jiu-Jitsu Almoço').first()
+    if old_group:
+        old_group.name = 'Jiu-Jitsu / Meio dia'
+        db.session.commit()
+
     mma_plan = Plan.query.filter(Plan.name.like('%MMA%')).first()
     if not mma_plan:
         p_mma = Plan(
@@ -1724,6 +1729,91 @@ def financeiro_dashboard():
                            monthly=monthly, max_month_value=max_month_value,
                            debtors=debtors[:6], due_distribution=due_distribution,
                            filtered_users=len(users))
+
+@app.route('/cards_planos', methods=['GET', 'POST'])
+@app.route('/cards_planos.html', methods=['GET', 'POST'])
+@login_required
+def cards_planos():
+    if request.method == 'POST':
+        if g.user and g.user.role == 'instrutor':
+            action = request.form.get('action')
+            if action == 'create':
+                name = request.form.get('name', '').strip()
+                category = request.form.get('category', '').strip()
+                price = request.form.get('price', '').strip()
+                sub = request.form.get('sub', '').strip()
+                features = request.form.get('features', '').strip()
+                is_featured = 'is_featured' in request.form
+                new_plan = Plan(name=name, category=category, price=price, sub=sub, features=features, is_featured=is_featured)
+                db.session.add(new_plan)
+                db.session.commit()
+                flash(f'Plano "{name}" cadastrado com sucesso!', 'success')
+            elif action == 'update':
+                plan_id = request.form.get('plan_id')
+                plan = db.session.get(Plan, plan_id)
+                if plan:
+                    plan.name = request.form.get('name', '').strip()
+                    plan.category = request.form.get('category', '').strip()
+                    plan.price = request.form.get('price', '').strip()
+                    plan.sub = request.form.get('sub', '').strip()
+                    plan.features = request.form.get('features', '').strip()
+                    plan.is_featured = 'is_featured' in request.form
+                    db.session.commit()
+                    flash(f'Plano #{plan.id} ("{plan.name}") atualizado com sucesso!', 'success')
+            elif action == 'delete':
+                plan_id = request.form.get('plan_id')
+                plan = db.session.get(Plan, plan_id)
+                if plan:
+                    db.session.delete(plan)
+                    db.session.commit()
+                    flash(f'Plano #{plan.id} removido do catálogo.', 'info')
+        return redirect(url_for('cards_planos'))
+
+    all_plans = Plan.query.order_by(Plan.id.asc()).all()
+    user_counts = {}
+    all_users = User.query.all()
+    for u in all_users:
+        if u.plan:
+            for p in all_plans:
+                if p.name.lower() in u.plan.lower():
+                    user_counts[p.id] = user_counts.get(p.id, 0) + 1
+                    break
+
+    plan_cards_data = []
+    total_revenue_estimated = 0.0
+    total_students_enrolled = 0
+
+    for plan in all_plans:
+        subscribers = user_counts.get(plan.id, 0)
+        numbers = re.findall(r'\d+(?:[.,]\d+)?', plan.price)
+        unit_price = 0.0
+        if numbers:
+            try:
+                unit_price = float(numbers[0].replace('.', '').replace(',', '.'))
+            except ValueError:
+                unit_price = 0.0
+        estimated_revenue = subscribers * unit_price
+        total_revenue_estimated += estimated_revenue
+        total_students_enrolled += subscribers
+
+        feature_list = [f.strip() for f in plan.features.split(';') if f.strip()] if plan.features else []
+
+        plan_cards_data.append({
+            'plan': plan,
+            'subscribers': subscribers,
+            'estimated_revenue': f"R$ {estimated_revenue:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ','),
+            'features_list': feature_list,
+            'unit_price': unit_price
+        })
+
+    return render_template(
+        'cards_planos.html',
+        page_title='Cards Planos • Financeiro',
+        plan_cards=plan_cards_data,
+        total_plans=len(all_plans),
+        total_subscribers=total_students_enrolled,
+        total_revenue=f"R$ {total_revenue_estimated:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
+    )
 
 @app.route('/planos_admin', methods=['GET', 'POST'])
 @app.route('/planos_admin.html', methods=['GET', 'POST'])

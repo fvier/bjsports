@@ -15,6 +15,7 @@
     <div class="erp-nav-group">
       <span class="erp-group-title">FINANCEIRO</span>
       {% if user_role == 'instrutor' %}<a href="{{ url_for('financeiro_dashboard') }}" class="erp-nav-item {% if request.endpoint == 'financeiro_dashboard' %}active{% endif %}" data-finance-dashboard="true"><i data-lucide="chart-no-axes-combined" class="erp-item-icon"></i><span class="erp-item-label">Dashboard Financeiro</span></a>{% endif %}
+      <a href="{{ url_for('cards_planos') }}" class="erp-nav-item {% if request.endpoint == 'cards_planos' %}active{% endif %}"><i data-lucide="layers" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Cards Planos</span></a>
       <a href="{{ url_for('mensalidades_aluno') }}" class="erp-nav-item {% if request.endpoint == 'mensalidades_aluno' %}active{% endif %}"><i data-lucide="dollar-sign" class="erp-item-icon icon-green"></i><span class="erp-item-label">Minhas Mensalidades</span></a>
       <a href="{{ url_for('loja') }}" class="erp-nav-item {% if request.endpoint == 'loja' %}active{% endif %}"><i data-lucide="shopping-bag" class="erp-item-icon"></i><span class="erp-item-label">Loja Oficial (15% OFF)</span></a>
     </div>

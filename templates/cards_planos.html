@@ -1,0 +1,335 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- ÁREA DE CARDS DE PLANOS NO FINANCEIRO COM BARRA LATERAL ORGANIZADA -->
+  <div class="erp-wrapper">
+    
+    <!-- BARRA LATERAL ORGANIZADA NAS SEÇÕES: AULAS, FINANCEIRO, CAMPEONATOS, ADMINISTRAÇÃO -->
+    {% include "_erp_sidebar.html" %}
+
+    <!-- ÁREA PRINCIPAL DO PAINEL -->
+    <div class="erp-main-container">
+      
+      <!-- Top Bar -->
+      <header class="erp-topbar">
+        <div class="erp-topbar-left">
+          <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <span class="erp-blue-badge">BJ Sports ERP • Financeiro</span>
+        </div>
+        
+        <div class="erp-topbar-right">
+          <div class="erp-user-badge">
+            <span class="erp-avatar">🥋</span>
+            <span class="erp-user-name">{{ user_name }}</span>
+            <span class="badge-pill bg-green" style="font-size: 0.7rem;">{% if user_role == 'instrutor' %}PAINEL ADMINISTRATIVO{% else %}ÁREA DO ALUNO{% endif %}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Conteúdo Principal -->
+      <main class="erp-content">
+        
+        <!-- Hero Header -->
+        <div class="erp-hero-banner" style="margin-bottom: 24px;">
+          <div class="erp-status-indicator">
+            <span class="live-dot"></span> MENSALIDADES & CATÁLOGO DE PLANOS
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h1 class="erp-hero-heading"><i data-lucide="layers" class="icon-gold" style="vertical-align: middle; margin-right: 8px;"></i>Cards Planos</h1>
+              <p class="erp-hero-sub">Visão geral dos planos de assinatura, vantagens exclusivas, total de matriculados e previsão de receita.</p>
+            </div>
+            {% if user_role == 'instrutor' %}
+            <button type="button" class="btn btn-primary btn-glow" id="btnOpenNewPlanModal" style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="plus-circle"></i> Novo Plano
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- MÉTICAS RESUMIDAS FINANCEIRAS DO CATÁLOGO -->
+        <div class="erp-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
+          <div class="glass-panel" style="padding: 20px; border-left: 4px solid var(--accent-gold); display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255, 184, 0, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+              <i data-lucide="layers" style="width: 26px; height: 26px;"></i>
+            </div>
+            <div>
+              <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Total de Planos</span>
+              <h3 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 2px 0 0 0;">{{ total_plans }}</h3>
+            </div>
+          </div>
+
+          <div class="glass-panel" style="padding: 20px; border-left: 4px solid #25d366; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(37, 211, 102, 0.15); display: flex; align-items: center; justify-content: center; color: #25d366;">
+              <i data-lucide="users" style="width: 26px; height: 26px;"></i>
+            </div>
+            <div>
+              <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Alunos com Plano</span>
+              <h3 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 2px 0 0 0;">{{ total_subscribers }}</h3>
+            </div>
+          </div>
+
+          <div class="glass-panel" style="padding: 20px; border-left: 4px solid #3b82f6; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6;">
+              <i data-lucide="banknote" style="width: 26px; height: 26px;"></i>
+            </div>
+            <div>
+              <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Receita Estimada / Mês</span>
+              <h3 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 2px 0 0 0;">{{ total_revenue }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTROS DE CATEGORIA DE PLANO -->
+        <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;" id="planCategoryFilters">
+          <button type="button" class="btn btn-secondary plan-filter-btn active" data-category="all" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
+            🥋 Todos os Planos
+          </button>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-category="Planos Individuais" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
+            ⚡ Planos Individuais
+          </button>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-category="Planos Promocionais & Família" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
+            🔥 Promocionais & Família
+          </button>
+        </div>
+
+        <!-- GRID PRINCIPAL DOS CARDS DE PLANOS -->
+        <div class="plans-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          {% for item in plan_cards %}
+          {% set plan = item.plan %}
+          <div class="glass-panel plan-card-item {% if plan.is_featured %}is-featured-card{% endif %}" 
+               data-plan-category="{{ plan.category }}"
+               style="position: relative; display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; padding: 24px; background: rgba(18, 18, 28, 0.95); transition: transform 0.2s ease, box-shadow 0.2s ease; {% if plan.is_featured %}border: 2px solid var(--accent-gold); box-shadow: 0 0 20px rgba(255, 184, 0, 0.15);{% else %}border: 1px solid var(--border-light);{% endif %}">
+            
+            {% if plan.is_featured %}
+            <div style="position: absolute; top: -14px; right: 20px; background: linear-gradient(135deg, #ffb800, #ff8800); color: #000; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; padding: 4px 12px; border-radius: 12px; letter-spacing: 0.08em; box-shadow: 0 4px 10px rgba(255, 184, 0, 0.3);">
+              🔥 MAIS POPULAR
+            </div>
+            {% endif %}
+
+            <div>
+              <!-- Cabeçalho do Card -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span class="badge-pill" style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.08); color: var(--text-muted); padding: 4px 10px; border-radius: 8px;">
+                  {{ plan.category }}
+                </span>
+                <span style="font-size: 0.8rem; color: #25d366; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="users" style="width: 14px; height: 14px;"></i> {{ item.subscribers }} aluno(s)
+                </span>
+              </div>
+
+              <!-- Nome do Plano -->
+              <h3 style="font-size: 1.4rem; font-weight: 800; color: #ffffff; margin: 0 0 6px 0; font-family: var(--font-heading);">
+                {{ plan.name }}
+              </h3>
+
+              <!-- Preço -->
+              <div style="margin-bottom: 14px;">
+                <span style="font-size: 1.8rem; font-weight: 900; color: var(--accent-gold); font-family: var(--font-heading);">
+                  {{ plan.price }}
+                </span>
+              </div>
+
+              <!-- Subtítulo / Descrição -->
+              {% if plan.sub %}
+              <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.45; margin-bottom: 18px;">
+                {{ plan.sub }}
+              </p>
+              {% endif %}
+
+              <div style="height: 1px; background: rgba(255, 255, 255, 0.08); margin-bottom: 18px;"></div>
+
+              <!-- Lista de Benefícios -->
+              {% if item.features_list %}
+              <div style="margin-bottom: 24px;">
+                <strong style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 10px;">
+                  Vantagens inclusas:
+                </strong>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                  {% for feat in item.features_list %}
+                  <li style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.88rem; color: #e0e0e8; line-height: 1.4;">
+                    <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: #25d366; flex-shrink: 0; margin-top: 2px;"></i>
+                    <span>{{ feat }}</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Rodapé do Card com Métricas & Ações -->
+            <div>
+              <div style="height: 1px; background: rgba(255, 255, 255, 0.08); margin-bottom: 16px;"></div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: rgba(0, 0, 0, 0.2); padding: 10px 14px; border-radius: 10px;">
+                <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Receita do Plano:</span>
+                <strong style="font-size: 0.95rem; color: #3b82f6; font-weight: 800;">{{ item.estimated_revenue }}/mês</strong>
+              </div>
+
+              {% if user_role == 'instrutor' %}
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-secondary btn-block edit-plan-trigger" 
+                        data-plan-id="{{ plan.id }}"
+                        data-plan-name="{{ plan.name }}"
+                        data-plan-category="{{ plan.category }}"
+                        data-plan-price="{{ plan.price }}"
+                        data-plan-sub="{{ plan.sub or '' }}"
+                        data-plan-features="{{ plan.features or '' }}"
+                        data-plan-featured="{{ '1' if plan.is_featured else '0' }}"
+                        style="flex: 1; font-size: 0.85rem;">
+                  <i data-lucide="pencil" style="width: 14px; height: 14px;"></i> Editar
+                </button>
+                <form action="{{ url_for('cards_planos') }}" method="POST" onsubmit="return confirm('Deseja realmente remover o plano {{ plan.name }}?');">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                  <button type="submit" class="btn btn-secondary" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); font-size: 0.85rem;" title="Excluir Plano">
+                    <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                  </button>
+                </form>
+              </div>
+              {% else %}
+              <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Tenho%20interesse%20em%20me%20matricular%20no%20{{ plan.name|urlencode }}." 
+                 target="_blank" class="btn btn-primary btn-block btn-glow" style="font-size: 0.9rem; justify-content: center;">
+                <i data-lucide="message-circle" style="width: 16px; height: 16px;"></i> Assinar este Plano
+              </a>
+              {% endif %}
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL DE CADASTRO / EDIÇÃO DE PLANO (PARA INSTRUTOR) -->
+  {% if user_role == 'instrutor' %}
+  <div class="modal-backdrop hidden" id="planEditModal">
+    <div class="modal-card glass-panel" style="max-width: 540px;">
+      <button class="modal-close" id="closePlanEditModal" title="Fechar (ESC)">&times;</button>
+      
+      <div class="modal-header text-center">
+        <h3 id="planModalTitle">Cadastrar Plano</h3>
+        <p class="modal-subtitle">Preencha as informações do plano de assinatura.</p>
+      </div>
+
+      <form action="{{ url_for('cards_planos') }}" method="POST" id="planModalForm" class="modal-form">
+        <input type="hidden" name="action" id="planFormAction" value="create">
+        <input type="hidden" name="plan_id" id="planFormId" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modalPlanName">Nome do Plano *</label>
+            <input type="text" name="name" id="modalPlanName" placeholder="Ex: ⚡ Plano Passe Livre" required>
+          </div>
+          <div class="form-group">
+            <label for="modalPlanCategory">Categoria *</label>
+            <select name="category" id="modalPlanCategory" required>
+              <option value="Planos Individuais">Planos Individuais</option>
+              <option value="Planos Promocionais & Família">Planos Promocionais & Família</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modalPlanPrice">Valor Mensal *</label>
+            <input type="text" name="price" id="modalPlanPrice" placeholder="R$ 120,00/mês" required style="font-weight: 700; color: var(--accent-gold);">
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <label class="experimental-checkbox-label" style="margin-bottom: 8px;">
+              <input type="checkbox" name="is_featured" id="modalPlanFeatured" value="1">
+              <span>Destacar "MAIS POPULAR"</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modalPlanSub">Subtítulo / Descrição Rápida</label>
+          <input type="text" name="sub" id="modalPlanSub" placeholder="Ex: Acesso total a todas as modalidades e horários">
+        </div>
+
+        <div class="form-group">
+          <label for="modalPlanFeatures">Benefícios (Separados por ponto e vírgula ';')</label>
+          <input type="text" name="features" id="modalPlanFeatures" placeholder="Ex: Treinos ilimitados; Acesso manhã e noite; Acompanhamento de evolução">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" style="margin-top: 12px;">
+          <i data-lucide="check-circle"></i> Salvar Plano
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- SCRIPT CLIENT-SIDE DE FILTROS E MODAL -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1. Filtros de Categoria
+      const filterBtns = document.querySelectorAll('.plan-filter-btn');
+      const planCards = document.querySelectorAll('.plan-card-item');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+
+          const category = this.getAttribute('data-category');
+          planCards.forEach(card => {
+            if (category === 'all' || card.getAttribute('data-plan-category') === category) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // 2. Modal de Edição / Criação de Plano
+      const modal = document.getElementById('planEditModal');
+      const btnOpenNew = document.getElementById('btnOpenNewPlanModal');
+      const btnClose = document.getElementById('closePlanEditModal');
+      const form = document.getElementById('planModalForm');
+
+      if (btnOpenNew && modal) {
+        btnOpenNew.addEventListener('click', function() {
+          document.getElementById('planModalTitle').innerText = 'Cadastrar Novo Plano';
+          document.getElementById('planFormAction').value = 'create';
+          document.getElementById('planFormId').value = '';
+          document.getElementById('modalPlanName').value = '';
+          document.getElementById('modalPlanCategory').value = 'Planos Individuais';
+          document.getElementById('modalPlanPrice').value = '';
+          document.getElementById('modalPlanSub').value = '';
+          document.getElementById('modalPlanFeatures').value = '';
+          document.getElementById('modalPlanFeatured').checked = false;
+          modal.classList.remove('hidden');
+        });
+      }
+
+      if (btnClose && modal) {
+        btnClose.addEventListener('click', function() {
+          modal.classList.add('hidden');
+        });
+      }
+
+      document.querySelectorAll('.edit-plan-trigger').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.getElementById('planModalTitle').innerText = 'Editar Plano #' + this.getAttribute('data-plan-id');
+          document.getElementById('planFormAction').value = 'update';
+          document.getElementById('planFormId').value = this.getAttribute('data-plan-id');
+          document.getElementById('modalPlanName').value = this.getAttribute('data-plan-name');
+          document.getElementById('modalPlanCategory').value = this.getAttribute('data-plan-category');
+          document.getElementById('modalPlanPrice').value = this.getAttribute('data-plan-price');
+          document.getElementById('modalPlanSub').value = this.getAttribute('data-plan-sub');
+          document.getElementById('modalPlanFeatures').value = this.getAttribute('data-plan-features');
+          document.getElementById('modalPlanFeatured').checked = (this.getAttribute('data-plan-featured') === '1');
+          modal.classList.remove('hidden');
+        });
+      });
+    });
+  </script>
+{% endblock %}

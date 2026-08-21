@@ -1104,6 +1104,19 @@ class BJSportsTestCase(unittest.TestCase):
             acceptance = ContractAcceptance.query.filter_by(user_id=student.id).one()
             self.assertEqual(acceptance.source, 'account_update')
 
+    def test_cards_planos_page_accessible_to_logged_users(self):
+        # Redirects if unauthenticated
+        self.assertEqual(self.client.get('/cards_planos').status_code, 302)
+
+        # Logged in student can view plan cards
+        self.login('aluno')
+        res = self.client.get('/cards_planos')
+        self.assertEqual(res.status_code, 200)
+        page = res.get_data(as_text=True)
+        self.assertIn('Cards Planos', page)
+        self.assertIn('Total de Planos', page)
+        self.assertIn('Receita Estimada', page)
+
 
 if __name__ == '__main__':
     unittest.main()
