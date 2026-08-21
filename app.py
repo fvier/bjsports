@@ -256,6 +256,8 @@ class User(db.Model):
     image_consent_guardian_name = db.Column(db.String(120))
     image_consent_guardian_cpf = db.Column(db.String(14))
     image_consent_guardian_relationship = db.Column(db.String(30))
+    medical_restriction = db.Column(db.String(250))
+    is_experimental = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -1145,6 +1147,10 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN image_consent_guardian_cpf VARCHAR(14)'))
     if 'image_consent_guardian_relationship' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN image_consent_guardian_relationship VARCHAR(30)'))
+    if 'medical_restriction' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN medical_restriction VARCHAR(250)'))
+    if 'is_experimental' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_experimental BOOLEAN NOT NULL DEFAULT FALSE'))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
@@ -1634,6 +1640,11 @@ def login():
             guardian_relationship = request.form.get('imageGuardianRelationship', '').strip()
             image_use_consent = image_consent_scope in {'adult', 'minor_guardian'}
 
+            has_medical_restriction = request.form.get('hasMedicalRestriction') == 'on'
+            medical_restriction_details = request.form.get('medicalRestrictionDetails', '').strip()
+            is_experimental = request.form.get('isExperimentalClass') == '1'
+            medical_restriction_val = (medical_restriction_details or 'Possui restrição médica') if has_medical_restriction else None
+
             cpf_digits = ''.join(c for c in cpf if c.isdigit())
             errors = []
             if not re.fullmatch(r'[A-Za-z0-9_.-]{3,80}', username): errors.append('Usuário deve ter de 3 a 80 caracteres válidos.')
@@ -1688,6 +1699,8 @@ def login():
                     image_consent_guardian_name=guardian_name if image_consent_scope == 'minor_guardian' else None,
                     image_consent_guardian_cpf=guardian_cpf if image_consent_scope == 'minor_guardian' else None,
                     image_consent_guardian_relationship=guardian_relationship if image_consent_scope == 'minor_guardian' else None,
+                    medical_restriction=medical_restriction_val,
+                    is_experimental=is_experimental,
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
