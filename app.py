@@ -1675,7 +1675,7 @@ def login():
                     due_date=due_date,
                     start_month=datetime.now().month,
                     role='aluno',
-                    payment_status='Em Dia',
+                    payment_status='Pendente',
                     membership_terms_version=MEMBERSHIP_TERMS_VERSION,
                     membership_terms_accepted_at=datetime.utcnow(),
                     privacy_notice_version=PRIVACY_NOTICE_VERSION,
