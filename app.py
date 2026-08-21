@@ -957,7 +957,9 @@ def ensure_mma_classes_and_plans():
         )
         db.session.add(p_muay)
 
-    combo1_plan = Plan.query.filter(Plan.name.like('%Combo + 1%')).first()
+    db.session.commit()
+
+    combo1_plan = Plan.query.filter(Plan.name.ilike('%Combo%1%')).first()
     if not combo1_plan:
         p_combo1 = Plan(
             name='⚡ Plano Combo + 1',
@@ -969,7 +971,7 @@ def ensure_mma_classes_and_plans():
         )
         db.session.add(p_combo1)
 
-    combo2_plan = Plan.query.filter(Plan.name.like('%Combo + 2%')).first()
+    combo2_plan = Plan.query.filter(Plan.name.ilike('%Combo%2%')).first()
     if not combo2_plan:
         p_combo2 = Plan(
             name='🔥 Plano Combo + 2',
