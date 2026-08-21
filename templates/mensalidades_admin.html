@@ -258,7 +258,7 @@
                           Clique em qualquer mês para dar baixa ou alternar entre Pago (Verde), Atrasado (Laranja) e A Vencer (Branco):
                         </span>
                         
-                        {% set can_manage = u.can_be_managed_by(g.user) %}
+                        {% set can_manage = u.can_be_managed_by(current_user) %}
                         {% if u.payment_status != 'Em Dia' and not u.monthly_fee_exempt %}
                           <div style="margin-top: 8px;">
                             {% if can_manage %}

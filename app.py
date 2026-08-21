@@ -6,7 +6,7 @@ import secrets
 import click
 import tempfile
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text, or_
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -1277,6 +1277,7 @@ def send_calendar_reminders(minutes_ahead):
 @app.context_processor
 def inject_user_context():
     current_user = db.session.get(User, session['user_id']) if session.get('user_id') else None
+    g.user = current_user
     pending_attendance_count = Attendance.query.filter_by(status='pendente').count() if session.get('user_role') in {'monitor', 'instrutor'} else 0
     contract_pending = bool(current_user and (
         current_user.membership_terms_version != MEMBERSHIP_TERMS_VERSION
@@ -1285,6 +1286,7 @@ def inject_user_context():
     ))
     return {
         'now': datetime.utcnow(),
+        'current_user': current_user,
         'is_logged_in': 'user_id' in session,
         'user_name': session.get('user_name', ''),
         'username': session.get('username', ''),

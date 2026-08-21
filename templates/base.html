@@ -162,8 +162,8 @@
     {% endif %}
   {% endwith %}
 
-  {% if g.user and g.user.role == 'aluno' and g.user.payment_status != 'Em Dia' %}
-    {% set trial = g.user.get_trial_status() %}
+  {% if current_user and current_user.role == 'aluno' and current_user.payment_status != 'Em Dia' %}
+    {% set trial = current_user.get_trial_status() %}
     {% if trial.in_trial %}
       <div class="trial-alert-banner trial-banner-active">
         <div class="container trial-banner-inner">
@@ -174,7 +174,7 @@
               <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Você possui 60 horas de treino livre no tatame. Apresente-se ao seu Professor ou ao Monitor da sua turma para confirmar a baixa da sua mensalidade.</p>
             </div>
           </div>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ g.user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-dark-glow" style="background: rgba(15, 23, 42, 0.9); color: var(--accent-gold); border: 1px solid var(--accent-gold); white-space: nowrap;">
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ current_user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-dark-glow" style="background: rgba(15, 23, 42, 0.9); color: var(--accent-gold); border: 1px solid var(--accent-gold); white-space: nowrap;">
             <i data-lucide="message-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Falar com Monitor / Professor
           </a>
         </div>
@@ -189,7 +189,7 @@
               <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Seu período de 60 horas livres no tatame expirou. Procure o Professor ou Monitor responsável pela sua turma para dar baixa no pagamento. OSS!</p>
             </div>
           </div>
-          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ g.user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-light" style="background: #ffffff; color: #b91c1c; font-weight: 700; white-space: nowrap;">
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ current_user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-light" style="background: #ffffff; color: #b91c1c; font-weight: 700; white-space: nowrap;">
             <i data-lucide="message-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Falar com Monitor / Professor
           </a>
         </div>
