@@ -83,16 +83,30 @@
           </div>
         </div>
 
-        <!-- FILTROS DE CATEGORIA DE PLANO -->
-        <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;" id="planCategoryFilters">
-          <button type="button" class="btn btn-secondary plan-filter-btn active" data-category="all" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
-            🥋 Todos os Planos
+        <!-- FILTROS DE CATEGORIA E MODALIDADE -->
+        <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;" id="planCategoryFilters">
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-right: 4px;">Filtro:</span>
+          <button type="button" class="btn btn-secondary plan-filter-btn active" data-filter-type="all" data-filter-val="all" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            ✨ Todos
           </button>
-          <button type="button" class="btn btn-secondary plan-filter-btn" data-category="Planos Individuais" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
-            ⚡ Planos Individuais
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="modality" data-filter-val="Jiu-Jitsu" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            🥋 Jiu-Jitsu
           </button>
-          <button type="button" class="btn btn-secondary plan-filter-btn" data-category="Planos Promocionais & Família" style="border-radius: 20px; padding: 6px 18px; font-size: 0.85rem;">
-            🔥 Promocionais & Família
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="modality" data-filter-val="Boxe" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            🥊 Boxe
+          </button>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="modality" data-filter-val="Muay Thai" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            ⚔️ Muay Thai
+          </button>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="modality" data-filter-val="MMA" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            🔥 MMA
+          </button>
+          <span style="color: rgba(255,255,255,0.2);">|</span>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="category" data-filter-val="Planos Individuais" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            ⚡ Individuais
+          </button>
+          <button type="button" class="btn btn-secondary plan-filter-btn" data-filter-type="category" data-filter-val="Planos Promocionais & Família" style="border-radius: 20px; padding: 6px 16px; font-size: 0.82rem;">
+            🔥 Família & Promocionais
           </button>
         </div>
 
@@ -102,6 +116,7 @@
           {% set plan = item.plan %}
           <div class="glass-panel plan-card-item {% if plan.is_featured %}is-featured-card{% endif %}" 
                data-plan-category="{{ plan.category }}"
+               data-plan-modalities="{{ item.modalities|join(',') }}"
                style="position: relative; display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; padding: 24px; background: rgba(18, 18, 28, 0.95); transition: transform 0.2s ease, box-shadow 0.2s ease; {% if plan.is_featured %}border: 2px solid var(--accent-gold); box-shadow: 0 0 20px rgba(255, 184, 0, 0.15);{% else %}border: 1px solid var(--border-light);{% endif %}">
             
             {% if plan.is_featured %}
@@ -119,6 +134,35 @@
                 <span style="font-size: 0.8rem; color: #25d366; font-weight: 700; display: flex; align-items: center; gap: 4px;">
                   <i data-lucide="users" style="width: 14px; height: 14px;"></i> {{ item.subscribers }} aluno(s)
                 </span>
+              </div>
+
+              <!-- Badges Visuais das Modalidades Inclusas -->
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+                {% if item.modalities|length >= 4 %}
+                  <span class="tag-badge tag-bjj" style="background: rgba(255, 184, 0, 0.2); border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> Todas as Modalidades
+                  </span>
+                {% else %}
+                  {% for mod in item.modalities %}
+                    {% if mod == 'Jiu-Jitsu' %}
+                      <span class="tag-badge tag-bjj" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="circle-dot" style="width: 12px; height: 12px;"></i> Jiu-Jitsu
+                      </span>
+                    {% elif mod == 'Boxe' %}
+                      <span class="tag-badge tag-boxe" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="swords" style="width: 12px; height: 12px;"></i> Boxe
+                      </span>
+                    {% elif mod == 'Muay Thai' %}
+                      <span class="tag-badge tag-muay" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="dumbbell" style="width: 12px; height: 12px;"></i> Muay Thai
+                      </span>
+                    {% elif mod == 'MMA' %}
+                      <span class="tag-badge tag-mma" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="flame" style="width: 12px; height: 12px;"></i> MMA
+                      </span>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
               </div>
 
               <!-- Nome do Plano -->
@@ -269,7 +313,7 @@
   <!-- SCRIPT CLIENT-SIDE DE FILTROS E MODAL -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 1. Filtros de Categoria
+      // 1. Filtros de Categoria e Modalidade
       const filterBtns = document.querySelectorAll('.plan-filter-btn');
       const planCards = document.querySelectorAll('.plan-card-item');
 
@@ -278,12 +322,25 @@
           filterBtns.forEach(b => b.classList.remove('active'));
           this.classList.add('active');
 
-          const category = this.getAttribute('data-category');
+          const filterType = this.getAttribute('data-filter-type');
+          const filterVal = this.getAttribute('data-filter-val');
+
           planCards.forEach(card => {
-            if (category === 'all' || card.getAttribute('data-plan-category') === category) {
+            if (filterType === 'all') {
               card.style.display = 'flex';
-            } else {
-              card.style.display = 'none';
+            } else if (filterType === 'category') {
+              if (card.getAttribute('data-plan-category') === filterVal) {
+                card.style.display = 'flex';
+              } else {
+                card.style.display = 'none';
+              }
+            } else if (filterType === 'modality') {
+              const cardMods = (card.getAttribute('data-plan-modalities') || '').split(',');
+              if (cardMods.includes(filterVal)) {
+                card.style.display = 'flex';
+              } else {
+                card.style.display = 'none';
+              }
             }
           });
         });

@@ -437,7 +437,27 @@ class Plan(db.Model):
     sub = db.Column(db.String(200), nullable=True)
     features = db.Column(db.Text, nullable=True)
     is_featured = db.Column(db.Boolean, default=False)
+    modality = db.Column(db.String(150), nullable=True) # e.g. "Jiu-Jitsu, Boxe, Muay Thai, MMA"
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def get_modalities(self):
+        if self.modality:
+            return [m.strip() for m in self.modality.split(',') if m.strip()]
+        text = f"{self.name} {self.category} {self.sub or ''} {self.features or ''}".lower()
+        if 'passe livre' in text or 'casal' in text or 'família' in text or 'familia' in text or 'todas' in text or 'qualquer' in text:
+            return ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA']
+        mods = []
+        if 'jiu-jitsu' in text or 'bjj' in text:
+            mods.append('Jiu-Jitsu')
+        if 'boxe' in text:
+            mods.append('Boxe')
+        if 'muay' in text:
+            mods.append('Muay Thai')
+        if 'mma' in text:
+            mods.append('MMA')
+        if not mods:
+            mods = ['Jiu-Jitsu']
+        return mods
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -829,6 +849,32 @@ def ensure_mma_classes_and_plans():
         )
         db.session.add(p_mma)
         db.session.commit()
+
+    boxe_plan = Plan.query.filter(Plan.name.like('%Boxe%')).first()
+    if not boxe_plan:
+        p_boxe = Plan(
+            name='🥊 Plano Boxe Tradicional',
+            category='Planos Individuais',
+            price='R$ 100,00/mês',
+            sub='Treinos de Boxe Matinal (06:00h) e Noturno (19:00h)',
+            features='Aulas de Boxe Tradicional;Técnica e condicionamento físico;Matinal (Seg, Qua, Sex) e Noturno (Ter, Qui)',
+            is_featured=False
+        )
+        db.session.add(p_boxe)
+
+    muay_plan = Plan.query.filter(Plan.name.like('%Muay Thai%')).first()
+    if not muay_plan:
+        p_muay = Plan(
+            name='⚔️ Plano Muay Thai',
+            category='Planos Individuais',
+            price='R$ 100,00/mês',
+            sub='Treinos de Muay Thai Adulto e Kids',
+            features='Aulas de Muay Thai Adulto e Kids;Fundamentos e condicionamento completo;Turmas de manhã, tarde e noite',
+            is_featured=False
+        )
+        db.session.add(p_muay)
+
+    db.session.commit()
 
     pro_group = ClassGroup.query.filter_by(name='MMA Profissional').first()
     if not pro_group:
@@ -1803,7 +1849,8 @@ def cards_planos():
             'subscribers': subscribers,
             'estimated_revenue': f"R$ {estimated_revenue:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ','),
             'features_list': feature_list,
-            'unit_price': unit_price
+            'unit_price': unit_price,
+            'modalities': plan.get_modalities()
         })
 
     return render_template(
