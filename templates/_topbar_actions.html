@@ -1,5 +1,13 @@
 {% if is_logged_in %}
 <div class="topbar-actions-row" style="display: inline-flex; align-items: center; gap: 8px; margin-right: 10px;">
+  <!-- Contagem regressiva de 60h para o Aluno -->
+  {% if user_role == 'aluno' and in_trial_period %}
+  <div class="student-trial-countdown-badge" title="Você possui acesso livre de 60 horas. Aguardando baixa do Professor/Monitor no financeiro." style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(249, 115, 22, 0.2)); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 20px; font-size: 0.76rem; color: #fde047; font-weight: 700; box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);">
+    <span class="live-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #facc15; display: inline-block; animation: pulseDot 1.5s infinite;"></span>
+    <span>⏱️ Em até <strong style="color: #ffffff; font-size: 0.82rem;">{{ trial_hours }}h {{ trial_minutes }}m</strong> validaremos sua matrícula</span>
+  </div>
+  {% endif %}
+
   <!-- Ícone 1: Calendário / Presenças com Badge -->
   <a href="{{ url_for('presencas') }}" class="topbar-action-square" title="Presenças e Check-ins ({% if pending_attendance_count > 0 %}{{ pending_attendance_count }} pendente(s){% else %}Em dia{% endif %})" style="position: relative; width: 38px; height: 38px; border-radius: 10px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(248, 113, 113, 0.25); display: inline-flex; align-items: center; justify-content: center; color: #fca5a5; text-decoration: none; transition: all 0.2s ease;">
     <i data-lucide="calendar-check" style="width: 19px; height: 19px;"></i>

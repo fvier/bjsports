@@ -1294,6 +1294,21 @@ def inject_user_context():
         or current_user.privacy_notice_version != PRIVACY_NOTICE_VERSION
         or current_user.image_consent_scope not in {'adult', 'minor_guardian'}
     ))
+
+    # Cálculo da contagem regressiva de 60h para o Aluno
+    in_trial_period = False
+    trial_hours = 0
+    trial_minutes = 0
+    if current_user and role == 'aluno':
+        created_at = current_user.created_at or datetime.utcnow()
+        elapsed_seconds = (datetime.utcnow() - created_at).total_seconds()
+        total_trial_seconds = 60 * 3600  # 60 horas livres
+        remaining_seconds = max(0, total_trial_seconds - elapsed_seconds)
+        if remaining_seconds > 0 and current_user.payment_status != 'Em Dia' and not current_user.monthly_fee_exempt:
+            in_trial_period = True
+            trial_hours = int(remaining_seconds // 3600)
+            trial_minutes = int((remaining_seconds % 3600) // 60)
+
     return {
         'now': datetime.utcnow(),
         'current_user': current_user,
@@ -1308,6 +1323,9 @@ def inject_user_context():
         'pending_attendance_count': pending_attendance_count,
         'pending_payments_count': pending_payments_count,
         'contract_pending': contract_pending,
+        'in_trial_period': in_trial_period,
+        'trial_hours': trial_hours,
+        'trial_minutes': trial_minutes,
         'csrf_token': csrf_token
     }
 
