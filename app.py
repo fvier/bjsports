@@ -446,6 +446,10 @@ class Plan(db.Model):
         text = f"{self.name} {self.category} {self.sub or ''} {self.features or ''}".lower()
         if 'passe livre' in text or 'casal' in text or 'família' in text or 'familia' in text or 'todas' in text or 'qualquer' in text:
             return ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA']
+        if 'combo + 1' in text or 'combo 1' in text or 'combo+1' in text:
+            return ['Jiu-Jitsu', 'Boxe', 'Muay Thai']
+        if 'combo + 2' in text or 'combo 2' in text or 'combo+2' in text:
+            return ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA']
         mods = []
         if 'jiu-jitsu' in text or 'bjj' in text:
             mods.append('Jiu-Jitsu')
@@ -953,6 +957,30 @@ def ensure_mma_classes_and_plans():
         )
         db.session.add(p_muay)
 
+    combo1_plan = Plan.query.filter(Plan.name.like('%Combo + 1%')).first()
+    if not combo1_plan:
+        p_combo1 = Plan(
+            name='⚡ Plano Combo + 1',
+            category='Planos Promocionais & Família',
+            price='R$ 150,00/mês',
+            sub='Escolha 2 modalidades para praticar na academia',
+            features='Pratique 2 modalidades à sua escolha (Jiu-Jitsu, Boxe, Muay Thai ou MMA);Treinos em dias e turnos alternados;Acompanhamento técnico integrado;Economia garantida no pacote mensal',
+            is_featured=True
+        )
+        db.session.add(p_combo1)
+
+    combo2_plan = Plan.query.filter(Plan.name.like('%Combo + 2%')).first()
+    if not combo2_plan:
+        p_combo2 = Plan(
+            name='🔥 Plano Combo + 2',
+            category='Planos Promocionais & Família',
+            price='R$ 180,00/mês',
+            sub='Escolha 3 modalidades para praticar na academia',
+            features='Pratique 3 modalidades à sua escolha no centro de treinamento;Treinos intensivos de Jiu-Jitsu, Boxe, Muay Thai ou MMA;Evolução técnica e física multifuncional;Acesso flexível a múltiplos horários',
+            is_featured=False
+        )
+        db.session.add(p_combo2)
+
     db.session.commit()
 
     pro_group = ClassGroup.query.filter_by(name='MMA Profissional').first()
@@ -988,6 +1016,33 @@ def ensure_championship_weights():
                 infantil=infantil, infanto=infanto, juvenil=juvenil,
                 adulto_master=adulto_master, sort_order=sort_order,
             ))
+    db.session.commit()
+
+def ensure_default_accounts():
+    bolivar = User.query.filter_by(username='bolivar').first()
+    if not bolivar:
+        bolivar = User(
+            username='bolivar', name='Mestre Bolivar', cpf='000.000.001-00',
+            ddd='83', phone='996527997', plan='Passe Livre — R$ 120,00/mês',
+            due_date='5', start_month=1, role='instrutor', payment_status='Em Dia'
+        )
+        bolivar.set_password('bolivar')
+        db.session.add(bolivar)
+    elif bolivar.role != 'instrutor':
+        bolivar.role = 'instrutor'
+
+    bboolivar = User.query.filter_by(username='bboolivar').first()
+    if not bboolivar:
+        bboolivar = User(
+            username='bboolivar', name='Mestre Bolivar', cpf='000.000.002-00',
+            ddd='83', phone='996527997', plan='Passe Livre — R$ 120,00/mês',
+            due_date='5', start_month=1, role='instrutor', payment_status='Em Dia'
+        )
+        bboolivar.set_password('bolivar')
+        db.session.add(bboolivar)
+    elif bboolivar.role != 'instrutor':
+        bboolivar.role = 'instrutor'
+
     db.session.commit()
 
 with app.app_context():
@@ -1089,36 +1144,10 @@ with app.app_context():
         db.session.add_all([p1, p2, p3, p4, p5])
         db.session.commit()
 
-def ensure_default_accounts():
-    bolivar = User.query.filter_by(username='bolivar').first()
-    if not bolivar:
-        bolivar = User(
-            username='bolivar', name='Mestre Bolivar', cpf='000.000.001-00',
-            ddd='83', phone='996527997', plan='Passe Livre — R$ 120,00/mês',
-            due_date='5', start_month=1, role='instrutor', payment_status='Em Dia'
-        )
-        bolivar.set_password('bolivar')
-        db.session.add(bolivar)
-    elif bolivar.role != 'instrutor':
-        bolivar.role = 'instrutor'
-
-    bboolivar = User.query.filter_by(username='bboolivar').first()
-    if not bboolivar:
-        bboolivar = User(
-            username='bboolivar', name='Mestre Bolivar', cpf='000.000.002-00',
-            ddd='83', phone='996527997', plan='Passe Livre — R$ 120,00/mês',
-            due_date='5', start_month=1, role='instrutor', payment_status='Em Dia'
-        )
-        bboolivar.set_password('bolivar')
-        db.session.add(bboolivar)
-    elif bboolivar.role != 'instrutor':
-        bboolivar.role = 'instrutor'
-
-    db.session.commit()
-
     ensure_class_groups()
     ensure_mma_classes_and_plans()
     ensure_default_accounts()
+
 
 
 
