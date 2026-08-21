@@ -1159,6 +1159,8 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN medical_restriction VARCHAR(250)'))
     if 'is_experimental' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_experimental BOOLEAN NOT NULL DEFAULT FALSE'))
+    if 'selected_modalities' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN selected_modalities VARCHAR(250)'))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
