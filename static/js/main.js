@@ -50,20 +50,22 @@ function setupFlashMessages() {
 // Schedule Data based on Mestre Bolivar's exact parameters
 const scheduleData = {
   seg: [
-    { name: 'Muay Thai', freq: 'Segunda, Quarta e Sexta', time: '07:30h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
-    { name: 'Muay Thai', freq: 'Segunda, Quarta e Sexta', time: '18:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
-    { name: 'Jiu-Jitsu Kids 2', freq: 'Segunda e Quarta', time: '16:00h', price: 'Consulte-nos', tag: 'tag-kids', tagLabel: 'Kids' },
     { name: 'Boxe Matinal', freq: '3x / semana (Seg, Qua, Sex)', time: '06:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' },
+    { name: 'Muay Thai', freq: 'Segunda, Quarta e Sexta', time: '07:30h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
+    { name: 'MMA Profissional', freq: '3x / semana (Seg, Qua, Sex)', time: '11:30h', price: 'R$ 130,00 /mês', tag: 'tag-mma', tagLabel: 'MMA' },
+    { name: 'Jiu-Jitsu Kids 2', freq: 'Segunda e Quarta', time: '16:00h', price: 'Consulte-nos', tag: 'tag-kids', tagLabel: 'Kids' },
     { name: 'Jiu-Jitsu Tarde', freq: '3x / semana (Seg, Qua, Sex)', time: '17:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Muay Thai', freq: 'Segunda, Quarta e Sexta', time: '18:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
     { name: 'Jiu-Jitsu Noturno', freq: '3x / semana (Seg, Qua, Sex)', time: '19:00h', price: 'R$ 100,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' }
   ],
   ter: [
-    { name: 'Jiu-Jitsu Kids 1', freq: 'Terça e Quinta', time: '17:00h', price: 'Consulte-nos', tag: 'tag-kids', tagLabel: 'Kids' },
-    { name: 'Muay Thai Kids', freq: 'Terça e Quinta', time: '18:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
-    { name: 'Muay Thai', freq: 'Terça e Quinta', time: '20:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
     { name: 'Jiu-Jitsu Almoço', freq: '2x / semana (Ter, Qui)', time: '12:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu Kids 1', freq: 'Terça e Quinta', time: '17:00h', price: 'Consulte-nos', tag: 'tag-kids', tagLabel: 'Kids' },
+    { name: 'MMA Amador / Iniciantes', freq: '2x / semana (Ter, Qui)', time: '18:00h', price: 'R$ 130,00 /mês', tag: 'tag-mma', tagLabel: 'MMA' },
+    { name: 'Muay Thai Kids', freq: 'Terça e Quinta', time: '18:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
     { name: 'Jiu-Jitsu Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
-    { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' }
+    { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' },
+    { name: 'Muay Thai', freq: 'Terça e Quinta', time: '20:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' }
   ],
   todos: [
     { name: 'Plano Passe Livre (BJJ & Boxe)', freq: 'Diário (Livre Acesso)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', tag: 'tag-func', tagLabel: 'Livre Acesso' },
@@ -181,6 +183,8 @@ function getNextClassDisplay(item) {
 
 function getScheduleCode(name) {
   const normalized = name.toLowerCase();
+  if (normalized.includes('mma profissional')) return 'MMA-PRO';
+  if (normalized.includes('mma')) return 'MMA';
   if (normalized.includes('jiu-jitsu kids 1')) return 'BJJ-K1';
   if (normalized.includes('jiu-jitsu kids 2')) return 'BJJ-K2';
   if (normalized.includes('jiu-jitsu')) return 'BJJ';
@@ -195,6 +199,8 @@ function getScheduleCode(name) {
 
 function getScheduleAudience(name) {
   const normalized = name.toLowerCase();
+  if (normalized.includes('mma profissional')) return 'Profissional';
+  if (normalized.includes('mma amador') || normalized.includes('iniciantes')) return 'Iniciantes';
   if (normalized.includes('kids')) return 'Infantil';
   if (normalized.includes('plano') || normalized.includes('família') || normalized.includes('casal')) return 'Plano especial';
   return 'Adulto';
@@ -219,6 +225,7 @@ function getTodayScheduleRows() {
 
   return classes.map(item => {
     const title = item.title.toLowerCase();
+    const isMma = title.includes('mma');
     const isKids = title.includes('kids');
     const isMuay = title.includes('muay thai');
     const isBoxe = title.includes('boxe');
@@ -228,9 +235,9 @@ function getTodayScheduleRows() {
       freq: availabilityLabel,
       days: title.includes('kids 2') ? [1, 3] : ([1, 3, 5].includes(targetDate.getDay()) ? [1, 3, 5] : [2, 4]),
       time: item.time,
-      price: isMuay || isKids ? 'Consulte-nos' : (isBoxe ? 'R$ 90,00 /mês' : (isJiuJitsu ? 'R$ 100,00 /mês' : 'Consulte-nos')),
-      tag: isMuay ? 'tag-muay' : (isKids ? 'tag-kids' : (isBoxe ? 'tag-boxe' : 'tag-bjj')),
-      tagLabel: isMuay ? 'Muay Thai' : (isKids ? 'Kids' : (isBoxe ? 'Boxe' : 'Jiu-Jitsu'))
+      price: isMma ? 'R$ 130,00 /mês' : (isMuay || isKids ? 'Consulte-nos' : (isBoxe ? 'R$ 90,00 /mês' : (isJiuJitsu ? 'R$ 100,00 /mês' : 'Consulte-nos'))),
+      tag: isMma ? 'tag-mma' : (isMuay ? 'tag-muay' : (isKids ? 'tag-kids' : (isBoxe ? 'tag-boxe' : 'tag-bjj'))),
+      tagLabel: isMma ? 'MMA' : (isMuay ? 'Muay Thai' : (isKids ? 'Kids' : (isBoxe ? 'Boxe' : 'Jiu-Jitsu')))
     };
   });
 }
@@ -264,6 +271,7 @@ function getClassesForDay(dayOfWeek) {
     return [
       { time: '06:00h', title: 'Boxe Matinal' },
       { time: '07:30h', title: 'Muay Thai' },
+      { time: '11:30h', title: 'MMA Profissional' },
       { time: '16:00h', title: 'Jiu-Jitsu Kids 2' },
       { time: '17:00h', title: 'Jiu-Jitsu Tarde' },
       { time: '18:00h', title: 'Muay Thai' },
@@ -273,6 +281,7 @@ function getClassesForDay(dayOfWeek) {
     return [
       { time: '06:00h', title: 'Boxe Matinal' },
       { time: '07:30h', title: 'Muay Thai' },
+      { time: '11:30h', title: 'MMA Profissional' },
       { time: '17:00h', title: 'Jiu-Jitsu Tarde' },
       { time: '18:00h', title: 'Muay Thai' },
       { time: '19:00h', title: 'Jiu-Jitsu Noturno' }
@@ -281,6 +290,7 @@ function getClassesForDay(dayOfWeek) {
     return [
       { time: '12:00h', title: 'Jiu-Jitsu Almoço' },
       { time: '17:00h', title: 'Jiu-Jitsu Kids 1' },
+      { time: '18:00h', title: 'MMA Amador / Iniciantes' },
       { time: '18:00h', title: 'Muay Thai Kids' },
       { time: '19:00h', title: 'Jiu-Jitsu / Boxe Noturno' },
       { time: '20:00h', title: 'Muay Thai' }

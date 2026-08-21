@@ -35,7 +35,7 @@
         </nav>
         <form method="get">
           <input type="hidden" name="week" value="{{ week_start.isoformat() }}">
-          <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
+          <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
           <label><span>Público</span><select name="audience"><option value="todos">Todos</option><option value="Adulto" {% if audience_filter == 'Adulto' %}selected{% endif %}>Adulto</option><option value="Kids" {% if audience_filter == 'Kids' %}selected{% endif %}>Kids</option></select></label>
           <button type="submit"><i data-lucide="list-filter"></i>Aplicar</button>
         </form>
@@ -43,7 +43,7 @@
 
       <section class="class-calendar-summary">
         <span><i data-lucide="calendar-check-2"></i><strong>{{ event_count }}</strong> aula(s) nesta semana{% if special_event_count %} • {{ special_event_count }} especial(is){% endif %}</span>
-        <div><span class="is-bjj"><i></i>Jiu-Jitsu</span><span class="is-boxe"><i></i>Boxe</span><span class="is-muay"><i></i>Muay Thai</span><span class="is-kids"><i></i>Kids</span><span class="is-special"><i></i>Especial</span></div>
+        <div><span class="is-bjj"><i></i>Jiu-Jitsu</span><span class="is-boxe"><i></i>Boxe</span><span class="is-muay"><i></i>Muay Thai</span><span class="is-mma"><i></i>MMA</span><span class="is-kids"><i></i>Kids</span><span class="is-special"><i></i>Especial</span></div>
       </section>
 
       <section class="class-calendar-board" aria-label="Calendário semanal de aulas">

@@ -33,7 +33,7 @@
 
       <form class="class-management-filters" method="get">
         <label class="class-management-search"><span>Buscar turma</span><div><i data-lucide="search"></i><input type="search" name="q" value="{{ search_query }}" placeholder="Nome, modalidade ou instrutor"></div></label>
-        <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
+        <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
         <label><span>Situação</span><select name="status"><option value="todos">Todas</option><option value="ativa" {% if status_filter == 'ativa' %}selected{% endif %}>Ativa</option><option value="lotada" {% if status_filter == 'lotada' %}selected{% endif %}>Lotada</option><option value="rascunho" {% if status_filter == 'rascunho' %}selected{% endif %}>Rascunho</option><option value="suspensa" {% if status_filter == 'suspensa' %}selected{% endif %}>Suspensa</option></select></label>
         <button type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
         {% if search_query or modality_filter != 'todas' or status_filter != 'todos' %}<a href="{{ url_for('gestao_turmas') }}" title="Limpar filtros"><i data-lucide="x"></i></a>{% endif %}
@@ -48,7 +48,7 @@
               {% for class_item in classes %}
               {% set occupancy = (class_item.enrolled / class_item.capacity * 100)|round|int %}
               <tr>
-                <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><i data-lucide="{% if class_item.modality == 'Jiu-Jitsu' %}circle-dot{% elif class_item.modality == 'Boxe' %}swords{% else %}flame{% endif %}"></i></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small></div></div></td>
+                <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><i data-lucide="{% if class_item.modality == 'Jiu-Jitsu' %}circle-dot{% elif class_item.modality == 'Boxe' %}swords{% elif class_item.modality == 'MMA' %}flame{% else %}dumbbell{% endif %}"></i></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small></div></div></td>
                 <td><div class="class-management-schedules">{% for schedule in class_item.schedules %}<span><i data-lucide="clock-3"></i>{{ schedule }}</span>{% endfor %}</div></td>
                 <td><strong class="class-management-instructor">{{ class_item.instructor }}</strong></td>
                 <td><div class="class-management-occupancy"><span><strong>{{ class_item.enrolled }}/{{ class_item.capacity }}</strong><small>{{ occupancy }}%</small></span><div><i style="width:{{ occupancy }}%"></i></div>{% if class_item.waiting %}<em>{{ class_item.waiting }} em espera</em>{% endif %}</div></td>
@@ -78,7 +78,7 @@
       <input type="hidden" name="action" value="create">
       <input type="hidden" name="class_id" value="">
       <label class="is-wide"><span>Nome da turma</span><input type="text" name="class_name" placeholder="Ex.: Jiu-Jitsu Iniciante"></label>
-      <label><span>Modalidade</span><select name="class_modality"><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option></select></label>
+      <label><span>Modalidade</span><select name="class_modality"><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option><option>MMA</option></select></label>
       <label><span>Público</span><select name="class_audience"><option>Adulto</option><option>Kids</option><option>Todos</option></select></label>
       <label class="is-wide"><span>Dias e horários</span><input type="text" name="class_schedule" placeholder="Ex.: Seg, Qua, Sex • 19:00"></label>
       <label><span>Instrutor responsável</span><input type="text" name="class_instructor" value="Mestre Bolivar"></label>

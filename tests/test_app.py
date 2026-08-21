@@ -182,7 +182,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         page = response.get_data(as_text=True)
         self.assertIn('Calendário de Aulas', page)
-        self.assertIn('<strong>29</strong> aula(s) nesta semana', page)
+        self.assertIn('<strong>34</strong> aula(s) nesta semana', page)
         self.assertIn('Boxe Matinal', page)
         self.assertIn('Muay Thai Kids', page)
         self.assertEqual(page.count('Sem aulas'), 2)

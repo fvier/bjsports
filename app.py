@@ -90,6 +90,12 @@ CLASS_MANAGEMENT_PREVIEW = [
     {'id': 9, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 07:30 e 18:00', 'Ter, Qui • 20:00'], 'weekly_sessions': 8,
      'instructor': 'Mestre Bolivar', 'capacity': 20, 'enrolled': 17, 'waiting': 0, 'status': 'ativa'},
+    {'id': 10, 'name': 'MMA Profissional', 'modality': 'MMA', 'audience': 'Profissional',
+     'schedules': ['Seg, Qua, Sex • 11:30'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
+     'capacity': 20, 'enrolled': 12, 'waiting': 0, 'status': 'ativa'},
+    {'id': 11, 'name': 'MMA Amador / Iniciantes', 'modality': 'MMA', 'audience': 'Iniciantes',
+     'schedules': ['Ter, Qui • 18:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
+     'capacity': 20, 'enrolled': 10, 'waiting': 0, 'status': 'ativa'},
 ]
 CHAMPIONSHIP_WEIGHT_COLUMNS = [
     ('pre_mirim', 'Pré-Mirim 1, 2 e 3', '4, 5 e 6 anos'),
@@ -805,6 +811,42 @@ def ensure_class_groups():
                 ))
         db.session.commit()
 
+def ensure_mma_classes_and_plans():
+    mma_plan = Plan.query.filter(Plan.name.like('%MMA%')).first()
+    if not mma_plan:
+        p_mma = Plan(
+            name='🥊 Plano MMA (Profissional & Amador)',
+            category='Planos Individuais',
+            price='R$ 130,00/mês',
+            sub='MMA Profissional (Seg, Qua, Sex • 11h30) e Iniciantes (Ter, Qui • 18h00)',
+            features='Treinos de MMA Profissional (Seg, Qua, Sex 11h30);Treinos de MMA Amador / Iniciantes (Ter, Qui 18h00);Acompanhamento do Mestre Bolivar;Preparação física e técnica completa',
+            is_featured=False
+        )
+        db.session.add(p_mma)
+        db.session.commit()
+
+    pro_group = ClassGroup.query.filter_by(name='MMA Profissional').first()
+    if not pro_group:
+        cg_pro = ClassGroup(
+            name='MMA Profissional', modality='MMA', audience='Profissional',
+            instructor='Mestre Bolivar', capacity=20, waiting=0,
+            duration_minutes=60, status='ativa', publish_public=True
+        )
+        cg_pro.schedules = ['Seg, Qua, Sex • 11:30']
+        db.session.add(cg_pro)
+
+    init_group = ClassGroup.query.filter_by(name='MMA Amador / Iniciantes').first()
+    if not init_group:
+        cg_init = ClassGroup(
+            name='MMA Amador / Iniciantes', modality='MMA', audience='Iniciantes',
+            instructor='Mestre Bolivar', capacity=20, waiting=0,
+            duration_minutes=60, status='ativa', publish_public=True
+        )
+        cg_init.schedules = ['Ter, Qui • 18:00']
+        db.session.add(cg_init)
+
+    db.session.commit()
+
 def ensure_championship_weights():
     if ChampionshipWeightDivision.query.count() > 0:
         return
@@ -911,10 +953,13 @@ with app.app_context():
         p2 = Plan(name='🔥 Plano Casal', category='Planos Promocionais & Família', price='R$ 190,00/mês', sub='Para 2 pessoas treinando juntas', features='Válido para qualquer modalidade;Matrícula conjunta simplificada;Incentivo mútuo nos treinos', is_featured=False)
         p3 = Plan(name='Plano Família', category='Planos Promocionais & Família', price='R$ 280,00/mês', sub='Pacote especial para 3 familiares', features='Válido para 3 membros da família;Inclui Jiu-Jitsu Kids e Adulto;Maior economia por aluno', is_featured=False)
         p4 = Plan(name='Jiu-Jitsu (Seg, Qua, Sex)', category='Planos Individuais', price='R$ 100,00/mês', sub='Treinos 3x por semana', features='Treinos de fundamentos e ralas;Turmas da tarde e noite', is_featured=False)
-        db.session.add_all([p1, p2, p3, p4])
+        p5 = Plan(name='🥊 Plano MMA (Profissional & Amador)', category='Planos Individuais', price='R$ 130,00/mês', sub='MMA Profissional (Seg, Qua, Sex • 11h30) e Iniciantes (Ter, Qui • 18h00)', features='Treinos de MMA Profissional (Seg, Qua, Sex 11h30);Treinos de MMA Amador / Iniciantes (Ter, Qui 18h00);Acompanhamento do Mestre Bolivar;Preparação física e técnica completa', is_featured=False)
+        db.session.add_all([p1, p2, p3, p4, p5])
         db.session.commit()
 
     ensure_class_groups()
+    ensure_mma_classes_and_plans()
+
 
 
 @app.cli.command('create-admin')
