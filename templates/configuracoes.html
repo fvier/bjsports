@@ -73,7 +73,45 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block btn-glow">
+            <!-- ESPAÇO DE RESTRIÇÃO MÉDICA E SAÚDE -->
+            <div class="form-group" style="background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3); margin-top: 16px;">
+              <label style="color: #f87171; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="activity" style="width: 18px; height: 18px;"></i> Restrição Médica, Lesão ou Condição de Saúde
+              </label>
+              <input type="text" name="medical_restriction" value="{{ profile_user.medical_restriction or '' }}" placeholder="Ex: Nenhuma restrição, hipertensão, lesão no joelho direito, asma..." style="margin-top: 8px; width: 100%; padding: 10px 12px; border-radius: 6px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; font-size: 0.9rem;">
+              <small style="display: block; font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                💡 Mantenha suas informações médicas sempre atualizadas para a segurança nos treinos e acompanhamento dos Professores e Monitores.
+              </small>
+            </div>
+
+            <!-- SEÇÃO DE SELEÇÃO DE MODALIDADES DO COMBO NO PERFIL DO ALUNO -->
+            {% set current_selected = profile_user.get_selected_modalities_list() %}
+            <div class="form-group" style="background: rgba(30, 58, 138, 0.25); padding: 16px; border-radius: 12px; border: 1px solid rgba(96, 165, 250, 0.35); margin-top: 18px;">
+              <label style="color: #60a5fa; font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <i data-lucide="dumbbells" style="width: 20px; height: 20px; color: var(--accent-gold);"></i> 
+                Modalidades Escolhidas no seu Plano / Combo
+              </label>
+              <p style="font-size: 0.84rem; color: #cbd5e1; margin-bottom: 12px;">
+                Plano Escolhido: <strong style="color: #facc15;">{{ profile_user.plan }}</strong>.<br>
+                Marque abaixo as modalidades que você pratica neste plano/combo:
+              </p>
+
+              <div class="combo-modalities-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px;">
+                {% for mod in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids'] %}
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(15, 23, 42, 0.85); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); cursor: pointer; color: #ffffff; font-weight: 600; font-size: 0.88rem;">
+                  <input type="checkbox" name="combo_modalities" value="{{ mod }}" {% if mod in current_selected %}checked{% endif %} style="accent-color: #f59e0b; width: 16px; height: 16px;">
+                  <span>{{ mod }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              <small style="display: block; font-size: 0.78rem; color: #94a3b8; margin-top: 10px; line-height: 1.4;">
+                💡 Se você contratou <strong>Combo + 1</strong>, selecione as 2 modalidades de sua preferência. Se contratou <strong>Combo + 2</strong>, selecione 3 modalidades.
+              </small>
+            </div>
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn btn-primary btn-block btn-glow" style="margin-top: 20px;">
               <i data-lucide="save"></i> Salvar Alterações no Perfil
             </button>
           </form>

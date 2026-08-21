@@ -258,7 +258,13 @@ class User(db.Model):
     image_consent_guardian_relationship = db.Column(db.String(30))
     medical_restriction = db.Column(db.String(250))
     is_experimental = db.Column(db.Boolean, nullable=False, default=False)
+    selected_modalities = db.Column(db.String(250)) # ex: "Jiu-Jitsu, Boxe"
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def get_selected_modalities_list(self):
+        if not self.selected_modalities:
+            return []
+        return [m.strip() for m in self.selected_modalities.split(',') if m.strip()]
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -3228,6 +3234,11 @@ def configuracoes():
             if new_belt_degree is not None and 0 <= new_belt_degree <= 4:
                 user.belt_degree = new_belt_degree
             user.medical_restriction = new_medical_restriction if new_medical_restriction else None
+            combo_modalities = request.form.getlist('combo_modalities')
+            if combo_modalities:
+                user.selected_modalities = ", ".join(combo_modalities)
+            elif 'combo_modalities' in request.form:
+                user.selected_modalities = None
             db.session.commit()
             session['user_name'] = new_name
             flash('Configurações e informações do perfil salvas com sucesso!', 'success')
