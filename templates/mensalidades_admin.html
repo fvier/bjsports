@@ -296,16 +296,16 @@
                         {% for m in u_months %}
                           <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
                             
-                            <!-- Botão/Badge do Mês -->
-                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do Mês {{ m.month }}"{% endif %}>
-                              <span>{{ m.month }}</span>
+                            <!-- Botão/Badge do Mês com Dia do Vencimento -->
+                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do vencimento {{ m.due_day }}/{{ m.name }}"{% endif %}>
+                              <span>{{ m.due_day }}</span>
                               <small>{{ m.name }}</small>
                             </button>
 
                             <!-- Menu Dropdown para Dar Baixa no Mês Específico -->
                             {% if m.status != 'isento' %}<div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
                               <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
-                                Dar baixa Mês {{ m.month }}:
+                                Vencimento {{ m.due_day }}/{{ m.name }}:
                               </span>
 
                               <form action="{{ url_for('api_update_month_status') }}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">

@@ -388,9 +388,11 @@ class User(db.Model):
                 else:
                     status = 'futuro' # Branco
 
+            due_day_str = f"{int(self.due_date):02d}" if self.due_date and self.due_date.isdigit() else "15"
             months.append({
                 'month': m_str,
                 'name': month_names.get(m, ''),
+                'due_day': due_day_str,
                 'status': status
             })
         return months
@@ -1806,7 +1808,56 @@ def presencas():
         if has_overdue:
             flash('Check-in bloqueado: existem mensalidades pendentes. Regularize o financeiro para registrar novas aulas.', 'error')
             return redirect(url_for('presencas'))
-        existing = Attendance.query.filter_by(user_id=session['user_id'], training_date=datetime.now().date()).first()
+
+        # VALIDAÇÃO DE TURMA E DIA AUTORIZADO DO ALUNO
+        today_date = datetime.now().date()
+        today_weekday = today_date.weekday()
+        weekday_names = {0: 'Segunda-feira', 1: 'Terça-feira', 2: 'Quarta-feira', 3: 'Quinta-feira', 4: 'Sexta-feira', 5: 'Sábado', 6: 'Domingo'}
+        today_name = weekday_names.get(today_weekday, '')
+
+        target_class_id = request.form.get('class_group_id', type=int)
+        target_class = db.session.get(ClassGroup, target_class_id) if target_class_id else None
+
+        user_active_enrollments = [e for e in user.class_enrollments if e.active]
+        allowed_weekdays = set()
+
+        if user_active_enrollments:
+            for enr in user_active_enrollments:
+                cg = enr.class_group
+                for sch in (cg.schedules or []):
+                    sch_lower = sch.lower()
+                    if 'seg' in sch_lower: allowed_weekdays.add(0)
+                    if 'ter' in sch_lower: allowed_weekdays.add(1)
+                    if 'qua' in sch_lower: allowed_weekdays.add(2)
+                    if 'qui' in sch_lower: allowed_weekdays.add(3)
+                    if 'sex' in sch_lower: allowed_weekdays.add(4)
+                    if 'sáb' in sch_lower or 'sab' in sch_lower: allowed_weekdays.add(5)
+                    if 'dom' in sch_lower: allowed_weekdays.add(6)
+
+        if not allowed_weekdays:
+            normalized_plan = (user.plan or '').lower()
+            if 'passe livre' in normalized_plan or 'combo' in normalized_plan:
+                allowed_weekdays = {0, 1, 2, 3, 4, 5, 6}
+            elif all(d in normalized_plan for d in ('seg', 'qua', 'sex')):
+                allowed_weekdays = {0, 2, 4}
+            elif all(d in normalized_plan for d in ('ter', 'qui')):
+                allowed_weekdays = {1, 3}
+            else:
+                allowed_weekdays = {0, 1, 2, 3, 4, 5}
+
+        # 1. Bloqueia se hoje não for um dia de treino autorizado para o aluno
+        if today_weekday not in allowed_weekdays:
+            flash(f'⚠️ Check-in não permitido: você não possui treino agendado para hoje ({today_name}) no seu plano/turma ({user.plan}).', 'error')
+            return redirect(url_for('presencas'))
+
+        # 2. Bloqueia se o aluno tentar fazer check-in numa turma onde não está inscrito
+        if target_class and user_active_enrollments:
+            enrolled_class_ids = {e.class_group_id for e in user_active_enrollments}
+            if target_class.id not in enrolled_class_ids:
+                flash(f'⚠️ Check-in não permitido: você não está cadastrado na turma "{target_class.name}". Você só pode fazer check-in nas turmas em que está matriculado.', 'error')
+                return redirect(url_for('presencas'))
+
+        existing = Attendance.query.filter_by(user_id=session['user_id'], training_date=today_date).first()
         if existing:
             if existing.status == 'confirmado':
                 message = 'Sua presença de hoje já foi confirmada.'
@@ -1816,11 +1867,11 @@ def presencas():
                 message = 'Seu check-in de hoje já está aguardando confirmação do instrutor.'
             flash(message, 'info')
         else:
-            active_enrollment = next((item for item in user.class_enrollments if item.active), None)
+            active_enrollment = target_class or next((item.class_group for item in user_active_enrollments), None)
             db.session.add(Attendance(
                 user_id=session['user_id'], status='pendente',
-                modality=active_enrollment.class_group.modality if active_enrollment else get_attendance_modality(user.plan),
-                class_group_id=active_enrollment.class_group_id if active_enrollment else None,
+                modality=active_enrollment.modality if active_enrollment else get_attendance_modality(user.plan),
+                class_group_id=active_enrollment.id if active_enrollment else None,
             ))
             db.session.commit()
             flash('Check-in enviado! Aguarde a confirmação do instrutor.', 'success')
