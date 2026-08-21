@@ -9,7 +9,7 @@ os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 os.environ['SECRET_KEY'] = 'test-only-secret-key'
 os.environ.pop('SEED_DEMO_DATA', None)
 
-from app import (app, db, User, Plan, MonthlyPayment, Attendance, Booking, ClassGroup,
+from app import (app, db, User, Plan, MonthlyPayment, Attendance, Booking, ClassGroup, ClassEnrollment,
                  SpecialClassEvent, PushSubscription, GraduationRecord, InternalChampionship,
                  ChampionshipRegistration, ChampionshipWeightDivision,
                  ChampionshipWeightRevision, ChampionshipMatch, ChampionshipScoreEvent,
@@ -1117,6 +1117,66 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Total de Planos', page)
         self.assertIn('Receita Estimada', page)
 
+    def test_60h_free_trial_and_monitor_baixa_authorization(self):
+        with app.app_context():
+            # Create a new student (trial active)
+            new_student = User(username='novato', name='Aluno Novato', cpf='111.222.333-44',
+                               ddd='83', phone='988887777', plan='Jiu-Jitsu (Seg, Qua, Sex)',
+                               due_date='5', start_month=1, role='aluno', payment_status='Pendente',
+                               created_at=datetime.utcnow())
+            new_student.set_password('senha-segura')
+            db.session.add(new_student)
+            db.session.commit()
+
+            trial = new_student.get_trial_status()
+            self.assertTrue(trial['in_trial'])
+            self.assertFalse(trial['expired'])
+            self.assertGreaterEqual(trial['hours_left'], 59)
+
+            # Fast forward created_at to 70 hours ago
+            new_student.created_at = datetime.utcnow() - timedelta(hours=70)
+            db.session.commit()
+
+            trial_expired = new_student.get_trial_status()
+            self.assertFalse(trial_expired['in_trial'])
+            self.assertTrue(trial_expired['expired'])
+
+            # Test permission: Professor (instrutor) can manage any student
+            prof = User.query.filter_by(role='instrutor').first()
+            self.assertTrue(new_student.can_be_managed_by(prof))
+
+            # Monitor without shared turma cannot manage student
+            mon = User.query.filter_by(role='monitor').first()
+            self.assertFalse(new_student.can_be_managed_by(mon))
+
+            # Assign monitor to class group and enroll student
+            cg = ClassGroup(name='Turma Jiu-Jitsu Monitor', modality='Jiu-Jitsu', audience='Adulto',
+                            instructor=mon.name, capacity=20, duration_minutes=60)
+            db.session.add(cg)
+            db.session.commit()
+
+            db.session.add(ClassEnrollment(user_id=new_student.id, class_group_id=cg.id, active=True))
+            db.session.add(ClassEnrollment(user_id=mon.id, class_group_id=cg.id, active=True))
+            db.session.commit()
+
+            # Now monitor can manage student because they share the class group
+            self.assertTrue(new_student.can_be_managed_by(mon))
+
+    def test_dar_baixa_mensalidade_route(self):
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').first()
+            student.payment_status = 'Pendente'
+            db.session.commit()
+
+            # Professor logs in and confirms payment
+            self.login('instrutor')
+            res = self.client.post(f'/dar-baixa-mensalidade/{student.id}', data={'csrf_token': self.csrf()}, follow_redirects=True)
+            self.assertEqual(res.status_code, 200)
+
+            updated_student = db.session.get(User, student.id)
+            self.assertEqual(updated_student.payment_status, 'Em Dia')
+
 
 if __name__ == '__main__':
     unittest.main()
+

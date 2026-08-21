@@ -2622,6 +2622,41 @@ body.public-light-theme {
   }
 }
 
+/* ALERTA DE PERÍODO LIVRE DE 60 HORAS (TRIAL) */
+.trial-alert-banner {
+  width: 100%;
+  padding: 12px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 999;
+}
+.trial-banner-active {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.96), rgba(202, 138, 4, 0.96));
+  color: #0f172a;
+}
+.trial-banner-expired {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96));
+  color: #ffffff;
+}
+.trial-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trial-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 850px;
+}
+.trial-banner-left .trial-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
 /* ALWAYS PUT HIDDEN AT THE VERY BOTTOM SO IT OVERRIDES ALL DISPLAY RULES */
 .hidden {
   display: none !important;
@@ -2629,3 +2664,4 @@ body.public-light-theme {
   pointer-events: none !important;
   visibility: hidden !important;
 }
+

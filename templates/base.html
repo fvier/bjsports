@@ -162,6 +162,41 @@
     {% endif %}
   {% endwith %}
 
+  {% if g.user and g.user.role == 'aluno' and g.user.payment_status != 'Em Dia' %}
+    {% set trial = g.user.get_trial_status() %}
+    {% if trial.in_trial %}
+      <div class="trial-alert-banner trial-banner-active">
+        <div class="container trial-banner-inner">
+          <div class="trial-banner-left">
+            <i data-lucide="zap" class="trial-icon"></i>
+            <div>
+              <strong>⚡ AVISO: PERÍODO DE EXPERIÊNCIA DE 60 HORAS LIVRES (~{{ trial.hours_left }}h restantes)</strong>
+              <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Você tem 60 horas gratuitas de treino. Apresente-se ao seu Professor ou ao Monitor da sua turma para confirmar a quitação da sua mensalidade.</p>
+            </div>
+          </div>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ g.user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-dark-glow" style="background: rgba(15, 23, 42, 0.9); color: var(--accent-gold); border: 1px solid var(--accent-gold); white-space: nowrap;">
+            <i data-lucide="message-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Falar com Monitor / Professor
+          </a>
+        </div>
+      </div>
+    {% elif trial.expired %}
+      <div class="trial-alert-banner trial-banner-expired">
+        <div class="container trial-banner-inner">
+          <div class="trial-banner-left">
+            <i data-lucide="alert-triangle" class="trial-icon"></i>
+            <div>
+              <strong>⚠️ PERÍODO GRATUITO DE 60 HORAS FINALIZADO</strong>
+              <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Suas 60 horas livres expiraram. Procure o Professor ou Monitor responsável pela sua turma para dar baixa no pagamento da sua mensalidade.</p>
+            </div>
+          </div>
+          <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ g.user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-light" style="background: #ffffff; color: #b91c1c; font-weight: 700; white-space: nowrap;">
+            <i data-lucide="message-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Falar com Monitor / Professor
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
   {% block content %}{% endblock %}
 
   <!-- Botão Flutuante do WhatsApp -->

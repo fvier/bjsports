@@ -257,6 +257,25 @@
                         <span style="display: block; font-size: 0.74rem; color: var(--text-muted);">
                           Clique em qualquer mês para dar baixa ou alternar entre Pago (Verde), Atrasado (Laranja) e A Vencer (Branco):
                         </span>
+                        
+                        {% set can_manage = u.can_be_managed_by(g.user) %}
+                        {% if u.payment_status != 'Em Dia' and not u.monthly_fee_exempt %}
+                          <div style="margin-top: 8px;">
+                            {% if can_manage %}
+                              <form action="{{ url_for('dar_baixa_mensalidade', user_id=u.id) }}" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-primary btn-glow" style="font-size: 0.8rem; padding: 5px 12px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; font-weight: 700;">
+                                  <i data-lucide="check-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> ⚡ Dar Baixa na Mensalidade
+                                </button>
+                              </form>
+                            {% else %}
+                              <button type="button" class="btn btn-sm btn-secondary" disabled title="Somente o Monitor responsável por esta turma ou o Professor pode dar baixa nesta mensalidade." style="font-size: 0.8rem; padding: 5px 12px; opacity: 0.65; cursor: not-allowed;">
+                                <i data-lucide="lock" style="width: 14px; height: 14px; margin-right: 4px;"></i> Dar Baixa (Turma de outro Monitor)
+                              </button>
+                            {% endif %}
+                          </div>
+                        {% endif %}
+
                         <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="fee-exemption-form">
                           <input type="hidden" name="action" value="toggle_exemption">
                           <input type="hidden" name="user_id" value="{{ u.id }}">

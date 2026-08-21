@@ -57,7 +57,7 @@ if os.getenv('FLASK_ENV') == 'production' and not os.getenv('SECRET_KEY'):
 db = SQLAlchemy(app)
 calendar_token_serializer = URLSafeSerializer(app.config['SECRET_KEY'], salt='personal-calendar-feed')
 
-ROLE_LEVEL = {'aluno': 0, 'monitor': 1, 'instrutor': 2}
+ROLE_LEVEL = {'aluno': 0, 'monitor': 1, 'instrutor': 2, 'professor': 2}
 MEMBERSHIP_TERMS_VERSION = '2026-08-17.4'
 PRIVACY_NOTICE_VERSION = '2026-08-17'
 BELT_COLORS = {'branca', 'azul', 'roxa', 'marrom', 'preta'}
@@ -266,6 +266,61 @@ class User(db.Model):
 
     def has_overdue_payments(self):
         return self.get_overdue_details()['count'] > 0
+
+    def get_trial_status(self):
+        """Calcula o status do período de experiência gratuita de 60h para o aluno."""
+        if self.role != 'aluno' or self.payment_status == 'Em Dia':
+            return {'in_trial': False, 'expired': False, 'hours_left': 0}
+        
+        ref_time = self.created_at or self.membership_terms_accepted_at or datetime.utcnow()
+        elapsed_seconds = (datetime.utcnow() - ref_time).total_seconds()
+        elapsed_hours = elapsed_seconds / 3600.0
+        
+        if elapsed_hours <= 60.0:
+            hours_left = max(1, int(round(60.0 - elapsed_hours)))
+            return {'in_trial': True, 'expired': False, 'hours_left': hours_left}
+        else:
+            return {'in_trial': False, 'expired': True, 'hours_left': 0}
+
+    def can_be_managed_by(self, actor_user):
+        """
+        Verifica se um instrutor ou monitor tem permissão para dar baixa na mensalidade deste aluno.
+        Instrutor: Pode dar baixa em qualquer aluno.
+        Monitor: Pode dar baixa apenas se o aluno pertencer a uma turma onde o monitor é o instrutor/monitor responsável ou se compartilharem turma.
+        """
+        if not actor_user:
+            return False
+        if actor_user.role in {'instrutor', 'professor'}:
+            return True
+        if actor_user.role == 'monitor':
+            monitor_groups = ClassGroup.query.filter(
+                (ClassGroup.instructor.ilike(f'%{actor_user.name}%')) |
+                (ClassGroup.instructor.ilike(f'%{actor_user.username}%'))
+            ).all()
+            monitor_group_ids = {g.id for g in monitor_groups}
+
+            monitor_enrollments = ClassEnrollment.query.filter_by(user_id=actor_user.id, active=True).all()
+            monitor_group_ids.update({e.class_group_id for e in monitor_enrollments})
+
+            student_enrollments = ClassEnrollment.query.filter_by(user_id=self.id, active=True).all()
+            student_group_ids = {e.class_group_id for e in student_enrollments}
+
+            if monitor_group_ids.intersection(student_group_ids):
+                return True
+
+            student_attendances = Attendance.query.filter_by(user_id=self.id).all()
+            student_att_groups = {a.class_group_id for a in student_attendances if a.class_group_id}
+            if monitor_group_ids.intersection(student_att_groups):
+                return True
+
+            if not student_group_ids and monitor_groups:
+                monitor_modalities = {g.modality.lower() for g in monitor_groups}
+                student_plan = (self.plan or '').lower()
+                if any(m in student_plan for m in monitor_modalities if m):
+                    return True
+
+            return False
+        return False
 
     def is_fee_exempt_for(self, year=None, month=None):
         today = datetime.now()
@@ -2204,17 +2259,61 @@ def gestao_turma_detalhes(class_id):
         demo_count=sum(1 for item in enrollments if item.is_demo),
     )
 
+@app.route('/dar-baixa-mensalidade/<int:user_id>', methods=['POST'])
+@login_required
+def dar_baixa_mensalidade(user_id):
+    if session.get('user_role') not in {'instrutor', 'monitor'}:
+        flash('Apenas instrutores e monitores podem dar baixa na mensalidade.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    current_user = db.session.get(User, session.get('user_id'))
+    student = db.session.get(User, user_id)
+    if not student:
+        flash('Aluno não encontrado.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    if not student.can_be_managed_by(current_user):
+        flash('Acesso negado: monitores só podem dar baixa em alunos da sua própria turma.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    current_date = datetime.now()
+    current_month = current_date.month
+    current_year = current_date.year
+
+    student.set_month_status(f'{current_month:02d}', 'pago', current_year)
+    student.payment_status = 'Em Dia'
+    db.session.commit()
+
+    flash(f'✅ Mensalidade de {student.name} confirmada com sucesso! Status alterado para Em Dia.', 'success')
+    return redirect(request.referrer or url_for('mensalidades_admin'))
+
 @app.route('/api/update_month_status', methods=['POST'])
-@role_required('instrutor')
+@login_required
 def api_update_month_status():
+    if session.get('user_role') not in {'instrutor', 'monitor'}:
+        flash('Somente monitores e instrutores podem atualizar o status da mensalidade.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    current_user = db.session.get(User, session.get('user_id'))
     user_id = request.form.get('user_id')
     month = request.form.get('month')
     status = request.form.get('status')
     
     user = db.session.get(User, user_id)
     year = request.form.get('year', type=int) or datetime.now().year
-    if user and month and month.isdigit() and 1 <= int(month) <= 12 and status in ['pago', 'atrasado', 'futuro']:
+
+    if not user:
+        flash('Aluno não encontrado.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    if not user.can_be_managed_by(current_user):
+        flash('Somente o monitor responsável pela turma deste aluno ou instrutores podem alterar a mensalidade.', 'error')
+        return redirect(request.referrer or url_for('mensalidades_admin'))
+
+    if month and month.isdigit() and 1 <= int(month) <= 12 and status in ['pago', 'atrasado', 'futuro']:
         user.set_month_status(month, status, year)
+        if status == 'pago':
+            user.payment_status = 'Em Dia'
         db.session.commit()
         flash(f'Baixa realizada! Mês {month} de {user.name} alterado para {status.upper()}.', 'success')
     
