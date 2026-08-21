@@ -6,7 +6,7 @@
   <div class="erp-main-container">
     <header class="erp-topbar">
       <div class="erp-topbar-left"><button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button><span class="erp-blue-badge">BJ Sports ERP • Bem-vindo</span></div>
-      <div class="erp-topbar-right"><div class="erp-user-badge"><span class="erp-avatar">{{ first_name[0] }}</span><span class="erp-user-name">{{ user_name }}</span></div></div>
+      <div class="erp-topbar-right">{% include "_topbar_actions.html" %}<div class="erp-user-badge"><span class="erp-avatar">{{ first_name[0] }}</span><span class="erp-user-name">{{ user_name }}</span></div></div>
     </header>
     <main class="erp-content welcome-dashboard-content">
       {% if is_first_reg %}<div class="welcome-banner"><div class="welcome-icon">🎉</div><div><h4>Bem-vindo ao BJ Sports!</h4><p>Seu cadastro foi concluído. Este é o resumo inicial da sua conta.</p></div></div>{% endif %}
@@ -28,7 +28,7 @@
       <section class="welcome-details-grid">
         <article class="welcome-panel">
           <div class="welcome-panel-title"><span><i data-lucide="user-round"></i>Informações da conta</span><a href="{{ url_for('configuracoes') }}">Gerenciar</a></div>
-          <dl class="welcome-account-list"><div><dt>Nome</dt><dd>{{ profile_user.name }}</dd></div><div><dt>Usuário</dt><dd>@{{ profile_user.username }}</dd></div><div><dt>CPF</dt><dd>{{ masked_cpf }}</dd></div><div><dt>WhatsApp</dt><dd>({{ profile_user.ddd }}) {{ profile_user.phone }}</dd></div><div><dt>Perfil</dt><dd>{{ profile_user.role|capitalize }}</dd></div></dl>
+          <dl class="welcome-account-list"><div><dt>Nome</dt><dd>{{ profile_user.name }}</dd></div><div><dt>Usuário</dt><dd>@{{ profile_user.username }}</dd></div><div><dt>CPF</dt><dd>{{ masked_cpf }}</dd></div><div><dt>WhatsApp</dt><dd>({{ profile_user.ddd }}) {{ profile_user.phone }}</dd></div><div><dt>Perfil</dt><dd>{{ profile_user.role|capitalize }}</dd></div><div><dt>Restrição Médica</dt><dd style="color: {% if profile_user.medical_restriction %}#f87171{% else %}#4ade80{% endif %}; font-weight: 600;">{% if profile_user.medical_restriction %}🚨 {{ profile_user.medical_restriction }}{% else %}✓ Nenhuma restrição registrada{% endif %}</dd></div></dl>
         </article>
         <article class="welcome-panel">
           <div class="welcome-panel-title"><span><i data-lucide="zap"></i>Acessos rápidos</span></div>

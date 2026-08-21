@@ -1286,7 +1286,9 @@ def send_calendar_reminders(minutes_ahead):
 def inject_user_context():
     current_user = db.session.get(User, session['user_id']) if session.get('user_id') else None
     g.user = current_user
-    pending_attendance_count = Attendance.query.filter_by(status='pendente').count() if session.get('user_role') in {'monitor', 'instrutor'} else 0
+    role = session.get('user_role', 'aluno')
+    pending_attendance_count = Attendance.query.filter_by(status='pendente').count() if role in {'monitor', 'instrutor'} else 0
+    pending_payments_count = User.query.filter_by(payment_status='Pendente', monthly_fee_exempt=False).count() if role in {'monitor', 'instrutor'} else 0
     contract_pending = bool(current_user and (
         current_user.membership_terms_version != MEMBERSHIP_TERMS_VERSION
         or current_user.privacy_notice_version != PRIVACY_NOTICE_VERSION
@@ -1298,12 +1300,13 @@ def inject_user_context():
         'is_logged_in': 'user_id' in session,
         'user_name': session.get('user_name', ''),
         'username': session.get('username', ''),
-        'user_role': session.get('user_role', 'aluno'),
+        'user_role': role,
         'user_plan': session.get('user_plan', ''),
         'user_due_date': session.get('user_due_date', '15'),
         'user_belt_color': current_user.belt_color if current_user else 'branca',
         'user_belt_degree': current_user.belt_degree if current_user else 0,
         'pending_attendance_count': pending_attendance_count,
+        'pending_payments_count': pending_payments_count,
         'contract_pending': contract_pending,
         'csrf_token': csrf_token
     }
