@@ -831,6 +831,72 @@ def ensure_class_groups():
                 ))
         db.session.commit()
 
+def migrate_sqlite_to_postgres():
+    if not app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql'):
+        return
+    sqlite_db_path = os.path.join(app.instance_path, 'user.db')
+    if not os.path.exists(sqlite_db_path):
+        return
+    try:
+        if User.query.count() > 0:
+            return
+    except Exception:
+        pass
+
+    import sqlite3
+    print(f"Migrating data from SQLite ({sqlite_db_path}) to PostgreSQL...")
+    try:
+        sq_conn = sqlite3.connect(sqlite_db_path)
+        sq_conn.row_factory = sqlite3.Row
+        sq_cursor = sq_conn.cursor()
+
+        sq_users = sq_cursor.execute("SELECT * FROM user").fetchall()
+        for row in sq_users:
+            u_dict = dict(row)
+            if not User.query.filter_by(username=u_dict['username']).first():
+                u = User()
+                for key in u_dict:
+                    if hasattr(u, key) and u_dict[key] is not None:
+                        val = u_dict[key]
+                        if isinstance(val, str) and ('_at' in key or 'date' in key):
+                            try:
+                                val = datetime.fromisoformat(val)
+                            except Exception:
+                                pass
+                        setattr(u, key, val)
+                db.session.add(u)
+        db.session.commit()
+
+        sq_plans = sq_cursor.execute("SELECT * FROM plan").fetchall()
+        for row in sq_plans:
+            p_dict = dict(row)
+            if not Plan.query.filter_by(name=p_dict['name']).first():
+                p = Plan()
+                for key in p_dict:
+                    if hasattr(p, key) and p_dict[key] is not None:
+                        setattr(p, key, p_dict[key])
+                db.session.add(p)
+        db.session.commit()
+
+        try:
+            sq_groups = sq_cursor.execute("SELECT * FROM class_group").fetchall()
+            for row in sq_groups:
+                g_dict = dict(row)
+                if not ClassGroup.query.filter_by(name=g_dict['name']).first():
+                    cg = ClassGroup()
+                    for key in g_dict:
+                        if hasattr(cg, key) and g_dict[key] is not None:
+                            setattr(cg, key, g_dict[key])
+                    db.session.add(cg)
+            db.session.commit()
+        except Exception:
+            pass
+
+        sq_conn.close()
+        print("Data migration from SQLite to PostgreSQL completed successfully!")
+    except Exception as e:
+        print("SQLite to PostgreSQL migration note:", e)
+
 def ensure_schema_updates():
     try:
         from sqlalchemy import inspect, text
@@ -982,6 +1048,7 @@ with app.app_context():
     if 'class_group_id' not in attendance_columns:
         db.session.execute(text('ALTER TABLE attendance ADD COLUMN class_group_id INTEGER REFERENCES class_group(id)'))
     db.session.commit()
+    migrate_sqlite_to_postgres()
 
     # Converte isenções legadas sem período em uma vigência iniciada na competência atual.
     migration_date = datetime.now()

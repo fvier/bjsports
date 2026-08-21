@@ -1,10 +1,25 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: bjsports-db
+    restart: always
+    environment:
+      POSTGRES_DB: bjsports
+      POSTGRES_USER: bjsports_user
+      POSTGRES_PASSWORD: bjsports_secure_password_2026
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - coolify
+
   bjsports-app:
     build: .
     container_name: bjsports-app
     restart: always
+    depends_on:
+      - db
     ports:
       - "5050:5050"
     volumes:
@@ -13,6 +28,7 @@ services:
       - PORT=5050
       - HOST=0.0.0.0
       - SECRET_KEY=bjsports-production-secret-key-2026-cajazeiras
+      - DATABASE_URL=postgresql://bjsports_user:bjsports_secure_password_2026@db:5432/bjsports
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=coolify"
@@ -47,6 +63,7 @@ services:
 
 volumes:
   bjsports_data:
+  postgres_data:
 
 networks:
   coolify:
