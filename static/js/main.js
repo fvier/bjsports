@@ -69,8 +69,10 @@ const scheduleData = {
   ],
   todos: [
     { name: 'Plano Passe Livre (BJJ & Boxe)', freq: 'Diário (Livre Acesso)', time: 'Todos os Horários', price: 'R$ 120,00 /mês', tag: 'tag-func', tagLabel: 'Livre Acesso' },
-    { name: 'Plano Família (3 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', tag: 'tag-bjj', tagLabel: 'Família' },
-    { name: 'Plano Casal (2 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', tag: 'tag-boxe', tagLabel: 'Casal' }
+    { name: '⚡ Plano Combo + 1 (2 Modalidades)', freq: 'Pratique 2 modalidades à escolha', time: 'Horários Combinados', price: 'R$ 150,00 /mês', tag: 'tag-bjj', tagLabel: 'Combo + 1' },
+    { name: '🔥 Plano Combo + 2 (3 Modalidades)', freq: 'Pratique 3 modalidades à escolha', time: 'Horários Combinados', price: 'R$ 180,00 /mês', tag: 'tag-mma', tagLabel: 'Combo + 2' },
+    { name: 'Plano Casal (2 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 190,00 /mês', tag: 'tag-boxe', tagLabel: 'Casal' },
+    { name: 'Plano Família (3 pessoas)', freq: 'Livre Escolha', time: 'Todos os Horários', price: 'R$ 280,00 /mês', tag: 'tag-bjj', tagLabel: 'Família' }
   ]
 };
 
