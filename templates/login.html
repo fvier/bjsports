@@ -179,13 +179,31 @@
               <span class="field-hint">👤 Identificação de gênero do aluno.</span>
             </div>
 
-            <!-- 9. Seleção de Plano -->
-            <div class="form-group">
-              <label for="regPlan">Plano Desejado *</label>
-              <select name="regPlan" id="regPlan" required>
-                {% for plan in available_plans %}
-                  <option value="{{ plan.name }} — {{ plan.price }}">{{ plan.name }} — {{ plan.price }}</option>
-                {% endfor %}
+            <!-- 9. Seleção de Tipo de Plano: Modalidades Individuais vs Combos & Planos Especiais -->
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px;">Escolha o Tipo de Matrícula *</label>
+              <div class="plan-type-toggle-buttons" style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <button type="button" id="btnTypeModalidades" class="btn btn-type-toggle" onclick="switchPlanType('modalidade')" style="flex: 1; padding: 10px 12px; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border: none; cursor: pointer; transition: all 0.2s ease;">
+                  🥋 Modalidades Individuais
+                </button>
+                <button type="button" id="btnTypeCombos" class="btn btn-type-toggle" onclick="switchPlanType('combo')" style="flex: 1; padding: 10px 12px; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: rgba(30, 41, 59, 0.8); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; transition: all 0.2s ease;">
+                  ⚡ Combos & Planos Especiais
+                </button>
+              </div>
+
+              <label for="regPlan" style="font-size: 0.84rem; color: var(--text-muted);">Selecione o Plano / Modalidades Desejado *</label>
+              <select name="regPlan" id="regPlan" required style="width: 100%; padding: 10px 14px; border-radius: 8px; background: rgba(15, 23, 42, 0.9); color: #fff; border: 1px solid var(--border-light); font-size: 0.92rem; font-weight: 600;">
+                <option value="Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês</option>
+                <option value="Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês</option>
+                <option value="Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês</option>
+                <option value="Boxe Noturno (Ter, Qui) — R$ 90,00/mês">Boxe Noturno (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês">Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês</option>
+                <option value="Muay Thai (Ter, Qui) — R$ 90,00/mês">Muay Thai (Ter, Qui) — R$ 90,00/mês</option>
+                <option value="MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês">MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês</option>
+                <option value="MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês">MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês</option>
+                <option value="Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês</option>
               </select>
             </div>
 
@@ -198,21 +216,6 @@
                 <option value="25">📅 Dia 25 de cada mês</option>
               </select>
               <span class="field-hint">🗓️ Escolha a melhor data de pagamento mensal para o seu orçamento.</span>
-            </div>
-
-            <!-- BOTÃO DE AULA EXPERIMENTAL -->
-            <div class="form-group experimental-class-box" style="margin: 18px 0; padding: 16px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.35);">
-              <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px;">Deseja agendar uma Aula Experimental Gratuita?</label>
-              
-              <input type="hidden" name="isExperimentalClass" id="isExperimentalClassInput" value="0">
-              <button type="button" class="btn btn-block btn-experimental-toggle" id="btnExperimentalToggle" onclick="toggleExperimentalBtn(this)">
-                <i data-lucide="sparkles" class="icon-toggle"></i>
-                <span class="lbl-toggle-text">Ativar Aula Experimental Gratuita</span>
-              </button>
-              
-              <small class="experimental-help-text" style="display: block; margin-top: 10px; font-size: 0.82rem; color: #94a3b8; line-height: 1.45;">
-                💡 <strong>Texto de Ajuda:</strong> Clique no botão acima para acioná-lo (ficará verde). Ative esta opção caso você esteja realizando apenas <strong>uma aula experimental gratuita no tatame</strong> antes de efetivar sua matrícula regular.
-              </small>
             </div>
 
             <!-- 11. Senha & Confirmação -->
@@ -285,6 +288,61 @@
   </section>
 
   <script>
+    const plansModalidades = [
+      "Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês",
+      "Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês",
+      "Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês",
+      "Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês",
+      "Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês",
+      "Boxe Noturno (Ter, Qui) — R$ 90,00/mês",
+      "Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês",
+      "Muay Thai (Ter, Qui) — R$ 90,00/mês",
+      "MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês",
+      "MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês",
+      "Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês"
+    ];
+
+    const plansCombos = [
+      "⚡ Combo + 1 (2 Modalidades à escolha) — R$ 150,00/mês",
+      "🔥 Combo + 2 (3 Modalidades à escolha) — R$ 180,00/mês",
+      "🥋 Plano Passe Livre (Jiu-Jitsu & Boxe) — R$ 120,00/mês",
+      "👥 Plano Casal (2 Pessoas) — R$ 190,00/mês",
+      "👨‍👩‍👧 Plano Família (3 Pessoas) — R$ 280,00/mês"
+    ];
+
+    function switchPlanType(type) {
+      const btnMod = document.getElementById('btnTypeModalidades');
+      const btnComb = document.getElementById('btnTypeCombos');
+      const selectPlan = document.getElementById('regPlan');
+      if (!selectPlan) return;
+
+      if (type === 'modalidade') {
+        if (btnMod) {
+          btnMod.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+          btnMod.style.color = '#000000';
+          btnMod.style.border = 'none';
+        }
+        if (btnComb) {
+          btnComb.style.background = 'rgba(30, 41, 59, 0.8)';
+          btnComb.style.color = '#94a3b8';
+          btnComb.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+        }
+        selectPlan.innerHTML = plansModalidades.map(p => `<option value="${p}">${p}</option>`).join('');
+      } else {
+        if (btnComb) {
+          btnComb.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+          btnComb.style.color = '#ffffff';
+          btnComb.style.border = 'none';
+        }
+        if (btnMod) {
+          btnMod.style.background = 'rgba(30, 41, 59, 0.8)';
+          btnMod.style.color = '#94a3b8';
+          btnMod.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+        }
+        selectPlan.innerHTML = plansCombos.map(p => `<option value="${p}">${p}</option>`).join('');
+      }
+    }
+
     function handleMinorCheckbox(checkbox) {
       const minorFields = document.getElementById('minorConsentFields');
       const radioMinor = document.getElementById('radioMinorConsent');
@@ -296,18 +354,6 @@
       } else {
         if (radioAdult) radioAdult.checked = true;
         if (minorFields) minorFields.classList.add('hidden');
-      }
-    function toggleExperimentalBtn(btn) {
-      const input = document.getElementById('isExperimentalClassInput');
-      const isActive = btn.classList.contains('active');
-      if (isActive) {
-        btn.classList.remove('active');
-        input.value = '0';
-        btn.querySelector('.lbl-toggle-text').innerText = 'Ativar Aula Experimental Gratuita';
-      } else {
-        btn.classList.add('active');
-        input.value = '1';
-        btn.querySelector('.lbl-toggle-text').innerText = '✓ Aula Experimental Ativada (Treino Livre)';
       }
     }
   </script>

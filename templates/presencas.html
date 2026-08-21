@@ -114,9 +114,25 @@
             {% if has_overdue %}
             <a href="{{ url_for('mensalidades_aluno') }}" class="btn btn-secondary btn-lg"><i data-lucide="wallet-cards"></i> Ver mensalidades</a>
             {% elif not today_attendance %}
-            <form action="{{ url_for('presencas') }}" method="POST">
+            <form action="{{ url_for('presencas') }}" method="POST" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 480px; margin-top: 12px;">
               <input type="hidden" name="action" value="request_checkin">
-              <button type="submit" class="btn btn-primary btn-lg btn-glow">
+
+              <!-- BOTÃO E CAIXA DE AULA EXPERIMENTAL GRATUITA -->
+              <div class="experimental-class-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.35);">
+                <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px; font-size: 0.95rem;">Deseja agendar uma Aula Experimental Gratuita?</label>
+                
+                <input type="hidden" name="is_experimental" id="isExperimentalClassInput" value="0">
+                <button type="button" class="btn btn-block btn-experimental-toggle" id="btnExperimentalToggle" onclick="toggleExperimentalBtn(this)" style="width: 100%; padding: 10px 14px; border-radius: 8px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.25s ease;">
+                  <i data-lucide="sparkles" class="icon-toggle"></i>
+                  <span class="lbl-toggle-text">Ativar Aula Experimental Gratuita</span>
+                </button>
+                
+                <small class="experimental-help-text" style="display: block; margin-top: 10px; font-size: 0.82rem; color: #94a3b8; line-height: 1.45;">
+                  💡 <strong>Texto de Ajuda:</strong> Clique no botão acima para acioná-lo (ficará verde). Ative esta opção caso você esteja realizando apenas <strong>uma aula experimental gratuita no tatame</strong> antes de efetivar sua matrícula regular.
+                </small>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;">
                 <i data-lucide="check"></i> Enviar Check-in
               </button>
             </form>
@@ -148,4 +164,29 @@
       </main>
     </div>
   </div>
+
+  <script>
+    function toggleExperimentalBtn(btn) {
+      const input = document.getElementById('isExperimentalClassInput');
+      if (!input) return;
+      const isActive = input.value === '1';
+      if (isActive) {
+        input.value = '0';
+        btn.style.background = 'rgba(30, 41, 59, 0.8)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        btn.style.color = '#e2e8f0';
+        btn.style.boxShadow = 'none';
+        const txt = btn.querySelector('.lbl-toggle-text');
+        if (txt) txt.innerText = 'Ativar Aula Experimental Gratuita';
+      } else {
+        input.value = '1';
+        btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+        btn.style.borderColor = '#4ade80';
+        btn.style.color = '#ffffff';
+        btn.style.boxShadow = '0 0 14px rgba(34, 197, 94, 0.4)';
+        const txt = btn.querySelector('.lbl-toggle-text');
+        if (txt) txt.innerText = '✓ Aula Experimental Ativada (Treino Livre)';
+      }
+    }
+  </script>
 {% endblock %}
