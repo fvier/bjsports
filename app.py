@@ -1163,7 +1163,10 @@ with app.app_context():
     if 'selected_modalities' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN selected_modalities VARCHAR(250)'))
     if 'birth_date' not in user_columns:
-        db.session.execute(text('ALTER TABLE "user" ADD COLUMN birth_date DATE'))
+        birth_date_sql = ('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS birth_date DATE'
+                          if db.engine.dialect.name == 'postgresql'
+                          else 'ALTER TABLE "user" ADD COLUMN birth_date DATE')
+        db.session.execute(text(birth_date_sql))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
