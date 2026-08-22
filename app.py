@@ -1659,7 +1659,9 @@ def login():
             phone = request.form.get('regPhoneNumber', '').strip()
             email = request.form.get('regEmail', '').strip().casefold()
             sex = request.form.get('regSex', 'prefer_not').strip()
-            plan = request.form.get('regPlan', '').strip()
+            selected_plan = request.form.get('regPlan', '').strip()
+            training_days = request.form.get('regTrainingDays', '').strip()
+            plan = selected_plan
             due_date = request.form.get('regDueDate', '5').strip()
             password = request.form.get('regPass', '')
             accepted_membership_terms = request.form.get('acceptMembershipTerms') == 'on'
@@ -1697,8 +1699,14 @@ def login():
                 if not is_valid_cpf(guardian_cpf_digits): errors.append('Informe um CPF válido para o responsável pela autorização de imagem.')
                 if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
                     errors.append('Informe o vínculo do responsável legal pelo menor.')
-            valid_plans = {f'{p.name} — {p.price}' for p in Plan.query.all()}
-            if plan not in valid_plans: errors.append('Plano inválido.')
+            valid_plans = {f'{p.name} — {p.price}' for p in Plan.query.all() if 'passe livre' not in p.name.casefold()}
+            if selected_plan not in valid_plans: errors.append('Modalidade inválida.')
+            training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
+            if training_days not in training_day_labels:
+                errors.append('Escolha os dias de treino.')
+            elif selected_plan in valid_plans:
+                plan_name, plan_price = (part.strip() for part in selected_plan.split('—', 1))
+                plan = f'{plan_name} • {training_day_labels[training_days]} — {plan_price}'
             if errors:
                 for error in errors: flash(error, 'error')
                 return redirect(url_for('login', mode='register'))
@@ -1774,8 +1782,24 @@ def login():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
 
+    available_plans = Plan.query.order_by(Plan.category, Plan.id).all()
+    registration_modalities, registration_combos = [], []
+    for available_plan in available_plans:
+        if 'passe livre' in available_plan.name.casefold():
+            continue
+        option = {'value': f'{available_plan.name} — {available_plan.price}', 'label': available_plan.name}
+        if available_plan.category == 'Planos Individuais':
+            modalities = available_plan.get_modalities()
+            if len(modalities) == 1 and modalities[0] in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}:
+                option['label'] = modalities[0]
+                registration_modalities.append(option)
+        else:
+            registration_combos.append(option)
+
     return render_template('login.html', page_title='Área de Membros', is_logged_in=False,
-                           available_plans=Plan.query.order_by(Plan.category, Plan.id).all(),
+                           available_plans=available_plans,
+                           registration_modalities=registration_modalities,
+                           registration_combos=registration_combos,
                            membership_terms_version=MEMBERSHIP_TERMS_VERSION,
                            privacy_notice_version=PRIVACY_NOTICE_VERSION)
 
@@ -1865,7 +1889,7 @@ def presencas():
 
         if not allowed_weekdays:
             normalized_plan = (user.plan or '').lower()
-            if 'passe livre' in normalized_plan or 'combo' in normalized_plan:
+            if 'passe livre' in normalized_plan or 'combo' in normalized_plan or 'todos os dias' in normalized_plan:
                 allowed_weekdays = {0, 1, 2, 3, 4, 5, 6}
             elif all(d in normalized_plan for d in ('seg', 'qua', 'sex')):
                 allowed_weekdays = {0, 2, 4}
@@ -1922,7 +1946,7 @@ def presencas():
         training_weekdays = {0, 2, 4}
     elif all(day in normalized_plan for day in ('ter', 'qui')):
         training_weekdays = {1, 3}
-    elif 'passe livre' in normalized_plan:
+    elif 'passe livre' in normalized_plan or 'todos os dias' in normalized_plan:
         training_weekdays = {0, 1, 2, 3, 4}
     else:
         training_weekdays = set()

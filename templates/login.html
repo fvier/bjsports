@@ -194,20 +194,11 @@
               <label for="regPlan" style="font-size: 0.84rem; color: var(--text-muted);">Selecione o Plano / Modalidades Desejado *</label>
               <select name="regPlan" id="regPlan" required style="width: 100%; padding: 10px 14px; border-radius: 8px; background: rgba(15, 23, 42, 0.9); color: #fff; border: 1px solid var(--border-light); font-size: 0.92rem; font-weight: 600;">
                 <option value="" selected disabled>Selecione uma modalidade</option>
-                <option value="Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês</option>
-                <option value="Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês</option>
-                <option value="Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês</option>
-                <option value="Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês</option>
-                <option value="Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês">Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês</option>
-                <option value="Boxe Noturno (Ter, Qui) — R$ 90,00/mês">Boxe Noturno (Ter, Qui) — R$ 90,00/mês</option>
-                <option value="Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês">Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês</option>
-                <option value="Muay Thai (Ter, Qui) — R$ 90,00/mês">Muay Thai (Ter, Qui) — R$ 90,00/mês</option>
-                <option value="MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês">MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês</option>
-                <option value="MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês">MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês</option>
-                <option value="Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês</option>
+                {% for plan in registration_modalities %}<option value="{{ plan.value }}">{{ plan.label }}</option>{% endfor %}
               </select>
               <fieldset class="registration-schedule-filter" aria-label="Filtrar modalidades pelos dias de treino">
                 <legend>Escolha os dias de treino</legend>
+                <input type="hidden" name="regTrainingDays" id="regTrainingDays" value="">
                 <div>
                   <button type="button" data-plan-schedule="ter-qui" aria-pressed="false">Ter &amp; Qui</button>
                   <button type="button" data-plan-schedule="seg-qua-sex" aria-pressed="false">Seg - Qua - Sex</button>
@@ -297,40 +288,17 @@
   </section>
 
   <script>
-    const plansModalidades = [
-      "Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês",
-      "Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês",
-      "Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês",
-      "Jiu-Jitsu Meio-Dia (Ter, Qui) — R$ 90,00/mês",
-      "Boxe Matinal (Seg, Qua, Sex) — R$ 90,00/mês",
-      "Boxe Noturno (Ter, Qui) — R$ 90,00/mês",
-      "Muay Thai (Seg, Qua, Sex) — R$ 100,00/mês",
-      "Muay Thai (Ter, Qui) — R$ 90,00/mês",
-      "MMA Profissional (Seg, Qua, Sex) — R$ 130,00/mês",
-      "MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês",
-      "Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês"
-    ];
-
-    const plansCombos = [
-      "⚡ Combo + 1 (2 Modalidades à escolha) — R$ 150,00/mês",
-      "🔥 Combo + 2 (3 Modalidades à escolha) — R$ 180,00/mês",
-      "👥 Plano Casal (2 Pessoas) — R$ 190,00/mês",
-      "👨‍👩‍👧 Plano Família (3 Pessoas) — R$ 280,00/mês"
-    ];
+    const plansModalidades = {{ registration_modalities|tojson }};
+    const plansCombos = {{ registration_combos|tojson }};
 
     const emptyPlanOption = '<option value="" selected disabled>Selecione uma modalidade</option>';
     let activePlanType = 'modalidade';
 
-    function renderPlanOptions(schedule = 'todos') {
+    function renderPlanOptions() {
       const selectPlan = document.getElementById('regPlan');
       if (!selectPlan) return;
       const source = activePlanType === 'combo' ? plansCombos : plansModalidades;
-      const filtered = activePlanType === 'combo' || schedule === 'todos'
-        ? source
-        : source.filter(plan => schedule === 'ter-qui'
-          ? /Ter, Qui/.test(plan)
-          : /Seg, Qua, Sex/.test(plan));
-      selectPlan.innerHTML = emptyPlanOption + filtered.map(plan => `<option value="${plan}">${plan}</option>`).join('');
+      selectPlan.innerHTML = emptyPlanOption + source.map(plan => `<option value="${plan.value}">${plan.label}</option>`).join('');
       selectPlan.value = '';
       selectPlan.dispatchEvent(new Event('change'));
     }
@@ -342,7 +310,7 @@
           item.classList.toggle('active', selected);
           item.setAttribute('aria-pressed', String(selected));
         });
-        renderPlanOptions(button.dataset.planSchedule);
+        document.getElementById('regTrainingDays').value = button.dataset.planSchedule;
       });
     });
 

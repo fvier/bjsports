@@ -99,7 +99,8 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'register', 'regUsername': 'novoaluno', 'regName': 'Novo Aluno',
             'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '999999999',
             'regEmail': 'novoaluno@example.com', 'regSex': 'prefer_not',
-            'regPlan': plan_value, 'regDueDate': '15', 'regPass': 'senha-segura',
+            'regPlan': plan_value, 'regTrainingDays': 'seg-qua-sex',
+            'regDueDate': '15', 'regPass': 'senha-segura',
         }
         denied = self.client.post('/login', data={
             **registration, 'csrf_token': self.csrf(),
@@ -147,7 +148,8 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'register', 'regUsername': 'alunomenor', 'regName': 'Aluno Menor',
             'regCpf': '111.444.777-35', 'regDDD': '83', 'regPhoneNumber': '988888888',
             'regEmail': 'responsavel@example.com', 'regSex': 'feminino',
-            'regPlan': plan_value, 'regDueDate': '5', 'regPass': 'senha-segura',
+            'regPlan': plan_value, 'regTrainingDays': 'ter-qui',
+            'regDueDate': '5', 'regPass': 'senha-segura',
             'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
             'confirmLegalCapacity': 'on', 'imageConsentScope': 'minor_guardian',
         }
