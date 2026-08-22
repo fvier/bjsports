@@ -2356,12 +2356,26 @@ def planos_admin():
 
     plans_list = Plan.query.order_by(Plan.category, Plan.name).all()
     usage = {plan.id: User.query.filter(User.plan.ilike(f'{plan.name}%')).count() for plan in plans_list}
+    active_class_groups = ClassGroup.query.filter_by(status='ativa').order_by(ClassGroup.name).all()
+    schedules_by_modality = {}
+    for class_group in active_class_groups:
+        schedules_by_modality.setdefault(class_group.modality, [])
+        for schedule in class_group.schedules:
+            if schedule not in schedules_by_modality[class_group.modality]:
+                schedules_by_modality[class_group.modality].append(schedule)
+    plan_schedules = {}
+    for plan in plans_list:
+        plan_schedules[plan.id] = []
+        for modality in plan.get_modalities():
+            for schedule in schedules_by_modality.get(modality, []):
+                if schedule not in plan_schedules[plan.id]:
+                    plan_schedules[plan.id].append(schedule)
     return render_template(
         'planos_admin.html', page_title='Planos e Modalidades', plans=plans_list,
         plan_usage=usage, allowed_modalities=sorted(allowed_modalities),
         individual_count=sum(1 for plan in plans_list if plan.category == 'Planos Individuais'),
         special_count=sum(1 for plan in plans_list if plan.category != 'Planos Individuais'),
-        active_tab=return_tab,
+        active_tab=return_tab, plan_schedules=plan_schedules,
     )
 
 @app.route('/gestao/turmas', methods=['GET', 'POST'])
