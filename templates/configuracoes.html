@@ -93,19 +93,14 @@
               </label>
               <p style="font-size: 0.84rem; color: #cbd5e1; margin-bottom: 12px;">
                 Plano Escolhido: <strong style="color: #facc15;">{{ profile_user.plan }}</strong>.<br>
-                Marque abaixo as modalidades que você pratica neste plano/combo:
+                As modalidades abaixo são definidas pela equipe responsável:
               </p>
 
-              <div class="combo-modalities-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px;">
-                {% for mod in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids'] %}
-                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(15, 23, 42, 0.85); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); cursor: pointer; color: #ffffff; font-weight: 600; font-size: 0.88rem;">
-                  <input type="checkbox" name="combo_modalities" value="{{ mod }}" {% if mod in current_selected %}checked{% endif %} style="accent-color: #f59e0b; width: 16px; height: 16px;">
-                  <span>{{ mod }}</span>
-                </label>
-                {% endfor %}
+              <div class="combo-modalities-checkboxes" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                {% for mod in current_selected %}<span style="padding: 8px 12px; color: #dcfce7; background: rgba(34,197,94,.12); border: 1px solid rgba(74,222,128,.3); border-radius: 8px; font-weight: 700;">{{ mod }}</span>{% else %}<span style="color:#94a3b8;">Nenhuma modalidade definida.</span>{% endfor %}
               </div>
               <small style="display: block; font-size: 0.78rem; color: #94a3b8; margin-top: 10px; line-height: 1.4;">
-                💡 Se você contratou <strong>Combo + 1</strong>, selecione as 2 modalidades de sua preferência. Se contratou <strong>Combo + 2</strong>, selecione 3 modalidades.
+                Alterações somente podem ser realizadas por professor ou monitor.
               </small>
             </div>
 

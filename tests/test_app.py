@@ -234,6 +234,23 @@ class BJSportsTestCase(unittest.TestCase):
             user = User.query.filter_by(username='alunocombo').one()
             self.assertEqual(user.get_selected_modalities_list(), ['Jiu-Jitsu', 'Boxe', 'MMA'])
             self.assertEqual(user.birth_date.isoformat(), '1990-05-10')
+            combo_user_id = user.id
+
+        forbidden = self.client.get('/gestao/modalidades-combo', follow_redirects=True)
+        self.assertIn('Somente professores e monitores', forbidden.get_data(as_text=True))
+
+        self.login('monitor')
+        management = self.client.get('/gestao/modalidades-combo')
+        self.assertEqual(management.status_code, 200)
+        self.assertIn('Aluno Combo', management.get_data(as_text=True))
+        updated = self.client.post('/gestao/modalidades-combo', data={
+            'user_id': combo_user_id, 'combo_modalities': ['Muay Thai', 'MMA', 'Boxe'],
+            'csrf_token': self.csrf(),
+        })
+        self.assertEqual(updated.status_code, 302)
+        with app.app_context():
+            user = db.session.get(User, combo_user_id)
+            self.assertEqual(user.get_selected_modalities_list(), ['Muay Thai', 'MMA', 'Boxe'])
 
     def test_classes_page_is_public(self):
         response = self.client.get('/turmas')

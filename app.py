@@ -3315,11 +3315,6 @@ def configuracoes():
             if new_belt_degree is not None and 0 <= new_belt_degree <= 4:
                 user.belt_degree = new_belt_degree
             user.medical_restriction = new_medical_restriction if new_medical_restriction else None
-            combo_modalities = request.form.getlist('combo_modalities')
-            if combo_modalities:
-                user.selected_modalities = ", ".join(combo_modalities)
-            elif 'combo_modalities' in request.form:
-                user.selected_modalities = None
             db.session.commit()
             session['user_name'] = new_name
             flash('Configurações e informações do perfil salvas com sucesso!', 'success')
@@ -3328,6 +3323,36 @@ def configuracoes():
         return redirect(url_for('configuracoes'))
     user = db.session.get(User, session['user_id'])
     return render_template('configuracoes.html', page_title='Configurações & Perfil', profile_user=user)
+
+@app.route('/gestao/modalidades-combo', methods=['GET', 'POST'])
+@login_required
+def gestao_modalidades_combo():
+    if session.get('user_role') not in {'professor', 'instrutor', 'monitor'}:
+        flash('Somente professores e monitores podem alterar modalidades de combos.', 'error')
+        return redirect(url_for('dashboard'))
+
+    allowed_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+    if request.method == 'POST':
+        student = db.session.get(User, request.form.get('user_id', type=int))
+        selected = [value.strip() for value in request.form.getlist('combo_modalities') if value.strip()]
+        normalized_plan = (student.plan if student else '').casefold()
+        expected_count = 2 if 'combo + 1' in normalized_plan else (3 if 'combo + 2' in normalized_plan else 0)
+        if not student or not expected_count:
+            flash('Aluno ou plano combo inválido.', 'error')
+        elif len(selected) != expected_count or len(set(selected)) != expected_count:
+            flash(f'Escolha exatamente {expected_count} modalidades diferentes.', 'error')
+        elif any(modality not in allowed_modalities for modality in selected):
+            flash('Uma das modalidades informadas é inválida.', 'error')
+        else:
+            student.selected_modalities = ', '.join(selected)
+            db.session.commit()
+            flash(f'Modalidades do combo de {student.name} atualizadas.', 'success')
+        return redirect(url_for('gestao_modalidades_combo'))
+
+    combo_students = User.query.filter(User.plan.ilike('%combo +%')).order_by(User.name.asc()).all()
+    return render_template('gestao_modalidades_combo.html', page_title='Modalidades dos Combos',
+                           combo_students=combo_students,
+                           combo_options=['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'])
 
 @app.route('/minha-conta/contrato', methods=['GET', 'POST'])
 @app.route('/minha-conta/contrato.html', methods=['GET', 'POST'])

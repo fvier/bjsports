@@ -345,6 +345,14 @@
         comboSelect.required = enabled;
         if (!enabled) comboSelect.value = '';
       });
+      if (comboCount) {
+        document.getElementById('regTrainingDays').value = 'todos';
+        document.querySelectorAll('[data-plan-schedule]').forEach(button => {
+          const selected = button.dataset.planSchedule === 'todos';
+          button.classList.toggle('active', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        });
+      }
     }
 
     document.getElementById('regPlan')?.addEventListener('change', updatePrivateInstructorField);

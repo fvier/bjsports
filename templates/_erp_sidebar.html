@@ -10,6 +10,7 @@
       <a href="{{ url_for('presencas') }}" class="erp-nav-item {% if request.endpoint == 'presencas' %}active{% endif %}"><i data-lucide="calendar" class="erp-item-icon"></i><span class="erp-item-label">Presenças & Treinos</span></a>
       <a href="{{ url_for('calendario') }}" class="erp-nav-item {% if request.endpoint == 'calendario' %}active{% endif %}"><i data-lucide="calendar-days" class="erp-item-icon"></i><span class="erp-item-label">Calendário de Aulas</span></a>
       {% if user_role in ['monitor', 'instrutor'] %}<a href="{{ url_for('presencas') }}#confirmacoes-pendentes" class="erp-nav-item"><i data-lucide="user-check" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Confirmar Presenças</span>{% if pending_attendance_count %}<span class="erp-nav-pending-count">{{ pending_attendance_count }}</span>{% endif %}</a>{% endif %}
+      {% if user_role in ['monitor', 'instrutor', 'professor'] %}<a href="{{ url_for('gestao_modalidades_combo') }}" class="erp-nav-item {% if request.endpoint == 'gestao_modalidades_combo' %}active{% endif %}"><i data-lucide="list-checks" class="erp-item-icon icon-green"></i><span class="erp-item-label">Modalidades dos Combos</span></a>{% endif %}
       <a href="{{ url_for('treinoteca') }}" class="erp-nav-item {% if request.endpoint == 'treinoteca' %}active{% endif %}"><i data-lucide="sparkles" class="erp-item-icon"></i><span class="erp-item-label">Treinoteca / Vídeo Aulas</span></a>
     </div>
     <div class="erp-nav-group">
