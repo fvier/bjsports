@@ -285,8 +285,9 @@
                           <div class="student-plan-type-switch"><span>Escolha o tipo de matrícula</span><div><button type="button" data-student-plan-type="individual">Modalidades Individuais</button><button type="button" data-student-plan-type="special">Combos &amp; Planos Especiais</button></div></div>
                           <label class="student-plan-main-select"><span>Selecione o plano / modalidade</span><select name="plan_id" data-student-plan-select required><option value="">Selecione uma opção</option></select></label>
                           {% set current_plan_lower = u.plan|lower %}
-                          <fieldset class="student-plan-days"><legend>Escolha os dias de treino</legend><input type="hidden" name="training_days" data-student-training-days value="{% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}ter-qui{% elif 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}todos{% else %}seg-qua-sex{% endif %}"><div><button type="button" data-student-day="seg-qua-sex">Seg - Qua - Sex</button><button type="button" data-student-day="ter-qui">Ter &amp; Qui</button><button type="button" data-student-day="todos">Todos dias</button></div></fieldset>
+                          <fieldset class="student-plan-days"><legend>Escolha os dias de treino</legend><input type="hidden" name="training_days" data-student-training-days value="{% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}ter-qui{% elif 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}todos{% else %}seg-qua-sex{% endif %}"><div><button type="button" data-student-day="seg-qua-sex"><span>Seg - Qua - Sex</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="ter-qui"><span>Ter &amp; Qui</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="todos"><span>Todos dias</span><strong data-student-day-price>—</strong></button></div></fieldset>
                           <fieldset class="student-combo-slots hidden" data-student-combo-modalities><legend>Escolha as modalidades do combo</legend>{% set student_modalities = u.get_selected_modalities_list() %}<div>{% for slot in range(1,4) %}<label data-student-combo-slot="{{ slot }}"><span>Modalidade {{ slot }}</span><select name="selected_modalities" disabled><option value="">Selecione</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if student_modalities|length >= slot and student_modalities[slot - 1] == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>{% endfor %}</div><small data-combo-help>As modalidades devem ser diferentes entre si.</small></fieldset>
+                          <label class="student-private-professional hidden" data-student-private-professional><span>Professor ou monitor responsável</span><select name="private_instructor" disabled><option value="">Selecione</option>{% for professional in plan_professionals %}<option value="{{ professional.username }}">{{ professional.name }} — {{ 'Professor' if professional.role in ['professor', 'instrutor'] else 'Monitor' }}</option>{% endfor %}</select></label>
                           <button type="submit"><i data-lucide="save"></i>Salvar novo plano</button>
                         </form>
 
@@ -522,11 +523,14 @@
       const dayButtons = [...form.querySelectorAll('[data-student-day]')];
       const modalities = form.querySelector('[data-student-combo-modalities]');
       const help = form.querySelector('[data-combo-help]');
+      const privateProfessional = form.querySelector('[data-student-private-professional]');
+      const currentDay = daysInput.value;
       let activeType = 'individual';
 
       const renderPlans = (preserveCurrent = false) => {
         const source = studentPlanCatalog[activeType] || [];
-        planSelect.innerHTML = '<option value="">Selecione uma opção</option>' + source.map(plan => `<option value="${plan.id}" data-combo-count="${plan.combo_count || 0}" data-is-special="${activeType === 'special' ? 1 : 0}">${plan.name} — ${plan.price}</option>`).join('');
+        planSelect.replaceChildren(new Option('Selecione uma opção', ''));
+        source.forEach(plan => planSelect.add(new Option(plan.label || plan.name, String(plan.id))));
         if (preserveCurrent) {
           const currentPlan = form.dataset.currentPlan || '';
           const match = source.find(plan => currentPlan.startsWith(plan.name));
@@ -547,10 +551,21 @@
       };
 
       const updatePlanFields = () => {
-        const option = planSelect.options[planSelect.selectedIndex];
         const selectedPlan = (studentPlanCatalog[activeType] || []).find(plan => String(plan.id) === planSelect.value);
         const comboCount = Number(selectedPlan?.selection_count || 0);
-        const isSpecial = Boolean(selectedPlan?.force_all_days);
+        const forceAllDays = Boolean(selectedPlan?.force_all_days);
+        const isPrivateClass = Boolean(selectedPlan?.private_class);
+        dayButtons.forEach(button => {
+          const price = button.querySelector('[data-student-day-price]');
+          if (price) price.textContent = selectedPlan?.prices?.[button.dataset.studentDay] || '—';
+        });
+        privateProfessional?.classList.toggle('hidden', !isPrivateClass);
+        const professionalSelect = privateProfessional?.querySelector('select');
+        if (professionalSelect) {
+          professionalSelect.disabled = !isPrivateClass;
+          professionalSelect.required = isPrivateClass;
+          if (!isPrivateClass) professionalSelect.value = '';
+        }
         modalities.classList.toggle('hidden', !comboCount);
         modalities.querySelectorAll('[data-student-combo-slot]').forEach((slot, index) => {
           const enabled = index < comboCount;
@@ -567,15 +582,19 @@
           if (!enabled) select.value = '';
         });
         if (help && comboCount) help.textContent = `Selecione exatamente ${comboCount} modalidades diferentes.`;
-        if (isSpecial) setDay('todos');
-        dayButtons.forEach(button => { button.disabled = isSpecial; });
+        if (forceAllDays) setDay('todos');
+        dayButtons.forEach(button => { button.disabled = forceAllDays && button.dataset.studentDay !== 'todos'; });
       };
       typeButtons.forEach(button => button.addEventListener('click', () => setType(button.dataset.studentPlanType)));
       dayButtons.forEach(button => button.addEventListener('click', () => setDay(button.dataset.studentDay)));
-      planSelect.addEventListener('change', updatePlanFields);
+      planSelect.addEventListener('change', () => {
+        setDay('');
+        updatePlanFields();
+      });
       const currentIsSpecial = studentPlanCatalog.special.some(plan => (form.dataset.currentPlan || '').startsWith(plan.name));
       setType(currentIsSpecial ? 'special' : 'individual', true);
-      setDay(daysInput.value);
+      const selectedPlan = (studentPlanCatalog[activeType] || []).find(plan => String(plan.id) === planSelect.value);
+      setDay(selectedPlan?.force_all_days ? 'todos' : currentDay);
     });
 
     function toggleMonthDrawer(userId) {

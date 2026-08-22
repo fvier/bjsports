@@ -3046,7 +3046,12 @@ def mensalidades_admin():
                     flash(f'Isenção de {user.name} removida. A cobrança mensal voltou a ser contabilizada.', 'info')
         elif action == 'update_student_plan':
             user = db.session.get(User, request.form.get('user_id', type=int))
-            plan = db.session.get(Plan, request.form.get('plan_id', type=int))
+            plan_key = request.form.get('plan_id', '').strip()
+            is_private_class = plan_key == '__private_class__'
+            plan = db.session.get(Plan, int(plan_key)) if plan_key.isdigit() else None
+            private_instructor = User.query.filter_by(
+                username=request.form.get('private_instructor', '').strip()
+            ).first() if is_private_class else None
             training_days = request.form.get('training_days', '').strip()
             selected_modalities = list(dict.fromkeys(
                 item for item in request.form.getlist('selected_modalities')
@@ -3054,16 +3059,18 @@ def mensalidades_admin():
             ))
             if not user or user.role != 'aluno':
                 flash('Aluno não encontrado para alteração do plano.', 'error')
-            elif not plan or 'passe livre' in plan.name.casefold():
+            elif is_private_class and (not private_instructor or private_instructor.role not in {'professor', 'instrutor', 'monitor'}):
+                flash('Escolha um professor ou monitor válido para a aula particular.', 'error')
+            elif not is_private_class and (not plan or 'passe livre' in plan.name.casefold()):
                 flash('Selecione um plano válido do catálogo atual.', 'error')
             else:
-                expected_combo_count = plan.get_selection_count()
+                expected_combo_count = plan.get_selection_count() if plan else 0
                 if expected_combo_count and len(selected_modalities) != expected_combo_count:
                     flash(f'Este combo exige {expected_combo_count} modalidades diferentes.', 'error')
                     return redirect(url_for('mensalidades_admin'))
-                if not expected_combo_count:
+                if plan and not expected_combo_count:
                     selected_modalities = plan.get_modalities()
-                if plan.requires_all_days():
+                if plan and plan.requires_all_days():
                     training_days = 'todos'
                 training_day_labels = {
                     'seg-qua-sex': 'Seg, Qua, Sex', 'ter-qui': 'Ter, Qui', 'todos': 'Todos os dias'
@@ -3072,10 +3079,14 @@ def mensalidades_admin():
                     flash('Selecione os dias de treino do novo plano.', 'error')
                     return redirect(url_for('mensalidades_admin'))
                 old_plan = user.plan
-                user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.get_price_for_schedule(training_days)}'
+                if is_private_class:
+                    user.plan = f'Aula Particular com {private_instructor.name} • {training_day_labels[training_days]}'
+                else:
+                    user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.get_price_for_schedule(training_days)}'
                 user.selected_modalities = ', '.join(selected_modalities) if selected_modalities else None
                 db.session.commit()
-                flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{plan.name}”.', 'success')
+                new_plan_name = 'Aula Particular' if is_private_class else plan.name
+                flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{new_plan_name}”.', 'success')
         elif action == 'update_month':
             user_id = request.form.get('user_id')
             month = request.form.get('month')
@@ -3143,20 +3154,31 @@ def mensalidades_admin():
     available_plans = Plan.query.filter(~Plan.name.ilike('%passe livre%')).order_by(Plan.category, Plan.name).all()
     student_plan_catalog = {
         'individual': [
-            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
+            {'id': plan.id, 'name': plan.name, 'label': plan.get_modalities()[0], 'price': plan.price, 'category': plan.category,
              'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
              'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
              'force_all_days': plan.requires_all_days()}
             for plan in available_plans if plan.category == 'Planos Individuais'
+            and len(plan.get_modalities()) == 1
         ],
         'special': [
-            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
+            {'id': plan.id, 'name': plan.name, 'label': plan.name, 'price': plan.price, 'category': plan.category,
              'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
              'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
              'force_all_days': plan.requires_all_days(), 'combo_count': plan.get_selection_count()}
             for plan in available_plans if plan.category != 'Planos Individuais'
         ],
     }
+    student_plan_catalog['special'].append({
+        'id': '__private_class__', 'name': 'Aula Particular', 'label': 'Aula Particular',
+        'prices': {'ter-qui': 'A combinar', 'seg-qua-sex': 'A combinar', 'todos': 'A combinar'},
+        'modalities': [], 'selection_count': 0, 'force_all_days': False, 'private_class': True,
+    })
+    plan_professionals = sorted(
+        User.query.filter(User.role.in_({'professor', 'instrutor', 'monitor'})).all(),
+        key=lambda professional: (0 if professional.role in {'professor', 'instrutor'} else 1,
+                                  professional.name.casefold()),
+    )
 
     return render_template(
         'mensalidades_admin.html',
@@ -3176,6 +3198,7 @@ def mensalidades_admin():
         report_period_start=f'{current_period.year}-01',
         report_period_end=f'{current_period.year}-{current_period.month:02d}',
         available_plans=available_plans, student_plan_catalog=student_plan_catalog,
+        plan_professionals=plan_professionals,
     )
 
 @app.route('/gestao', methods=['GET', 'POST'])

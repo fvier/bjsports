@@ -1127,6 +1127,9 @@ class BJSportsTestCase(unittest.TestCase):
         page = self.client.get('/mensalidades_admin').get_data(as_text=True)
         self.assertIn('Plano e modalidades do aluno', page)
         self.assertIn('Salvar novo plano', page)
+        self.assertIn('data-student-day-price', page)
+        self.assertIn('Aula Particular', page)
+        self.assertIn('data-student-private-professional', page)
 
         response = self.client.post('/mensalidades_admin', data={
             'action': 'update_student_plan', 'user_id': student_id, 'plan_id': combo_id,
@@ -1139,6 +1142,16 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(student.plan, 'Plano Combo + 1 • Todos os dias — R$ 150,00/mês')
             self.assertEqual(student.selected_modalities, 'Jiu-Jitsu, Boxe')
             self.assertEqual(float(db.session.get(MonthlyPayment, payment_id).amount), 100.0)
+
+        private_response = self.client.post('/mensalidades_admin', data={
+            'action': 'update_student_plan', 'user_id': student_id,
+            'plan_id': '__private_class__', 'private_instructor': 'instrutor',
+            'training_days': 'ter-qui', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('Aula Particular', private_response.get_data(as_text=True))
+        with app.app_context():
+            student = db.session.get(User, student_id)
+            self.assertEqual(student.plan, 'Aula Particular com Instrutor • Ter, Qui')
 
     def test_monthly_payment_has_year(self):
         self.login('instrutor')
