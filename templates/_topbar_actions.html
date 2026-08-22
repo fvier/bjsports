@@ -9,7 +9,7 @@
   {% endif %}
 
   <!-- Ícone 1: Calendário / Presenças com Badge -->
-  <a href="{{ url_for('presencas') }}" class="topbar-action-square" title="Presenças e Check-ins ({% if pending_attendance_count > 0 %}{{ pending_attendance_count }} pendente(s){% else %}Em dia{% endif %})" style="position: relative; width: 38px; height: 38px; border-radius: 10px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(248, 113, 113, 0.25); display: inline-flex; align-items: center; justify-content: center; color: #fca5a5; text-decoration: none; transition: all 0.2s ease;">
+  <a href="{{ url_for('presencas') }}" class="topbar-action-square {% if pending_attendance_count > 0 %}has-pending{% else %}is-ok{% endif %}" title="Registrar aula — {% if pending_attendance_count > 0 %}{{ pending_attendance_count }} presença(s) pendente(s){% else %}tudo em dia{% endif %}" aria-label="Registrar aula — {% if pending_attendance_count > 0 %}{{ pending_attendance_count }} presença(s) pendente(s){% else %}tudo em dia{% endif %}">
     <i data-lucide="calendar-check" style="width: 19px; height: 19px;"></i>
     {% if pending_attendance_count > 0 %}
     <span class="topbar-badge-icon" style="position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: #ef4444; color: #ffffff; font-size: 0.72rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #0f172a; box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);">!</span>
@@ -18,7 +18,7 @@
 
   <!-- Ícone 2: Documento com Alerta ! Red (Dar baixa nas Mensalidades) -->
   {% if user_role == 'instrutor' %}
-  <a href="{{ url_for('mensalidades_admin') }}" class="topbar-action-square" title="Dar Baixa nas Mensalidades ({% if pending_payments_count > 0 %}{{ pending_payments_count }} pagamento(s) pendente(s){% else %}Todas em dia{% endif %})" style="position: relative; width: 38px; height: 38px; border-radius: 10px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(248, 113, 113, 0.35); display: inline-flex; align-items: center; justify-content: center; color: #fca5a5; text-decoration: none; transition: all 0.2s ease;">
+  <a href="{{ url_for('mensalidades_admin') }}" class="topbar-action-square {% if pending_payments_count > 0 %}has-pending{% else %}is-ok{% endif %}" title="Dar baixa nas mensalidades — {% if pending_payments_count > 0 %}{{ pending_payments_count }} pagamento(s) pendente(s){% else %}tudo em dia{% endif %}" aria-label="Dar baixa nas mensalidades — {% if pending_payments_count > 0 %}{{ pending_payments_count }} pagamento(s) pendente(s){% else %}tudo em dia{% endif %}">
     <i data-lucide="file-text" style="width: 19px; height: 19px;"></i>
     {% if pending_payments_count > 0 %}
     <span class="topbar-badge-icon" style="position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: #ef4444; color: #ffffff; font-size: 0.72rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #0f172a; box-shadow: 0 0 10px rgba(239, 68, 68, 0.9); animation: pulseAlert 2s infinite;">!</span>

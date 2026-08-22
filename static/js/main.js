@@ -906,24 +906,29 @@ function setupERPTopbar() {
   const actions = document.createElement('nav');
   actions.className = 'erp-quick-actions';
   actions.setAttribute('aria-label', 'Ações rápidas');
-  const pendingAttendanceCount = Number(document.body.dataset.pendingAttendanceCount || 0);
-  const pendingAttendanceAction = document.body.dataset.userRole === 'instrutor' && pendingAttendanceCount > 0
-    ? `<a class="erp-topbar-icon erp-pending-attendance" href="/presencas.html#confirmacoes-pendentes" title="${pendingAttendanceCount} presença(s) aguardando confirmação" aria-label="${pendingAttendanceCount} presença(s) aguardando confirmação"><i data-lucide="bell-ring"></i><span>${pendingAttendanceCount > 99 ? '99+' : pendingAttendanceCount}</span></a>`
-    : '';
   const contractPending = document.body.dataset.contractPending === 'true';
-  const contractPendingAction = contractPending
-    ? '<a class="erp-topbar-icon erp-pending-contract" href="/minha-conta/contrato.html#aceitar-atualizacao" title="Contrato atualizado aguardando aceite" aria-label="Contrato atualizado aguardando aceite"><i data-lucide="file-warning"></i><span>!</span></a>'
-    : '';
+  const serverActions = actionsHost.querySelector('.topbar-actions-row');
+  const trialBadge = serverActions?.querySelector('.student-trial-countdown-badge');
+  const role = document.body.dataset.userRole;
+  const pendingAttendanceCount = Number(document.body.dataset.pendingAttendanceCount || 0);
+  const pendingPaymentsCount = Number(document.body.dataset.pendingPaymentsCount || 0);
+  const statusAction = (href, icon, label, count, pendingLabel) => {
+    const pending = count > 0;
+    const status = pending ? `${count} ${pendingLabel}` : 'tudo em dia';
+    return `<a class="topbar-action-square ${pending ? 'has-pending' : 'is-ok'}" href="${href}" title="${label} — ${status}" aria-label="${label} — ${status}"><i data-lucide="${icon}"></i>${pending ? '<span class="topbar-badge-icon">!</span>' : ''}</a>`;
+  };
+  const operationalActions = serverActions
+    ? Array.from(serverActions.querySelectorAll('.topbar-action-square')).map(link => link.outerHTML).join('')
+    : statusAction('/presencas.html', 'calendar-check', 'Registrar aula', pendingAttendanceCount, 'presença(s) pendente(s)')
+      + (role === 'instrutor' ? statusAction('/mensalidades_admin.html', 'file-text', 'Dar baixa nas mensalidades', pendingPaymentsCount, 'pagamento(s) pendente(s)') : '');
   actions.innerHTML = `
-    <a class="erp-topbar-icon erp-register-class" href="/presencas.html" title="Registrar aula"><i data-lucide="calendar-check"></i><span>Registrar aula</span></a>
-    ${pendingAttendanceAction}
-    ${contractPendingAction}
+    ${operationalActions}
     <button type="button" class="erp-topbar-icon" data-topbar-action="theme" title="Alternar contraste"><i data-lucide="moon"></i></button>
     <button type="button" class="erp-topbar-icon" data-topbar-action="fullscreen" title="Tela cheia"><i data-lucide="maximize"></i></button>
-    <a class="erp-topbar-icon" href="/configuracoes.html" title="Configurações"><i data-lucide="settings"></i></a>
-    <a class="erp-topbar-icon" href="/" title="Ir para a landing page"><i data-lucide="house"></i></a>
   `;
+  serverActions?.remove();
   actionsHost.prepend(actions);
+  if (trialBadge) actionsHost.prepend(trialBadge);
 
   const avatar = actionsHost.querySelector('.erp-avatar');
   const userName = actionsHost.querySelector('.erp-user-name')?.textContent.trim() || 'Usuário';
