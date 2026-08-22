@@ -47,6 +47,30 @@ function setupFlashMessages() {
   });
 }
 
+function setupDueDateProrationPreview() {
+  const form = document.querySelector('[data-due-date-form]');
+  if (!form) return;
+  const select = form.querySelector('[data-due-date-select]');
+  const preview = form.querySelector('[data-due-date-proration]');
+  const currentDay = Number(form.dataset.currentDueDate);
+  const monthlyPrice = Number(form.dataset.monthlyPrice);
+  if (!select || !preview || !currentDay || !Number.isFinite(monthlyPrice)) return;
+
+  const updatePreview = () => {
+    const newDay = Number(select.value);
+    const extraDays = (newDay - currentDay + 30) % 30;
+    const proportional = monthlyPrice * extraDays / 30;
+    if (!extraDays) {
+      preview.textContent = 'Esta já é sua data de vencimento. Nenhum valor será acrescentado.';
+      return;
+    }
+    const formatted = proportional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    preview.innerHTML = `<strong>${extraDays} dia(s) proporcionais:</strong> ${formatted} serão adicionados à sua fatura aberta.`;
+  };
+  select.addEventListener('change', updatePreview);
+  updatePreview();
+}
+
 // Schedule Data based on Mestre Bolivar's exact parameters
 const scheduleData = {
   seg: [
@@ -1910,6 +1934,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupCsrfProtection();
   setupFlashMessages();
+  setupDueDateProrationPreview();
   renderSchedule('seg');
   loadScheduleCapacity();
   setupScheduleFilters();

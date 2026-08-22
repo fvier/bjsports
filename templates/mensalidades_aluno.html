@@ -48,6 +48,7 @@
                 Plano: {{ user_plan }}
               </h3>
               {% if finance_user.sponsor_id %}<p style="color: var(--text-muted); font-size: 0.9rem;">Esta conta está vinculada a um plano compartilhado e não gera cobrança individual. Pagamentos e débitos anteriores permanecem preservados.</p>{% elif finance_user.monthly_fee_exempt %}<p style="color: var(--text-muted); font-size: 0.9rem;">A competência atual e as futuras não geram cobrança. Pagamentos e débitos anteriores permanecem preservados.</p>{% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Dia de Vencimento Escolhido: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>{% endif %}
+              {% if open_payment %}<p style="color: var(--accent-gold); font-size: 0.9rem;">Fatura aberta {{ '%02d'|format(open_payment.month) }}/{{ open_payment.year }}: <strong>R$ {{ '%.2f'|format(open_payment.amount)|replace('.', ',') }}</strong></p>{% endif %}
               {% if has_overdue %}<p class="student-overdue-message"><i data-lucide="circle-alert"></i>{{ overdue.count }} mensalidade(s) pendente(s). Regularize para liberar novos check-ins.</p>{% endif %}
             </div>
 
@@ -65,8 +66,8 @@
             <i data-lucide="calendar"></i> Alterar meu Dia de Vencimento (Dia 5, 15 ou 25)
           </h4>
           
-          <form action="{{ url_for('mensalidades_aluno') }}" method="POST" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <select name="due_date" style="padding: 8px 16px; font-weight: 700; width: auto;" required>
+          <form action="{{ url_for('mensalidades_aluno') }}" method="POST" data-due-date-form data-current-due-date="{{ finance_user.due_date }}" data-monthly-price="{{ finance_user.get_numeric_price() }}" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <select name="due_date" data-due-date-select style="padding: 8px 16px; font-weight: 700; width: auto;" required>
               <option value="5" {% if user_due_date == '5' %}selected{% endif %}>📅 Dia 5 de cada mês</option>
               <option value="15" {% if user_due_date == '15' %}selected{% endif %}>📅 Dia 15 de cada mês</option>
               <option value="25" {% if user_due_date == '25' %}selected{% endif %}>📅 Dia 25 de cada mês</option>
@@ -75,6 +76,7 @@
             <button type="submit" class="btn btn-primary btn-sm btn-glow">
               Confirmar Nova Data
             </button>
+            <div data-due-date-proration style="flex-basis: 100%; color: var(--text-muted); font-size: 0.88rem; line-height: 1.5;">Selecione uma nova data para visualizar o cálculo proporcional.</div>
           </form>
         </div>
 

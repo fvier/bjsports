@@ -5,6 +5,7 @@ import urllib.parse
 import secrets
 import click
 import tempfile
+from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g
 from flask_sqlalchemy import SQLAlchemy
@@ -615,6 +616,47 @@ class MonthlyPayment(db.Model):
     paid_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('payments', lazy=True, cascade='all, delete-orphan'))
+
+
+def change_user_due_date_with_proration(user, new_due_date):
+    """Altera o vencimento e acrescenta à fatura aberta os dias extras do ciclo."""
+    if new_due_date not in {'5', '15', '25'}:
+        raise ValueError('Vencimento inválido.')
+    old_due_date = user.due_date if user.due_date in {'5', '15', '25'} else '5'
+    if new_due_date == old_due_date:
+        return {'days': 0, 'amount': Decimal('0.00'), 'payment': None}
+
+    extra_days = (int(new_due_date) - int(old_due_date)) % 30
+    user.due_date = new_due_date
+    if not extra_days or user.is_fee_exempt_for():
+        return {'days': extra_days, 'amount': Decimal('0.00'), 'payment': None}
+
+    now = datetime.now()
+    target_year, target_month = now.year, now.month
+    payment = MonthlyPayment.query.filter_by(
+        user_id=user.id, year=target_year, month=target_month,
+    ).first()
+    if user.payment_status == 'Em Dia' or (payment and payment.status == 'pago'):
+        target_month += 1
+        if target_month == 13:
+            target_month, target_year = 1, target_year + 1
+        payment = MonthlyPayment.query.filter_by(
+            user_id=user.id, year=target_year, month=target_month,
+        ).first()
+
+    monthly_amount = Decimal(str(user.get_numeric_price(target_year, target_month)))
+    proportional_amount = (monthly_amount * Decimal(extra_days) / Decimal(30)).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP,
+    )
+    if not payment:
+        payment = MonthlyPayment(
+            user_id=user.id, year=target_year, month=target_month,
+            status='futuro' if (target_year, target_month) != (now.year, now.month) else 'atrasado',
+            amount=monthly_amount,
+        )
+        db.session.add(payment)
+    payment.amount = Decimal(str(payment.amount)) + proportional_amount
+    return {'days': extra_days, 'amount': proportional_amount, 'payment': payment}
 
 class MonthlyFeeExemption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1969,10 +2011,10 @@ def login():
             if user_id and new_due_date in {'5', '15', '25'}:
                 user = db.session.get(User, user_id)
                 if user:
-                    user.due_date = new_due_date
+                    result = change_user_due_date_with_proration(user, new_due_date)
                     db.session.commit()
                     session['user_due_date'] = new_due_date
-                    flash(f'Dia de vencimento alterado para Dia {new_due_date}!', 'success')
+                    flash(f'Dia de vencimento alterado para Dia {new_due_date}. Adicional proporcional: {result["days"]} dia(s), R$ {result["amount"]:.2f}.', 'success')
             return redirect(url_for('mensalidades_aluno'))
 
     if request.args.get('logout') == '1' or request.args.get('switch') == '1':
@@ -2230,15 +2272,22 @@ def mensalidades_aluno():
         new_due_date = request.form.get('due_date', '15')
         if new_due_date in {'5', '15', '25'}:
             user = db.session.get(User, session['user_id'])
-            user.due_date = new_due_date
+            result = change_user_due_date_with_proration(user, new_due_date)
             db.session.commit()
             session['user_due_date'] = new_due_date
-            flash(f'Data de vencimento atualizada para o Dia {new_due_date} de cada mês!', 'success')
+            flash(f'Data de vencimento atualizada para o Dia {new_due_date}. Foram adicionados {result["days"]} dia(s) proporcionais (R$ {result["amount"]:.2f}) à sua fatura.', 'success')
         return redirect(url_for('mensalidades_aluno'))
     user = db.session.get(User, session['user_id'])
     overdue = user.get_overdue_details()
+    now = datetime.now()
+    open_payment = MonthlyPayment.query.filter(
+        MonthlyPayment.user_id == user.id,
+        MonthlyPayment.status != 'pago',
+        (MonthlyPayment.year * 100 + MonthlyPayment.month) >= (now.year * 100 + now.month),
+    ).order_by(MonthlyPayment.year.asc(), MonthlyPayment.month.asc()).first()
     return render_template('mensalidades_aluno.html', page_title='Minhas Mensalidades',
                            finance_user=user, overdue=overdue,
+                           open_payment=open_payment,
                            has_overdue=overdue['count'] > 0)
 
 @app.route('/financeiro_dashboard')
@@ -2272,7 +2321,7 @@ def financeiro_dashboard():
             schedule = {int(item['month']): item['status'] for item in user.get_month_schedule(month, selected_year)}
             payment_status = schedule.get(month, 'futuro')
             payment = next((item for item in user.payments if item.year == selected_year and item.month == month), None)
-            amount = float(payment.amount) if payment and payment_status == 'pago' else user.get_numeric_price(selected_year, month)
+            amount = float(payment.amount) if payment else user.get_numeric_price(selected_year, month)
             expected += amount
             if payment_status == 'pago':
                 received += amount

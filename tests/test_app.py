@@ -1169,6 +1169,53 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(payment.status, 'pago')
             self.assertIsNotNone(payment.paid_at)
 
+    def test_student_due_date_change_adds_proportional_days_to_open_invoice(self):
+        self.login('aluno')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            student.payment_status = 'Pendente'
+            student.due_date = '5'
+            db.session.commit()
+            student_id = student.id
+
+        page = self.client.get('/mensalidades_aluno').get_data(as_text=True)
+        self.assertIn('data-due-date-proration', page)
+        self.assertIn('data-monthly-price="100.0"', page)
+        response = self.client.post('/mensalidades_aluno', data={
+            'due_date': '15', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('10 dia(s) proporcionais (R$ 33.33)', response.get_data(as_text=True))
+        self.assertIn('R$ 133,33', response.get_data(as_text=True))
+        with app.app_context():
+            student = db.session.get(User, student_id)
+            payment = MonthlyPayment.query.filter_by(
+                user_id=student_id, year=datetime.now().year, month=datetime.now().month,
+            ).one()
+            self.assertEqual(student.due_date, '15')
+            self.assertEqual(float(payment.amount), 133.33)
+            self.assertEqual(payment.status, 'atrasado')
+
+    def test_due_date_proration_uses_next_invoice_when_current_month_is_paid(self):
+        self.login('aluno')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            student.due_date = '15'
+            student_id = student.id
+            db.session.commit()
+
+        self.client.post('/mensalidades_aluno', data={
+            'due_date': '25', 'csrf_token': self.csrf(),
+        })
+        now = datetime.now()
+        expected_month = 1 if now.month == 12 else now.month + 1
+        expected_year = now.year + 1 if now.month == 12 else now.year
+        with app.app_context():
+            payment = MonthlyPayment.query.filter_by(
+                user_id=student_id, year=expected_year, month=expected_month,
+            ).one()
+            self.assertEqual(float(payment.amount), 133.33)
+            self.assertEqual(payment.status, 'futuro')
+
     def test_instructor_resets_student_password_and_change_is_required(self):
         self.login('instrutor')
         with app.app_context():
