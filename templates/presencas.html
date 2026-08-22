@@ -117,7 +117,8 @@
             <form action="{{ url_for('presencas') }}" method="POST" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 480px; margin-top: 12px;">
               <input type="hidden" name="action" value="request_checkin">
 
-              <!-- BOTÃO E CAIXA DE AULA EXPERIMENTAL GRATUITA -->
+              {% if not has_active_enrollment %}
+              <!-- Aula experimental disponível somente antes da matrícula em turma -->
               <div class="experimental-class-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.35);">
                 <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px; font-size: 0.95rem;">Deseja agendar uma Aula Experimental Gratuita?</label>
                 
@@ -131,6 +132,12 @@
                   💡 <strong>Texto de Ajuda:</strong> Clique no botão acima para acioná-lo (ficará verde). Ative esta opção caso você esteja realizando apenas <strong>uma aula experimental gratuita no tatame</strong> antes de efetivar sua matrícula regular.
                 </small>
               </div>
+              {% else %}
+              <div class="experimental-class-box is-unavailable">
+                <i data-lucide="shield-check"></i>
+                <span><strong>Aula regular da sua turma</strong><small>Você já está matriculado e este check-in será registrado como treino regular.</small></span>
+              </div>
+              {% endif %}
 
               <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;">
                 <i data-lucide="check"></i> Enviar Check-in
@@ -150,13 +157,13 @@
             {% for attendance in recent_attendances %}
             <div class="class-item-card attendance-history-item">
               <div>
-                <strong>{{ attendance.training_date.strftime('%d/%m/%Y') }}</strong>
-                <small>Presença registrada</small>
+                <strong>{{ attendance.class_group.name if attendance.class_group else attendance.modality }}</strong>
+                <small>{{ attendance.training_date.strftime('%d/%m/%Y') }} • Check-in realizado</small>
               </div>
-              <span class="badge-pill bg-green">CONFIRMADO</span>
+              <span class="badge-pill attendance-status-{{ attendance.status }}">{% if attendance.status == 'confirmado' %}CONFIRMADO{% elif attendance.status == 'negado' %}NÃO CONFIRMADO{% else %}AGUARDANDO CONFIRMAÇÃO{% endif %}</span>
             </div>
             {% else %}
-            <div class="attendance-empty-state"><i data-lucide="calendar-x"></i><strong>Nenhuma presença registrada</strong><small>Os próximos check-ins aparecerão aqui somente com a data.</small></div>
+            <div class="attendance-empty-state"><i data-lucide="calendar-x"></i><strong>Nenhum check-in realizado</strong><small>As aulas em que você fizer check-in aparecerão aqui.</small></div>
             {% endfor %}
           </div>
         </div>

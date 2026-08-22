@@ -1742,6 +1742,14 @@ def create_booking():
         }), 403
 
     class_group = db.session.get(ClassGroup, class_group_id)
+    if (is_experimental and booking_user and class_group
+            and ClassEnrollment.query.filter_by(
+                user_id=booking_user.id, class_group_id=class_group.id, active=True,
+            ).first()):
+        return jsonify({
+            'error': 'Aula experimental indisponível: você já está matriculado nesta turma.',
+            'code': 'already_enrolled',
+        }), 409
     occurrence = next((item for item in class_occurrences_for_weekday(class_group, class_date.weekday())
                        if item['start_time'] == class_time), None) if class_group else None
     if (not class_group or not class_group.publish_public or class_group.status not in {'ativa', 'lotada'}
@@ -2106,6 +2114,7 @@ def dashboard():
 def presencas():
     ensure_class_groups()
     user = db.session.get(User, session['user_id'])
+    user_active_enrollments = [enrollment for enrollment in user.class_enrollments if enrollment.active]
     trial_status = user.get_trial_status()
     has_overdue = user.has_overdue_payments() and not trial_status['in_trial']
     if request.method == 'POST':
@@ -2139,8 +2148,14 @@ def presencas():
 
         target_class_id = request.form.get('class_group_id', type=int)
         target_class = db.session.get(ClassGroup, target_class_id) if target_class_id else None
+        is_experimental = request.form.get('is_experimental') == '1'
 
-        user_active_enrollments = [e for e in user.class_enrollments if e.active]
+        enrolled_class_ids = {enrollment.class_group_id for enrollment in user_active_enrollments}
+        if is_experimental and user_active_enrollments and (
+                target_class is None or target_class.id in enrolled_class_ids):
+            flash('Aula experimental indisponível: você já está matriculado nesta turma.', 'error')
+            return redirect(url_for('presencas'))
+
         allowed_weekdays = set()
 
         if user_active_enrollments:
@@ -2174,7 +2189,6 @@ def presencas():
 
         # 2. Bloqueia se o aluno tentar fazer check-in numa turma onde não está inscrito
         if target_class and user_active_enrollments:
-            enrolled_class_ids = {e.class_group_id for e in user_active_enrollments}
             if target_class.id not in enrolled_class_ids:
                 flash(f'⚠️ Check-in não permitido: você não está cadastrado na turma "{target_class.name}". Você só pode fazer check-in nas turmas em que está matriculado.', 'error')
                 return redirect(url_for('presencas'))
@@ -2235,8 +2249,8 @@ def presencas():
         days: bool(first_confirmed and first_confirmed.training_date <= today - timedelta(days=max(1, days - 4)))
         for days in (30, 90, 180)
     }
-    recent_attendances = confirmed_query.order_by(
-        Attendance.training_date.desc()
+    recent_attendances = Attendance.query.filter_by(user_id=user.id).order_by(
+        Attendance.training_date.desc(), Attendance.created_at.desc()
     ).limit(12).all()
     today_attendance = Attendance.query.filter_by(user_id=user.id, training_date=today).first()
     pending_confirmations = []
@@ -2260,6 +2274,7 @@ def presencas():
                            attendance_percentages=attendance_percentages,
                            attendance_metric_available=attendance_metric_available,
                            recent_attendances=recent_attendances,
+                           has_active_enrollment=bool(user_active_enrollments),
                            today_attendance=today_attendance,
                            pending_confirmations=pending_confirmations,
                            pending_confirmation_groups=pending_confirmation_groups)

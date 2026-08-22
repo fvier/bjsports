@@ -1353,6 +1353,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('TEMPO RESTANTE', page)
         self.assertIn('um Professor ou Monitor irá liberar seu acesso após confirmar sua mensalidade', page)
         self.assertIn('data-trial-countdown="', page)
+        self.assertIn('AGUARDANDO CONFIRMAÇÃO', page)
+        self.assertIn('Check-in realizado', page)
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 1)
         with app.app_context():
@@ -1391,6 +1393,42 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 1)
             self.assertEqual(Attendance.query.one().status, 'pendente')
+
+    def test_enrolled_student_cannot_mark_own_class_as_experimental(self):
+        self.login('aluno')
+        weekday_label = ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')[datetime.now().weekday()]
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            group = ClassGroup(
+                name='Turma Matriculada', modality='Jiu-Jitsu', audience='Adulto',
+                instructor='Instrutor', capacity=20, status='ativa', publish_public=True,
+            )
+            group.schedules = [f'{weekday_label} • 19:00']
+            db.session.add(group)
+            db.session.flush()
+            db.session.add(ClassEnrollment(user_id=student.id, class_group_id=group.id, active=True))
+            db.session.commit()
+            group_id = group.id
+
+        page = self.client.get('/presencas').get_data(as_text=True)
+        self.assertNotIn('id="btnExperimentalToggle"', page)
+        self.assertIn('Aula regular da sua turma', page)
+        response = self.client.post('/presencas', data={
+            'action': 'request_checkin', 'class_group_id': group_id,
+            'is_experimental': '1', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('Aula experimental indisponível', response.get_data(as_text=True))
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 0)
+
+        booking_response = self.client.post('/api/bookings', json={
+            'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
+            'shift_time': 'Hoje 19:00', 'is_experimental': True,
+            'class_group_id': group_id, 'class_date': datetime.now().date().isoformat(),
+            'class_time': '19:00',
+        }, headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(booking_response.status_code, 409)
+        self.assertEqual(booking_response.get_json()['code'], 'already_enrolled')
 
     def test_new_student_has_no_metrics_and_teacher_confirms_checkin(self):
         self.login('aluno')
