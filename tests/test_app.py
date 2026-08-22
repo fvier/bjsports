@@ -90,6 +90,11 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('data-plan-schedule="seg-qua-sex"', page)
         self.assertIn('data-plan-schedule="todos"', page)
         self.assertIn('Todos dias', page)
+        self.assertIn('Aula Particular', page)
+        self.assertIn('name="privateInstructor"', page)
+        self.assertIn('<optgroup label="Professores">', page)
+        self.assertIn('<optgroup label="Monitores">', page)
+        self.assertLess(page.index('<optgroup label="Professores">'), page.index('<optgroup label="Monitores">'))
         self.assertIn('class="is-approved"', page)
         with app.app_context():
             plan = Plan.query.one()
@@ -175,6 +180,27 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(user.image_consent_guardian_cpf, '529.982.247-25')
             self.assertEqual(user.image_consent_guardian_relationship, 'mae')
             self.assertIsNotNone(user.image_use_consent_at)
+
+    def test_private_class_requires_and_records_selected_professional(self):
+        payload = {
+            'action': 'register', 'regUsername': 'particular', 'regName': 'Aluno Particular',
+            'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '988887777',
+            'regEmail': 'particular@example.com', 'regSex': 'prefer_not',
+            'regPlan': '__private_class__', 'regTrainingDays': 'ter-qui',
+            'regDueDate': '15', 'regPass': 'senha-segura', 'acceptMembershipTerms': 'on',
+            'acknowledgePrivacy': 'on', 'confirmLegalCapacity': 'on',
+            'imageConsentScope': 'adult', 'csrf_token': self.csrf(),
+        }
+        denied = self.client.post('/login', data=payload, follow_redirects=True)
+        self.assertIn('Escolha um professor ou monitor válido', denied.get_data(as_text=True))
+
+        payload['privateInstructor'] = 'instrutor'
+        payload['csrf_token'] = self.csrf()
+        accepted = self.client.post('/login', data=payload)
+        self.assertEqual(accepted.status_code, 302)
+        with app.app_context():
+            user = User.query.filter_by(username='particular').one()
+            self.assertEqual(user.plan, 'Aula Particular com Instrutor • Ter, Qui')
 
     def test_classes_page_is_public(self):
         response = self.client.get('/turmas')

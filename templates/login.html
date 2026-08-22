@@ -205,6 +205,14 @@
                   <button type="button" data-plan-schedule="todos" aria-pressed="false">Todos dias</button>
                 </div>
               </fieldset>
+              <div class="private-instructor-field hidden" id="privateInstructorField">
+                <label for="privateInstructor">Escolha o profissional da aula particular *</label>
+                <select name="privateInstructor" id="privateInstructor" disabled>
+                  <option value="" selected>Selecione um profissional</option>
+                  {% if professional_groups.professores %}<optgroup label="Professores">{% for professional in professional_groups.professores %}<option value="{{ professional.username }}">{{ professional.name }}</option>{% endfor %}</optgroup>{% endif %}
+                  {% if professional_groups.monitores %}<optgroup label="Monitores">{% for professional in professional_groups.monitores %}<option value="{{ professional.username }}">{{ professional.name }}</option>{% endfor %}</optgroup>{% endif %}
+                </select>
+              </div>
             </div>
 
             <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
@@ -302,6 +310,20 @@
       selectPlan.value = '';
       selectPlan.dispatchEvent(new Event('change'));
     }
+
+    function updatePrivateInstructorField() {
+      const selectPlan = document.getElementById('regPlan');
+      const wrapper = document.getElementById('privateInstructorField');
+      const professionalSelect = document.getElementById('privateInstructor');
+      if (!selectPlan || !wrapper || !professionalSelect) return;
+      const isPrivateClass = selectPlan.value === '__private_class__';
+      wrapper.classList.toggle('hidden', !isPrivateClass);
+      professionalSelect.disabled = !isPrivateClass;
+      professionalSelect.required = isPrivateClass;
+      if (!isPrivateClass) professionalSelect.value = '';
+    }
+
+    document.getElementById('regPlan')?.addEventListener('change', updatePrivateInstructorField);
 
     document.querySelectorAll('[data-plan-schedule]').forEach(button => {
       button.addEventListener('click', () => {

@@ -2735,6 +2735,9 @@ body.public-light-theme {
   background: rgba(229, 9, 20, .2);
   border-color: rgba(239, 68, 68, .7);
 }
+.private-instructor-field { margin-top:12px; padding:12px; background:rgba(59,130,246,.08); border:1px solid rgba(96,165,250,.28); border-radius:9px; }
+.private-instructor-field label { display:block; margin-bottom:7px; color:#bfdbfe; font-size:.82rem; font-weight:750; }
+.private-instructor-field select { width:100%; min-height:42px; padding:9px 12px; color:#fff; background:#0f172a; border:1px solid rgba(96,165,250,.4); border-radius:8px; }
 @media (max-width: 560px) {
   .registration-schedule-filter > div { grid-template-columns: 1fr; }
 }

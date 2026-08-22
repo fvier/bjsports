@@ -1661,6 +1661,7 @@ def login():
             sex = request.form.get('regSex', 'prefer_not').strip()
             selected_plan = request.form.get('regPlan', '').strip()
             training_days = request.form.get('regTrainingDays', '').strip()
+            private_instructor_username = request.form.get('privateInstructor', '').strip()
             plan = selected_plan
             due_date = request.form.get('regDueDate', '5').strip()
             password = request.form.get('regPass', '')
@@ -1700,10 +1701,19 @@ def login():
                 if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
                     errors.append('Informe o vínculo do responsável legal pelo menor.')
             valid_plans = {f'{p.name} — {p.price}' for p in Plan.query.all() if 'passe livre' not in p.name.casefold()}
-            if selected_plan not in valid_plans: errors.append('Modalidade inválida.')
+            is_private_class = selected_plan == '__private_class__'
+            private_instructor = None
+            if is_private_class:
+                private_instructor = User.query.filter_by(username=private_instructor_username).first()
+                if not private_instructor or private_instructor.role not in {'professor', 'instrutor', 'monitor'}:
+                    errors.append('Escolha um professor ou monitor válido para a aula particular.')
+            elif selected_plan not in valid_plans:
+                errors.append('Modalidade inválida.')
             training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
             if training_days not in training_day_labels:
                 errors.append('Escolha os dias de treino.')
+            elif is_private_class and private_instructor:
+                plan = f'Aula Particular com {private_instructor.name} • {training_day_labels[training_days]}'
             elif selected_plan in valid_plans:
                 plan_name, plan_price = (part.strip() for part in selected_plan.split('—', 1))
                 plan_name = re.sub(r'\s*\((?:Seg,\s*Qua,\s*Sex|Ter,\s*Qui)\)\s*$', '', plan_name)
@@ -1797,10 +1807,23 @@ def login():
         else:
             registration_combos.append(option)
 
+    registration_combos.append({'value': '__private_class__', 'label': 'Aula Particular'})
+    professionals = User.query.filter(User.role.in_({'professor', 'instrutor', 'monitor'})).all()
+    professional_groups = {'professores': [], 'monitores': []}
+    seen_professional_names = set()
+    for professional in sorted(professionals, key=lambda user: (0 if user.role in {'professor', 'instrutor'} else 1, user.name.casefold())):
+        normalized_name = professional.name.strip().casefold()
+        if normalized_name in seen_professional_names:
+            continue
+        seen_professional_names.add(normalized_name)
+        group = 'professores' if professional.role in {'professor', 'instrutor'} else 'monitores'
+        professional_groups[group].append({'username': professional.username, 'name': professional.name})
+
     return render_template('login.html', page_title='Área de Membros', is_logged_in=False,
                            available_plans=available_plans,
                            registration_modalities=registration_modalities,
                            registration_combos=registration_combos,
+                           professional_groups=professional_groups,
                            membership_terms_version=MEMBERSHIP_TERMS_VERSION,
                            privacy_notice_version=PRIVACY_NOTICE_VERSION)
 
