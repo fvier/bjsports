@@ -1123,6 +1123,10 @@ with app.app_context():
         db.session.rollback()
 
     # Migração compatível com a base SQLite já existente.
+    # Os workers do Gunicorn importam este módulo em paralelo. No PostgreSQL,
+    # serializamos as alterações de esquema para impedir DDL concorrente.
+    if db.engine.dialect.name == 'postgresql':
+        db.session.execute(text('SELECT pg_advisory_xact_lock(42457001)'))
     user_columns = {column['name'] for column in inspect(db.engine).get_columns('user')}
     if 'belt_color' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN belt_color VARCHAR(20) NOT NULL DEFAULT \'branca\''))
