@@ -23,7 +23,7 @@ flask --app app create-admin
 
 ## Papéis
 
-- `aluno`: portal, mensalidades próprias, presença, treinoteca e perfil.
+- `aluno`: portal, mensalidades próprias, presença e perfil.
 - `monitor`: permissões de aluno, confirmação de presenças e criação de aulas especiais no calendário.
 - `instrutor`: todas as anteriores, gestão de planos e privilégios.
 

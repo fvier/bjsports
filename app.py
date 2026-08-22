@@ -2120,12 +2120,6 @@ def presencas():
                            pending_confirmations=pending_confirmations,
                            pending_confirmation_groups=pending_confirmation_groups)
 
-@app.route('/treinoteca')
-@app.route('/treinoteca.html')
-@login_required
-def treinoteca():
-    return render_template('treinoteca.html', page_title='Treinoteca / Vídeo Aulas')
-
 @app.route('/mensalidades_aluno', methods=['GET', 'POST'])
 @app.route('/mensalidades_aluno.html', methods=['GET', 'POST'])
 @login_required

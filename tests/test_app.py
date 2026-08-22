@@ -82,6 +82,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Autorizo pelo aluno menor', page)
         self.assertIn('Sem a autorização, o cadastro não será concluído.', page)
         self.assertIn('name="regEmail"', page)
+        self.assertIn('placeholder="Crie um apelido"', page)
         self.assertIn('name="regSex"', page)
         self.assertIn('Prefiro não informar', page)
         self.assertIn('<option value="" selected disabled>Selecione uma modalidade</option>', page)
@@ -104,6 +105,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('<optgroup label="Monitores">', page)
         self.assertLess(page.index('<optgroup label="Professores">'), page.index('<optgroup label="Monitores">'))
         self.assertIn('class="is-approved"', page)
+        self.assertEqual(self.client.get('/treinoteca.html').status_code, 404)
         with app.app_context():
             plan = Plan.query.one()
             plan_value = f'{plan.name} — {plan.price}'

@@ -9,7 +9,6 @@
       <a href="{{ url_for('dashboard') }}" class="erp-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}"><i data-lucide="home" class="erp-item-icon"></i><span class="erp-item-label">Bem-vindo / Resumo</span></a>
       <a href="{{ url_for('presencas') }}" class="erp-nav-item {% if request.endpoint == 'presencas' %}active{% endif %}"><i data-lucide="calendar" class="erp-item-icon"></i><span class="erp-item-label">Presenças & Treinos</span>{% if user_role in ['monitor', 'instrutor'] and pending_attendance_count %}<span class="erp-nav-pending-count" title="Presenças aguardando confirmação">{{ pending_attendance_count }}</span>{% endif %}</a>
       <a href="{{ url_for('calendario') }}" class="erp-nav-item {% if request.endpoint == 'calendario' %}active{% endif %}"><i data-lucide="calendar-days" class="erp-item-icon"></i><span class="erp-item-label">Calendário de Aulas</span></a>
-      <a href="{{ url_for('treinoteca') }}" class="erp-nav-item {% if request.endpoint == 'treinoteca' %}active{% endif %}"><i data-lucide="sparkles" class="erp-item-icon"></i><span class="erp-item-label">Treinoteca / Vídeo Aulas</span></a>
     </div>
     {% if user_role == 'instrutor' %}
     <div class="erp-nav-group">
