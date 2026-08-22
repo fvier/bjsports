@@ -84,6 +84,12 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('name="regEmail"', page)
         self.assertIn('name="regSex"', page)
         self.assertIn('Prefiro não informar', page)
+        self.assertIn('<option value="" selected disabled>Selecione uma modalidade</option>', page)
+        self.assertNotIn('Plano Passe Livre', page)
+        self.assertIn('data-plan-schedule="ter-qui"', page)
+        self.assertIn('data-plan-schedule="seg-qua-sex"', page)
+        self.assertIn('data-plan-schedule="todos"', page)
+        self.assertIn('Todos dias', page)
         self.assertIn('class="is-approved"', page)
         with app.app_context():
             plan = Plan.query.one()
@@ -174,6 +180,9 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('classes-page', page)
         self.assertIn('Jiu-Jitsu Kids 2', page)
         self.assertNotIn('Jiu-Jitsu Kids 2 (a partir de 8 anos)', page)
+        self.assertIn('class="experimental-checkbox-label"', page)
+        self.assertIn('<strong>Aula Experimental Grátis</strong>', page)
+        self.assertIn('experimental-checkbox-action', page)
 
     def test_weekly_calendar_is_available_to_logged_users_and_supports_filters(self):
         self.assertEqual(self.client.get('/calendario').status_code, 302)
@@ -1179,4 +1188,3 @@ class BJSportsTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

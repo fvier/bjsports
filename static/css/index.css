@@ -1695,8 +1695,22 @@ body.erp-page.erp-light-theme {
 .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; }
 .modal-logo { height: 56px; margin-bottom: 8px; }
 
-.experimental-checkbox-box { background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.35); padding: 14px 16px; border-radius: var(--radius-md); }
-.experimental-checkbox-label { display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 0.95rem; color: var(--accent-gold); }
+.experimental-checkbox-box { margin-bottom: 4px; }
+.experimental-checkbox-label { position:relative; display:grid; grid-template-columns:46px minmax(0,1fr) auto; align-items:center; gap:13px; min-height:72px; padding:12px 15px; color:#fff; background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(229,9,20,.13)); border:2px solid rgba(251,191,36,.72); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.22),inset 0 0 22px rgba(251,191,36,.04); cursor:pointer; transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease; }
+.experimental-checkbox-label:hover { transform:translateY(-1px); border-color:#fbbf24; box-shadow:0 11px 28px rgba(0,0,0,.28),0 0 18px rgba(251,191,36,.14); }
+.experimental-checkbox-label input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.experimental-checkbox-label:focus-within { outline:3px solid rgba(96,165,250,.42); outline-offset:3px; }
+.experimental-checkbox-icon { display:grid; width:46px; height:46px; place-items:center; color:#111827; background:linear-gradient(135deg,#fde68a,#f59e0b); border-radius:11px; box-shadow:0 5px 14px rgba(245,158,11,.28); }
+.experimental-checkbox-icon svg { width:23px; height:23px; }
+.experimental-checkbox-label .custom-chk-text { display:flex; flex-direction:column; gap:3px; line-height:1.25; }
+.experimental-checkbox-label .custom-chk-text strong { color:#fff7d6; font-size:.98rem; }
+.experimental-checkbox-label .custom-chk-text small { color:#cbd5e1; font-size:.76rem; font-weight:550; }
+.experimental-checkbox-action { padding:7px 10px; color:#111827; background:#fbbf24; border-radius:7px; font-size:.72rem; font-weight:850; text-transform:uppercase; letter-spacing:.03em; }
+.experimental-checkbox-label:has(input:checked) { background:linear-gradient(135deg,rgba(34,197,94,.24),rgba(21,128,61,.16)); border-color:#4ade80; box-shadow:0 10px 28px rgba(0,0,0,.25),0 0 20px rgba(34,197,94,.15); }
+.experimental-checkbox-label:has(input:checked) .experimental-checkbox-icon { color:#052e16; background:linear-gradient(135deg,#86efac,#22c55e); }
+.experimental-checkbox-label:has(input:checked) .experimental-checkbox-action { color:#052e16; background:#4ade80; }
+.experimental-checkbox-label:has(input:checked) .experimental-checkbox-action::before { content:'\2713 '; }
+@media (max-width:540px) { .experimental-checkbox-label { grid-template-columns:42px minmax(0,1fr); }.experimental-checkbox-icon { width:42px; height:42px; }.experimental-checkbox-action { grid-column:1/-1; text-align:center; } }
 
 .modal-form label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
 .field-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
@@ -2687,6 +2701,44 @@ body.public-light-theme {
   box-shadow: 0 0 20px rgba(34, 197, 94, 0.45) !important;
 }
 
+.registration-schedule-filter {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+.registration-schedule-filter legend {
+  margin-bottom: 7px;
+  color: #cbd5e1;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.registration-schedule-filter > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.registration-schedule-filter button {
+  min-height: 40px;
+  padding: 7px 9px;
+  color: #cbd5e1;
+  background: rgba(30, 41, 59, .8);
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 750;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.registration-schedule-filter button:hover,
+.registration-schedule-filter button.active {
+  color: #fff;
+  background: rgba(229, 9, 20, .2);
+  border-color: rgba(239, 68, 68, .7);
+}
+@media (max-width: 560px) {
+  .registration-schedule-filter > div { grid-template-columns: 1fr; }
+}
+
 /* ALWAYS PUT HIDDEN AT THE VERY BOTTOM SO IT OVERRIDES ALL DISPLAY RULES */
 .hidden {
   display: none !important;
@@ -2694,4 +2746,3 @@ body.public-light-theme {
   pointer-events: none !important;
   visibility: hidden !important;
 }
-

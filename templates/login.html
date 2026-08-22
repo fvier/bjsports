@@ -193,7 +193,7 @@
 
               <label for="regPlan" style="font-size: 0.84rem; color: var(--text-muted);">Selecione o Plano / Modalidades Desejado *</label>
               <select name="regPlan" id="regPlan" required style="width: 100%; padding: 10px 14px; border-radius: 8px; background: rgba(15, 23, 42, 0.9); color: #fff; border: 1px solid var(--border-light); font-size: 0.92rem; font-weight: 600;">
-                <option value="Plano Passe Livre (Livre Acesso Todos os Dias) — R$ 120,00/mês">Plano Passe Livre (Livre Acesso Todos os Dias) — R$ 120,00/mês</option>
+                <option value="" selected disabled>Selecione uma modalidade</option>
                 <option value="Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês</option>
                 <option value="Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês">Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês</option>
                 <option value="Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês</option>
@@ -206,6 +206,14 @@
                 <option value="MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês">MMA Amador / Iniciantes (Ter, Qui) — R$ 130,00/mês</option>
                 <option value="Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês">Jiu-Jitsu Kids (Seg, Qua / Ter, Qui) — R$ 90,00/mês</option>
               </select>
+              <fieldset class="registration-schedule-filter" aria-label="Filtrar modalidades pelos dias de treino">
+                <legend>Escolha os dias de treino</legend>
+                <div>
+                  <button type="button" data-plan-schedule="ter-qui" aria-pressed="false">Ter &amp; Qui</button>
+                  <button type="button" data-plan-schedule="seg-qua-sex" aria-pressed="false">Seg - Qua - Sex</button>
+                  <button type="button" data-plan-schedule="todos" aria-pressed="false">Todos dias</button>
+                </div>
+              </fieldset>
             </div>
 
             <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
@@ -290,7 +298,6 @@
 
   <script>
     const plansModalidades = [
-      "Plano Passe Livre (Livre Acesso Todos os Dias) — R$ 120,00/mês",
       "Jiu-Jitsu Tarde (Seg, Qua, Sex) — R$ 100,00/mês",
       "Jiu-Jitsu Noturno (Seg, Qua, Sex) — R$ 100,00/mês",
       "Jiu-Jitsu Noturno (Ter, Qui) — R$ 90,00/mês",
@@ -307,16 +314,44 @@
     const plansCombos = [
       "⚡ Combo + 1 (2 Modalidades à escolha) — R$ 150,00/mês",
       "🔥 Combo + 2 (3 Modalidades à escolha) — R$ 180,00/mês",
-      "🥋 Plano Passe Livre (Jiu-Jitsu & Boxe) — R$ 120,00/mês",
       "👥 Plano Casal (2 Pessoas) — R$ 190,00/mês",
       "👨‍👩‍👧 Plano Família (3 Pessoas) — R$ 280,00/mês"
     ];
+
+    const emptyPlanOption = '<option value="" selected disabled>Selecione uma modalidade</option>';
+    let activePlanType = 'modalidade';
+
+    function renderPlanOptions(schedule = 'todos') {
+      const selectPlan = document.getElementById('regPlan');
+      if (!selectPlan) return;
+      const source = activePlanType === 'combo' ? plansCombos : plansModalidades;
+      const filtered = activePlanType === 'combo' || schedule === 'todos'
+        ? source
+        : source.filter(plan => schedule === 'ter-qui'
+          ? /Ter, Qui/.test(plan)
+          : /Seg, Qua, Sex/.test(plan));
+      selectPlan.innerHTML = emptyPlanOption + filtered.map(plan => `<option value="${plan}">${plan}</option>`).join('');
+      selectPlan.value = '';
+      selectPlan.dispatchEvent(new Event('change'));
+    }
+
+    document.querySelectorAll('[data-plan-schedule]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-plan-schedule]').forEach(item => {
+          const selected = item === button;
+          item.classList.toggle('active', selected);
+          item.setAttribute('aria-pressed', String(selected));
+        });
+        renderPlanOptions(button.dataset.planSchedule);
+      });
+    });
 
     function switchPlanType(type) {
       const btnMod = document.getElementById('btnTypeModalidades');
       const btnComb = document.getElementById('btnTypeCombos');
       const selectPlan = document.getElementById('regPlan');
       if (!selectPlan) return;
+      activePlanType = type;
 
       if (type === 'modalidade') {
         if (btnMod) {
@@ -329,7 +364,7 @@
           btnComb.style.color = '#94a3b8';
           btnComb.style.border = '1px solid rgba(255, 255, 255, 0.15)';
         }
-        selectPlan.innerHTML = plansModalidades.map(p => `<option value="${p}">${p}</option>`).join('');
+        renderPlanOptions();
       } else {
         if (btnComb) {
           btnComb.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
@@ -341,7 +376,7 @@
           btnMod.style.color = '#94a3b8';
           btnMod.style.border = '1px solid rgba(255, 255, 255, 0.15)';
         }
-        selectPlan.innerHTML = plansCombos.map(p => `<option value="${p}">${p}</option>`).join('');
+        renderPlanOptions();
       }
     }
 
