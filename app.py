@@ -259,6 +259,7 @@ class User(db.Model):
     medical_restriction = db.Column(db.String(250))
     is_experimental = db.Column(db.Boolean, nullable=False, default=False)
     selected_modalities = db.Column(db.String(250)) # ex: "Jiu-Jitsu, Boxe"
+    birth_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def get_selected_modalities_list(self):
@@ -1161,6 +1162,8 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN is_experimental BOOLEAN NOT NULL DEFAULT FALSE'))
     if 'selected_modalities' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN selected_modalities VARCHAR(250)'))
+    if 'birth_date' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN birth_date DATE'))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
@@ -1661,6 +1664,7 @@ def login():
             sex = request.form.get('regSex', 'prefer_not').strip()
             selected_plan = request.form.get('regPlan', '').strip()
             training_days = request.form.get('regTrainingDays', '').strip()
+            combo_modalities = [value.strip() for value in request.form.getlist('comboModalities') if value.strip()]
             private_instructor_username = request.form.get('privateInstructor', '').strip()
             plan = selected_plan
             due_date = request.form.get('regDueDate', '5').strip()
@@ -1673,6 +1677,9 @@ def login():
             guardian_cpf = request.form.get('imageGuardianCpf', '').strip()
             guardian_relationship = request.form.get('imageGuardianRelationship', '').strip()
             image_use_consent = image_consent_scope in {'adult', 'minor_guardian'}
+            birth_date_raw = request.form.get('regBirthDate', '').strip()
+            birth_date = None
+            is_minor_by_birth_date = False
 
             has_medical_restriction = request.form.get('hasMedicalRestriction') == 'on'
             medical_restriction_details = request.form.get('medicalRestrictionDetails', '').strip()
@@ -1681,6 +1688,15 @@ def login():
 
             cpf_digits = ''.join(c for c in cpf if c.isdigit())
             errors = []
+            try:
+                birth_date = datetime.strptime(birth_date_raw, '%Y-%m-%d').date()
+                today = datetime.now().date()
+                if birth_date > today:
+                    raise ValueError
+                age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+                is_minor_by_birth_date = age < 18
+            except (TypeError, ValueError):
+                errors.append('Informe uma data de nascimento válida.')
             if not re.fullmatch(r'[A-Za-z0-9_.-]{3,80}', username): errors.append('Usuário deve ter de 3 a 80 caracteres válidos.')
             if len(name) < 3: errors.append('Informe o nome completo.')
             if not is_valid_cpf(cpf_digits): errors.append('CPF inválido.')
@@ -1694,6 +1710,8 @@ def login():
             if not accepted_legal_capacity: errors.append('Confirme que você é maior de 18 anos ou responsável legal pelo aluno.')
             if image_consent_scope not in {'adult', 'minor_guardian'}:
                 errors.append('Para concluir o cadastro, autorize o uso de imagem como aluno adulto ou responsável legal pelo menor.')
+            if birth_date and is_minor_by_birth_date and image_consent_scope != 'minor_guardian':
+                errors.append('Aluno menor de idade exige autorização do responsável legal.')
             if image_consent_scope == 'minor_guardian':
                 guardian_cpf_digits = ''.join(character for character in guardian_cpf if character.isdigit())
                 if len(guardian_name) < 3: errors.append('Informe o nome completo do responsável pela autorização de imagem do menor.')
@@ -1709,6 +1727,14 @@ def login():
                     errors.append('Escolha um professor ou monitor válido para a aula particular.')
             elif selected_plan not in valid_plans:
                 errors.append('Modalidade inválida.')
+            normalized_selected_plan = selected_plan.casefold()
+            expected_combo_count = 2 if 'combo + 1' in normalized_selected_plan else (3 if 'combo + 2' in normalized_selected_plan else 0)
+            allowed_combo_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+            if expected_combo_count:
+                if len(combo_modalities) != expected_combo_count or len(set(combo_modalities)) != expected_combo_count:
+                    errors.append(f'Escolha {expected_combo_count} modalidades diferentes para este combo.')
+                elif any(modality not in allowed_combo_modalities for modality in combo_modalities):
+                    errors.append('Uma das modalidades escolhidas para o combo é inválida.')
             training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
             if training_days not in training_day_labels:
                 errors.append('Escolha os dias de treino.')
@@ -1751,6 +1777,8 @@ def login():
                     image_consent_guardian_relationship=guardian_relationship if image_consent_scope == 'minor_guardian' else None,
                     medical_restriction=medical_restriction_val,
                     is_experimental=is_experimental,
+                    birth_date=birth_date,
+                    selected_modalities=', '.join(combo_modalities) if expected_combo_count else None,
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)

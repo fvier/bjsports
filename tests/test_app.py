@@ -95,6 +95,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Cadastro de aluno menor de idade', page)
         self.assertNotIn('👶', page)
         self.assertIn('Aula Particular', page)
+        self.assertEqual(page.count('name="comboModalities"'), 3)
+        self.assertIn('id="comboModalityFields"', page)
         self.assertIn('name="privateInstructor"', page)
         self.assertIn('<optgroup label="Professores">', page)
         self.assertIn('<optgroup label="Monitores">', page)
@@ -108,6 +110,7 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'register', 'regUsername': 'novoaluno', 'regName': 'Novo Aluno',
             'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '999999999',
             'regEmail': 'novoaluno@example.com', 'regSex': 'prefer_not',
+            'regBirthDate': '1990-05-10',
             'regPlan': plan_value, 'regTrainingDays': 'seg-qua-sex',
             'regDueDate': '15', 'regPass': 'senha-segura',
         }
@@ -158,6 +161,7 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'register', 'regUsername': 'alunomenor', 'regName': 'Aluno Menor',
             'regCpf': '111.444.777-35', 'regDDD': '83', 'regPhoneNumber': '988888888',
             'regEmail': 'responsavel@example.com', 'regSex': 'feminino',
+            'regBirthDate': '2012-05-10',
             'regPlan': plan_value, 'regTrainingDays': 'ter-qui',
             'regDueDate': '5', 'regPass': 'senha-segura',
             'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
@@ -190,6 +194,7 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'register', 'regUsername': 'particular', 'regName': 'Aluno Particular',
             'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '988887777',
             'regEmail': 'particular@example.com', 'regSex': 'prefer_not',
+            'regBirthDate': '1990-05-10',
             'regPlan': '__private_class__', 'regTrainingDays': 'ter-qui',
             'regDueDate': '15', 'regPass': 'senha-segura', 'acceptMembershipTerms': 'on',
             'acknowledgePrivacy': 'on', 'confirmLegalCapacity': 'on',
@@ -205,6 +210,30 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             user = User.query.filter_by(username='particular').one()
             self.assertEqual(user.plan, 'Aula Particular com Instrutor • Ter, Qui')
+
+    def test_combo_plus_two_requires_three_distinct_modalities(self):
+        with app.app_context():
+            combo = Plan(name='Plano Combo + 2', category='Planos Promocionais & Família', price='R$ 180,00/mês')
+            db.session.add(combo)
+            db.session.commit()
+            combo_value = f'{combo.name} — {combo.price}'
+        payload = {
+            'action': 'register', 'regUsername': 'alunocombo', 'regName': 'Aluno Combo',
+            'regCpf': '111.444.777-35', 'regDDD': '83', 'regPhoneNumber': '988887777',
+            'regEmail': 'combo@example.com', 'regSex': 'prefer_not', 'regBirthDate': '1990-05-10',
+            'regPlan': combo_value, 'regTrainingDays': 'todos', 'regDueDate': '15',
+            'regPass': 'senha-segura', 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
+            'confirmLegalCapacity': 'on', 'imageConsentScope': 'adult',
+        }
+        denied = self.client.post('/login', data={**payload, 'comboModalities': ['Jiu-Jitsu', 'Jiu-Jitsu'], 'csrf_token': self.csrf()}, follow_redirects=True)
+        self.assertIn('Escolha 3 modalidades diferentes', denied.get_data(as_text=True))
+
+        accepted = self.client.post('/login', data={**payload, 'comboModalities': ['Jiu-Jitsu', 'Boxe', 'MMA'], 'csrf_token': self.csrf()})
+        self.assertEqual(accepted.status_code, 302)
+        with app.app_context():
+            user = User.query.filter_by(username='alunocombo').one()
+            self.assertEqual(user.get_selected_modalities_list(), ['Jiu-Jitsu', 'Boxe', 'MMA'])
+            self.assertEqual(user.birth_date.isoformat(), '1990-05-10')
 
     def test_classes_page_is_public(self):
         response = self.client.get('/turmas')

@@ -215,6 +215,13 @@
                   {% if professional_groups.monitores %}<optgroup label="Monitores">{% for professional in professional_groups.monitores %}<option value="{{ professional.username }}">{{ professional.name }}</option>{% endfor %}</optgroup>{% endif %}
                 </select>
               </div>
+              <div class="combo-modality-fields hidden" id="comboModalityFields">
+                <strong>Escolha as modalidades do combo</strong>
+                {% for slot in range(1, 4) %}
+                <label data-combo-slot="{{ slot }}"><span>Modalidade {{ slot }} *</span><select name="comboModalities" disabled><option value="">Selecione</option><option value="Jiu-Jitsu">Jiu-Jitsu</option><option value="Boxe">Boxe</option><option value="Muay Thai">Muay Thai</option><option value="MMA">MMA</option></select></label>
+                {% endfor %}
+                <small>As modalidades devem ser diferentes entre si.</small>
+              </div>
             </div>
 
             <!-- 10. Escolha do Dia de Vencimento da Mensalidade (Dia 5, 15 ou 25) -->
@@ -326,6 +333,18 @@
       const selectedValue = selectPlan.value;
       const displayedPrice = isPrivateClass ? 'A combinar' : (selectedValue.split('—')[1]?.trim() || '—');
       document.querySelectorAll('[data-schedule-price]').forEach(price => { price.textContent = displayedPrice; });
+      const normalizedPlan = selectedValue.toLocaleLowerCase('pt-BR');
+      const comboCount = normalizedPlan.includes('combo + 1') ? 2 : (normalizedPlan.includes('combo + 2') ? 3 : 0);
+      const comboWrapper = document.getElementById('comboModalityFields');
+      comboWrapper?.classList.toggle('hidden', !comboCount);
+      document.querySelectorAll('[data-combo-slot]').forEach((slot, index) => {
+        const enabled = index < comboCount;
+        slot.classList.toggle('hidden', !enabled);
+        const comboSelect = slot.querySelector('select');
+        comboSelect.disabled = !enabled;
+        comboSelect.required = enabled;
+        if (!enabled) comboSelect.value = '';
+      });
     }
 
     document.getElementById('regPlan')?.addEventListener('change', updatePrivateInstructorField);
@@ -388,6 +407,22 @@
         if (minorFields) minorFields.classList.add('hidden');
       }
     }
+
+    function syncMinorStatusFromBirthDate() {
+      const birthDateInput = document.getElementById('regBirthDate');
+      const minorCheckbox = document.getElementById('isMinorStudent');
+      if (!birthDateInput?.value || !minorCheckbox) return;
+      const birthDate = new Date(`${birthDateInput.value}T12:00:00`);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const beforeBirthday = today.getMonth() < birthDate.getMonth()
+        || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate());
+      if (beforeBirthday) age -= 1;
+      minorCheckbox.checked = age >= 0 && age < 18;
+      handleMinorCheckbox(minorCheckbox);
+    }
+
+    document.getElementById('regBirthDate')?.addEventListener('change', syncMinorStatusFromBirthDate);
   </script>
 
   {% else %}
