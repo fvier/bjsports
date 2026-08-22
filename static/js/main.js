@@ -1022,7 +1022,9 @@ function setupPortalPage() {
 
   const updateContractSummary = () => {
     if (contractPlan && planSelect) contractPlan.textContent = planSelect.options[planSelect.selectedIndex]?.text || 'plano selecionado';
-    if (contractDue && dueDateSelect) contractDue.textContent = `dia ${dueDateSelect.value} de cada mês`;
+    if (contractDue && dueDateSelect) contractDue.textContent = dueDateSelect.value
+      ? `dia ${dueDateSelect.value} de cada mês`
+      : 'dia escolhido no cadastro';
   };
 
   const updateMinorConsentFields = () => {
