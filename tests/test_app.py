@@ -941,13 +941,40 @@ class BJSportsTestCase(unittest.TestCase):
         classes_page = self.client.get('/gestao/turmas').get_data(as_text=True)
         self.assertIn('GESTÃO OPERACIONAL', classes_page)
         self.assertIn('Turmas e capacidade', classes_page)
-        self.assertIn('Dados insuficientes', classes_page)
-        self.assertIn('Sem dados', classes_page)
+        self.assertIn('Dados reais por modalidade', classes_page)
+        self.assertIn('Pessoas com check-in', classes_page)
+        self.assertIn('Sem check-ins', classes_page)
         self.assertNotIn('Vínculos iniciais de demonstração', classes_page)
+        self.assertNotIn('METODOLOGIA S.M.A.R.T.', classes_page)
         self.assertIn('data-class-modal', classes_page)
+        with app.app_context():
+            night_group = ClassGroup.query.filter_by(name='Jiu-Jitsu Noturno').one()
+            self.assertEqual(night_group.status, 'ativa')
+            self.assertEqual(night_group.waiting, 0)
         filtered_classes = self.client.get('/gestao/turmas?modality=Boxe').get_data(as_text=True)
         self.assertIn('Boxe Matinal', filtered_classes)
         self.assertNotIn('Jiu-Jitsu Kids 1', filtered_classes)
+
+    def test_class_management_counts_real_checkins_without_double_counting_people(self):
+        self.login('instrutor')
+        self.client.get('/gestao/turmas')
+        with app.app_context():
+            group = ClassGroup.query.filter_by(name='Jiu-Jitsu Tarde').one()
+            student = User.query.filter_by(username='aluno').one()
+            db.session.add(Booking(
+                login_or_name=student.username, modality=group.modality,
+                shift_time='17:00', class_group_id=group.id,
+                class_date=datetime.now().date(), class_time='17:00',
+            ))
+            db.session.add(Attendance(
+                user_id=student.id, class_group_id=group.id,
+                modality=group.modality, status='confirmado',
+            ))
+            db.session.commit()
+
+        page = self.client.get('/gestao/turmas').get_data(as_text=True)
+        self.assertIn('<strong>1</strong><small>2 registro(s) real(is)</small>', page)
+        self.assertIn('1 pessoa(s) • 2 check-in(s)', page)
 
     def test_instructor_can_save_class_changes_and_open_management_details(self):
         self.login('instrutor')

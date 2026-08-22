@@ -63,40 +63,40 @@ MEMBERSHIP_TERMS_VERSION = '2026-08-17.4'
 PRIVACY_NOTICE_VERSION = '2026-08-17'
 BELT_COLORS = {'branca', 'azul', 'roxa', 'marrom', 'preta'}
 BELT_LABELS = {'branca': 'Branca', 'azul': 'Azul', 'roxa': 'Roxa', 'marrom': 'Marrom', 'preta': 'Preta'}
-CLASS_MANAGEMENT_PREVIEW = [
+DEFAULT_CLASS_GROUPS = [
     {'id': 1, 'name': 'Jiu-Jitsu Kids 1', 'modality': 'Jiu-Jitsu', 'audience': 'Kids',
      'schedules': ['Ter, Qui • 17:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 16, 'enrolled': 14, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 16, 'waiting': 0, 'status': 'ativa'},
     {'id': 2, 'name': 'Jiu-Jitsu Kids 2', 'modality': 'Jiu-Jitsu', 'audience': 'Kids',
      'schedules': ['Seg, Qua • 16:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 16, 'enrolled': 12, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 16, 'waiting': 0, 'status': 'ativa'},
     {'id': 3, 'name': 'Jiu-Jitsu / Meio dia', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
      'schedules': ['Ter, Qui • 12:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 8, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 4, 'name': 'Jiu-Jitsu Tarde', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 17:00'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 18, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 5, 'name': 'Jiu-Jitsu Noturno', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 19:00', 'Ter, Qui • 19:00'], 'weekly_sessions': 5,
-     'instructor': 'Mestre Bolivar', 'capacity': 20, 'enrolled': 20, 'waiting': 3, 'status': 'lotada'},
+     'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 6, 'name': 'Boxe Matinal', 'modality': 'Boxe', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 06:00'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 11, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 7, 'name': 'Boxe Noturno', 'modality': 'Boxe', 'audience': 'Adulto',
      'schedules': ['Ter, Qui • 19:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 9, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 8, 'name': 'Muay Thai Kids', 'modality': 'Muay Thai', 'audience': 'Kids',
      'schedules': ['Ter, Qui • 18:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 16, 'enrolled': 13, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 16, 'waiting': 0, 'status': 'ativa'},
     {'id': 9, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 07:30 e 18:00', 'Ter, Qui • 20:00'], 'weekly_sessions': 8,
-     'instructor': 'Mestre Bolivar', 'capacity': 20, 'enrolled': 17, 'waiting': 0, 'status': 'ativa'},
+     'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 10, 'name': 'MMA Profissional', 'modality': 'MMA', 'audience': 'Profissional',
      'schedules': ['Seg, Qua, Sex • 11:30'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 12, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 11, 'name': 'MMA Amador / Iniciantes', 'modality': 'MMA', 'audience': 'Iniciantes',
      'schedules': ['Ter, Qui • 18:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
-     'capacity': 20, 'enrolled': 10, 'waiting': 0, 'status': 'ativa'},
+     'capacity': 20, 'waiting': 0, 'status': 'ativa'},
 ]
 CHAMPIONSHIP_WEIGHT_COLUMNS = [
     ('pre_mirim', 'Pré-Mirim 1, 2 e 3', '4, 5 e 6 anos'),
@@ -982,7 +982,7 @@ def deliver_push(subscription, payload):
 
 def ensure_class_groups():
     if ClassGroup.query.count() == 0:
-        for item in CLASS_MANAGEMENT_PREVIEW:
+        for item in DEFAULT_CLASS_GROUPS:
             class_group = ClassGroup(
                 name=item['name'], modality=item['modality'], audience=item['audience'],
                 instructor=item['instructor'], capacity=item['capacity'], waiting=item['waiting'],
@@ -2706,14 +2706,45 @@ def gestao_turmas():
     classes = query.order_by(ClassGroup.modality, ClassGroup.name).all()
 
     all_classes = ClassGroup.query.order_by(ClassGroup.id).all()
+    checkin_metrics = {
+        item.id: {'people': set(), 'records': 0, 'confirmed': 0, 'pending': 0}
+        for item in all_classes
+    }
+    class_ids = list(checkin_metrics)
+    if class_ids:
+        attendances = Attendance.query.filter(
+            Attendance.class_group_id.in_(class_ids),
+            Attendance.status.in_({'pendente', 'confirmado'}),
+        ).all()
+        for attendance in attendances:
+            metric = checkin_metrics[attendance.class_group_id]
+            identity = (attendance.user.username or str(attendance.user_id)).strip().casefold()
+            metric['people'].add(identity)
+            metric['records'] += 1
+            metric['confirmed' if attendance.status == 'confirmado' else 'pending'] += 1
+
+        bookings = Booking.query.filter(Booking.class_group_id.in_(class_ids)).all()
+        for booking in bookings:
+            metric = checkin_metrics[booking.class_group_id]
+            identity = (booking.login_or_name or f'reserva-{booking.id}').strip().casefold()
+            metric['people'].add(identity)
+            metric['records'] += 1
+
+    for item in all_classes:
+        item.checkin_people = len(checkin_metrics[item.id]['people'])
+        item.checkin_records = checkin_metrics[item.id]['records']
+
     total_capacity = sum(item.capacity for item in all_classes)
     total_enrolled = sum(item.enrolled for item in all_classes)
+    all_checkin_people = set().union(*(metric['people'] for metric in checkin_metrics.values())) if checkin_metrics else set()
     overview = {
         'classes': len(all_classes),
         'weekly_sessions': sum(item.weekly_sessions for item in all_classes),
         'enrolled': total_enrolled,
         'occupancy': round(total_enrolled / total_capacity * 100) if total_capacity else 0,
         'waiting': sum(item.waiting for item in all_classes),
+        'checkin_people': len(all_checkin_people),
+        'checkin_records': sum(metric['records'] for metric in checkin_metrics.values()),
     }
 
     modalities_smart_metrics = []
@@ -2723,6 +2754,11 @@ def gestao_turmas():
         mod_enrolled = sum(c.enrolled for c in mod_classes)
         mod_waiting = sum(c.waiting for c in mod_classes)
         mod_occupancy = round(mod_enrolled / mod_capacity * 100) if mod_capacity else 0
+        mod_metrics = [checkin_metrics[c.id] for c in mod_classes]
+        mod_people = set().union(*(metric['people'] for metric in mod_metrics)) if mod_metrics else set()
+        confirmed_attendances = sum(metric['confirmed'] for metric in mod_metrics)
+        pending_attendances = sum(metric['pending'] for metric in mod_metrics)
+        checkin_records = sum(metric['records'] for metric in mod_metrics)
         
         enrolled_user_ids = {
             e.user_id for c in mod_classes for e in c.enrollments
@@ -2745,9 +2781,6 @@ def gestao_turmas():
             adimplencia = None
             attendance_rate = None
 
-        has_complete_metrics = adimplencia is not None and attendance_rate is not None
-        is_target_met = has_complete_metrics and mod_occupancy >= 50 and adimplencia >= 80 and attendance_rate >= 75
-        smart_status = 'Meta atingida' if is_target_met else ('Abaixo da meta' if has_complete_metrics else 'Dados insuficientes')
         modalities_smart_metrics.append({
             'name': mod,
             'classes_count': len(mod_classes),
@@ -2757,8 +2790,10 @@ def gestao_turmas():
             'waiting': mod_waiting,
             'adimplencia': adimplencia,
             'attendance_rate': attendance_rate,
-            'smart_status': smart_status,
-            'is_target_met': is_target_met,
+            'checkin_people': len(mod_people),
+            'checkin_records': checkin_records,
+            'confirmed_attendances': confirmed_attendances,
+            'pending_attendances': pending_attendances,
             'icon': 'circle-dot' if mod == 'Jiu-Jitsu' else ('swords' if mod == 'Boxe' else ('flame' if mod == 'MMA' else 'dumbbell'))
         })
 

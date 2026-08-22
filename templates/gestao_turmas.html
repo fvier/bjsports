@@ -27,26 +27,26 @@
         <article><i data-lucide="layout-grid"></i><div><span>Turmas cadastradas</span><strong>{{ overview.classes }}</strong><small>Cadastros persistentes</small></div></article>
         <article><i data-lucide="calendar-days"></i><div><span>Aulas por semana</span><strong>{{ overview.weekly_sessions }}</strong><small>Sessões previstas na grade</small></div></article>
         <article><i data-lucide="users-round"></i><div><span>Alunos vinculados</span><strong>{{ overview.enrolled }}</strong><small>Acesse a turma para analisar</small></div></article>
-        <article class="{% if overview.occupancy >= 90 %}is-warning{% else %}is-positive{% endif %}"><i data-lucide="gauge"></i><div><span>Ocupação geral</span><strong>{{ overview.occupancy }}%</strong><small>{{ overview.waiting }} aluno(s) em espera</small></div></article>
+        <article class="is-positive"><i data-lucide="badge-check"></i><div><span>Pessoas com check-in</span><strong>{{ overview.checkin_people }}</strong><small>{{ overview.checkin_records }} registro(s) real(is)</small></div></article>
       </section>
 
-      <!-- MÉTRICAS SMART POR MODALIDADE -->
+      <!-- INDICADORES REAIS POR MODALIDADE -->
       <section class="smart-metrics-section" style="margin: 24px 0;">
         <div class="smart-metrics-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
           <div>
             <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 1px; text-transform: uppercase;">
-              🎯 METODOLOGIA S.M.A.R.T. (Específica • Mensurável • Atingível • Relevante • Temporal)
+              INDICADORES OPERACIONAIS
             </span>
             <h2 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; color: #fff; margin-top: 2px;">
-              Métricas SMART por Modalidade
+              Dados reais por modalidade
             </h2>
           </div>
-          <small style="color: var(--text-muted); font-size: 0.82rem;">📊 Atualizado em tempo real com base nas presenças e matrículas</small>
+          <small style="color: var(--text-muted); font-size: 0.82rem;">Atualizado com check-ins, presenças e vínculos salvos no sistema</small>
         </div>
 
         <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
           {% for sm in modalities_smart %}
-          <article class="smart-metric-card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid {% if sm.is_target_met %}rgba(34, 197, 94, 0.35){% else %}rgba(234, 179, 8, 0.35){% endif %}; border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+          <article class="smart-metric-card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
               <div style="display: flex; align-items: center; gap: 10px;">
@@ -58,16 +58,16 @@
                   <small style="color: #94a3b8; font-size: 0.78rem;">{{ sm.classes_count }} turma(s) na grade</small>
                 </div>
               </div>
-              <span class="badge-pill {% if sm.is_target_met %}bg-green{% else %}bg-amber{% endif %}" style="font-size: 0.72rem; padding: 4px 8px;">
-                {{ sm.smart_status }}
+              <span class="badge-pill {% if sm.checkin_records %}bg-green{% else %}bg-amber{% endif %}" style="font-size: 0.72rem; padding: 4px 8px;">
+                {{ 'Com registros' if sm.checkin_records else 'Sem check-ins' }}
               </span>
             </div>
 
             <div class="smart-indicators-list" style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
-              <!-- S: Específica - Ocupação -->
+              <!-- Vínculos persistidos -->
               <div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="color: #cbd5e1;">🎯 <strong>Ocupação (Específica)</strong>:</span>
+                  <span style="color: #cbd5e1;"><strong>Alunos vinculados</strong>:</span>
                   <strong style="color: #fff;">{{ sm.enrolled }}/{{ sm.capacity }} ({{ sm.occupancy }}%)</strong>
                 </div>
                 <div style="width: 100%; height: 6px; background: rgba(51, 65, 85, 0.6); border-radius: 3px; overflow: hidden;">
@@ -75,24 +75,24 @@
                 </div>
               </div>
 
-              <!-- M: Mensurável - Assiduidade -->
               <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
-                <span style="color: #cbd5e1;">📈 <strong>Assiduidade Média</strong>:</span>
-                <strong style="color: {{ '#4ade80' if sm.attendance_rate is not none else '#94a3b8' }};">{{ sm.attendance_rate ~ '% de presença' if sm.attendance_rate is not none else 'Sem dados' }}</strong>
+                <span style="color: #cbd5e1;"><strong>Pessoas com check-in</strong>:</span>
+                <strong style="color: {{ '#4ade80' if sm.checkin_people else '#94a3b8' }};">{{ sm.checkin_people }}</strong>
               </div>
 
-              <!-- A: Atingível - Adimplência -->
+              <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
+                <span style="color: #cbd5e1;"><strong>Registros de check-in</strong>:</span>
+                <strong style="color: {{ '#4ade80' if sm.checkin_records else '#94a3b8' }};">{{ sm.checkin_records }}</strong>
+              </div>
+
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #cbd5e1;">🏆 <strong>Adimplência da Turma</strong>:</span>
-                <strong style="color: {% if sm.adimplencia is none %}#94a3b8{% elif sm.adimplencia >= 85 %}#38bdf8{% else %}#f87171{% endif %};">{{ sm.adimplencia ~ '% em dia' if sm.adimplencia is not none else 'Sem dados' }}</strong>
+                <span style="color: #cbd5e1;"><strong>Presenças confirmadas</strong>:</span>
+                <strong style="color: {{ '#38bdf8' if sm.confirmed_attendances else '#94a3b8' }};">{{ sm.confirmed_attendances }}</strong>
               </div>
 
-              <!-- R & T: Relevante & Temporal - Fila de Espera -->
               <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
-                <span style="color: #cbd5e1;">⏱️ <strong>Demanda / Fila de Espera</strong>:</span>
-                <strong style="color: {% if sm.waiting > 0 %}#facc15{% else %}#94a3b8{% endif %};">
-                  {% if sm.waiting > 0 %}{{ sm.waiting }} em espera{% else %}Sem fila{% endif %}
-                </strong>
+                <span style="color: #cbd5e1;"><strong>Aguardando confirmação</strong>:</span>
+                <strong style="color: {{ '#facc15' if sm.pending_attendances else '#94a3b8' }};">{{ sm.pending_attendances }}</strong>
               </div>
             </div>
 
@@ -113,7 +113,7 @@
         <header><div><span>GRADE CADASTRADA</span><h2>Turmas e capacidade</h2></div><small>{{ classes|length }} resultado(s)</small></header>
         <div class="class-management-table-wrap">
           <table class="class-management-table">
-            <thead><tr><th>Turma</th><th>Dias e horários</th><th>Responsáveis</th><th>Ocupação</th><th>Situação</th><th aria-label="Ações"></th></tr></thead>
+            <thead><tr><th>Turma</th><th>Dias e horários</th><th>Responsáveis</th><th>Vínculos e check-ins</th><th>Situação</th><th aria-label="Ações"></th></tr></thead>
             <tbody>
               {% for class_item in classes %}
               {% set occupancy = (class_item.enrolled / class_item.capacity * 100)|round|int %}
@@ -121,7 +121,7 @@
                 <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><i data-lucide="{% if class_item.modality == 'Jiu-Jitsu' %}circle-dot{% elif class_item.modality == 'Boxe' %}swords{% elif class_item.modality == 'MMA' %}flame{% else %}dumbbell{% endif %}"></i></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small></div></div></td>
                 <td><div class="class-management-schedules">{% for schedule in class_item.schedules %}<span><i data-lucide="clock-3"></i>{{ schedule }}</span>{% endfor %}</div></td>
                 <td><strong class="class-management-instructor">{{ class_item.instructor }}</strong><small>{{ 'Monitor: ' ~ class_item.responsible_monitor.name if class_item.responsible_monitor else 'Sem monitor responsável' }}</small></td>
-                <td><div class="class-management-occupancy"><span><strong>{{ class_item.enrolled }}/{{ class_item.capacity }}</strong><small>{{ occupancy }}%</small></span><div><i style="width:{{ occupancy }}%"></i></div>{% if class_item.waiting %}<em>{{ class_item.waiting }} em espera</em>{% endif %}</div></td>
+                <td><div class="class-management-occupancy"><span><strong>{{ class_item.enrolled }}/{{ class_item.capacity }} vinculados</strong><small>{{ occupancy }}%</small></span><div><i style="width:{{ occupancy }}%"></i></div><em>{{ class_item.checkin_people }} pessoa(s) • {{ class_item.checkin_records }} check-in(s)</em></div></td>
                 <td><span class="class-management-status is-{{ class_item.status }}"><i></i>{{ class_item.status|capitalize }}</span></td>
                 <td><button type="button" class="class-management-edit" title="Editar turma" data-class-modal-open data-class-id="{{ class_item.id }}" data-class-name="{{ class_item.name }}" data-class-modality="{{ class_item.modality }}" data-class-audience="{{ class_item.audience }}" data-class-capacity="{{ class_item.capacity }}" data-class-schedule="{{ class_item.schedules|join(' / ') }}" data-class-instructor="{{ class_item.instructor }}" data-responsible-monitor-id="{{ class_item.responsible_monitor_id or '' }}" data-class-duration="{{ class_item.duration_minutes }}" data-class-status="{{ class_item.status }}" data-class-published="{{ '1' if class_item.publish_public else '0' }}"><i data-lucide="pencil"></i></button></td>
               </tr>
