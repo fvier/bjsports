@@ -92,6 +92,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Todos dias', page)
         self.assertLess(page.index('Seg - Qua - Sex'), page.index('Ter &amp; Qui'))
         self.assertIn('data-schedule-price', page)
+        self.assertIn('const selectedPrices = selectedPlan?.prices || {};', page)
+        self.assertIn('renderPlanOptions();', page)
         self.assertIn('Cadastro de aluno menor de idade', page)
         self.assertNotIn('👶', page)
         self.assertIn('Aula Particular', page)

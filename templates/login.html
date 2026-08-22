@@ -313,7 +313,6 @@
     const plansModalidades = {{ registration_modalities|tojson }};
     const plansCombos = {{ registration_combos|tojson }};
 
-    const emptyPlanOption = '<option value="" selected disabled>Selecione uma modalidade</option>';
     let activePlanType = 'modalidade';
 
     function renderPlanOptions() {
@@ -343,13 +342,12 @@
       professionalSelect.required = isPrivateClass;
       if (!isPrivateClass) professionalSelect.value = '';
       const selectedValue = selectPlan.value;
-      let selectedPrices = {};
-      try { selectedPrices = JSON.parse(selectPlan.selectedOptions[0]?.dataset.prices || '{}'); } catch (error) { selectedPrices = {}; }
+      const selectedPlan = [...plansModalidades, ...plansCombos].find(plan => plan.value === selectedValue);
+      const selectedPrices = selectedPlan?.prices || {};
       document.querySelectorAll('[data-plan-schedule]').forEach(button => {
         const price = button.querySelector('[data-schedule-price]');
         if (price) price.textContent = isPrivateClass ? 'A combinar' : (selectedPrices[button.dataset.planSchedule] || '—');
       });
-      const selectedPlan = [...plansModalidades, ...plansCombos].find(plan => plan.value === selectedValue);
       const comboCount = Number(selectedPlan?.selection_count || 0);
       const comboWrapper = document.getElementById('comboModalityFields');
       comboWrapper?.classList.toggle('hidden', !comboCount);
@@ -374,7 +372,12 @@
           button.disabled = !selected;
         });
       } else {
-        document.querySelectorAll('[data-plan-schedule]').forEach(button => { button.disabled = false; });
+        document.getElementById('regTrainingDays').value = '';
+        document.querySelectorAll('[data-plan-schedule]').forEach(button => {
+          button.disabled = false;
+          button.classList.remove('active');
+          button.setAttribute('aria-pressed', 'false');
+        });
       }
       const details = document.getElementById('registrationPlanDetails');
       details?.classList.toggle('hidden', !selectedPlan);
@@ -406,6 +409,8 @@
         document.getElementById('regTrainingDays').value = button.dataset.planSchedule;
       });
     });
+
+    renderPlanOptions();
 
     function switchPlanType(type) {
       const btnMod = document.getElementById('btnTypeModalidades');
