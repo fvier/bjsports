@@ -2897,6 +2897,18 @@ def mensalidades_admin():
     pending_count = User.query.filter_by(payment_status='Pendente', monthly_fee_exempt=False).count()
     exempt_count = User.query.filter_by(monthly_fee_exempt=True).count()
     current_period = datetime.now()
+    available_plans = Plan.query.filter(~Plan.name.ilike('%passe livre%')).order_by(Plan.category, Plan.name).all()
+    student_plan_catalog = {
+        'individual': [
+            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category}
+            for plan in available_plans if plan.category == 'Planos Individuais'
+        ],
+        'special': [
+            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
+             'combo_count': 2 if 'combo + 1' in plan.name.casefold() else (3 if 'combo + 2' in plan.name.casefold() else 0)}
+            for plan in available_plans if plan.category != 'Planos Individuais'
+        ],
+    }
 
     return render_template(
         'mensalidades_admin.html',
@@ -2915,7 +2927,7 @@ def mensalidades_admin():
         exempt_count=exempt_count,
         report_period_start=f'{current_period.year}-01',
         report_period_end=f'{current_period.year}-{current_period.month:02d}',
-        available_plans=Plan.query.filter(~Plan.name.ilike('%passe livre%')).order_by(Plan.category, Plan.name).all(),
+        available_plans=available_plans, student_plan_catalog=student_plan_catalog,
     )
 
 @app.route('/gestao', methods=['GET', 'POST'])

@@ -277,15 +277,16 @@
                           </div>
                         {% endif %}
 
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor" data-student-plan-editor>
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor student-plan-registration-style" data-student-plan-editor data-current-plan="{{ u.plan }}">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                           <input type="hidden" name="action" value="update_student_plan">
                           <input type="hidden" name="user_id" value="{{ u.id }}">
                           <div class="student-plan-editor-heading"><i data-lucide="repeat-2"></i><div><strong>Plano e modalidades do aluno</strong><small>A mudança vale para o perfil e para as próximas competências. O histórico financeiro permanece intacto.</small></div></div>
-                          <label><span>Novo plano</span><select name="plan_id" data-student-plan-select required><option value="">Selecione no catálogo</option>{% for plan in available_plans %}{% set plan_lower = plan.name|lower %}<option value="{{ plan.id }}" data-combo-count="{{ 2 if 'combo + 1' in plan_lower else (3 if 'combo + 2' in plan_lower else 0) }}" data-is-special="{{ '1' if plan.category == 'Combos & Planos Especiais' else '0' }}" {% if u.plan.startswith(plan.name) %}selected{% endif %}>{{ plan.name }} — {{ plan.price }}</option>{% endfor %}</select></label>
+                          <div class="student-plan-type-switch"><span>Escolha o tipo de matrícula</span><div><button type="button" data-student-plan-type="individual">Modalidades Individuais</button><button type="button" data-student-plan-type="special">Combos &amp; Planos Especiais</button></div></div>
+                          <label class="student-plan-main-select"><span>Selecione o plano / modalidade</span><select name="plan_id" data-student-plan-select required><option value="">Selecione uma opção</option></select></label>
                           {% set current_plan_lower = u.plan|lower %}
-                          <label><span>Dias de treino</span><select name="training_days" data-student-training-days required><option value="seg-qua-sex" {% if 'seg, qua, sex' in current_plan_lower or 'seg - qua - sex' in current_plan_lower %}selected{% endif %}>Seg - Qua - Sex</option><option value="ter-qui" {% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}selected{% endif %}>Ter & Qui</option><option value="todos" {% if 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}selected{% endif %}>Todos os dias</option></select></label>
-                          <fieldset data-student-combo-modalities><legend>Modalidades do combo</legend><div>{% set student_modalities = u.get_selected_modalities_list() %}{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<label><input type="checkbox" name="selected_modalities" value="{{ modality }}" {% if modality in student_modalities %}checked{% endif %}><span>{{ modality }}</span></label>{% endfor %}</div><small data-combo-help>Selecione as modalidades exigidas pelo combo.</small></fieldset>
+                          <fieldset class="student-plan-days"><legend>Escolha os dias de treino</legend><input type="hidden" name="training_days" data-student-training-days value="{% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}ter-qui{% elif 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}todos{% else %}seg-qua-sex{% endif %}"><div><button type="button" data-student-day="seg-qua-sex">Seg - Qua - Sex</button><button type="button" data-student-day="ter-qui">Ter &amp; Qui</button><button type="button" data-student-day="todos">Todos dias</button></div></fieldset>
+                          <fieldset class="student-combo-slots hidden" data-student-combo-modalities><legend>Escolha as modalidades do combo</legend>{% set student_modalities = u.get_selected_modalities_list() %}<div>{% for slot in range(1,4) %}<label data-student-combo-slot="{{ slot }}"><span>Modalidade {{ slot }}</span><select name="selected_modalities" disabled><option value="">Selecione</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if student_modalities|length >= slot and student_modalities[slot - 1] == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>{% endfor %}</div><small data-combo-help>As modalidades devem ser diferentes entre si.</small></fieldset>
                           <button type="submit"><i data-lucide="save"></i>Salvar novo plano</button>
                         </form>
 
@@ -513,28 +514,61 @@
   </style>
 
   <script>
+    const studentPlanCatalog = {{ student_plan_catalog|tojson }};
     document.querySelectorAll('[data-student-plan-editor]').forEach(form => {
       const planSelect = form.querySelector('[data-student-plan-select]');
-      const daysSelect = form.querySelector('[data-student-training-days]');
+      const daysInput = form.querySelector('[data-student-training-days]');
+      const typeButtons = [...form.querySelectorAll('[data-student-plan-type]')];
+      const dayButtons = [...form.querySelectorAll('[data-student-day]')];
       const modalities = form.querySelector('[data-student-combo-modalities]');
       const help = form.querySelector('[data-combo-help]');
+      let activeType = 'individual';
+
+      const renderPlans = (preserveCurrent = false) => {
+        const source = studentPlanCatalog[activeType] || [];
+        planSelect.innerHTML = '<option value="">Selecione uma opção</option>' + source.map(plan => `<option value="${plan.id}" data-combo-count="${plan.combo_count || 0}" data-is-special="${activeType === 'special' ? 1 : 0}">${plan.name} — ${plan.price}</option>`).join('');
+        if (preserveCurrent) {
+          const currentPlan = form.dataset.currentPlan || '';
+          const match = source.find(plan => currentPlan.startsWith(plan.name));
+          if (match) planSelect.value = String(match.id);
+        }
+      };
+
+      const setType = (type, preserveCurrent = false) => {
+        activeType = type;
+        typeButtons.forEach(button => button.classList.toggle('active', button.dataset.studentPlanType === type));
+        renderPlans(preserveCurrent);
+        updatePlanFields();
+      };
+
+      const setDay = value => {
+        daysInput.value = value;
+        dayButtons.forEach(button => button.classList.toggle('active', button.dataset.studentDay === value));
+      };
+
       const updatePlanFields = () => {
         const option = planSelect.options[planSelect.selectedIndex];
         const comboCount = Number(option?.dataset.comboCount || 0);
         const isSpecial = option?.dataset.isSpecial === '1';
         modalities.classList.toggle('hidden', !comboCount);
-        modalities.querySelectorAll('input').forEach(input => { input.disabled = !comboCount; });
+        modalities.querySelectorAll('[data-student-combo-slot]').forEach((slot, index) => {
+          const enabled = index < comboCount;
+          slot.classList.toggle('hidden', !enabled);
+          const select = slot.querySelector('select');
+          select.disabled = !enabled;
+          select.required = enabled;
+          if (!enabled) select.value = '';
+        });
         if (help && comboCount) help.textContent = `Selecione exatamente ${comboCount} modalidades diferentes.`;
-        if (isSpecial) {
-          daysSelect.value = 'todos';
-          daysSelect.disabled = true;
-        } else {
-          daysSelect.disabled = false;
-        }
+        if (isSpecial) setDay('todos');
+        dayButtons.forEach(button => { button.disabled = isSpecial; });
       };
+      typeButtons.forEach(button => button.addEventListener('click', () => setType(button.dataset.studentPlanType)));
+      dayButtons.forEach(button => button.addEventListener('click', () => setDay(button.dataset.studentDay)));
       planSelect.addEventListener('change', updatePlanFields);
-      form.addEventListener('submit', () => { daysSelect.disabled = false; });
-      updatePlanFields();
+      const currentIsSpecial = studentPlanCatalog.special.some(plan => (form.dataset.currentPlan || '').startsWith(plan.name));
+      setType(currentIsSpecial ? 'special' : 'individual', true);
+      setDay(daysInput.value);
     });
 
     function toggleMonthDrawer(userId) {
