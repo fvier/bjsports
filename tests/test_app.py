@@ -1167,6 +1167,40 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(payment.status, 'pago')
             self.assertIsNotNone(payment.paid_at)
 
+    def test_instructor_resets_student_password_and_change_is_required(self):
+        self.login('instrutor')
+        with app.app_context():
+            student_id = User.query.filter_by(username='aluno').one().id
+        page = self.client.get('/mensalidades_admin').get_data(as_text=True)
+        self.assertIn('Resetar senha', page)
+        reset = self.client.post('/mensalidades_admin', data={
+            'action': 'reset_student_password', 'user_id': student_id,
+            'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('redefinida para “bemvindo”', reset.get_data(as_text=True))
+        with app.app_context():
+            student = db.session.get(User, student_id)
+            self.assertTrue(student.check_password('bemvindo'))
+            self.assertTrue(student.must_change_password)
+            self.assertEqual(student.password_reset_by_username, 'instrutor')
+            self.assertIsNotNone(student.password_reset_at)
+
+        self.client.post('/logout', data={'csrf_token': self.csrf()})
+        login = self.login('aluno', 'bemvindo')
+        self.assertTrue(login.headers['Location'].endswith('/alterar-senha-temporaria'))
+        self.assertTrue(self.client.get('/dashboard').headers['Location'].endswith('/alterar-senha-temporaria'))
+        change_page = self.client.get('/alterar-senha-temporaria').get_data(as_text=True)
+        self.assertIn('Crie uma nova senha', change_page)
+        changed = self.client.post('/alterar-senha-temporaria', data={
+            'new_password': 'NovaSenha123', 'confirm_password': 'NovaSenha123',
+            'csrf_token': self.csrf(),
+        })
+        self.assertTrue(changed.headers['Location'].endswith('/dashboard'))
+        with app.app_context():
+            student = db.session.get(User, student_id)
+            self.assertFalse(student.must_change_password)
+            self.assertTrue(student.check_password('NovaSenha123'))
+
     def test_billing_message_keeps_approved_copy(self):
         with app.app_context():
             student = User.query.filter_by(username='aluno').first()

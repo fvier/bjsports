@@ -212,6 +212,16 @@ def protect_csrf():
         if not stored:
             session['_csrf_token'] = supplied
 
+@app.before_request
+def require_password_change():
+    if not session.get('user_id') or request.endpoint in {
+        'change_temporary_password', 'logout', 'static', 'login'
+    }:
+        return None
+    user = db.session.get(User, session['user_id'])
+    if user and user.must_change_password:
+        return redirect(url_for('change_temporary_password'))
+
 @app.after_request
 def add_security_headers(response):
     response.headers.setdefault('X-Content-Type-Options', 'nosniff')
@@ -268,6 +278,9 @@ class User(db.Model):
         foreign_keys=[sponsor_id], lazy=True,
     )
     birth_date = db.Column(db.Date)
+    must_change_password = db.Column(db.Boolean, nullable=False, default=False)
+    password_reset_by_username = db.Column(db.String(80))
+    password_reset_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def get_selected_modalities_list(self):
@@ -1220,6 +1233,12 @@ with app.app_context():
                           if db.engine.dialect.name == 'postgresql'
                           else 'ALTER TABLE "user" ADD COLUMN birth_date DATE')
         db.session.execute(text(birth_date_sql))
+    if 'must_change_password' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT FALSE'))
+    if 'password_reset_by_username' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN password_reset_by_username VARCHAR(80)'))
+    if 'password_reset_at' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN password_reset_at TIMESTAMP'))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
@@ -1768,6 +1787,8 @@ def login():
                 session['user_role'] = user.role
                 session['user_plan'] = user.plan
                 session['user_due_date'] = user.due_date
+                if user.must_change_password:
+                    return redirect(url_for('change_temporary_password'))
                 flash(f'Bem-vindo(a), {user.name}! Login realizado com sucesso.', 'success')
                 next_url = request.args.get('next', '')
                 if next_url and next_url.startswith('/') and not next_url.startswith('//'):
@@ -3017,7 +3038,18 @@ def mensalidades_admin():
     if request.method == 'POST':
         action = request.form.get('action')
         
-        if action == 'toggle_exemption':
+        if action == 'reset_student_password':
+            user = db.session.get(User, request.form.get('user_id', type=int))
+            if not user or user.role != 'aluno':
+                flash('Aluno não encontrado para redefinição de senha.', 'error')
+            else:
+                user.set_password('bemvindo')
+                user.must_change_password = True
+                user.password_reset_by_username = session.get('username') or 'sistema'
+                user.password_reset_at = datetime.now()
+                db.session.commit()
+                flash(f'Senha de {user.name} redefinida para “bemvindo”. A troca será obrigatória no próximo acesso.', 'success')
+        elif action == 'toggle_exemption':
             user = db.session.get(User, request.form.get('user_id', type=int))
             if user:
                 is_exempt = request.form.get('is_exempt') == '1'
@@ -3874,6 +3906,28 @@ def contrato():
 @app.route('/aluno.html')
 def aluno_portal():
     return redirect(url_for('login'))
+
+@app.route('/alterar-senha-temporaria', methods=['GET', 'POST'])
+@login_required
+def change_temporary_password():
+    user = db.session.get(User, session['user_id'])
+    if not user.must_change_password:
+        return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        password = request.form.get('new_password', '')
+        confirmation = request.form.get('confirm_password', '')
+        if password != confirmation:
+            flash('As senhas não coincidem.', 'error')
+        elif (len(password) < 8 or not re.search(r'\d', password)
+              or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password)):
+            flash('A nova senha deve ter pelo menos 8 caracteres, com número, letra maiúscula e letra minúscula.', 'error')
+        else:
+            user.set_password(password)
+            user.must_change_password = False
+            db.session.commit()
+            flash('Senha alterada com sucesso. Seu acesso foi liberado.', 'success')
+            return redirect(url_for('dashboard'))
+    return render_template('alterar_senha_temporaria.html', page_title='Criar nova senha')
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required

@@ -277,6 +277,14 @@
                           </div>
                         {% endif %}
 
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-password-reset" onsubmit="return confirm('Redefinir a senha de {{ u.name|e }} para bemvindo?');">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <input type="hidden" name="action" value="reset_student_password">
+                          <input type="hidden" name="user_id" value="{{ u.id }}">
+                          <button type="submit"><i data-lucide="key-round"></i>Resetar senha</button>
+                          <small>A senha temporária será <strong>bemvindo</strong> e deverá ser alterada no próximo acesso.</small>
+                        </form>
+
                         <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor student-plan-registration-style" data-student-plan-editor data-current-plan="{{ u.plan }}">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                           <input type="hidden" name="action" value="update_student_plan">

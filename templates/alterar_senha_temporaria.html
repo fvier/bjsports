@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section auth-page-section">
+  <div class="container">
+    <div class="modal-card glass-panel temporary-password-card">
+      <div class="modal-header text-center">
+        <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports" class="modal-logo">
+        <h1>Crie uma nova senha</h1>
+        <p>Sua senha foi redefinida pela administração. Para continuar, escolha uma senha pessoal e segura.</p>
+      </div>
+      <form method="POST" class="modal-form portal-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label for="regPass">Nova senha *</label>
+          <div class="input-with-eye">
+            <i data-lucide="shield-check" class="input-icon"></i>
+            <input type="password" name="new_password" id="regPass" autocomplete="new-password" required>
+            <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar ou ocultar senha"><i data-lucide="eye"></i></button>
+          </div>
+          <ul class="password-requirements" data-password-requirements aria-live="polite">
+            <li data-password-rule="length"><i data-lucide="circle"></i>8 caracteres ou mais</li>
+            <li data-password-rule="number"><i data-lucide="circle"></i>Ao menos um número</li>
+            <li data-password-rule="uppercase"><i data-lucide="circle"></i>Uma letra maiúscula</li>
+            <li data-password-rule="lowercase"><i data-lucide="circle"></i>Uma letra minúscula</li>
+          </ul>
+        </div>
+        <div class="form-group">
+          <label for="regPassConfirm">Confirme a nova senha *</label>
+          <div class="input-with-eye">
+            <i data-lucide="shield-check" class="input-icon"></i>
+            <input type="password" name="confirm_password" id="regPassConfirm" autocomplete="new-password" required>
+            <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar ou ocultar senha"><i data-lucide="eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow">Salvar nova senha e continuar</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
