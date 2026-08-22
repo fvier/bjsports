@@ -76,10 +76,43 @@ const scheduleData = {
   ]
 };
 
+let scheduleCapacity = [];
+let activeScheduleDay = 'seg';
+
+async function loadScheduleCapacity() {
+  if (!document.getElementById('scheduleTableBody')) return;
+  try {
+    const response = await fetch('/api/bookings/availability', {headers: {'Accept': 'application/json'}});
+    if (!response.ok) return;
+    scheduleCapacity = (await response.json()).classes || [];
+    renderSchedule(activeScheduleDay);
+  } catch (error) {
+    // Mantém a grade visível quando a consulta de capacidade estiver temporariamente indisponível.
+  }
+}
+
+function getScheduleCapacity(item) {
+  const time = String(item.time || '').replace('h', '');
+  return scheduleCapacity.find(entry => entry.name === item.name && entry.class_time === time);
+}
+
+function renderScheduleStatus(item) {
+  const capacity = getScheduleCapacity(item);
+  if (!capacity) return '<span class="schedule-status"><i></i> Disponível</span>';
+  if (capacity.status === 'esgotado') {
+    return '<span class="schedule-status is-sold-out"><i></i> Esgotado</span>';
+  }
+  if (capacity.status === 'esgotando') {
+    return `<span class="schedule-status is-running-out"><i></i> Esgotando • ${capacity.remaining} vaga(s)</span>`;
+  }
+  return `<span class="schedule-status"><i></i> Disponível • ${capacity.remaining} vaga(s)</span>`;
+}
+
 // Render Schedule Table
 function renderSchedule(day = 'seg') {
   const tbody = document.getElementById('scheduleTableBody');
   if (!tbody) return;
+  activeScheduleDay = day;
 
   const rows = (day === 'hoje' ? getTodayScheduleRows() : (scheduleData[day] || []))
     .slice()
@@ -104,7 +137,7 @@ function renderSchedule(day = 'seg') {
       </td>
       <td class="schedule-days-cell">${getNextClassDisplay(item)}</td>
       <td><span class="price-highlight">${item.price}</span></td>
-      <td><span class="schedule-status"><i></i> Disponível</span></td>
+      <td>${renderScheduleStatus(item)}</td>
       <td class="schedule-action-cell">
         <button class="btn btn-secondary btn-sm quick-book-btn" data-modality="${item.name}">
           <i data-lucide="log-in"></i> Check-in
@@ -1817,6 +1850,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCsrfProtection();
   setupFlashMessages();
   renderSchedule('seg');
+  loadScheduleCapacity();
   setupScheduleFilters();
   setupPlanButtons();
   setupBookingModal();

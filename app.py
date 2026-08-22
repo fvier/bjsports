@@ -1687,7 +1687,8 @@ def create_booking():
     reserved = Booking.query.filter_by(
         class_group_id=class_group.id, class_date=class_date, class_time=class_time,
     ).count()
-    if class_group.status == 'lotada' or reserved >= class_group.capacity:
+    occupied = class_group.enrolled + reserved
+    if class_group.status == 'lotada' or occupied >= class_group.capacity:
         db.session.rollback()
         return jsonify({'error': 'Esta turma acabou de ficar lotada. Escolha outro horário.', 'code': 'class_full'}), 409
 
@@ -1697,7 +1698,7 @@ def create_booking():
                       is_experimental=is_experimental)
     db.session.add(booking)
     db.session.commit()
-    remaining = max(0, class_group.capacity - reserved - 1)
+    remaining = max(0, class_group.capacity - occupied - 1)
     return jsonify({'id': booking.id, 'message': 'Reserva realizada com sucesso!', 'remaining': remaining}), 201
 
 @app.route('/api/bookings/availability')
@@ -1706,8 +1707,9 @@ def booking_availability():
     now = datetime.now()
     limit = now + timedelta(days=7)
     options = []
+    classes = []
     groups = ClassGroup.query.filter(
-        ClassGroup.publish_public.is_(True), ClassGroup.status == 'ativa',
+        ClassGroup.publish_public.is_(True), ClassGroup.status.in_({'ativa', 'lotada'}),
     ).order_by(ClassGroup.modality, ClassGroup.name).all()
     for offset in range(8):
         class_date = now.date() + timedelta(days=offset)
@@ -1720,15 +1722,20 @@ def booking_availability():
                     class_group_id=class_group.id, class_date=class_date,
                     class_time=occurrence['start_time'],
                 ).count()
-                if reserved >= class_group.capacity:
-                    continue
-                options.append({
+                remaining = 0 if class_group.status == 'lotada' else max(
+                    0, class_group.capacity - class_group.enrolled - reserved)
+                availability = {
                     'class_group_id': class_group.id, 'class_date': class_date.isoformat(),
                     'class_time': occurrence['start_time'], 'modality': class_group.modality,
+                    'name': class_group.name,
                     'label': f"{class_date.strftime('%d/%m')} — {occurrence['start_time']} ({class_group.name})",
-                    'remaining': class_group.capacity - reserved,
-                })
-    return jsonify({'options': options})
+                    'remaining': remaining,
+                    'status': 'esgotado' if remaining == 0 else ('esgotando' if remaining <= 5 else 'disponivel'),
+                }
+                classes.append(availability)
+                if remaining > 0:
+                    options.append(availability)
+    return jsonify({'options': options, 'classes': classes})
 
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])

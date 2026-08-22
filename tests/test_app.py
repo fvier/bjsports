@@ -1174,6 +1174,16 @@ class BJSportsTestCase(unittest.TestCase):
         available_ids = {item['class_group_id'] for item in self.client.get(
             '/api/bookings/availability').get_json()['options']}
         self.assertNotIn(slot['class_group_id'], available_ids)
+        capacity_items = self.client.get('/api/bookings/availability').get_json()['classes']
+        full_class = next(item for item in capacity_items if item['class_group_id'] == slot['class_group_id'])
+        self.assertEqual(full_class['status'], 'esgotado')
+
+    def test_class_with_five_spots_is_marked_as_running_out(self):
+        slot = self.booking_slot(capacity=5)
+        capacity_items = self.client.get('/api/bookings/availability').get_json()['classes']
+        class_item = next(item for item in capacity_items if item['class_group_id'] == slot['class_group_id'])
+        self.assertEqual(class_item['remaining'], 5)
+        self.assertEqual(class_item['status'], 'esgotando')
 
     def test_student_with_debt_cannot_book_new_class(self):
         self.login('aluno')
