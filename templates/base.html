@@ -168,10 +168,14 @@
         <div class="container trial-banner-inner">
           <div class="trial-banner-left">
             <i data-lucide="zap" class="trial-icon"></i>
-            <div>
-              <strong>⚡ TESTE DE 60 HORAS — RESTAM <span data-trial-countdown="{{ trial_remaining_seconds }}" style="font-variant-numeric: tabular-nums;">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</span></strong>
+            <div class="trial-banner-copy">
+              <strong>ACESSO EXPERIMENTAL DE 60 HORAS</strong>
               <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Você possui 60 horas de treino livre no tatame. Apresente-se ao seu Professor ou ao Monitor da sua turma para confirmar a baixa da sua mensalidade.</p>
             </div>
+          </div>
+          <div class="trial-banner-countdown" aria-label="Tempo restante do acesso experimental">
+            <small>TEMPO RESTANTE</small>
+            <strong data-trial-countdown="{{ trial_remaining_seconds }}">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</strong>
           </div>
           <a href="https://wa.me/5583996527997?text=Ol%C3%A1!%20Sou%20o%20aluno%20{{ current_user.name|urlencode }}%20e%20gostaria%20de%20confirmar%20a%20baixa%20da%20minha%20mensalidade." target="_blank" class="btn btn-sm btn-dark-glow" style="background: rgba(15, 23, 42, 0.9); color: var(--accent-gold); border: 1px solid var(--accent-gold); white-space: nowrap;">
             <i data-lucide="message-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Falar com Monitor / Professor

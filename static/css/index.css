@@ -2676,12 +2676,46 @@ body.public-light-theme {
   display: flex;
   align-items: center;
   gap: 12px;
-  max-width: 850px;
+  flex: 1 1 480px;
 }
 .trial-banner-left .trial-icon {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
+}
+.trial-banner-copy strong {
+  display: block;
+  font-family: var(--font-heading);
+  letter-spacing: 0.025em;
+}
+.trial-banner-countdown {
+  min-width: 150px;
+  padding: 7px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.32);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+.trial-banner-countdown small {
+  display: block;
+  margin-bottom: 1px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.trial-banner-countdown strong {
+  display: block;
+  color: #0f172a;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+@media (max-width: 720px) {
+  .trial-banner-countdown,
+  .trial-banner-inner > .btn {
+    width: 100%;
+  }
 }
 
 /* BOTÃO DE AULA EXPERIMENTAL (VERDE QUANDO ACIONADO) */
