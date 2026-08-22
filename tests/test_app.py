@@ -92,6 +92,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Autorizo pelo aluno menor', page)
         self.assertIn('Sem a autorização, o cadastro não será concluído.', page)
         self.assertIn('name="regEmail"', page)
+        self.assertIn('placeholder="Ex: 83"', page)
+        self.assertIn('placeholder="9 9999 9999"', page)
         self.assertIn('placeholder="Crie um apelido"', page)
         self.assertIn('name="regSex"', page)
         self.assertIn('Prefiro não informar', page)
