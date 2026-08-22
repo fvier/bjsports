@@ -94,6 +94,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('name="regEmail"', page)
         self.assertIn('placeholder="Ex: 83"', page)
         self.assertIn('placeholder="9 9999 9999"', page)
+        self.assertIn("const storageKey = 'bjSportsRegistrationDraft';", page)
+        self.assertIn("['csrf_token', 'action', 'regPass'].includes(name)", page)
         self.assertIn('placeholder="Crie um apelido"', page)
         self.assertIn('name="regSex"', page)
         self.assertIn('Prefiro não informar', page)

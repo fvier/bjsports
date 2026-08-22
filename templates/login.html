@@ -481,6 +481,65 @@
     }
 
     document.getElementById('regBirthDate')?.addEventListener('change', syncMinorStatusFromBirthDate);
+
+    function setupRegistrationDraft() {
+      const form = document.getElementById('portalRegisterForm');
+      const storageKey = 'bjSportsRegistrationDraft';
+      if (!form) return;
+
+      const saveDraft = () => {
+        const fields = {};
+        new FormData(form).forEach((value, name) => {
+          if (['csrf_token', 'action', 'regPass'].includes(name)) return;
+          if (!fields[name]) fields[name] = [];
+          fields[name].push(value);
+        });
+        try {
+          sessionStorage.setItem(storageKey, JSON.stringify({planType: activePlanType, fields}));
+        } catch (_) {}
+      };
+
+      let draft;
+      try { draft = JSON.parse(sessionStorage.getItem(storageKey) || 'null'); } catch (_) { draft = null; }
+      if (draft?.fields) {
+        switchPlanType(draft.planType === 'combo' ? 'combo' : 'modalidade');
+        const planValue = draft.fields.regPlan?.[0] || '';
+        if ([...form.elements.regPlan.options].some(option => option.value === planValue)) {
+          form.elements.regPlan.value = planValue;
+          form.elements.regPlan.dispatchEvent(new Event('change'));
+        }
+        Object.entries(draft.fields).forEach(([name, values]) => {
+          if (['regPlan', 'regTrainingDays', 'comboModalities', 'privateInstructor'].includes(name)) return;
+          const controls = [...form.querySelectorAll(`[name="${CSS.escape(name)}"]`)];
+          controls.forEach((control, index) => {
+            if (control.type === 'checkbox' || control.type === 'radio') {
+              control.checked = values.includes(control.value);
+            } else {
+              control.value = values[Math.min(index, values.length - 1)] || '';
+            }
+          });
+        });
+        const trainingDays = draft.fields.regTrainingDays?.[0] || '';
+        document.querySelector(`[data-plan-schedule="${trainingDays}"]:not(:disabled)`)?.click();
+        const comboValues = draft.fields.comboModalities || [];
+        form.querySelectorAll('[data-combo-slot] select:not(:disabled)').forEach((control, index) => {
+          if ([...control.options].some(option => option.value === comboValues[index])) {
+            control.value = comboValues[index];
+          }
+        });
+        const professional = draft.fields.privateInstructor?.[0] || '';
+        if (professional && !form.elements.privateInstructor.disabled) form.elements.privateInstructor.value = professional;
+        const minor = document.getElementById('isMinorStudent');
+        if (minor) handleMinorCheckbox(minor);
+        const medical = document.getElementById('chkMedicalRestriction');
+        document.getElementById('medicalDetailsWrapper')?.classList.toggle('hidden', !medical?.checked);
+      }
+      form.addEventListener('input', saveDraft);
+      form.addEventListener('change', saveDraft);
+      form.addEventListener('submit', saveDraft);
+    }
+
+    setupRegistrationDraft();
   </script>
 
   {% else %}

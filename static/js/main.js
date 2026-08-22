@@ -678,6 +678,9 @@ function setupCpfMask() {
 }
 
 function setupRegistrationValidation() {
+  if (document.body.dataset.registrationComplete === 'true') {
+    try { sessionStorage.removeItem('bjSportsRegistrationDraft'); } catch (_) {}
+  }
   const phone = document.getElementById('regPhoneNumber');
   phone?.addEventListener('input', () => {
     const digits = phone.value.replace(/\D/g, '').slice(0, 9);

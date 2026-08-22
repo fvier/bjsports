@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body class="{% if erp_page %}erp-page{% endif %}" data-user-role="{{ user_role }}" data-belt-color="{{ user_belt_color }}" data-pending-attendance-count="{{ pending_attendance_count }}" data-contract-pending="{{ 'true' if contract_pending else 'false' }}">
+<body class="{% if erp_page %}erp-page{% endif %}" data-user-role="{{ user_role }}" data-belt-color="{{ user_belt_color }}" data-pending-attendance-count="{{ pending_attendance_count }}" data-contract-pending="{{ 'true' if contract_pending else 'false' }}" data-registration-complete="{{ 'true' if is_first_reg else 'false' }}">
 
   <!-- Header Navigation -->
   {% if not erp_page %}
