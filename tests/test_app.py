@@ -902,9 +902,11 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Nenhum campeonato publicado', championship_page)
 
         classes_page = self.client.get('/gestao/turmas').get_data(as_text=True)
-        self.assertIn('PROTÓTIPO PARA AVALIAÇÃO', classes_page)
+        self.assertIn('GESTÃO OPERACIONAL', classes_page)
         self.assertIn('Turmas e capacidade', classes_page)
-        self.assertIn('As edições agora são salvas', classes_page)
+        self.assertIn('Dados insuficientes', classes_page)
+        self.assertIn('Sem dados', classes_page)
+        self.assertNotIn('Vínculos iniciais de demonstração', classes_page)
         self.assertIn('data-class-modal', classes_page)
         filtered_classes = self.client.get('/gestao/turmas?modality=Boxe').get_data(as_text=True)
         self.assertIn('Boxe Matinal', filtered_classes)
@@ -914,7 +916,10 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('instrutor')
         self.client.get('/gestao/turmas')
         with app.app_context():
-            class_group = next(item for item in ClassGroup.query.order_by(ClassGroup.id).all() if item.enrolled)
+            class_group = ClassGroup.query.order_by(ClassGroup.id).first()
+            student = User.query.filter_by(role='aluno').first()
+            db.session.add(ClassEnrollment(user_id=student.id, class_group_id=class_group.id, active=True))
+            db.session.commit()
             class_id = class_group.id
             monitor = User.query.filter_by(role='monitor').first()
             monitor_id = monitor.id
@@ -943,7 +948,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Análise financeira, frequência e alunos vinculados', detail_page)
         self.assertIn('Mensalidades recebidas por competência', detail_page)
         self.assertIn('Taxa de presença', detail_page)
-        self.assertIn('Vínculos iniciais de demonstração', detail_page)
+        self.assertNotIn('Vínculos iniciais de demonstração', detail_page)
         self.assertIn('Monitor responsável', detail_page)
         self.assertIn(monitor_name, detail_page)
 

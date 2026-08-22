@@ -885,25 +885,6 @@ def ensure_class_groups():
             db.session.add(class_group)
         db.session.commit()
 
-    if ClassEnrollment.query.count() == 0:
-        adult_groups = ClassGroup.query.filter_by(audience='Adulto').order_by(ClassGroup.id).all()
-        jiu_groups = [group for group in adult_groups if group.modality == 'Jiu-Jitsu']
-        boxe_groups = [group for group in adult_groups if group.modality == 'Boxe']
-        for index, user in enumerate(User.query.filter_by(role='aluno').order_by(User.id).all()):
-            normalized_plan = user.plan.casefold()
-            if 'jiu-jitsu' in normalized_plan or 'bjj' in normalized_plan:
-                candidates = jiu_groups
-            elif 'boxe tradicional' in normalized_plan:
-                candidates = boxe_groups
-            else:
-                candidates = adult_groups
-            if candidates:
-                db.session.add(ClassEnrollment(
-                    user_id=user.id, class_group_id=candidates[index % len(candidates)].id,
-                    active=True, is_demo=True,
-                ))
-        db.session.commit()
-
 def migrate_sqlite_to_postgres():
     if not app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql'):
         return
@@ -2365,15 +2346,30 @@ def gestao_turmas():
         mod_waiting = sum(c.waiting for c in mod_classes)
         mod_occupancy = round(mod_enrolled / mod_capacity * 100) if mod_capacity else 0
         
-        enrolled_user_ids = {e.user_id for c in mod_classes for e in c.enrollments}
+        enrolled_user_ids = {
+            e.user_id for c in mod_classes for e in c.enrollments
+            if e.active and not e.is_demo
+        }
         if enrolled_user_ids:
             enrolled_users = User.query.filter(User.id.in_(enrolled_user_ids)).all()
             paid_count = sum(1 for u in enrolled_users if u.payment_status == 'Em Dia' or u.monthly_fee_exempt)
-            adimplencia = round(paid_count / len(enrolled_users) * 100) if enrolled_users else 100
+            adimplencia = round(paid_count / len(enrolled_users) * 100)
+            decided_attendances = Attendance.query.filter(
+                Attendance.user_id.in_(enrolled_user_ids),
+                Attendance.modality == mod,
+                Attendance.status.in_({'confirmado', 'negado'}),
+            ).all()
+            attendance_rate = round(
+                sum(1 for item in decided_attendances if item.status == 'confirmado')
+                / len(decided_attendances) * 100
+            ) if decided_attendances else None
         else:
-            adimplencia = 95
-            
-        smart_status = "Meta Atingida ✓" if mod_occupancy >= 50 and adimplencia >= 80 else "Abaixo da Meta ⚠️"
+            adimplencia = None
+            attendance_rate = None
+
+        has_complete_metrics = adimplencia is not None and attendance_rate is not None
+        is_target_met = has_complete_metrics and mod_occupancy >= 50 and adimplencia >= 80 and attendance_rate >= 75
+        smart_status = 'Meta atingida' if is_target_met else ('Abaixo da meta' if has_complete_metrics else 'Dados insuficientes')
         modalities_smart_metrics.append({
             'name': mod,
             'classes_count': len(mod_classes),
@@ -2382,9 +2378,9 @@ def gestao_turmas():
             'occupancy': mod_occupancy,
             'waiting': mod_waiting,
             'adimplencia': adimplencia,
-            'attendance_rate': min(98, max(75, 80 + (mod_occupancy // 5))),
+            'attendance_rate': attendance_rate,
             'smart_status': smart_status,
-            'is_target_met': mod_occupancy >= 50 and adimplencia >= 80,
+            'is_target_met': is_target_met,
             'icon': 'circle-dot' if mod == 'Jiu-Jitsu' else ('swords' if mod == 'Boxe' else ('flame' if mod == 'MMA' else 'dumbbell'))
         })
 

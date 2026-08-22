@@ -19,11 +19,9 @@
 
     <main class="erp-content class-management-content">
       <section class="class-management-heading">
-        <div><span><i data-lucide="clipboard-list"></i> PROTÓTIPO PARA AVALIAÇÃO</span><h1>Gestão de Turmas</h1><p>Visualize horários, capacidade e ocupação antes de transformarmos esta tela no cadastro oficial da grade pública.</p></div>
+        <div><span><i data-lucide="clipboard-list"></i> GESTÃO OPERACIONAL</span><h1>Gestão de Turmas</h1><p>Administre a grade oficial, os responsáveis, horários, capacidade e vínculos dos alunos.</p></div>
         <button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>
       </section>
-
-      <section class="class-management-notice"><i data-lucide="info"></i><p><strong>As edições agora são salvas.</strong><span>Os vínculos iniciais de alunos foram distribuídos apenas para demonstração e aparecem identificados na página de cada turma. A publicação controla a exibição no calendário interno.</span></p></section>
 
       <section class="class-management-kpis">
         <article><i data-lucide="layout-grid"></i><div><span>Turmas cadastradas</span><strong>{{ overview.classes }}</strong><small>Cadastros persistentes</small></div></article>
@@ -80,13 +78,13 @@
               <!-- M: Mensurável - Assiduidade -->
               <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
                 <span style="color: #cbd5e1;">📈 <strong>Assiduidade Média</strong>:</span>
-                <strong style="color: #4ade80;">{{ sm.attendance_rate }}% de presença</strong>
+                <strong style="color: {{ '#4ade80' if sm.attendance_rate is not none else '#94a3b8' }};">{{ sm.attendance_rate ~ '% de presença' if sm.attendance_rate is not none else 'Sem dados' }}</strong>
               </div>
 
               <!-- A: Atingível - Adimplência -->
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: #cbd5e1;">🏆 <strong>Adimplência da Turma</strong>:</span>
-                <strong style="color: {% if sm.adimplencia >= 85 %}#38bdf8{% else %}#f87171{% endif %};">{{ sm.adimplencia }}% em dia</strong>
+                <strong style="color: {% if sm.adimplencia is none %}#94a3b8{% elif sm.adimplencia >= 85 %}#38bdf8{% else %}#f87171{% endif %};">{{ sm.adimplencia ~ '% em dia' if sm.adimplencia is not none else 'Sem dados' }}</strong>
               </div>
 
               <!-- R & T: Relevante & Temporal - Fila de Espera -->
