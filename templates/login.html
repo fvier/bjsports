@@ -117,10 +117,12 @@
             </div>
 
             <!-- 3. Checkbox para Aluno Menor de Idade (Localizado logo abaixo do nome) -->
-            <div class="form-group checkbox-group" style="margin-top: 4px; margin-bottom: 16px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
-              <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #ffffff; cursor: pointer; margin: 0;">
-                <input type="checkbox" name="isMinorStudent" id="isMinorStudent" style="width: 18px; height: 18px; accent-color: var(--primary-red); cursor: pointer;" onchange="handleMinorCheckbox(this)">
-                <span>👶 <strong>Aluno é menor de idade</strong> (marque se o aluno tiver menos de 18 anos)</span>
+            <div class="form-group minor-student-option">
+              <label class="minor-student-label">
+                <input type="checkbox" name="isMinorStudent" id="isMinorStudent" onchange="handleMinorCheckbox(this)">
+                <span class="minor-student-icon" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+                <span class="minor-student-copy"><strong>Cadastro de aluno menor de idade</strong><small>Marque esta opção quando o aluno tiver menos de 18 anos.</small></span>
+                <span class="minor-student-status" aria-hidden="true">Marcar</span>
               </label>
             </div>
 
@@ -200,9 +202,9 @@
                 <legend>Escolha os dias de treino</legend>
                 <input type="hidden" name="regTrainingDays" id="regTrainingDays" value="">
                 <div>
-                  <button type="button" data-plan-schedule="ter-qui" aria-pressed="false">Ter &amp; Qui</button>
-                  <button type="button" data-plan-schedule="seg-qua-sex" aria-pressed="false">Seg - Qua - Sex</button>
-                  <button type="button" data-plan-schedule="todos" aria-pressed="false">Todos dias</button>
+                  <button type="button" data-plan-schedule="seg-qua-sex" aria-pressed="false"><span>Seg - Qua - Sex</span><strong data-schedule-price>—</strong></button>
+                  <button type="button" data-plan-schedule="ter-qui" aria-pressed="false"><span>Ter &amp; Qui</span><strong data-schedule-price>—</strong></button>
+                  <button type="button" data-plan-schedule="todos" aria-pressed="false"><span>Todos dias</span><strong data-schedule-price>—</strong></button>
                 </div>
               </fieldset>
               <div class="private-instructor-field hidden" id="privateInstructorField">
@@ -321,6 +323,9 @@
       professionalSelect.disabled = !isPrivateClass;
       professionalSelect.required = isPrivateClass;
       if (!isPrivateClass) professionalSelect.value = '';
+      const selectedValue = selectPlan.value;
+      const displayedPrice = isPrivateClass ? 'A combinar' : (selectedValue.split('—')[1]?.trim() || '—');
+      document.querySelectorAll('[data-schedule-price]').forEach(price => { price.textContent = displayedPrice; });
     }
 
     document.getElementById('regPlan')?.addEventListener('change', updatePrivateInstructorField);
