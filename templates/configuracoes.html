@@ -112,6 +112,21 @@
           </form>
         </div>
 
+        {% if sponsored_plan_type %}
+        <section class="glass-panel sponsored-plan-panel">
+          <header><i data-lucide="users-round"></i><div><strong>{{ 'Plano Casal' if sponsored_plan_type == 'couple' else 'Plano Família' }}</strong><small>Você é o titular e o único responsável pela cobrança deste plano.</small></div></header>
+          <form action="{{ url_for('configuracoes') }}" method="post" class="sponsored-add-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="add_plan_dependent">
+            <label><span>{{ 'Adicionar parceiro(a)' if sponsored_plan_type == 'couple' else 'Adicionar familiar' }}</span><small>Informe os 3 primeiros números do CPF de uma conta já cadastrada.</small><div><input name="dependent_cpf3" inputmode="numeric" pattern="[0-9]{3}" maxlength="3" required placeholder="000"><button type="submit"><i data-lucide="user-plus"></i>Adicionar</button></div></label>
+          </form>
+          <div class="sponsored-members-list">
+            {% for dependent in profile_user.sponsored_dependents %}<article><div><strong>{{ dependent.name }}</strong><small>@{{ dependent.username }} · sem cobrança individual</small></div><form action="{{ url_for('configuracoes') }}" method="post" onsubmit="return confirm('Remover {{ dependent.name|e }} deste plano?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="remove_plan_dependent"><input type="hidden" name="dependent_id" value="{{ dependent.id }}"><button type="submit" title="Remover integrante"><i data-lucide="user-minus"></i></button></form></article>{% else %}<p>Nenhum integrante vinculado ainda.</p>{% endfor %}
+          </div>
+        </section>
+        {% elif profile_user.plan_sponsor %}
+        <section class="glass-panel sponsored-plan-panel"><header><i data-lucide="badge-check"></i><div><strong>Integrante de plano compartilhado</strong><small>Seu plano está vinculado ao titular {{ profile_user.plan_sponsor.name }} e não gera cobrança individual.</small></div></header></section>
+        {% endif %}
+
       </main>
     </div>
   </div>

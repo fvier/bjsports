@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% set billing_exempt = finance_user.is_fee_exempt_for() %}
   <!-- ÁREA DE MENSALIDADES DO ALUNO COM BARRA LATERAL ERP COMERCIAL -->
   <div class="erp-wrapper">
     
@@ -32,7 +33,7 @@
         <div class="erp-hero-banner" style="margin-bottom: 28px;">
           <div class="erp-status-indicator {% if has_overdue %}is-overdue{% endif %}">
             <span class="live-dot {% if has_overdue %}is-overdue{% endif %}"></span>
-            {% if has_overdue %}EXISTEM MENSALIDADES EM ATRASO{% elif finance_user.monthly_fee_exempt %}ALUNO ISENTO DE MENSALIDADE{% else %}SEUS COMPROVANTES & VENCIMENTO DE MENSALIDADE{% endif %}
+            {% if has_overdue %}EXISTEM MENSALIDADES EM ATRASO{% elif finance_user.sponsor_id %}SEM COBRANÇA INDIVIDUAL{% elif finance_user.monthly_fee_exempt %}ALUNO ISENTO DE MENSALIDADE{% else %}SEUS COMPROVANTES & VENCIMENTO DE MENSALIDADE{% endif %}
           </div>
           <h1 class="erp-hero-heading">Minhas Mensalidades</h1>
           <p class="erp-hero-sub">Consulte a data de vencimento da sua mensalidade (Dia 5, 15 ou 25) e altere quando necessário.</p>
@@ -42,15 +43,15 @@
         <div class="promo-store-box student-finance-summary {% if has_overdue %}is-overdue{% else %}is-current{% endif %}">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-              <span class="badge-pill {% if not has_overdue %}bg-green{% endif %}">SITUAÇÃO FINANCEIRA: {% if has_overdue %}PENDENTE{% elif finance_user.monthly_fee_exempt %}ISENTO{% else %}EM DIA{% endif %}</span>
+              <span class="badge-pill {% if not has_overdue %}bg-green{% endif %}">SITUAÇÃO FINANCEIRA: {% if has_overdue %}PENDENTE{% elif finance_user.sponsor_id %}SEM COBRANÇA{% elif finance_user.monthly_fee_exempt %}ISENTO{% else %}EM DIA{% endif %}</span>
               <h3 style="font-family: var(--font-heading); color: #ffffff; margin-top: 6px;">
                 Plano: {{ user_plan }}
               </h3>
-              {% if finance_user.monthly_fee_exempt %}<p style="color: var(--text-muted); font-size: 0.9rem;">A competência atual e as futuras não geram cobrança. Pagamentos e débitos anteriores permanecem preservados.</p>{% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Dia de Vencimento Escolhido: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>{% endif %}
+              {% if finance_user.sponsor_id %}<p style="color: var(--text-muted); font-size: 0.9rem;">Esta conta está vinculada a um plano compartilhado e não gera cobrança individual. Pagamentos e débitos anteriores permanecem preservados.</p>{% elif finance_user.monthly_fee_exempt %}<p style="color: var(--text-muted); font-size: 0.9rem;">A competência atual e as futuras não geram cobrança. Pagamentos e débitos anteriores permanecem preservados.</p>{% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Dia de Vencimento Escolhido: <strong>Todo Dia {{ user_due_date }} do mês</strong></p>{% endif %}
               {% if has_overdue %}<p class="student-overdue-message"><i data-lucide="circle-alert"></i>{{ overdue.count }} mensalidade(s) pendente(s). Regularize para liberar novos check-ins.</p>{% endif %}
             </div>
 
-            {% if not finance_user.monthly_fee_exempt or has_overdue %}<div>
+            {% if not billing_exempt or has_overdue %}<div>
               <a href="https://wa.me/5583996527997?text=Quero%20solicitar%20o%20PIX%20para%20pagamento%20da%20minha%20mensalidade" target="_blank" class="btn btn-primary btn-glow">
                 <i data-lucide="qr-code"></i> Pagar via PIX no WhatsApp
               </a>

@@ -259,6 +259,14 @@ class User(db.Model):
     medical_restriction = db.Column(db.String(250))
     is_experimental = db.Column(db.Boolean, nullable=False, default=False)
     selected_modalities = db.Column(db.String(250)) # ex: "Jiu-Jitsu, Boxe"
+    sponsor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    sponsored_previous_plan = db.Column(db.String(150), nullable=True)
+    sponsored_previous_modalities = db.Column(db.String(250), nullable=True)
+    sponsor_started_at = db.Column(db.DateTime, nullable=True)
+    sponsored_dependents = db.relationship(
+        'User', backref=db.backref('plan_sponsor', remote_side=[id]),
+        foreign_keys=[sponsor_id], lazy=True,
+    )
     birth_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -336,6 +344,10 @@ class User(db.Model):
         today = datetime.now()
         year, month = year or today.year, month or today.month
         period_key = year * 100 + month
+        if self.sponsor_id and self.sponsor_started_at:
+            sponsor_period = self.sponsor_started_at.year * 100 + self.sponsor_started_at.month
+            if period_key >= sponsor_period:
+                return True
         if self.fee_exemptions:
             return any(exemption.covers(year, month) for exemption in self.fee_exemptions)
         return bool(self.monthly_fee_exempt and period_key >= (today.year * 100 + today.month))
@@ -415,7 +427,13 @@ class User(db.Model):
         if match:
             val_str = match.group(1).replace('.', '').replace(',', '.')
             try:
-                return float(val_str)
+                base_price = float(val_str)
+                if self.sponsored_dependents:
+                    plan_name = self.plan.split('•')[0].split('—')[0].strip()
+                    plan_record = Plan.query.filter(db.func.lower(Plan.name) == plan_name.casefold()).first()
+                    if plan_record and plan_record.discount_percent:
+                        return round(base_price * (1 - float(plan_record.discount_percent) / 100), 2)
+                return base_price
             except ValueError:
                 return 120.0
         return 120.0
@@ -504,6 +522,7 @@ class Plan(db.Model):
     price_ter_qui = db.Column(db.String(50), nullable=True)
     price_seg_qua_sex = db.Column(db.String(50), nullable=True)
     price_all_days = db.Column(db.String(50), nullable=True)
+    discount_percent = db.Column(db.Numeric(5, 2), nullable=False, default=0)
     sub = db.Column(db.String(200), nullable=True)
     features = db.Column(db.Text, nullable=True)
     is_featured = db.Column(db.Boolean, default=False)
@@ -976,6 +995,10 @@ def ensure_schema_updates():
                 with db.engine.connect() as conn:
                     conn.execute(text(f'ALTER TABLE plan ADD COLUMN {column_name} VARCHAR(50)'))
                     conn.commit()
+        if 'discount_percent' not in columns:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE plan ADD COLUMN discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0'))
+                conn.commit()
     except Exception as e:
         print('Schema migration note:', e)
 
@@ -1119,6 +1142,15 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN belt_degree INTEGER NOT NULL DEFAULT 0'))
     if 'monthly_fee_exempt' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN monthly_fee_exempt BOOLEAN NOT NULL DEFAULT 0'))
+    if 'sponsor_id' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN sponsor_id INTEGER REFERENCES "user"(id)'))
+        db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_user_sponsor_id ON "user" (sponsor_id)'))
+    if 'sponsored_previous_plan' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN sponsored_previous_plan VARCHAR(150)'))
+    if 'sponsored_previous_modalities' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN sponsored_previous_modalities VARCHAR(250)'))
+    if 'sponsor_started_at' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN sponsor_started_at TIMESTAMP'))
     if 'fee_exempted_by_username' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN fee_exempted_by_username VARCHAR(80)'))
     if 'fee_exempted_at' not in user_columns:
@@ -2262,6 +2294,14 @@ def planos_admin():
             item for item in request.form.getlist('modalities') if item in allowed_modalities
         ))
         errors = []
+        discount_raw = request.form.get('discount_percent', '0').strip().replace(',', '.')
+        try:
+            discount_percent = float(discount_raw)
+            if not 0 <= discount_percent <= 100:
+                raise ValueError
+        except ValueError:
+            discount_percent = 0
+            errors.append('Informe um desconto entre 0% e 100%.')
         if len(name) < 3 or len(name) > 120:
             errors.append('Informe um nome de plano com 3 a 120 caracteres.')
         if category not in allowed_categories:
@@ -2277,12 +2317,12 @@ def planos_admin():
             errors.append('Plano individual deve possuir exatamente uma modalidade.')
         if category == 'Combos & Planos Especiais' and not modalities:
             errors.append('Selecione ao menos uma modalidade para o combo ou plano especial.')
-        return name, category, price, sub, features, modalities, schedule_prices, errors
+        return name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors
 
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'create':
-            name, category, price, sub, features, modalities, schedule_prices, errors = plan_form_values()
+            name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors = plan_form_values()
             if Plan.query.filter(db.func.lower(Plan.name) == name.casefold()).first():
                 errors.append('Já existe um plano com esse nome.')
             if errors:
@@ -2296,6 +2336,7 @@ def planos_admin():
                 price_ter_qui=schedule_prices['ter-qui'],
                 price_seg_qua_sex=schedule_prices['seg-qua-sex'],
                 price_all_days=schedule_prices['todos'],
+                discount_percent=discount_percent,
             )
             db.session.add(new_plan)
             db.session.commit()
@@ -2304,7 +2345,7 @@ def planos_admin():
             plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
             if plan:
-                name, category, price, sub, features, modalities, schedule_prices, errors = plan_form_values()
+                name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors = plan_form_values()
                 duplicate = Plan.query.filter(db.func.lower(Plan.name) == name.casefold(), Plan.id != plan.id).first()
                 if duplicate:
                     errors.append('Já existe outro plano com esse nome.')
@@ -2323,6 +2364,7 @@ def planos_admin():
                 plan.price_ter_qui = schedule_prices['ter-qui']
                 plan.price_seg_qua_sex = schedule_prices['seg-qua-sex']
                 plan.price_all_days = schedule_prices['todos']
+                plan.discount_percent = discount_percent
                 plan.is_featured = 'is_featured' in request.form
                 synchronized = 0
                 for user in User.query.filter(User.plan.ilike(f'{old_name}%')).all():
@@ -3476,13 +3518,62 @@ def integracoes_catraca():
 @login_required
 def configuracoes():
     if request.method == 'POST':
+        action = request.form.get('action', 'update_profile')
+        user = db.session.get(User, session['user_id'])
+        normalized_plan = (user.plan or '').casefold()
+        sponsored_plan_type = None if user.sponsor_id else ('couple' if 'casal' in normalized_plan else ('family' if 'família' in normalized_plan or 'familia' in normalized_plan else None))
+        if action == 'add_plan_dependent':
+            cpf3 = ''.join(character for character in request.form.get('dependent_cpf3', '') if character.isdigit())
+            if not sponsored_plan_type:
+                flash('Seu plano atual não permite incluir integrantes.', 'error')
+            elif len(cpf3) != 3:
+                flash('Informe exatamente os 3 primeiros números do CPF.', 'error')
+            elif sponsored_plan_type == 'couple' and user.sponsored_dependents:
+                flash('O Plano Casal permite somente um(a) parceiro(a).', 'error')
+            else:
+                candidates = [candidate for candidate in User.query.filter_by(role='aluno').all()
+                              if candidate.id != user.id and ''.join(c for c in candidate.cpf if c.isdigit()).startswith(cpf3)]
+                if not candidates:
+                    flash('Nenhum cadastro válido foi encontrado com esse início de CPF.', 'error')
+                elif len(candidates) > 1:
+                    flash('Mais de um cadastro possui esse início de CPF. Solicite à equipe uma identificação segura.', 'error')
+                else:
+                    dependent = candidates[0]
+                    if dependent.sponsor_id:
+                        flash('Essa pessoa já está vinculada a outro plano.', 'error')
+                    elif dependent.sponsored_dependents:
+                        flash('Uma conta titular não pode ser adicionada como dependente.', 'error')
+                    else:
+                        dependent.sponsored_previous_plan = dependent.plan
+                        dependent.sponsored_previous_modalities = dependent.selected_modalities
+                        dependent.sponsor_id = user.id
+                        dependent.sponsor_started_at = datetime.utcnow()
+                        dependent.plan = user.plan
+                        dependent.selected_modalities = user.selected_modalities
+                        db.session.commit()
+                        flash(f'{dependent.name} foi incluído(a) no seu plano sem cobrança individual.', 'success')
+            return redirect(url_for('configuracoes'))
+        if action == 'remove_plan_dependent':
+            dependent = db.session.get(User, request.form.get('dependent_id', type=int))
+            if not dependent or dependent.sponsor_id != user.id:
+                flash('Integrante não encontrado neste plano.', 'error')
+            else:
+                dependent.sponsor_id = None
+                dependent.sponsor_started_at = None
+                if dependent.sponsored_previous_plan:
+                    dependent.plan = dependent.sponsored_previous_plan
+                dependent.selected_modalities = dependent.sponsored_previous_modalities
+                dependent.sponsored_previous_plan = None
+                dependent.sponsored_previous_modalities = None
+                db.session.commit()
+                flash(f'{dependent.name} foi removido(a) do plano compartilhado.', 'info')
+            return redirect(url_for('configuracoes'))
         new_name = request.form.get('name', '').strip()
         new_phone = request.form.get('phone', '').strip()
         new_belt_color = request.form.get('belt_color', '').strip().lower()
         new_belt_degree = request.form.get('belt_degree', type=int)
         new_medical_restriction = request.form.get('medical_restriction', '').strip()
         phone_digits = ''.join(c for c in new_phone if c.isdigit())
-        user = db.session.get(User, session['user_id'])
         if new_name and len(phone_digits) in {11, 13}:
             local = phone_digits[-11:]
             user.name, user.ddd, user.phone = new_name, local[:2], local[2:]
@@ -3498,7 +3589,10 @@ def configuracoes():
             flash('Nome ou telefone inválido.', 'error')
         return redirect(url_for('configuracoes'))
     user = db.session.get(User, session['user_id'])
-    return render_template('configuracoes.html', page_title='Configurações & Perfil', profile_user=user)
+    normalized_plan = (user.plan or '').casefold()
+    sponsored_plan_type = None if user.sponsor_id else ('couple' if 'casal' in normalized_plan else ('family' if 'família' in normalized_plan or 'familia' in normalized_plan else None))
+    return render_template('configuracoes.html', page_title='Configurações & Perfil', profile_user=user,
+                           sponsored_plan_type=sponsored_plan_type)
 
 @app.route('/gestao/modalidades-combo', methods=['GET', 'POST'])
 @login_required

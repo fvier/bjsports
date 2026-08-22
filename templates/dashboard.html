@@ -1,6 +1,7 @@
 {% set erp_page = true %}
 {% extends "base.html" %}
 {% block content %}
+{% set billing_exempt = profile_user.is_fee_exempt_for() %}
 <div class="erp-wrapper welcome-dashboard-page">
   {% include "_erp_sidebar.html" %}
   <div class="erp-main-container">
@@ -21,7 +22,7 @@
       <div class="welcome-section-heading"><div><span>VISÃO GERAL</span><h2>Resumo da sua conta</h2></div><small>Dados atualizados automaticamente</small></div>
       <section class="welcome-summary-grid welcome-summary-grid-three">
         <article class="welcome-summary-card"><i data-lucide="wallet-cards"></i><span>Plano atual</span><strong>{{ plan_name }}</strong><small>{{ plan_price or 'Valor conforme cadastro' }}</small></article>
-        <article class="welcome-summary-card {% if overdue.count %}is-warning{% else %}is-success{% endif %}"><i data-lucide="badge-dollar-sign"></i><span>Situação financeira</span><strong>{% if overdue.count %}Pendente{% elif profile_user.monthly_fee_exempt %}Isento{% else %}Em dia{% endif %}</strong><small>{% if overdue.count and profile_user.monthly_fee_exempt %}Isenção atual; existem débitos anteriores{% elif profile_user.monthly_fee_exempt %}Sem novas cobranças mensais{% else %}Vencimento todo dia {{ profile_user.due_date }}{% endif %}</small></article>
+        <article class="welcome-summary-card {% if overdue.count %}is-warning{% else %}is-success{% endif %}"><i data-lucide="badge-dollar-sign"></i><span>Situação financeira</span><strong>{% if overdue.count %}Pendente{% elif profile_user.sponsor_id %}Sem cobrança{% elif profile_user.monthly_fee_exempt %}Isento{% else %}Em dia{% endif %}</strong><small>{% if overdue.count and billing_exempt %}Isenção atual; existem débitos anteriores{% elif profile_user.sponsor_id %}Cobrança concentrada no titular do plano{% elif profile_user.monthly_fee_exempt %}Sem novas cobranças mensais{% else %}Vencimento todo dia {{ profile_user.due_date }}{% endif %}</small></article>
         <article class="welcome-summary-card"><i data-lucide="calendar-check-2"></i><span>Presenças</span><strong>{{ attendance_month }} neste mês</strong><small>{{ attendance_total }} registro(s) no total</small><small class="welcome-enrollment-time"><i data-lucide="clock-3"></i> Matriculado há {{ enrollment_duration }}</small></article>
       </section>
 

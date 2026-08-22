@@ -1040,6 +1040,42 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             self.assertIsNotNone(db.session.get(Plan, plan_id))
 
+    def test_family_holder_links_dependent_by_cpf_prefix_without_individual_billing(self):
+        with app.app_context():
+            family = Plan(
+                name='Plano Família', category='Combos & Planos Especiais', price='R$ 200,00/mês',
+                price_all_days='R$ 200,00/mês', discount_percent=10, modality='Jiu-Jitsu, Boxe',
+            )
+            holder = User.query.filter_by(username='aluno').one()
+            holder.plan = 'Plano Família • Todos os dias — R$ 200,00/mês'
+            dependent = User(username='dependente', name='Dependente Teste', cpf='321.999.999-00',
+                             ddd='83', phone='988888888', plan='Plano Teste — R$ 100,00/mês',
+                             due_date='5', start_month=1, role='aluno', payment_status='Em Dia')
+            dependent.set_password('senha-segura')
+            db.session.add_all([family, dependent])
+            db.session.commit()
+            dependent_id = dependent.id
+
+        self.login('aluno')
+        response = self.client.post('/configuracoes', data={
+            'action': 'add_plan_dependent', 'dependent_cpf3': '321', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('sem cobrança individual', response.get_data(as_text=True))
+        with app.app_context():
+            holder = User.query.filter_by(username='aluno').one()
+            dependent = db.session.get(User, dependent_id)
+            self.assertEqual(dependent.sponsor_id, holder.id)
+            self.assertEqual(dependent.get_numeric_price(), 0)
+            self.assertEqual(holder.get_numeric_price(), 180)
+
+        self.client.post('/configuracoes', data={
+            'action': 'remove_plan_dependent', 'dependent_id': dependent_id, 'csrf_token': self.csrf(),
+        })
+        with app.app_context():
+            dependent = db.session.get(User, dependent_id)
+            self.assertIsNone(dependent.sponsor_id)
+            self.assertEqual(dependent.plan, 'Plano Teste — R$ 100,00/mês')
+
     def test_instructor_changes_student_plan_from_monthly_drawer_without_rewriting_history(self):
         self.login('instrutor')
         with app.app_context():
