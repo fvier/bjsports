@@ -124,11 +124,11 @@ class BJSportsTestCase(unittest.TestCase):
 
         registration = {
             'action': 'register', 'regUsername': 'novoaluno', 'regName': 'Novo Aluno',
-            'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '999999999',
+            'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '9 9999 9999',
             'regEmail': 'novoaluno@example.com', 'regSex': 'prefer_not',
             'regBirthDate': '1990-05-10',
             'regPlan': plan_value, 'regTrainingDays': 'seg-qua-sex',
-            'regDueDate': '15', 'regPass': 'senha-segura',
+            'regDueDate': '15', 'regPass': 'Senha123',
         }
         denied = self.client.post('/login', data={
             **registration, 'csrf_token': self.csrf(),
@@ -137,6 +137,13 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('mode=register', denied.request.url)
         with app.app_context():
             self.assertIsNone(User.query.filter_by(username='novoaluno').first())
+
+        denied_password = self.client.post('/login', data={
+            **registration, 'regPass': 'senhafraca', 'acceptMembershipTerms': 'on',
+            'acknowledgePrivacy': 'on', 'confirmLegalCapacity': 'on',
+            'imageConsentScope': 'adult', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('com número, letra maiúscula e letra minúscula', denied_password.get_data(as_text=True))
 
         denied_image = self.client.post('/login', data={
             **registration, 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
@@ -164,6 +171,7 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(user.image_consent_scope, 'adult')
             self.assertEqual(user.email, 'novoaluno@example.com')
             self.assertEqual(user.sex, 'prefer_not')
+            self.assertEqual(user.phone, '999999999')
             self.assertEqual(user.plan, 'Plano Teste • Seg, Qua, Sex — R$ 100,00/mês')
             acceptance = ContractAcceptance.query.filter_by(user_id=user.id).one()
             self.assertEqual(acceptance.source, 'registration')
@@ -179,7 +187,7 @@ class BJSportsTestCase(unittest.TestCase):
             'regEmail': 'responsavel@example.com', 'regSex': 'feminino',
             'regBirthDate': '2012-05-10',
             'regPlan': plan_value, 'regTrainingDays': 'ter-qui',
-            'regDueDate': '5', 'regPass': 'senha-segura',
+            'regDueDate': '5', 'regPass': 'Senha123',
             'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
             'confirmLegalCapacity': 'on', 'imageConsentScope': 'minor_guardian',
         }
@@ -212,7 +220,7 @@ class BJSportsTestCase(unittest.TestCase):
             'regEmail': 'particular@example.com', 'regSex': 'prefer_not',
             'regBirthDate': '1990-05-10',
             'regPlan': '__private_class__', 'regTrainingDays': 'ter-qui',
-            'regDueDate': '15', 'regPass': 'senha-segura', 'acceptMembershipTerms': 'on',
+            'regDueDate': '15', 'regPass': 'Senha123', 'acceptMembershipTerms': 'on',
             'acknowledgePrivacy': 'on', 'confirmLegalCapacity': 'on',
             'imageConsentScope': 'adult', 'csrf_token': self.csrf(),
         }
@@ -241,7 +249,7 @@ class BJSportsTestCase(unittest.TestCase):
             'regCpf': '111.444.777-35', 'regDDD': '83', 'regPhoneNumber': '988887777',
             'regEmail': 'combo@example.com', 'regSex': 'prefer_not', 'regBirthDate': '1990-05-10',
             'regPlan': combo_value, 'regTrainingDays': 'todos', 'regDueDate': '15',
-            'regPass': 'senha-segura', 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
+            'regPass': 'Senha123', 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
             'confirmLegalCapacity': 'on', 'imageConsentScope': 'adult',
         }
         denied = self.client.post('/login', data={**payload, 'comboModalities': ['Jiu-Jitsu', 'Jiu-Jitsu'], 'csrf_token': self.csrf()}, follow_redirects=True)

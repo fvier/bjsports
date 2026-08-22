@@ -677,6 +677,42 @@ function setupCpfMask() {
   });
 }
 
+function setupRegistrationValidation() {
+  const phone = document.getElementById('regPhoneNumber');
+  phone?.addEventListener('input', () => {
+    const digits = phone.value.replace(/\D/g, '').slice(0, 9);
+    phone.value = digits.length > 5
+      ? `${digits.slice(0, 1)} ${digits.slice(1, 5)} ${digits.slice(5)}`
+      : (digits.length > 1 ? `${digits.slice(0, 1)} ${digits.slice(1)}` : digits);
+  });
+
+  const password = document.getElementById('regPass');
+  const confirmation = document.getElementById('regPassConfirm');
+  const rules = {
+    length: value => value.length >= 8,
+    number: value => /\d/.test(value),
+    uppercase: value => /[A-Z]/.test(value),
+    lowercase: value => /[a-z]/.test(value),
+  };
+  const validatePasswords = () => {
+    if (!password || !confirmation) return;
+    const states = Object.entries(rules).map(([name, validator]) => {
+      const valid = validator(password.value);
+      const item = document.querySelector(`[data-password-rule="${name}"]`);
+      item?.classList.toggle('is-valid', valid);
+      item?.classList.toggle('is-invalid', Boolean(password.value) && !valid);
+      return valid;
+    });
+    password.setCustomValidity(states.every(Boolean) || !password.value
+      ? '' : 'A senha ainda não cumpre todos os requisitos.');
+    confirmation.setCustomValidity(!confirmation.value || confirmation.value === password.value
+      ? '' : 'As senhas não coincidem.');
+  };
+  password?.addEventListener('input', validatePasswords);
+  confirmation?.addEventListener('input', validatePasswords);
+  validatePasswords();
+}
+
 // GPS Paraíba ERP Sidebar Toggle & Navigation Logic
 function setupERPSidebar() {
   const sidebar = document.getElementById('erpSidebar');
@@ -1862,6 +1898,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPublicTheme();
   setupPasswordEyeToggles();
   setupCpfMask();
+  setupRegistrationValidation();
   setupGlobalKeyListeners();
   setupAttendanceRejectionConfirmation();
   setupClassManagementPreview();

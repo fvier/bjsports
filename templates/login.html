@@ -151,7 +151,7 @@
                   <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="Ex: 83" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
                 </div>
                 <div style="flex: 1;">
-                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 9999 9999" maxlength="9" pattern="[0-9]{9}" inputmode="numeric" required title="Número do Celular (exatamente 9 dígitos)">
+                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 9999 9999" maxlength="11" pattern="[0-9] [0-9]{4} [0-9]{4}" inputmode="numeric" required title="Digite os 9 números do celular">
                 </div>
               </div>
             </div>
@@ -251,6 +251,12 @@
                     <i data-lucide="eye"></i>
                   </button>
                 </div>
+                <ul class="password-requirements" data-password-requirements aria-live="polite">
+                  <li data-password-rule="length"><i data-lucide="circle"></i>8 caracteres ou mais</li>
+                  <li data-password-rule="number"><i data-lucide="circle"></i>Ao menos um número</li>
+                  <li data-password-rule="uppercase"><i data-lucide="circle"></i>Uma letra maiúscula</li>
+                  <li data-password-rule="lowercase"><i data-lucide="circle"></i>Uma letra minúscula</li>
+                </ul>
               </div>
               <div class="form-group">
                 <label for="regPassConfirm">Confirmar Senha *</label>
