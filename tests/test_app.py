@@ -993,6 +993,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertNotIn('<th>Nome</th>', page)
         self.assertNotIn('<th>Descrição</th>', page)
         self.assertIn('<thead><tr><th>Ações</th><th>Modalidades</th><th>Horários</th>', page)
+        self.assertNotIn('plan-row-identity', page)
         self.assertIn('<th>Ter - Qui</th>', page)
         self.assertIn('<th>Seg - Qua - Sex</th>', page)
         self.assertIn('<th>Todos os dias</th>', page)
