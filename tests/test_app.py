@@ -989,6 +989,11 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('data-plan-tab="plans"', page)
         self.assertIn('class="plan-admin-table"', page)
         self.assertNotIn('class="plan-admin-card"', page)
+        self.assertNotIn('<th>Benefícios</th>', page)
+        self.assertIn('<th>Ter - Qui</th>', page)
+        self.assertIn('<th>Seg - Qua - Sex</th>', page)
+        self.assertIn('<th>Todos os dias</th>', page)
+        self.assertIn('data-plan-benefits-toggle=', page)
         created = self.client.post('/planos_admin', data={
             'action': 'create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',
             'price': 'R$ 110,00/mês', 'modalities': ['Boxe'], 'sub': 'Boxe oficial',
@@ -1007,14 +1012,18 @@ class BJSportsTestCase(unittest.TestCase):
 
         updated = self.client.post('/planos_admin', data={
             'action': 'update', 'plan_id': plan_id, 'name': 'Boxe Essencial',
-            'category': 'Planos Individuais', 'price': 'R$ 115,00/mês',
+            'category': 'Planos Individuais', 'price_ter_qui': 'R$ 105,00/mês',
+            'price_seg_qua_sex': 'R$ 115,00/mês', 'price_all_days': 'R$ 130,00/mês',
             'modalities': ['Boxe'], 'sub': 'Plano atualizado', 'features': 'Técnica; Defesa',
             'return_tab': 'modalities', 'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('atualizado em todo o sistema e em 1 matrícula(s)', updated.get_data(as_text=True))
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
-            self.assertEqual(student.plan, 'Boxe Essencial • Ter, Qui — R$ 115,00/mês')
+            self.assertEqual(student.plan, 'Boxe Essencial • Ter, Qui — R$ 105,00/mês')
+            plan = db.session.get(Plan, plan_id)
+            self.assertEqual(plan.get_price_for_schedule('seg-qua-sex'), 'R$ 115,00/mês')
+            self.assertEqual(plan.get_price_for_schedule('todos'), 'R$ 130,00/mês')
 
         blocked = self.client.post('/planos_admin', data={
             'action': 'delete', 'plan_id': plan_id, 'csrf_token': self.csrf(),

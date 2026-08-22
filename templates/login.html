@@ -315,7 +315,7 @@
       const selectPlan = document.getElementById('regPlan');
       if (!selectPlan) return;
       const source = activePlanType === 'combo' ? plansCombos : plansModalidades;
-      selectPlan.innerHTML = emptyPlanOption + source.map(plan => `<option value="${plan.value}">${plan.label}</option>`).join('');
+      selectPlan.innerHTML = emptyPlanOption + source.map(plan => `<option value="${plan.value}" data-prices='${JSON.stringify(plan.prices || {})}'>${plan.label}</option>`).join('');
       selectPlan.value = '';
       selectPlan.dispatchEvent(new Event('change'));
     }
@@ -331,8 +331,12 @@
       professionalSelect.required = isPrivateClass;
       if (!isPrivateClass) professionalSelect.value = '';
       const selectedValue = selectPlan.value;
-      const displayedPrice = isPrivateClass ? 'A combinar' : (selectedValue.split('—')[1]?.trim() || '—');
-      document.querySelectorAll('[data-schedule-price]').forEach(price => { price.textContent = displayedPrice; });
+      let selectedPrices = {};
+      try { selectedPrices = JSON.parse(selectPlan.selectedOptions[0]?.dataset.prices || '{}'); } catch (error) { selectedPrices = {}; }
+      document.querySelectorAll('[data-plan-schedule]').forEach(button => {
+        const price = button.querySelector('[data-schedule-price]');
+        if (price) price.textContent = isPrivateClass ? 'A combinar' : (selectedPrices[button.dataset.planSchedule] || '—');
+      });
       const normalizedPlan = selectedValue.toLocaleLowerCase('pt-BR');
       const comboCount = normalizedPlan.includes('combo + 1') ? 2 : (normalizedPlan.includes('combo + 2') ? 3 : 0);
       const comboWrapper = document.getElementById('comboModalityFields');

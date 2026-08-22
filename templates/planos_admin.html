@@ -29,7 +29,9 @@
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="create"><input type="hidden" name="return_tab" data-plan-return-tab value="{{ active_tab }}">
           <label><span>Nome do plano *</span><input name="name" maxlength="120" required placeholder="Ex.: Jiu-Jitsu"></label>
           <label><span>Categoria *</span><select name="category" data-plan-create-category required><option value="Planos Individuais">Plano individual</option><option value="Combos & Planos Especiais">Combo ou plano especial</option></select></label>
-          <label><span>Valor mensal *</span><input name="price" required placeholder="R$ 120,00/mês"></label>
+          <label><span>Ter - Qui *</span><input name="price_ter_qui" required placeholder="R$ 120,00/mês"></label>
+          <label><span>Seg - Qua - Sex *</span><input name="price_seg_qua_sex" required placeholder="R$ 120,00/mês"></label>
+          <label><span>Todos os dias *</span><input name="price_all_days" required placeholder="R$ 120,00/mês"></label>
           <label class="plan-catalog-featured"><input type="checkbox" name="is_featured" value="1"><span><strong>Destacar no catálogo</strong><small>Exibe o selo “Mais popular”.</small></span></label>
           <fieldset class="is-wide"><legend>Modalidades incluídas *</legend><div class="plan-catalog-modalities">{% for modality in allowed_modalities %}<label><input type="checkbox" name="modalities" value="{{ modality }}"><span>{{ modality }}</span></label>{% endfor %}</div><small>Plano individual aceita uma modalidade; combos aceitam uma ou mais.</small></fieldset>
           <label class="is-wide"><span>Descrição curta</span><input name="sub" maxlength="200" placeholder="Resumo exibido nos cards"></label>
@@ -48,21 +50,23 @@
         <div class="plan-catalog-tab-panel hidden" data-plan-panel="{{ tab_name }}">
           <div class="plan-admin-table-wrap">
             <table class="plan-admin-table">
-              <thead><tr><th>Nome</th><th>Valor mensal</th><th>Modalidades incluídas</th><th>Descrição</th><th>Benefícios</th><th>Destaque</th><th>Matrículas</th><th>Ações</th></tr></thead>
+              <thead><tr><th>Nome</th><th>Ter - Qui</th><th>Seg - Qua - Sex</th><th>Todos os dias</th><th>Modalidades incluídas</th><th>Descrição</th><th>Destaque</th><th>Matrículas</th><th>Ações</th></tr></thead>
               <tbody>
               {% for plan in plans if (plan.category == category) %}
                 {% set form_id = 'plan-edit-' ~ plan.id %}{% set selected_modalities = plan.get_modalities() %}
                 <tr>
                   <td><form id="{{ form_id }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="update"><input type="hidden" name="plan_id" value="{{ plan.id }}"><input type="hidden" name="category" value="{{ category }}"><input type="hidden" name="return_tab" value="{{ tab_name }}"></form><input form="{{ form_id }}" name="name" value="{{ plan.name }}" maxlength="120" required aria-label="Nome"></td>
-                  <td><input form="{{ form_id }}" name="price" value="{{ plan.price }}" required aria-label="Valor mensal"></td>
+                  <td><input form="{{ form_id }}" name="price_ter_qui" value="{{ plan.price_ter_qui or plan.price }}" required aria-label="Valor para Ter - Qui"></td>
+                  <td><input form="{{ form_id }}" name="price_seg_qua_sex" value="{{ plan.price_seg_qua_sex or plan.price }}" required aria-label="Valor para Seg - Qua - Sex"></td>
+                  <td><input form="{{ form_id }}" name="price_all_days" value="{{ plan.price_all_days or plan.price }}" required aria-label="Valor para Todos os dias"></td>
                   <td>{% if tab_name == 'modalities' %}<select form="{{ form_id }}" name="modalities" required aria-label="Modalidade">{% for modality in allowed_modalities %}<option value="{{ modality }}" {% if modality in selected_modalities %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select>{% else %}<div class="plan-table-modalities">{% for modality in allowed_modalities %}<label><input form="{{ form_id }}" type="checkbox" name="modalities" value="{{ modality }}" {% if modality in selected_modalities %}checked{% endif %}><span>{{ modality }}</span></label>{% endfor %}</div>{% endif %}</td>
                   <td><input form="{{ form_id }}" name="sub" value="{{ plan.sub or '' }}" maxlength="200" aria-label="Descrição curta"></td>
-                  <td><textarea form="{{ form_id }}" name="features" rows="2" aria-label="Benefícios">{{ plan.features or '' }}</textarea></td>
                   <td class="plan-table-center"><label class="plan-table-switch" title="Destacar no catálogo"><input form="{{ form_id }}" type="checkbox" name="is_featured" value="1" {% if plan.is_featured %}checked{% endif %}><span></span></label></td>
                   <td class="plan-table-center"><strong>{{ plan_usage[plan.id] }}</strong><small>aluno(s)</small></td>
-                  <td><div class="plan-table-actions"><button form="{{ form_id }}" type="submit" title="Salvar alterações"><i data-lucide="save"></i><span>Salvar</span></button><form method="post" onsubmit="return confirm('Excluir o plano {{ plan.name|e }}?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="plan_id" value="{{ plan.id }}"><input type="hidden" name="return_tab" value="{{ tab_name }}"><button type="submit" class="is-danger" {% if plan_usage[plan.id] %}disabled title="Existem matrículas vinculadas"{% else %}title="Excluir"{% endif %}><i data-lucide="trash-2"></i></button></form></div></td>
+                  <td><div class="plan-table-actions"><button type="button" class="is-secondary" data-plan-benefits-toggle="{{ plan.id }}" title="Editar benefícios"><i data-lucide="plus"></i></button><button form="{{ form_id }}" type="submit" title="Salvar alterações"><i data-lucide="save"></i><span>Salvar</span></button><form method="post" onsubmit="return confirm('Excluir o plano {{ plan.name|e }}?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="delete"><input type="hidden" name="plan_id" value="{{ plan.id }}"><input type="hidden" name="return_tab" value="{{ tab_name }}"><button type="submit" class="is-danger" {% if plan_usage[plan.id] %}disabled title="Existem matrículas vinculadas"{% else %}title="Excluir"{% endif %}><i data-lucide="trash-2"></i></button></form></div></td>
                 </tr>
-              {% else %}<tr><td colspan="8" class="plan-table-empty">{{ empty_label }}</td></tr>{% endfor %}
+                <tr class="plan-benefits-row hidden" data-plan-benefits="{{ plan.id }}"><td colspan="9"><label><strong>Benefícios de {{ plan.name }}</strong><small>Separe cada benefício com ponto e vírgula.</small><textarea form="{{ form_id }}" name="features" rows="3" aria-label="Benefícios">{{ plan.features or '' }}</textarea></label></td></tr>
+              {% else %}<tr><td colspan="9" class="plan-table-empty">{{ empty_label }}</td></tr>{% endfor %}
               </tbody>
             </table>
           </div>
@@ -90,6 +94,11 @@
   document.querySelectorAll('[data-plan-create-toggle]').forEach(button => button.addEventListener('click', () => { selectTab(activeTab); createPanel?.classList.toggle('hidden'); }));
   document.querySelectorAll('.plan-catalog-create input[name="modalities"]').forEach(input => input.addEventListener('change', () => {
     if (activeTab === 'modalities' && input.checked) document.querySelectorAll('.plan-catalog-create input[name="modalities"]').forEach(other => { if (other !== input) other.checked = false; });
+  }));
+  document.querySelectorAll('[data-plan-benefits-toggle]').forEach(button => button.addEventListener('click', () => {
+    const row = document.querySelector(`[data-plan-benefits="${button.dataset.planBenefitsToggle}"]`);
+    row?.classList.toggle('hidden');
+    button.classList.toggle('is-open', row && !row.classList.contains('hidden'));
   }));
   selectTab(activeTab);
 })();

@@ -501,6 +501,9 @@ class Plan(db.Model):
     name = db.Column(db.String(120), nullable=False)
     category = db.Column(db.String(80), nullable=False)
     price = db.Column(db.String(50), nullable=False)
+    price_ter_qui = db.Column(db.String(50), nullable=True)
+    price_seg_qua_sex = db.Column(db.String(50), nullable=True)
+    price_all_days = db.Column(db.String(50), nullable=True)
     sub = db.Column(db.String(200), nullable=True)
     features = db.Column(db.Text, nullable=True)
     is_featured = db.Column(db.Boolean, default=False)
@@ -529,6 +532,14 @@ class Plan(db.Model):
         if not mods:
             mods = ['Jiu-Jitsu']
         return mods
+
+    def get_price_for_schedule(self, schedule):
+        prices = {
+            'ter-qui': self.price_ter_qui,
+            'seg-qua-sex': self.price_seg_qua_sex,
+            'todos': self.price_all_days,
+        }
+        return prices.get(schedule) or self.price
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -960,6 +971,11 @@ def ensure_schema_updates():
             with db.engine.connect() as conn:
                 conn.execute(text('ALTER TABLE plan ADD COLUMN modality VARCHAR(150)'))
                 conn.commit()
+        for column_name in ('price_ter_qui', 'price_seg_qua_sex', 'price_all_days'):
+            if column_name not in columns:
+                with db.engine.connect() as conn:
+                    conn.execute(text(f'ALTER TABLE plan ADD COLUMN {column_name} VARCHAR(50)'))
+                    conn.commit()
     except Exception as e:
         print('Schema migration note:', e)
 
@@ -1694,7 +1710,10 @@ def login():
                 if not is_valid_cpf(guardian_cpf_digits): errors.append('Informe um CPF válido para o responsável pela autorização de imagem.')
                 if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
                     errors.append('Informe o vínculo do responsável legal pelo menor.')
-            valid_plans = {f'{p.name} — {p.price}' for p in Plan.query.all() if 'passe livre' not in p.name.casefold()}
+            valid_plans = {
+                f'{p.name} — {p.price}': p for p in Plan.query.all()
+                if 'passe livre' not in p.name.casefold()
+            }
             is_private_class = selected_plan == '__private_class__'
             private_instructor = None
             if is_private_class:
@@ -1717,7 +1736,9 @@ def login():
             elif is_private_class and private_instructor:
                 plan = f'Aula Particular com {private_instructor.name} • {training_day_labels[training_days]}'
             elif selected_plan in valid_plans:
-                plan_name, plan_price = (part.strip() for part in selected_plan.split('—', 1))
+                selected_plan_record = valid_plans[selected_plan]
+                plan_name = selected_plan_record.name
+                plan_price = selected_plan_record.get_price_for_schedule(training_days)
                 plan_name = re.sub(r'\s*\((?:Seg,\s*Qua,\s*Sex|Ter,\s*Qui)\)\s*$', '', plan_name)
                 plan = f'{plan_name} • {training_day_labels[training_days]} — {plan_price}'
             if errors:
@@ -1802,7 +1823,14 @@ def login():
     for available_plan in available_plans:
         if 'passe livre' in available_plan.name.casefold():
             continue
-        option = {'value': f'{available_plan.name} — {available_plan.price}', 'label': available_plan.name}
+        option = {
+            'value': f'{available_plan.name} — {available_plan.price}', 'label': available_plan.name,
+            'prices': {
+                'ter-qui': available_plan.get_price_for_schedule('ter-qui'),
+                'seg-qua-sex': available_plan.get_price_for_schedule('seg-qua-sex'),
+                'todos': available_plan.get_price_for_schedule('todos'),
+            },
+        }
         if available_plan.category == 'Planos Individuais':
             modalities = available_plan.get_modalities()
             if len(modalities) == 1 and modalities[0] in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}:
@@ -2220,7 +2248,12 @@ def planos_admin():
     def plan_form_values():
         name = request.form.get('name', '').strip()
         category = request.form.get('category', '').strip()
-        price = request.form.get('price', '').strip()
+        schedule_prices = {
+            'ter-qui': request.form.get('price_ter_qui', request.form.get('price', '')).strip(),
+            'seg-qua-sex': request.form.get('price_seg_qua_sex', request.form.get('price', '')).strip(),
+            'todos': request.form.get('price_all_days', request.form.get('price', '')).strip(),
+        }
+        price = schedule_prices['todos']
         sub = request.form.get('sub', '').strip()
         features = ';'.join(
             item.strip() for item in request.form.get('features', '').split(';') if item.strip()
@@ -2233,18 +2266,23 @@ def planos_admin():
             errors.append('Informe um nome de plano com 3 a 120 caracteres.')
         if category not in allowed_categories:
             errors.append('Selecione uma categoria válida.')
-        if not re.fullmatch(r'R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}(?:/mês)?', price):
-            errors.append('Informe o valor no formato R$ 120,00/mês.')
+        for label, schedule_price in (
+            ('Ter - Qui', schedule_prices['ter-qui']),
+            ('Seg - Qua - Sex', schedule_prices['seg-qua-sex']),
+            ('Todos os dias', schedule_prices['todos']),
+        ):
+            if not re.fullmatch(r'R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}(?:/mês)?', schedule_price):
+                errors.append(f'Informe o valor de {label} no formato R$ 120,00/mês.')
         if category == 'Planos Individuais' and len(modalities) != 1:
             errors.append('Plano individual deve possuir exatamente uma modalidade.')
         if category == 'Combos & Planos Especiais' and not modalities:
             errors.append('Selecione ao menos uma modalidade para o combo ou plano especial.')
-        return name, category, price, sub, features, modalities, errors
+        return name, category, price, sub, features, modalities, schedule_prices, errors
 
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'create':
-            name, category, price, sub, features, modalities, errors = plan_form_values()
+            name, category, price, sub, features, modalities, schedule_prices, errors = plan_form_values()
             if Plan.query.filter(db.func.lower(Plan.name) == name.casefold()).first():
                 errors.append('Já existe um plano com esse nome.')
             if errors:
@@ -2255,6 +2293,9 @@ def planos_admin():
             new_plan = Plan(
                 name=name, category=category, price=price, sub=sub or None,
                 features=features or None, modality=', '.join(modalities), is_featured=is_featured,
+                price_ter_qui=schedule_prices['ter-qui'],
+                price_seg_qua_sex=schedule_prices['seg-qua-sex'],
+                price_all_days=schedule_prices['todos'],
             )
             db.session.add(new_plan)
             db.session.commit()
@@ -2263,7 +2304,7 @@ def planos_admin():
             plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
             if plan:
-                name, category, price, sub, features, modalities, errors = plan_form_values()
+                name, category, price, sub, features, modalities, schedule_prices, errors = plan_form_values()
                 duplicate = Plan.query.filter(db.func.lower(Plan.name) == name.casefold(), Plan.id != plan.id).first()
                 if duplicate:
                     errors.append('Já existe outro plano com esse nome.')
@@ -2272,15 +2313,30 @@ def planos_admin():
                         flash(error, 'error')
                     return admin_redirect()
                 old_name, old_price = plan.name, plan.price
+                old_schedule_prices = {
+                    key: plan.get_price_for_schedule(key)
+                    for key in ('ter-qui', 'seg-qua-sex', 'todos')
+                }
                 plan.name, plan.category, plan.price = name, category, price
                 plan.sub, plan.features = sub or None, features or None
                 plan.modality = ', '.join(modalities)
+                plan.price_ter_qui = schedule_prices['ter-qui']
+                plan.price_seg_qua_sex = schedule_prices['seg-qua-sex']
+                plan.price_all_days = schedule_prices['todos']
                 plan.is_featured = 'is_featured' in request.form
                 synchronized = 0
                 for user in User.query.filter(User.plan.ilike(f'{old_name}%')).all():
                     updated_plan = re.sub(rf'^{re.escape(old_name)}', name, user.plan, count=1)
-                    if old_price in updated_plan:
-                        updated_plan = updated_plan.replace(old_price, price, 1)
+                    plan_lower = updated_plan.casefold()
+                    schedule_key = 'ter-qui' if 'ter, qui' in plan_lower or 'ter & qui' in plan_lower else (
+                        'todos' if 'todos os dias' in plan_lower else 'seg-qua-sex'
+                    )
+                    previous_price = old_schedule_prices[schedule_key]
+                    current_price = schedule_prices[schedule_key]
+                    if previous_price in updated_plan:
+                        updated_plan = updated_plan.replace(previous_price, current_price, 1)
+                    elif old_price in updated_plan:
+                        updated_plan = updated_plan.replace(old_price, current_price, 1)
                     user.plan = updated_plan
                     synchronized += 1
                 db.session.commit()
@@ -2836,7 +2892,7 @@ def mensalidades_admin():
                     flash('Selecione os dias de treino do novo plano.', 'error')
                     return redirect(url_for('mensalidades_admin'))
                 old_plan = user.plan
-                user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.price}'
+                user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.get_price_for_schedule(training_days)}'
                 user.selected_modalities = ', '.join(selected_modalities) if selected_modalities else None
                 db.session.commit()
                 flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{plan.name}”.', 'success')
@@ -2907,11 +2963,13 @@ def mensalidades_admin():
     available_plans = Plan.query.filter(~Plan.name.ilike('%passe livre%')).order_by(Plan.category, Plan.name).all()
     student_plan_catalog = {
         'individual': [
-            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category}
+            {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
+             'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')}}
             for plan in available_plans if plan.category == 'Planos Individuais'
         ],
         'special': [
             {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
+             'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
              'combo_count': 2 if 'combo + 1' in plan.name.casefold() else (3 if 'combo + 2' in plan.name.casefold() else 0)}
             for plan in available_plans if plan.category != 'Planos Individuais'
         ],

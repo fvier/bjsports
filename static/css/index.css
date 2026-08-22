@@ -2779,3 +2779,4 @@ body.public-light-theme {
   visibility: hidden !important;
 }
 .plan-catalog-heading>button span{color:inherit;font-size:inherit;letter-spacing:normal}
+.plan-admin-table{min-width:1450px}.plan-table-actions button.is-secondary{padding:8px;background:rgba(59,130,246,.14);color:#60a5fa}.plan-table-actions button.is-secondary.is-open{background:#2563eb;color:#fff}.plan-benefits-row td{padding:14px 18px!important;background:rgba(30,41,59,.55)}.plan-benefits-row label{display:grid;grid-template-columns:minmax(180px,.35fr) 1fr;align-items:center;gap:12px}.plan-benefits-row label strong,.plan-benefits-row label small{display:block}.plan-benefits-row label small{color:#94a3b8;font-size:.72rem}.plan-benefits-row textarea{min-width:320px}
