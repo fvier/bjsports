@@ -1398,6 +1398,7 @@ def inject_user_context():
     in_trial_period = False
     trial_hours = 0
     trial_minutes = 0
+    trial_remaining_seconds = 0
     if current_user and role == 'aluno':
         created_at = current_user.created_at or datetime.utcnow()
         elapsed_seconds = (datetime.utcnow() - created_at).total_seconds()
@@ -1405,8 +1406,9 @@ def inject_user_context():
         remaining_seconds = max(0, total_trial_seconds - elapsed_seconds)
         if remaining_seconds > 0 and current_user.payment_status != 'Em Dia' and not current_user.monthly_fee_exempt:
             in_trial_period = True
-            trial_hours = int(remaining_seconds // 3600)
-            trial_minutes = int((remaining_seconds % 3600) // 60)
+            trial_remaining_seconds = max(1, int(remaining_seconds))
+            trial_hours = trial_remaining_seconds // 3600
+            trial_minutes = (trial_remaining_seconds % 3600) // 60
 
     return {
         'now': datetime.utcnow(),
@@ -1425,6 +1427,7 @@ def inject_user_context():
         'in_trial_period': in_trial_period,
         'trial_hours': trial_hours,
         'trial_minutes': trial_minutes,
+        'trial_remaining_seconds': trial_remaining_seconds,
         'csrf_token': csrf_token
     }
 

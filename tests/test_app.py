@@ -1302,6 +1302,8 @@ class BJSportsTestCase(unittest.TestCase):
         page = response.get_data(as_text=True)
         self.assertNotIn('Check-in bloqueado', page)
         self.assertIn('Check-in enviado!', page)
+        self.assertIn('TESTE DE 60 HORAS — RESTAM', page)
+        self.assertIn('data-trial-countdown="', page)
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 1)
         with app.app_context():

@@ -1890,6 +1890,24 @@ function setupContractPage() {
 
 // DOM Loaded
 document.addEventListener('DOMContentLoaded', () => {
+  const trialCountdowns = [...document.querySelectorAll('[data-trial-countdown]')];
+  if (trialCountdowns.length) {
+    const startedAt = Date.now();
+    const initialSeconds = Math.max(0, Number(trialCountdowns[0].dataset.trialCountdown) || 0);
+    const renderTrialCountdown = () => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      const remaining = Math.max(0, initialSeconds - elapsed);
+      const hours = Math.floor(remaining / 3600);
+      const minutes = Math.floor((remaining % 3600) / 60);
+      const seconds = remaining % 60;
+      const formatted = [hours, minutes, seconds].map(value => String(value).padStart(2, '0')).join(':');
+      trialCountdowns.forEach(element => { element.textContent = formatted; });
+      if (remaining === 0) window.location.reload();
+    };
+    renderTrialCountdown();
+    window.setInterval(renderTrialCountdown, 1000);
+  }
+
   setupCsrfProtection();
   setupFlashMessages();
   renderSchedule('seg');

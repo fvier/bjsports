@@ -169,7 +169,7 @@
           <div class="trial-banner-left">
             <i data-lucide="zap" class="trial-icon"></i>
             <div>
-              <strong>⚡ AVISO: EXPERIÊNCIA NO TATAME — 60 HORAS LIVRES (~{{ trial.hours_left }}h restantes)</strong>
+              <strong>⚡ TESTE DE 60 HORAS — RESTAM <span data-trial-countdown="{{ trial_remaining_seconds }}" style="font-variant-numeric: tabular-nums;">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</span></strong>
               <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Você possui 60 horas de treino livre no tatame. Apresente-se ao seu Professor ou ao Monitor da sua turma para confirmar a baixa da sua mensalidade.</p>
             </div>
           </div>
