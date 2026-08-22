@@ -590,18 +590,20 @@ function setupBookingModal() {
 
       let msg = '';
       if (isExperimental) {
-        msg += `*CHECK-IN — AULA EXPERIMENTAL GRÁTIS*\n\n`;
-        msg += `👤 *Nome Completo:* ${loginOrName}\n`;
+        msg += `*BJ SPORTS - AULA EXPERIMENTAL*\n`;
+        msg += `*RESERVA CONFIRMADA*\n\n`;
+        msg += `*Aluno:* ${loginOrName}\n`;
       } else {
-        msg += `*CHECK-IN NA AULA — BJ SPORTS*\n\n`;
-        msg += `👤 *Login:* ${loginOrName}\n`;
-        msg += `🛡️ *3 Primeiros Dígitos CPF:* ${cpf3}\n`;
+        msg += `*BJ SPORTS - CHECK-IN*\n`;
+        msg += `*RESERVA CONFIRMADA*\n\n`;
+        msg += `*Aluno:* ${loginOrName}\n`;
+        msg += `*CPF para conferência:* ${cpf3}...\n`;
       }
-      msg += `🥋 *Modalidade:* ${modality}\n`;
-      msg += `🕒 *Aula Desejada:* ${shift}\n`;
-      msg += `✅ *Vaga:* Reservada pelo sistema\n\n`;
-      msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
-      msg += `Olá Mestre Bolivar, gostaria de confirmar meu check-in!`;
+      msg += `*Modalidade:* ${modality}\n`;
+      msg += `*Aula:* ${shift}\n`;
+      msg += `*Status:* Vaga reservada pelo sistema\n\n`;
+      msg += `*Local:* Av. Estrada do Amor, Cajazeiras-PB\n\n`;
+      msg += `Esta mensagem confirma a reserva da aula selecionada.`;
 
       const encodedMsg = encodeURIComponent(msg);
       const waUrl = `https://wa.me/5583996527997?text=${encodedMsg}`;
