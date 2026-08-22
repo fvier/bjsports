@@ -391,6 +391,53 @@ function populate48hScheduleOptions() {
 }
 
 // Booking Modal Logic
+let bookingAvailability = [];
+
+async function loadBookingAvailability(preferredModality = '') {
+  const modalitySelect = document.getElementById('bookModality');
+  const shiftSelect = document.getElementById('bookShift');
+  const hint = document.getElementById('shift48hHint');
+  if (!modalitySelect || !shiftSelect) return;
+  modalitySelect.replaceChildren(new Option('Carregando modalidades...', ''));
+  shiftSelect.replaceChildren(new Option('Carregando aulas...', ''));
+  shiftSelect.disabled = true;
+  try {
+    const response = await fetch('/api/bookings/availability', {headers: {'Accept': 'application/json'}});
+    if (!response.ok) throw new Error('availability');
+    bookingAvailability = (await response.json()).options || [];
+    const modalities = [...new Set(bookingAvailability.map(item => item.modality))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    modalitySelect.replaceChildren(...modalities.map(item => new Option(item, item)));
+    const related = modalities.find(item => preferredModality.toLowerCase().includes(item.toLowerCase())
+      || item.toLowerCase().includes(preferredModality.toLowerCase()));
+    if (related) modalitySelect.value = related;
+    renderAvailableBookingClasses();
+  } catch (error) {
+    modalitySelect.replaceChildren(new Option('Indisponível', ''));
+    shiftSelect.replaceChildren(new Option('Não foi possível consultar as vagas', ''));
+    if (hint) hint.textContent = 'Não foi possível atualizar as vagas. Tente novamente.';
+  }
+}
+
+function renderAvailableBookingClasses() {
+  const modalitySelect = document.getElementById('bookModality');
+  const shiftSelect = document.getElementById('bookShift');
+  const hint = document.getElementById('shift48hHint');
+  if (!modalitySelect || !shiftSelect) return;
+  const options = bookingAvailability.filter(item => item.modality === modalitySelect.value);
+  shiftSelect.replaceChildren(...options.map(item => {
+    const option = new Option(`${item.label} — ${item.remaining} vaga(s)`, item.label);
+    option.dataset.classGroupId = item.class_group_id;
+    option.dataset.classDate = item.class_date;
+    option.dataset.classTime = item.class_time;
+    return option;
+  }));
+  if (!options.length) shiftSelect.add(new Option('Nenhuma aula com vaga disponível', ''));
+  shiftSelect.disabled = !options.length;
+  if (hint) hint.textContent = options.length
+    ? 'Somente aulas com vaga aparecem nesta lista.'
+    : 'Turmas lotadas não são exibidas. Consulte novamente mais tarde.';
+}
+
 function setupBookingModal() {
   const modal = document.getElementById('bookingModal');
   const openBtn = document.getElementById('openScheduleModal');
@@ -407,6 +454,7 @@ function setupBookingModal() {
   const bookingFeedbackMessage = document.getElementById('bookingFeedbackMessage');
   const bookingFeedbackAction = document.getElementById('bookingFeedbackAction');
   const closeBookingFeedback = document.getElementById('closeBookingFeedback');
+  const modalitySelect = document.getElementById('bookModality');
 
   function hideBookingFeedback() {
     if (bookingFeedback) bookingFeedback.classList.add('hidden');
@@ -416,6 +464,7 @@ function setupBookingModal() {
     if (!bookingFeedback) return;
     const isPaymentIssue = code === 'payment_required';
     bookingFeedback.classList.toggle('is-payment-warning', isPaymentIssue);
+    bookingFeedback.classList.remove('is-success');
     bookingFeedbackTitle.textContent = isPaymentIssue ? 'Check-in temporariamente bloqueado' : 'Não foi possível fazer o check-in';
     bookingFeedbackMessage.textContent = message;
     bookingFeedbackAction?.classList.toggle('hidden', !isPaymentIssue);
@@ -425,12 +474,13 @@ function setupBookingModal() {
   }
 
   closeBookingFeedback?.addEventListener('click', hideBookingFeedback);
+  modalitySelect?.addEventListener('change', renderAvailableBookingClasses);
 
   if (modal) modal.classList.add('hidden');
 
   function openModal() {
     hideBookingFeedback();
-    populate48hScheduleOptions();
+    loadBookingAvailability();
     if (modal) modal.classList.remove('hidden');
   }
 
@@ -477,12 +527,19 @@ function setupBookingModal() {
       const cpf3 = bookCpf3Input ? bookCpf3Input.value : '';
       const modality = document.getElementById('bookModality').value;
       const shift = document.getElementById('bookShift').value;
+      const selectedClass = document.getElementById('bookShift').selectedOptions[0];
 
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
-        body: JSON.stringify({login_or_name: loginOrName, cpf3, modality, shift_time: shift, is_experimental: isExperimental})
+        body: JSON.stringify({
+          login_or_name: loginOrName, cpf3, modality, shift_time: shift,
+          class_group_id: selectedClass?.dataset.classGroupId,
+          class_date: selectedClass?.dataset.classDate,
+          class_time: selectedClass?.dataset.classTime,
+          is_experimental: isExperimental
+        })
       });
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));
@@ -493,6 +550,7 @@ function setupBookingModal() {
         return;
       }
 
+      const result = await response.json();
       if (window.confetti) {
         window.confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
       }
@@ -508,7 +566,7 @@ function setupBookingModal() {
       }
       msg += `🥋 *Modalidade:* ${modality}\n`;
       msg += `🕒 *Aula Desejada:* ${shift}\n`;
-      msg += `⏱️ *Janela:* Agendamento para as próximas 48h\n\n`;
+      msg += `✅ *Vaga:* Reservada pelo sistema\n\n`;
       msg += `📍 *Local:* Av. Estrada do Amor, Cajazeiras-PB\n`;
       msg += `Olá Mestre Bolivar, gostaria de confirmar meu check-in!`;
 
@@ -519,7 +577,13 @@ function setupBookingModal() {
 
       bookingForm.reset();
       toggleExperimentalMode();
-      closeModal();
+      bookingFeedback?.classList.add('is-success');
+      if (bookingFeedbackTitle) bookingFeedbackTitle.textContent = 'Reserva confirmada';
+      if (bookingFeedbackMessage) bookingFeedbackMessage.textContent = `${result.message} Sua vaga está garantida na aula selecionada.`;
+      bookingFeedbackAction?.classList.add('hidden');
+      bookingFeedback?.classList.remove('hidden');
+      await loadBookingAvailability();
+      bookingFeedback?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     });
   }
 }
@@ -527,17 +591,7 @@ function setupBookingModal() {
 function openModalWithModality(modalityName) {
   const modal = document.getElementById('bookingModal');
   const select = document.getElementById('bookModality');
-  populate48hScheduleOptions();
-  if (select) {
-    const normalizedName = modalityName.toLowerCase();
-    const options = Array.from(select.options);
-    const exactOption = options.find(option => option.value.toLowerCase() === normalizedName);
-    const relatedOption = options.find(option =>
-      option.value.toLowerCase().includes(normalizedName) || normalizedName.includes(option.value.toLowerCase())
-    );
-    const selectedOption = exactOption || relatedOption;
-    if (selectedOption) selectedOption.selected = true;
-  }
+  loadBookingAvailability(modalityName);
   if (modal) modal.classList.remove('hidden');
 }
 

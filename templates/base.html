@@ -247,21 +247,15 @@
         <div class="form-group">
           <label for="bookModality">Modalidade:</label>
           <select id="bookModality" required>
-            <option value="Jiu-Jitsu (BJJ)">Jiu-Jitsu (BJJ)</option>
-            <option value="Jiu-Jitsu (Kids)">Jiu-Jitsu (Kids)</option>
-            <option value="Boxe Tradicional">Boxe Tradicional</option>
-            <option value="Muay Thai">Muay Thai</option>
-            <option value="Muay Thai Kids">Muay Thai Kids</option>
-            <option value="MMA Profissional">MMA Profissional</option>
-            <option value="MMA Iniciantes">MMA Iniciantes</option>
+            <option value="">Carregando modalidades...</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="bookShift">Aulas Disponíveis (Próximas 48 horas):</label>
+          <label for="bookShift">Próximas aulas disponíveis:</label>
           <select id="bookShift" required>
           </select>
-          <span class="field-hint" id="shift48hHint">⏱️ Exibindo apenas horários disponíveis nas próximas 48 horas.</span>
+          <span class="field-hint" id="shift48hHint">Exibindo somente aulas que ainda possuem vaga.</span>
         </div>
 
         <div class="booking-feedback hidden" id="bookingFeedback" role="alert" aria-live="assertive">

@@ -42,6 +42,16 @@ class BJSportsTestCase(unittest.TestCase):
         return self.client.post('/login', data={'action': 'login', 'portalCpf': username,
             'portalPassword': password, 'csrf_token': self.csrf()})
 
+    def booking_slot(self, capacity=20):
+        class_date = datetime.now().date() + timedelta(days=(7 - datetime.now().date().weekday()) % 7)
+        with app.app_context():
+            group = ClassGroup(name=f'Turma Reserva {capacity}', modality='Jiu-Jitsu', audience='Adulto',
+                               instructor='Instrutor', capacity=capacity, status='ativa', publish_public=True)
+            group.schedules = ['Seg • 19:00']
+            db.session.add(group)
+            db.session.commit()
+            return {'class_group_id': group.id, 'class_date': class_date.isoformat(), 'class_time': '19:00'}
+
     def test_invalid_login_does_not_create_session(self):
         self.assertEqual(self.login('inexistente', 'errada').status_code, 302)
         with self.client.session_transaction() as data:
@@ -1143,12 +1153,27 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertIn('Favor%20enviar%20o%20comprovante', link)
 
     def test_booking_is_persisted(self):
-        response = self.client.post('/api/bookings', json={'login_or_name': 'Visitante Teste',
+        response = self.client.post('/api/bookings', json={'login_or_name': 'Visitante Teste', **self.booking_slot(),
             'cpf3': '', 'modality': 'Jiu-Jitsu', 'shift_time': 'Segunda 19:00',
             'is_experimental': True}, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 201)
         with app.app_context():
             self.assertEqual(Booking.query.count(), 1)
+
+    def test_booking_reserves_last_spot_and_rejects_full_class(self):
+        slot = self.booking_slot(capacity=1)
+        payload = {'login_or_name': 'Visitante Um', 'cpf3': '', 'modality': 'Jiu-Jitsu',
+                   'shift_time': 'Segunda 19:00', 'is_experimental': True, **slot}
+        first = self.client.post('/api/bookings', json=payload, headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(first.get_json()['remaining'], 0)
+        payload['login_or_name'] = 'Visitante Dois'
+        second = self.client.post('/api/bookings', json=payload, headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(second.status_code, 409)
+        self.assertEqual(second.get_json()['code'], 'class_full')
+        available_ids = {item['class_group_id'] for item in self.client.get(
+            '/api/bookings/availability').get_json()['options']}
+        self.assertNotIn(slot['class_group_id'], available_ids)
 
     def test_student_with_debt_cannot_book_new_class(self):
         self.login('aluno')
@@ -1158,7 +1183,7 @@ class BJSportsTestCase(unittest.TestCase):
             db.session.commit()
         response = self.client.post('/api/bookings', json={
             'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
-            'shift_time': 'Segunda 19:00', 'is_experimental': False
+            'shift_time': 'Segunda 19:00', 'is_experimental': False, **self.booking_slot()
         }, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.get_json()['code'], 'payment_required')
@@ -1194,14 +1219,14 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('aluno')
         response = self.client.post('/api/bookings', json={
             'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
-            'shift_time': 'Segunda 19:00', 'is_experimental': False
+            'shift_time': 'Segunda 19:00', 'is_experimental': False, **self.booking_slot()
         }, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 201)
 
     def test_student_cannot_book_without_cpf_digits(self):
         response = self.client.post('/api/bookings', json={
             'login_or_name': 'aluno', 'modality': 'Jiu-Jitsu',
-            'shift_time': 'Segunda 19:00', 'is_experimental': False
+            'shift_time': 'Segunda 19:00', 'is_experimental': False, **self.booking_slot()
         }, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 400)
 

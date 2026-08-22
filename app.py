@@ -584,8 +584,12 @@ class Booking(db.Model):
     cpf3 = db.Column(db.String(3), nullable=True)
     modality = db.Column(db.String(100), nullable=False)
     shift_time = db.Column(db.String(150), nullable=False)
+    class_group_id = db.Column(db.Integer, db.ForeignKey('class_group.id'), index=True)
+    class_date = db.Column(db.Date, index=True)
+    class_time = db.Column(db.String(5))
     is_experimental = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    class_group = db.relationship('ClassGroup', backref=db.backref('bookings', lazy=True))
 
 class MonthlyPayment(db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'year', 'month', name='uq_payment_period'),)
@@ -1230,6 +1234,15 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE attendance ADD COLUMN confirmed_at DATETIME'))
     if 'class_group_id' not in attendance_columns:
         db.session.execute(text('ALTER TABLE attendance ADD COLUMN class_group_id INTEGER REFERENCES class_group(id)'))
+    booking_columns = {column['name'] for column in inspect(db.engine).get_columns('booking')}
+    if 'class_group_id' not in booking_columns:
+        db.session.execute(text('ALTER TABLE booking ADD COLUMN class_group_id INTEGER REFERENCES class_group(id)'))
+        db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_booking_class_group_id ON booking (class_group_id)'))
+    if 'class_date' not in booking_columns:
+        db.session.execute(text('ALTER TABLE booking ADD COLUMN class_date DATE'))
+        db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_booking_class_date ON booking (class_date)'))
+    if 'class_time' not in booking_columns:
+        db.session.execute(text('ALTER TABLE booking ADD COLUMN class_time VARCHAR(5)'))
     class_group_columns = {column['name'] for column in inspect(db.engine).get_columns('class_group')}
     if 'responsible_monitor_id' not in class_group_columns:
         db.session.execute(text('ALTER TABLE class_group ADD COLUMN responsible_monitor_id INTEGER REFERENCES "user"(id)'))
@@ -1635,6 +1648,13 @@ def create_booking():
     modality = str(data.get('modality', '')).strip()
     shift_time = str(data.get('shift_time', '')).strip()
     is_experimental = bool(data.get('is_experimental'))
+    class_group_id = data.get('class_group_id')
+    class_time = str(data.get('class_time', '')).strip()
+    try:
+        class_date = datetime.strptime(str(data.get('class_date', '')), '%Y-%m-%d').date()
+        class_group_id = int(class_group_id)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Selecione uma aula disponível.'}), 400
     if len(login_or_name) < 3 or not modality or not shift_time:
         return jsonify({'error': 'Dados obrigatórios inválidos.'}), 400
     if not is_experimental and len(cpf3) != 3:
@@ -1656,12 +1676,59 @@ def create_booking():
             'code': 'payment_required'
         }), 403
 
+    class_group = db.session.get(ClassGroup, class_group_id)
+    occurrence = next((item for item in class_occurrences_for_weekday(class_group, class_date.weekday())
+                       if item['start_time'] == class_time), None) if class_group else None
+    if (not class_group or not class_group.publish_public or class_group.status not in {'ativa', 'lotada'}
+            or not occurrence or class_date < datetime.now().date()):
+        return jsonify({'error': 'Esta aula não está mais disponível.'}), 409
+    if db.engine.dialect.name == 'postgresql':
+        db.session.execute(text('SELECT id FROM class_group WHERE id = :id FOR UPDATE'), {'id': class_group.id})
+    reserved = Booking.query.filter_by(
+        class_group_id=class_group.id, class_date=class_date, class_time=class_time,
+    ).count()
+    if class_group.status == 'lotada' or reserved >= class_group.capacity:
+        db.session.rollback()
+        return jsonify({'error': 'Esta turma acabou de ficar lotada. Escolha outro horário.', 'code': 'class_full'}), 409
+
     booking = Booking(login_or_name=login_or_name[:120], cpf3=cpf3 or None,
                       modality=modality[:100], shift_time=shift_time[:150],
+                      class_group_id=class_group.id, class_date=class_date, class_time=class_time,
                       is_experimental=is_experimental)
     db.session.add(booking)
     db.session.commit()
-    return jsonify({'id': booking.id}), 201
+    remaining = max(0, class_group.capacity - reserved - 1)
+    return jsonify({'id': booking.id, 'message': 'Reserva realizada com sucesso!', 'remaining': remaining}), 201
+
+@app.route('/api/bookings/availability')
+def booking_availability():
+    ensure_class_groups()
+    now = datetime.now()
+    limit = now + timedelta(days=7)
+    options = []
+    groups = ClassGroup.query.filter(
+        ClassGroup.publish_public.is_(True), ClassGroup.status == 'ativa',
+    ).order_by(ClassGroup.modality, ClassGroup.name).all()
+    for offset in range(8):
+        class_date = now.date() + timedelta(days=offset)
+        for class_group in groups:
+            for occurrence in class_occurrences_for_weekday(class_group, class_date.weekday()):
+                starts_at = datetime.combine(class_date, datetime.min.time()) + timedelta(minutes=occurrence['start'])
+                if starts_at <= now or starts_at > limit:
+                    continue
+                reserved = Booking.query.filter_by(
+                    class_group_id=class_group.id, class_date=class_date,
+                    class_time=occurrence['start_time'],
+                ).count()
+                if reserved >= class_group.capacity:
+                    continue
+                options.append({
+                    'class_group_id': class_group.id, 'class_date': class_date.isoformat(),
+                    'class_time': occurrence['start_time'], 'modality': class_group.modality,
+                    'label': f"{class_date.strftime('%d/%m')} — {occurrence['start_time']} ({class_group.name})",
+                    'remaining': class_group.capacity - reserved,
+                })
+    return jsonify({'options': options})
 
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])
