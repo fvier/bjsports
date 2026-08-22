@@ -1689,7 +1689,8 @@ def create_booking():
             return jsonify({'error': 'Aluno não localizado. Confira o usuário e os três primeiros dígitos do CPF.'}), 404
         booking_user = candidate
 
-    if booking_user and booking_user.has_overdue_payments():
+    if (booking_user and booking_user.has_overdue_payments()
+            and not booking_user.get_trial_status()['in_trial']):
         return jsonify({
             'error': 'Reserva bloqueada: existem mensalidades pendentes. Regularize o financeiro para agendar novas aulas.',
             'code': 'payment_required'
@@ -2060,7 +2061,8 @@ def dashboard():
 def presencas():
     ensure_class_groups()
     user = db.session.get(User, session['user_id'])
-    has_overdue = user.has_overdue_payments()
+    trial_status = user.get_trial_status()
+    has_overdue = user.has_overdue_payments() and not trial_status['in_trial']
     if request.method == 'POST':
         action = request.form.get('action', 'request_checkin')
         if action in {'confirm_attendance', 'reject_attendance'}:

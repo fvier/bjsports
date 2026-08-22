@@ -1251,6 +1251,7 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
             student.payment_status = 'Pendente'
+            student.created_at = datetime.utcnow() - timedelta(hours=61)
             db.session.commit()
         response = self.client.post('/api/bookings', json={
             'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
@@ -1259,11 +1260,27 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.get_json()['code'], 'payment_required')
 
+    def test_student_in_active_60h_trial_can_book_new_class(self):
+        self.login('aluno')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            student.payment_status = 'Pendente'
+            student.created_at = datetime.utcnow() - timedelta(hours=12)
+            db.session.commit()
+        response = self.client.post('/api/bookings', json={
+            'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
+            'shift_time': 'Segunda 19:00', 'is_experimental': False, **self.booking_slot()
+        }, headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(response.status_code, 201)
+        with app.app_context():
+            self.assertEqual(Booking.query.filter_by(login_or_name='aluno').count(), 1)
+
     def test_student_with_debt_cannot_register_attendance(self):
         self.login('aluno')
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
             student.payment_status = 'Pendente'
+            student.created_at = datetime.utcnow() - timedelta(hours=61)
             db.session.commit()
         response = self.client.post('/presencas', data={'csrf_token': self.csrf()}, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -1272,6 +1289,21 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertNotIn('Confirmar Check-in Hoje', page)
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 0)
+
+    def test_student_in_active_60h_trial_can_register_attendance(self):
+        self.login('aluno')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            student.payment_status = 'Pendente'
+            student.created_at = datetime.utcnow() - timedelta(hours=12)
+            db.session.commit()
+        response = self.client.post('/presencas', data={'csrf_token': self.csrf()}, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        page = response.get_data(as_text=True)
+        self.assertNotIn('Check-in bloqueado', page)
+        self.assertIn('Check-in enviado!', page)
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 1)
         with app.app_context():
             self.assertEqual(Booking.query.count(), 0)
 
