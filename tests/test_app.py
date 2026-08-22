@@ -213,7 +213,10 @@ class BJSportsTestCase(unittest.TestCase):
 
     def test_combo_plus_two_requires_three_distinct_modalities(self):
         with app.app_context():
-            combo = Plan(name='Plano Combo + 2', category='Planos Promocionais & Família', price='R$ 180,00/mês')
+            combo = Plan(name='Plano Multitreino Premium', category='Combos & Planos Especiais',
+                         price='R$ 180,00/mês', selection_count=3, force_all_days=True,
+                         modality='Jiu-Jitsu, Boxe, Muay Thai, MMA', sub='Plano configurável',
+                         features='Treinos integrados;Acompanhamento técnico')
             db.session.add(combo)
             db.session.commit()
             combo_value = f'{combo.name} — {combo.price}'
@@ -227,6 +230,12 @@ class BJSportsTestCase(unittest.TestCase):
         }
         denied = self.client.post('/login', data={**payload, 'comboModalities': ['Jiu-Jitsu', 'Jiu-Jitsu'], 'csrf_token': self.csrf()}, follow_redirects=True)
         self.assertIn('Escolha 3 modalidades diferentes', denied.get_data(as_text=True))
+
+        registration_page = self.client.get('/login?mode=register').get_data(as_text=True)
+        self.assertIn('Plano Multitreino Premium', registration_page)
+        self.assertIn('"selection_count": 3', registration_page)
+        self.assertIn('"features": [', registration_page)
+        self.assertIn('registrationPlanDetails', registration_page)
 
         accepted = self.client.post('/login', data={**payload, 'comboModalities': ['Jiu-Jitsu', 'Boxe', 'MMA'], 'csrf_token': self.csrf()})
         self.assertEqual(accepted.status_code, 302)

@@ -523,6 +523,9 @@ class Plan(db.Model):
     price_seg_qua_sex = db.Column(db.String(50), nullable=True)
     price_all_days = db.Column(db.String(50), nullable=True)
     discount_percent = db.Column(db.Numeric(5, 2), nullable=False, default=0)
+    selection_count = db.Column(db.Integer, nullable=True)
+    shared_type = db.Column(db.String(20), nullable=True)
+    force_all_days = db.Column(db.Boolean, nullable=True)
     sub = db.Column(db.String(200), nullable=True)
     features = db.Column(db.Text, nullable=True)
     is_featured = db.Column(db.Boolean, default=False)
@@ -559,6 +562,21 @@ class Plan(db.Model):
             'todos': self.price_all_days,
         }
         return prices.get(schedule) or self.price
+
+    def get_selection_count(self):
+        if self.selection_count is not None:
+            return self.selection_count
+        normalized = self.name.casefold()
+        return 2 if 'combo + 1' in normalized else (3 if 'combo + 2' in normalized else 0)
+
+    def get_shared_type(self):
+        if self.shared_type in {'couple', 'family'}:
+            return self.shared_type
+        normalized = self.name.casefold()
+        return 'couple' if 'casal' in normalized else ('family' if 'família' in normalized or 'familia' in normalized else 'none')
+
+    def requires_all_days(self):
+        return self.force_all_days if self.force_all_days is not None else self.category != 'Planos Individuais'
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -999,6 +1017,13 @@ def ensure_schema_updates():
             with db.engine.connect() as conn:
                 conn.execute(text('ALTER TABLE plan ADD COLUMN discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0'))
                 conn.commit()
+        for column_name, definition in (
+            ('selection_count', 'INTEGER'), ('shared_type', 'VARCHAR(20)'), ('force_all_days', 'BOOLEAN')
+        ):
+            if column_name not in columns:
+                with db.engine.connect() as conn:
+                    conn.execute(text(f'ALTER TABLE plan ADD COLUMN {column_name} {definition}'))
+                    conn.commit()
     except Exception as e:
         print('Schema migration note:', e)
 
@@ -1754,21 +1779,22 @@ def login():
                     errors.append('Escolha um professor ou monitor válido para a aula particular.')
             elif selected_plan not in valid_plans:
                 errors.append('Modalidade inválida.')
-            normalized_selected_plan = selected_plan.casefold()
-            expected_combo_count = 2 if 'combo + 1' in normalized_selected_plan else (3 if 'combo + 2' in normalized_selected_plan else 0)
+            selected_plan_record = valid_plans.get(selected_plan)
+            expected_combo_count = selected_plan_record.get_selection_count() if selected_plan_record else 0
             allowed_combo_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
             if expected_combo_count:
                 if len(combo_modalities) != expected_combo_count or len(set(combo_modalities)) != expected_combo_count:
                     errors.append(f'Escolha {expected_combo_count} modalidades diferentes para este combo.')
                 elif any(modality not in allowed_combo_modalities for modality in combo_modalities):
                     errors.append('Uma das modalidades escolhidas para o combo é inválida.')
+            if selected_plan_record and selected_plan_record.requires_all_days():
+                training_days = 'todos'
             training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
             if training_days not in training_day_labels:
                 errors.append('Escolha os dias de treino.')
             elif is_private_class and private_instructor:
                 plan = f'Aula Particular com {private_instructor.name} • {training_day_labels[training_days]}'
-            elif selected_plan in valid_plans:
-                selected_plan_record = valid_plans[selected_plan]
+            elif selected_plan_record:
                 plan_name = selected_plan_record.name
                 plan_price = selected_plan_record.get_price_for_schedule(training_days)
                 plan_name = re.sub(r'\s*\((?:Seg,\s*Qua,\s*Sex|Ter,\s*Qui)\)\s*$', '', plan_name)
@@ -1807,7 +1833,11 @@ def login():
                     medical_restriction=medical_restriction_val,
                     is_experimental=is_experimental,
                     birth_date=birth_date,
-                    selected_modalities=', '.join(combo_modalities) if expected_combo_count else None,
+                    selected_modalities=', '.join(
+                        combo_modalities if expected_combo_count else (
+                            selected_plan_record.get_modalities() if selected_plan_record else []
+                        )
+                    ) or None,
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
@@ -1862,6 +1892,13 @@ def login():
                 'seg-qua-sex': available_plan.get_price_for_schedule('seg-qua-sex'),
                 'todos': available_plan.get_price_for_schedule('todos'),
             },
+            'modalities': available_plan.get_modalities(),
+            'selection_count': available_plan.get_selection_count(),
+            'shared_type': available_plan.get_shared_type(),
+            'force_all_days': available_plan.requires_all_days(),
+            'discount_percent': float(available_plan.discount_percent or 0),
+            'description': available_plan.sub or '',
+            'features': [item.strip() for item in (available_plan.features or '').split(';') if item.strip()],
         }
         if available_plan.category == 'Planos Individuais':
             modalities = available_plan.get_modalities()
@@ -2302,6 +2339,16 @@ def planos_admin():
         except ValueError:
             discount_percent = 0
             errors.append('Informe um desconto entre 0% e 100%.')
+        selection_count = request.form.get('selection_count', type=int)
+        selection_count = 0 if selection_count is None else selection_count
+        shared_type = request.form.get('shared_type', 'none').strip()
+        force_all_days = request.form.get('force_all_days') == '1'
+        if selection_count not in range(0, 5):
+            errors.append('A quantidade de modalidades deve estar entre 0 e 4.')
+        if shared_type not in {'none', 'couple', 'family'}:
+            errors.append('Selecione um tipo de compartilhamento válido.')
+        if selection_count > len(modalities):
+            errors.append('A quantidade escolhida pelo aluno não pode exceder as modalidades incluídas.')
         if len(name) < 3 or len(name) > 120:
             errors.append('Informe um nome de plano com 3 a 120 caracteres.')
         if category not in allowed_categories:
@@ -2317,12 +2364,14 @@ def planos_admin():
             errors.append('Plano individual deve possuir exatamente uma modalidade.')
         if category == 'Combos & Planos Especiais' and not modalities:
             errors.append('Selecione ao menos uma modalidade para o combo ou plano especial.')
-        return name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors
+        return (name, category, price, sub, features, modalities, schedule_prices,
+                discount_percent, selection_count, shared_type, force_all_days, errors)
 
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'create':
-            name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors = plan_form_values()
+            (name, category, price, sub, features, modalities, schedule_prices,
+             discount_percent, selection_count, shared_type, force_all_days, errors) = plan_form_values()
             if Plan.query.filter(db.func.lower(Plan.name) == name.casefold()).first():
                 errors.append('Já existe um plano com esse nome.')
             if errors:
@@ -2337,6 +2386,8 @@ def planos_admin():
                 price_seg_qua_sex=schedule_prices['seg-qua-sex'],
                 price_all_days=schedule_prices['todos'],
                 discount_percent=discount_percent,
+                selection_count=selection_count, shared_type=shared_type,
+                force_all_days=force_all_days,
             )
             db.session.add(new_plan)
             db.session.commit()
@@ -2345,7 +2396,8 @@ def planos_admin():
             plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
             if plan:
-                name, category, price, sub, features, modalities, schedule_prices, discount_percent, errors = plan_form_values()
+                (name, category, price, sub, features, modalities, schedule_prices,
+                 discount_percent, selection_count, shared_type, force_all_days, errors) = plan_form_values()
                 duplicate = Plan.query.filter(db.func.lower(Plan.name) == name.casefold(), Plan.id != plan.id).first()
                 if duplicate:
                     errors.append('Já existe outro plano com esse nome.')
@@ -2365,6 +2417,9 @@ def planos_admin():
                 plan.price_seg_qua_sex = schedule_prices['seg-qua-sex']
                 plan.price_all_days = schedule_prices['todos']
                 plan.discount_percent = discount_percent
+                plan.selection_count = selection_count
+                plan.shared_type = shared_type
+                plan.force_all_days = force_all_days
                 plan.is_featured = 'is_featured' in request.form
                 synchronized = 0
                 for user in User.query.filter(User.plan.ilike(f'{old_name}%')).all():
@@ -2932,14 +2987,13 @@ def mensalidades_admin():
             elif not plan or 'passe livre' in plan.name.casefold():
                 flash('Selecione um plano válido do catálogo atual.', 'error')
             else:
-                normalized_name = plan.name.casefold()
-                expected_combo_count = 2 if 'combo + 1' in normalized_name else (3 if 'combo + 2' in normalized_name else 0)
+                expected_combo_count = plan.get_selection_count()
                 if expected_combo_count and len(selected_modalities) != expected_combo_count:
                     flash(f'Este combo exige {expected_combo_count} modalidades diferentes.', 'error')
                     return redirect(url_for('mensalidades_admin'))
                 if not expected_combo_count:
                     selected_modalities = plan.get_modalities()
-                if plan.category == 'Combos & Planos Especiais':
+                if plan.requires_all_days():
                     training_days = 'todos'
                 training_day_labels = {
                     'seg-qua-sex': 'Seg, Qua, Sex', 'ter-qui': 'Ter, Qui', 'todos': 'Todos os dias'
@@ -3020,13 +3074,16 @@ def mensalidades_admin():
     student_plan_catalog = {
         'individual': [
             {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
-             'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')}}
+             'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
+             'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
+             'force_all_days': plan.requires_all_days()}
             for plan in available_plans if plan.category == 'Planos Individuais'
         ],
         'special': [
             {'id': plan.id, 'name': plan.name, 'price': plan.price, 'category': plan.category,
              'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
-             'combo_count': 2 if 'combo + 1' in plan.name.casefold() else (3 if 'combo + 2' in plan.name.casefold() else 0)}
+             'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
+             'force_all_days': plan.requires_all_days(), 'combo_count': plan.get_selection_count()}
             for plan in available_plans if plan.category != 'Planos Individuais'
         ],
     }
@@ -3602,16 +3659,23 @@ def gestao_modalidades_combo():
         return redirect(url_for('dashboard'))
 
     allowed_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+    selectable_plans = [plan for plan in Plan.query.all() if plan.get_selection_count()]
+
+    def selectable_plan_for(student):
+        if not student:
+            return None
+        return next((plan for plan in selectable_plans if student.plan.startswith(plan.name)), None)
+
     if request.method == 'POST':
         student = db.session.get(User, request.form.get('user_id', type=int))
         selected = [value.strip() for value in request.form.getlist('combo_modalities') if value.strip()]
-        normalized_plan = (student.plan if student else '').casefold()
-        expected_count = 2 if 'combo + 1' in normalized_plan else (3 if 'combo + 2' in normalized_plan else 0)
+        student_plan = selectable_plan_for(student)
+        expected_count = student_plan.get_selection_count() if student_plan else 0
         if not student or not expected_count:
             flash('Aluno ou plano combo inválido.', 'error')
         elif len(selected) != expected_count or len(set(selected)) != expected_count:
             flash(f'Escolha exatamente {expected_count} modalidades diferentes.', 'error')
-        elif any(modality not in allowed_modalities for modality in selected):
+        elif any(modality not in allowed_modalities or modality not in student_plan.get_modalities() for modality in selected):
             flash('Uma das modalidades informadas é inválida.', 'error')
         else:
             student.selected_modalities = ', '.join(selected)
@@ -3619,10 +3683,13 @@ def gestao_modalidades_combo():
             flash(f'Modalidades do combo de {student.name} atualizadas.', 'success')
         return redirect(url_for('gestao_modalidades_combo'))
 
-    combo_students = User.query.filter(User.plan.ilike('%combo +%')).order_by(User.name.asc()).all()
+    combo_students = [student for student in User.query.filter_by(role='aluno').order_by(User.name.asc()).all()
+                      if selectable_plan_for(student)]
+    combo_counts = {student.id: selectable_plan_for(student).get_selection_count() for student in combo_students}
+    combo_options = {student.id: selectable_plan_for(student).get_modalities() for student in combo_students}
     return render_template('gestao_modalidades_combo.html', page_title='Modalidades dos Combos',
                            combo_students=combo_students,
-                           combo_options=['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'])
+                           combo_counts=combo_counts, combo_options=combo_options)
 
 @app.route('/minha-conta/contrato', methods=['GET', 'POST'])
 @app.route('/minha-conta/contrato.html', methods=['GET', 'POST'])

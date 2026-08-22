@@ -10,11 +10,11 @@
       <div class="glass-panel" style="margin-top:20px;">
         {% for student in combo_students %}
         {% set selected = student.get_selected_modalities_list() %}
-        {% set required_count = 2 if 'combo + 1' in student.plan|lower else 3 %}
+        {% set required_count = combo_counts[student.id] %}
         <form method="post" class="combo-management-row" style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,.08);">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="user_id" value="{{ student.id }}">
           <div style="margin-bottom:10px;"><strong style="color:#fff;">{{ student.name }}</strong><small style="display:block;color:#94a3b8;">{{ student.plan }} • escolha {{ required_count }}</small></div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">{% for modality in combo_options %}<label style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;"><input type="checkbox" name="combo_modalities" value="{{ modality }}" {% if modality in selected %}checked{% endif %}>{{ modality }}</label>{% endfor %}<button class="btn btn-primary btn-sm" type="submit">Salvar modalidades</button></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">{% for modality in combo_options[student.id] %}<label style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;"><input type="checkbox" name="combo_modalities" value="{{ modality }}" {% if modality in selected %}checked{% endif %}>{{ modality }}</label>{% endfor %}<button class="btn btn-primary btn-sm" type="submit">Salvar modalidades</button></div>
         </form>
         {% else %}<p style="color:#94a3b8;">Nenhum aluno com plano Combo foi encontrado.</p>{% endfor %}
       </div>

@@ -548,8 +548,9 @@
 
       const updatePlanFields = () => {
         const option = planSelect.options[planSelect.selectedIndex];
-        const comboCount = Number(option?.dataset.comboCount || 0);
-        const isSpecial = option?.dataset.isSpecial === '1';
+        const selectedPlan = (studentPlanCatalog[activeType] || []).find(plan => String(plan.id) === planSelect.value);
+        const comboCount = Number(selectedPlan?.selection_count || 0);
+        const isSpecial = Boolean(selectedPlan?.force_all_days);
         modalities.classList.toggle('hidden', !comboCount);
         modalities.querySelectorAll('[data-student-combo-slot]').forEach((slot, index) => {
           const enabled = index < comboCount;
@@ -557,6 +558,12 @@
           const select = slot.querySelector('select');
           select.disabled = !enabled;
           select.required = enabled;
+          if (enabled) {
+            const previous = select.value;
+            select.replaceChildren(new Option('Selecione', ''));
+            (selectedPlan?.modalities || []).forEach(modality => select.add(new Option(modality, modality)));
+            if ([...select.options].some(item => item.value === previous)) select.value = previous;
+          }
           if (!enabled) select.value = '';
         });
         if (help && comboCount) help.textContent = `Selecione exatamente ${comboCount} modalidades diferentes.`;

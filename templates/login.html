@@ -207,6 +207,11 @@
                   <button type="button" data-plan-schedule="todos" aria-pressed="false"><span>Todos dias</span><strong data-schedule-price>—</strong></button>
                 </div>
               </fieldset>
+              <div class="registration-plan-details hidden" id="registrationPlanDetails">
+                <header><strong data-plan-detail-title></strong><span data-plan-detail-discount></span></header>
+                <p data-plan-detail-description></p><div data-plan-detail-modalities></div>
+                <ul data-plan-detail-features></ul><small data-plan-detail-shared></small>
+              </div>
               <div class="private-instructor-field hidden" id="privateInstructorField">
                 <label for="privateInstructor">Escolha o profissional da aula particular *</label>
                 <select name="privateInstructor" id="privateInstructor" disabled>
@@ -315,8 +320,15 @@
       const selectPlan = document.getElementById('regPlan');
       if (!selectPlan) return;
       const source = activePlanType === 'combo' ? plansCombos : plansModalidades;
-      selectPlan.innerHTML = emptyPlanOption + source.map(plan => `<option value="${plan.value}" data-prices='${JSON.stringify(plan.prices || {})}'>${plan.label}</option>`).join('');
-      selectPlan.value = '';
+      selectPlan.replaceChildren();
+      const emptyOption = new Option('Selecione uma opção', '', true, true);
+      emptyOption.disabled = true;
+      selectPlan.add(emptyOption);
+      source.forEach(plan => {
+        const option = new Option(plan.label, plan.value);
+        option.dataset.prices = JSON.stringify(plan.prices || {});
+        selectPlan.add(option);
+      });
       selectPlan.dispatchEvent(new Event('change'));
     }
 
@@ -337,8 +349,8 @@
         const price = button.querySelector('[data-schedule-price]');
         if (price) price.textContent = isPrivateClass ? 'A combinar' : (selectedPrices[button.dataset.planSchedule] || '—');
       });
-      const normalizedPlan = selectedValue.toLocaleLowerCase('pt-BR');
-      const comboCount = normalizedPlan.includes('combo + 1') ? 2 : (normalizedPlan.includes('combo + 2') ? 3 : 0);
+      const selectedPlan = [...plansModalidades, ...plansCombos].find(plan => plan.value === selectedValue);
+      const comboCount = Number(selectedPlan?.selection_count || 0);
       const comboWrapper = document.getElementById('comboModalityFields');
       comboWrapper?.classList.toggle('hidden', !comboCount);
       document.querySelectorAll('[data-combo-slot]').forEach((slot, index) => {
@@ -347,15 +359,38 @@
         const comboSelect = slot.querySelector('select');
         comboSelect.disabled = !enabled;
         comboSelect.required = enabled;
+        if (enabled) {
+          comboSelect.replaceChildren(new Option('Selecione', ''));
+          (selectedPlan?.modalities || []).forEach(modality => comboSelect.add(new Option(modality, modality)));
+        }
         if (!enabled) comboSelect.value = '';
       });
-      if (comboCount) {
+      if (selectedPlan?.force_all_days) {
         document.getElementById('regTrainingDays').value = 'todos';
         document.querySelectorAll('[data-plan-schedule]').forEach(button => {
           const selected = button.dataset.planSchedule === 'todos';
           button.classList.toggle('active', selected);
           button.setAttribute('aria-pressed', String(selected));
+          button.disabled = !selected;
         });
+      } else {
+        document.querySelectorAll('[data-plan-schedule]').forEach(button => { button.disabled = false; });
+      }
+      const details = document.getElementById('registrationPlanDetails');
+      details?.classList.toggle('hidden', !selectedPlan);
+      if (selectedPlan && details) {
+        details.querySelector('[data-plan-detail-title]').textContent = selectedPlan.label;
+        const discount = Number(selectedPlan.discount_percent || 0);
+        const discountElement = details.querySelector('[data-plan-detail-discount]');
+        discountElement.textContent = discount ? `${discount}% de desconto no plano compartilhado` : '';
+        discountElement.classList.toggle('hidden', !discount);
+        details.querySelector('[data-plan-detail-description]').textContent = selectedPlan.description || 'Plano configurado pela BJ Sports.';
+        const modalitiesElement = details.querySelector('[data-plan-detail-modalities]');
+        modalitiesElement.replaceChildren(...(selectedPlan.modalities || []).map(modality => { const item = document.createElement('span'); item.textContent = modality; return item; }));
+        const featuresElement = details.querySelector('[data-plan-detail-features]');
+        featuresElement.replaceChildren(...(selectedPlan.features || []).map(feature => { const item = document.createElement('li'); item.textContent = feature; return item; }));
+        const sharedLabels = {couple: 'Após o cadastro, o titular poderá adicionar 1 parceiro(a) pelo perfil.', family: 'Após o cadastro, o titular poderá adicionar familiares pelo perfil.'};
+        details.querySelector('[data-plan-detail-shared]').textContent = sharedLabels[selectedPlan.shared_type] || '';
       }
     }
 
