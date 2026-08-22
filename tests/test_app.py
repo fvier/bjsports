@@ -971,10 +971,22 @@ class BJSportsTestCase(unittest.TestCase):
                 modality=group.modality, status='confirmado',
             ))
             db.session.commit()
+            group_id = group.id
 
         page = self.client.get('/gestao/turmas').get_data(as_text=True)
         self.assertIn('<strong>1</strong><small>2 registro(s) real(is)</small>', page)
         self.assertIn('1 pessoa(s) • 2 check-in(s)', page)
+        self.assertIn(f'/gestao/turmas/{group_id}#checkins-da-turma', page)
+        self.assertIn('Ver pessoas que fizeram check-in', page)
+
+        detail = self.client.get(f'/gestao/turmas/{group_id}').get_data(as_text=True)
+        self.assertIn('Pessoas e registros detalhados', detail)
+        self.assertIn('1 pessoa(s) • 2 registro(s)', detail)
+        self.assertIn('<strong>Aluno</strong><small>@aluno</small>', detail)
+        self.assertIn('Landing page', detail)
+        self.assertIn('Check-in registrado', detail)
+        self.assertIn('Presença', detail)
+        self.assertIn('Confirmada', detail)
 
     def test_instructor_can_save_class_changes_and_open_management_details(self):
         self.login('instrutor')

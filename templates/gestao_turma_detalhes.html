@@ -28,6 +28,7 @@
         <article class="is-warning"><span><i data-lucide="circle-alert"></i>Em atraso</span><strong>{{ brl(overdue_total) }}</strong><small>Registros em atraso no período</small></article>
         <article class="is-blue"><span><i data-lucide="chart-no-axes-combined"></i>Taxa de recebimento</span><strong>{{ receipt_rate }}%</strong><small>Recebido sobre previsto</small></article>
         <article class="{% if attendance_rate is not none and attendance_rate >= 75 %}is-positive{% elif attendance_rate is not none %}is-warning{% endif %}"><span><i data-lucide="user-check"></i>Taxa de presença</span><strong>{{ attendance_rate ~ '%' if attendance_rate is not none else '—' }}</strong><small>Últimos 90 dias • decisões concluídas</small></article>
+        <article class="{% if checkin_people_count %}is-positive{% endif %}"><span><i data-lucide="users-round"></i>Pessoas com check-in</span><strong>{{ checkin_people_count }}</strong><small>{{ checkin_rows|length }} registro(s) nesta turma</small></article>
       </section>
 
       <div class="class-detail-main-grid">
@@ -51,6 +52,14 @@
           <article class="{% if month.received %}has-received{% endif %}"><span>{{ ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][month.month-1] }}</span><strong>{{ brl(month.received) }}</strong><small>Previsto {{ brl(month.expected) }}</small>{% if month.overdue %}<em>{{ brl(month.overdue) }} em atraso</em>{% else %}<em>{{ month.payments }} pagamento(s)</em>{% endif %}</article>
           {% endfor %}
         </div>
+      </section>
+
+      <section class="class-detail-panel" id="checkins-da-turma">
+        <header class="class-detail-panel-heading"><div><span>CHECK-INS DA TURMA</span><h2>Pessoas e registros detalhados</h2></div><small>{{ checkin_people_count }} pessoa(s) • {{ checkin_rows|length }} registro(s)</small></header>
+        <div class="class-detail-table-wrap"><table class="class-detail-table class-checkin-table"><thead><tr><th>Pessoa</th><th>Data da aula</th><th>Horário</th><th>Origem</th><th>Situação</th></tr></thead><tbody>
+          {% for row in checkin_rows %}<tr><td><div><strong>{{ row.person_name }}</strong><small>@{{ row.username }}</small></div></td><td>{{ row.date.strftime('%d/%m/%Y') if row.date else 'Não informada' }}</td><td>{{ row.time or 'Não informado' }}</td><td><span class="class-checkin-source"><i data-lucide="{{ 'globe-2' if row.source == 'Landing page' else 'clipboard-check' }}"></i>{{ row.source }}</span></td><td><span class="attendance-status-{{ row.status }} class-checkin-status">{{ row.status_label }}</span></td></tr>
+          {% else %}<tr><td colspan="5"><div class="class-management-empty"><i data-lucide="user-round-search"></i><strong>Nenhum check-in nesta turma</strong><span>As pessoas aparecerão aqui assim que houver uma reserva pela landing page ou um registro de presença.</span></div></td></tr>{% endfor %}
+        </tbody></table></div>
       </section>
 
       <section class="class-detail-panel">

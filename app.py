@@ -9,10 +9,10 @@ from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import inspect, text, or_
+from sqlalchemy import inspect, text, or_, func
 from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from store_catalog import STORE_PRODUCTS
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
 
@@ -2860,6 +2860,44 @@ def gestao_turma_detalhes(class_id):
     decided_count = confirmed_count + denied_count
     attendance_rate = round(confirmed_count / decided_count * 100) if decided_count else None
 
+    class_attendances = Attendance.query.filter_by(class_group_id=class_group.id).all()
+    class_bookings = Booking.query.filter_by(class_group_id=class_group.id).all()
+    booking_logins = {
+        (item.login_or_name or '').strip().casefold() for item in class_bookings
+        if (item.login_or_name or '').strip()
+    }
+    booking_users = User.query.filter(func.lower(User.username).in_(booking_logins)).all() if booking_logins else []
+    booking_user_lookup = {item.username.strip().casefold(): item for item in booking_users}
+    checkin_rows = []
+    checkin_people_keys = set()
+    for attendance in class_attendances:
+        person_key = attendance.user.username.strip().casefold()
+        checkin_people_keys.add(person_key)
+        checkin_rows.append({
+            'person_name': attendance.user.name,
+            'username': attendance.user.username,
+            'date': attendance.training_date,
+            'time': attendance.created_at.strftime('%H:%M') if attendance.created_at else None,
+            'source': 'Presença',
+            'status': attendance.status,
+            'status_label': {'confirmado': 'Confirmada', 'pendente': 'Pendente', 'negado': 'Negada'}.get(attendance.status, attendance.status),
+        })
+    for booking in class_bookings:
+        raw_identity = (booking.login_or_name or '').strip()
+        person_key = raw_identity.casefold() or f'reserva-{booking.id}'
+        booking_user = booking_user_lookup.get(person_key)
+        checkin_people_keys.add(person_key)
+        checkin_rows.append({
+            'person_name': booking_user.name if booking_user else raw_identity or 'Pessoa não identificada',
+            'username': booking_user.username if booking_user else raw_identity,
+            'date': booking.class_date or (booking.created_at.date() if booking.created_at else None),
+            'time': booking.class_time or (booking.created_at.strftime('%H:%M') if booking.created_at else None),
+            'source': 'Landing page',
+            'status': 'reserva',
+            'status_label': 'Check-in registrado',
+        })
+    checkin_rows.sort(key=lambda item: (item['date'] or date.min, item['time'] or ''), reverse=True)
+
     member_rows = []
     for enrollment in enrollments:
         user = enrollment.user
@@ -2884,6 +2922,7 @@ def gestao_turma_detalhes(class_id):
         monthly_financial=monthly_financial, confirmed_count=confirmed_count,
         denied_count=denied_count, pending_count=pending_count, attendance_rate=attendance_rate,
         demo_count=sum(1 for item in enrollments if item.is_demo),
+        checkin_rows=checkin_rows, checkin_people_count=len(checkin_people_keys),
     )
 
 @app.route('/dar-baixa-mensalidade/<int:user_id>', methods=['POST'])
