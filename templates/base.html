@@ -170,7 +170,7 @@
             <i data-lucide="zap" class="trial-icon"></i>
             <div class="trial-banner-copy">
               <strong>ACESSO EXPERIMENTAL DE 60 HORAS</strong>
-              <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Você possui 60 horas de treino livre no tatame. Apresente-se ao seu Professor ou ao Monitor da sua turma para confirmar a baixa da sua mensalidade.</p>
+              <p style="margin: 2px 0 0 0; font-size: 0.85rem; opacity: 0.95;">Em até <strong data-trial-countdown="{{ trial_remaining_seconds }}">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</strong>, um Professor ou Monitor irá liberar seu acesso após confirmar sua mensalidade. Enquanto isso, seu treino e check-in permanecem liberados.</p>
             </div>
           </div>
           <div class="trial-banner-countdown" aria-label="Tempo restante do acesso experimental">

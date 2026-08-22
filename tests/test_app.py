@@ -1351,6 +1351,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Check-in enviado!', page)
         self.assertIn('ACESSO EXPERIMENTAL DE 60 HORAS', page)
         self.assertIn('TEMPO RESTANTE', page)
+        self.assertIn('um Professor ou Monitor irá liberar seu acesso após confirmar sua mensalidade', page)
         self.assertIn('data-trial-countdown="', page)
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 1)

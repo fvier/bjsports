@@ -4,7 +4,7 @@
   {% if user_role == 'aluno' and in_trial_period %}
   <div class="student-trial-countdown-badge" title="Você possui acesso livre de 60 horas. Aguardando baixa do Professor/Monitor no financeiro." style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(249, 115, 22, 0.2)); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 20px; font-size: 0.76rem; color: #fde047; font-weight: 700; box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);">
     <span class="live-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #facc15; display: inline-block; animation: pulseDot 1.5s infinite;"></span>
-    <span>⏱️ Teste termina em <strong data-trial-countdown="{{ trial_remaining_seconds }}" style="color: #ffffff; font-size: 0.82rem; font-variant-numeric: tabular-nums;">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</strong></span>
+    <span>⏱️ Liberação em até <strong data-trial-countdown="{{ trial_remaining_seconds }}" style="color: #ffffff; font-size: 0.82rem; font-variant-numeric: tabular-nums;">{{ '%02d:%02d:00'|format(trial_hours, trial_minutes) }}</strong></span>
   </div>
   {% endif %}
 
