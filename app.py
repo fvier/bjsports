@@ -1083,18 +1083,6 @@ def ensure_default_accounts():
     elif bolivar.role != 'instrutor':
         bolivar.role = 'instrutor'
 
-    bboolivar = User.query.filter_by(username='bboolivar').first()
-    if not bboolivar:
-        bboolivar = User(
-            username='bboolivar', name='Mestre Bolivar', cpf='000.000.002-00',
-            ddd='83', phone='996527997', plan='Passe Livre — R$ 120,00/mês',
-            due_date='5', start_month=1, role='instrutor', payment_status='Em Dia'
-        )
-        bboolivar.set_password('bolivar')
-        db.session.add(bboolivar)
-    elif bboolivar.role != 'instrutor':
-        bboolivar.role = 'instrutor'
-
     db.session.commit()
 
 with app.app_context():
@@ -2220,42 +2208,98 @@ def cards_planos():
 @app.route('/planos_admin.html', methods=['GET', 'POST'])
 @role_required('instrutor')
 def planos_admin():
+    allowed_categories = {'Planos Individuais', 'Combos & Planos Especiais'}
+    allowed_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+
+    def plan_form_values():
+        name = request.form.get('name', '').strip()
+        category = request.form.get('category', '').strip()
+        price = request.form.get('price', '').strip()
+        sub = request.form.get('sub', '').strip()
+        features = ';'.join(
+            item.strip() for item in request.form.get('features', '').split(';') if item.strip()
+        )
+        modalities = list(dict.fromkeys(
+            item for item in request.form.getlist('modalities') if item in allowed_modalities
+        ))
+        errors = []
+        if len(name) < 3 or len(name) > 120:
+            errors.append('Informe um nome de plano com 3 a 120 caracteres.')
+        if category not in allowed_categories:
+            errors.append('Selecione uma categoria válida.')
+        if not re.fullmatch(r'R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}(?:/mês)?', price):
+            errors.append('Informe o valor no formato R$ 120,00/mês.')
+        if category == 'Planos Individuais' and len(modalities) != 1:
+            errors.append('Plano individual deve possuir exatamente uma modalidade.')
+        if category == 'Combos & Planos Especiais' and not modalities:
+            errors.append('Selecione ao menos uma modalidade para o combo ou plano especial.')
+        return name, category, price, sub, features, modalities, errors
+
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'create':
-            name = request.form.get('name', '').strip()
-            category = request.form.get('category', '').strip()
-            price = request.form.get('price', '').strip()
-            sub = request.form.get('sub', '').strip()
-            features = request.form.get('features', '').strip()
+            name, category, price, sub, features, modalities, errors = plan_form_values()
+            if Plan.query.filter(db.func.lower(Plan.name) == name.casefold()).first():
+                errors.append('Já existe um plano com esse nome.')
+            if errors:
+                for error in errors:
+                    flash(error, 'error')
+                return redirect(url_for('planos_admin'))
             is_featured = 'is_featured' in request.form
-            new_plan = Plan(name=name, category=category, price=price, sub=sub, features=features, is_featured=is_featured)
+            new_plan = Plan(
+                name=name, category=category, price=price, sub=sub or None,
+                features=features or None, modality=', '.join(modalities), is_featured=is_featured,
+            )
             db.session.add(new_plan)
             db.session.commit()
-            flash(f'Plano "{name}" cadastrado com sucesso!', 'success')
+            flash(f'Plano e modalidades de “{name}” cadastrados. O catálogo já foi atualizado.', 'success')
         elif action == 'update':
-            plan_id = request.form.get('plan_id')
+            plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
             if plan:
-                plan.name = request.form.get('name', '').strip()
-                plan.category = request.form.get('category', '').strip()
-                plan.price = request.form.get('price', '').strip()
-                plan.sub = request.form.get('sub', '').strip()
-                plan.features = request.form.get('features', '').strip()
+                name, category, price, sub, features, modalities, errors = plan_form_values()
+                duplicate = Plan.query.filter(db.func.lower(Plan.name) == name.casefold(), Plan.id != plan.id).first()
+                if duplicate:
+                    errors.append('Já existe outro plano com esse nome.')
+                if errors:
+                    for error in errors:
+                        flash(error, 'error')
+                    return redirect(url_for('planos_admin'))
+                old_name, old_price = plan.name, plan.price
+                plan.name, plan.category, plan.price = name, category, price
+                plan.sub, plan.features = sub or None, features or None
+                plan.modality = ', '.join(modalities)
                 plan.is_featured = 'is_featured' in request.form
+                synchronized = 0
+                for user in User.query.filter(User.plan.ilike(f'{old_name}%')).all():
+                    updated_plan = re.sub(rf'^{re.escape(old_name)}', name, user.plan, count=1)
+                    if old_price in updated_plan:
+                        updated_plan = updated_plan.replace(old_price, price, 1)
+                    user.plan = updated_plan
+                    synchronized += 1
                 db.session.commit()
-                flash(f'Plano #{plan.id} ("{plan.name}") atualizado com sucesso!', 'success')
+                flash(f'“{plan.name}” atualizado em todo o sistema e em {synchronized} matrícula(s).', 'success')
         elif action == 'delete':
-            plan_id = request.form.get('plan_id')
+            plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
             if plan:
+                linked_users = User.query.filter(User.plan.ilike(f'{plan.name}%')).count()
+                if linked_users:
+                    flash(f'Não é possível excluir: {linked_users} aluno(s) utilizam este plano.', 'error')
+                    return redirect(url_for('planos_admin'))
                 db.session.delete(plan)
                 db.session.commit()
-                flash(f'Plano #{plan.id} removido do sistema.', 'info')
+                flash(f'Plano “{plan.name}” removido do catálogo.', 'info')
         return redirect(url_for('planos_admin'))
 
-    plans_list = Plan.query.order_by(Plan.id.asc()).all()
-    return render_template('planos_admin.html', page_title='Gestão de Planos', plans=plans_list)
+    plans_list = Plan.query.order_by(Plan.category, Plan.name).all()
+    usage = {plan.id: User.query.filter(User.plan.ilike(f'{plan.name}%')).count() for plan in plans_list}
+    return render_template(
+        'planos_admin.html', page_title='Planos e Modalidades', plans=plans_list,
+        plan_usage=usage, allowed_modalities=sorted(allowed_modalities),
+        individual_count=sum(1 for plan in plans_list if plan.category == 'Planos Individuais'),
+        special_count=sum(1 for plan in plans_list if plan.category != 'Planos Individuais'),
+    )
 
 @app.route('/gestao/turmas', methods=['GET', 'POST'])
 @app.route('/gestao/turmas.html', methods=['GET', 'POST'])

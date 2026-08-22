@@ -982,6 +982,40 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(self.client.get('/loja').status_code, 404)
         self.assertEqual(self.client.get('/loja.html').status_code, 404)
 
+    def test_plan_admin_is_central_source_for_modalities_and_enrollments(self):
+        self.login('instrutor')
+        created = self.client.post('/planos_admin', data={
+            'action': 'create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',
+            'price': 'R$ 110,00/mês', 'modalities': ['Boxe'], 'sub': 'Boxe oficial',
+            'features': 'Técnica; Condicionamento', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('cadastrados. O catálogo já foi atualizado', created.get_data(as_text=True))
+        with app.app_context():
+            plan = Plan.query.filter_by(name='Plano Boxe Central').one()
+            self.assertEqual(plan.modality, 'Boxe')
+            student = User.query.filter_by(username='aluno').one()
+            student.plan = 'Plano Boxe Central • Ter, Qui — R$ 110,00/mês'
+            db.session.commit()
+            plan_id = plan.id
+
+        updated = self.client.post('/planos_admin', data={
+            'action': 'update', 'plan_id': plan_id, 'name': 'Boxe Essencial',
+            'category': 'Planos Individuais', 'price': 'R$ 115,00/mês',
+            'modalities': ['Boxe'], 'sub': 'Plano atualizado', 'features': 'Técnica; Defesa',
+            'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('atualizado em todo o sistema e em 1 matrícula(s)', updated.get_data(as_text=True))
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            self.assertEqual(student.plan, 'Boxe Essencial • Ter, Qui — R$ 115,00/mês')
+
+        blocked = self.client.post('/planos_admin', data={
+            'action': 'delete', 'plan_id': plan_id, 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('Não é possível excluir', blocked.get_data(as_text=True))
+        with app.app_context():
+            self.assertIsNotNone(db.session.get(Plan, plan_id))
+
     def test_monthly_payment_has_year(self):
         self.login('instrutor')
         with app.app_context():
