@@ -923,8 +923,8 @@ function setupERPTopbar() {
       + (role === 'instrutor' ? statusAction('/mensalidades_admin.html', 'file-text', 'Dar baixa nas mensalidades', pendingPaymentsCount, 'pagamento(s) pendente(s)') : '');
   actions.innerHTML = `
     ${operationalActions}
-    <button type="button" class="erp-topbar-icon" data-topbar-action="theme" title="Alternar contraste"><i data-lucide="moon"></i></button>
-    <button type="button" class="erp-topbar-icon" data-topbar-action="fullscreen" title="Tela cheia"><i data-lucide="maximize"></i></button>
+    <a class="erp-topbar-icon" href="/configuracoes.html" title="Configurações"><i data-lucide="settings"></i></a>
+    <a class="erp-topbar-icon" href="/" title="Ir para a landing page" aria-label="Ir para a landing page"><i data-lucide="house"></i></a>
   `;
   serverActions?.remove();
   actionsHost.prepend(actions);
@@ -988,23 +988,6 @@ function setupERPTopbar() {
     if (localStorage.getItem('bjSportsTheme') === 'light') document.body.classList.add('erp-light-theme');
   } catch (_) {}
 
-  actions.querySelector('[data-topbar-action="theme"]').addEventListener('click', () => {
-    const light = document.body.classList.toggle('erp-light-theme');
-    const themeIcon = actions.querySelector('[data-topbar-action="theme"] i, [data-topbar-action="theme"] svg');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', light ? 'sun' : 'moon');
-    try { localStorage.setItem('bjSportsTheme', light ? 'light' : 'dark'); } catch (_) {}
-    initIcons();
-  });
-
-  if (document.body.classList.contains('erp-light-theme')) {
-    const themeIcon = actions.querySelector('[data-topbar-action="theme"] i');
-    if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
-  }
-
-  actions.querySelector('[data-topbar-action="fullscreen"]').addEventListener('click', async () => {
-    if (!document.fullscreenElement) await document.documentElement.requestFullscreen?.();
-    else await document.exitFullscreen?.();
-  });
 }
 
 function setupPublicTheme() {
