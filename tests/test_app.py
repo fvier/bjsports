@@ -1016,6 +1016,37 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             self.assertIsNotNone(db.session.get(Plan, plan_id))
 
+    def test_instructor_changes_student_plan_from_monthly_drawer_without_rewriting_history(self):
+        self.login('instrutor')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            combo = Plan(
+                name='Plano Combo + 1', category='Combos & Planos Especiais',
+                price='R$ 150,00/mês', modality='Jiu-Jitsu, Boxe, Muay Thai, MMA',
+            )
+            db.session.add(combo)
+            db.session.flush()
+            payment = MonthlyPayment(user_id=student.id, year=2026, month=1, status='pago', amount=100)
+            db.session.add(payment)
+            db.session.commit()
+            student_id, combo_id, payment_id = student.id, combo.id, payment.id
+
+        page = self.client.get('/mensalidades_admin').get_data(as_text=True)
+        self.assertIn('Plano e modalidades do aluno', page)
+        self.assertIn('Salvar novo plano', page)
+
+        response = self.client.post('/mensalidades_admin', data={
+            'action': 'update_student_plan', 'user_id': student_id, 'plan_id': combo_id,
+            'training_days': 'ter-qui', 'selected_modalities': ['Jiu-Jitsu', 'Boxe'],
+            'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('Plano de Aluno alterado', response.get_data(as_text=True))
+        with app.app_context():
+            student = db.session.get(User, student_id)
+            self.assertEqual(student.plan, 'Plano Combo + 1 • Todos os dias — R$ 150,00/mês')
+            self.assertEqual(student.selected_modalities, 'Jiu-Jitsu, Boxe')
+            self.assertEqual(float(db.session.get(MonthlyPayment, payment_id).amount), 100.0)
+
     def test_monthly_payment_has_year(self):
         self.login('instrutor')
         with app.app_context():

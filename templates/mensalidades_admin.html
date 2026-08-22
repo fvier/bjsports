@@ -277,6 +277,18 @@
                           </div>
                         {% endif %}
 
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor" data-student-plan-editor>
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <input type="hidden" name="action" value="update_student_plan">
+                          <input type="hidden" name="user_id" value="{{ u.id }}">
+                          <div class="student-plan-editor-heading"><i data-lucide="repeat-2"></i><div><strong>Plano e modalidades do aluno</strong><small>A mudança vale para o perfil e para as próximas competências. O histórico financeiro permanece intacto.</small></div></div>
+                          <label><span>Novo plano</span><select name="plan_id" data-student-plan-select required><option value="">Selecione no catálogo</option>{% for plan in available_plans %}{% set plan_lower = plan.name|lower %}<option value="{{ plan.id }}" data-combo-count="{{ 2 if 'combo + 1' in plan_lower else (3 if 'combo + 2' in plan_lower else 0) }}" data-is-special="{{ '1' if plan.category == 'Combos & Planos Especiais' else '0' }}" {% if u.plan.startswith(plan.name) %}selected{% endif %}>{{ plan.name }} — {{ plan.price }}</option>{% endfor %}</select></label>
+                          {% set current_plan_lower = u.plan|lower %}
+                          <label><span>Dias de treino</span><select name="training_days" data-student-training-days required><option value="seg-qua-sex" {% if 'seg, qua, sex' in current_plan_lower or 'seg - qua - sex' in current_plan_lower %}selected{% endif %}>Seg - Qua - Sex</option><option value="ter-qui" {% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}selected{% endif %}>Ter & Qui</option><option value="todos" {% if 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}selected{% endif %}>Todos os dias</option></select></label>
+                          <fieldset data-student-combo-modalities><legend>Modalidades do combo</legend><div>{% set student_modalities = u.get_selected_modalities_list() %}{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<label><input type="checkbox" name="selected_modalities" value="{{ modality }}" {% if modality in student_modalities %}checked{% endif %}><span>{{ modality }}</span></label>{% endfor %}</div><small data-combo-help>Selecione as modalidades exigidas pelo combo.</small></fieldset>
+                          <button type="submit"><i data-lucide="save"></i>Salvar novo plano</button>
+                        </form>
+
                         <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="fee-exemption-form">
                           <input type="hidden" name="action" value="toggle_exemption">
                           <input type="hidden" name="user_id" value="{{ u.id }}">
@@ -501,6 +513,30 @@
   </style>
 
   <script>
+    document.querySelectorAll('[data-student-plan-editor]').forEach(form => {
+      const planSelect = form.querySelector('[data-student-plan-select]');
+      const daysSelect = form.querySelector('[data-student-training-days]');
+      const modalities = form.querySelector('[data-student-combo-modalities]');
+      const help = form.querySelector('[data-combo-help]');
+      const updatePlanFields = () => {
+        const option = planSelect.options[planSelect.selectedIndex];
+        const comboCount = Number(option?.dataset.comboCount || 0);
+        const isSpecial = option?.dataset.isSpecial === '1';
+        modalities.classList.toggle('hidden', !comboCount);
+        modalities.querySelectorAll('input').forEach(input => { input.disabled = !comboCount; });
+        if (help && comboCount) help.textContent = `Selecione exatamente ${comboCount} modalidades diferentes.`;
+        if (isSpecial) {
+          daysSelect.value = 'todos';
+          daysSelect.disabled = true;
+        } else {
+          daysSelect.disabled = false;
+        }
+      };
+      planSelect.addEventListener('change', updatePlanFields);
+      form.addEventListener('submit', () => { daysSelect.disabled = false; });
+      updatePlanFields();
+    });
+
     function toggleMonthDrawer(userId) {
       const drawer = document.getElementById('drawer-' + userId);
       const btn = document.getElementById('btnToggle-' + userId);

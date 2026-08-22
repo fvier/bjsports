@@ -2800,6 +2800,39 @@ def mensalidades_admin():
                     flash(f'{user.name} agora está isento(a) de mensalidade.', 'success')
                 else:
                     flash(f'Isenção de {user.name} removida. A cobrança mensal voltou a ser contabilizada.', 'info')
+        elif action == 'update_student_plan':
+            user = db.session.get(User, request.form.get('user_id', type=int))
+            plan = db.session.get(Plan, request.form.get('plan_id', type=int))
+            training_days = request.form.get('training_days', '').strip()
+            selected_modalities = list(dict.fromkeys(
+                item for item in request.form.getlist('selected_modalities')
+                if item in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+            ))
+            if not user or user.role != 'aluno':
+                flash('Aluno não encontrado para alteração do plano.', 'error')
+            elif not plan or 'passe livre' in plan.name.casefold():
+                flash('Selecione um plano válido do catálogo atual.', 'error')
+            else:
+                normalized_name = plan.name.casefold()
+                expected_combo_count = 2 if 'combo + 1' in normalized_name else (3 if 'combo + 2' in normalized_name else 0)
+                if expected_combo_count and len(selected_modalities) != expected_combo_count:
+                    flash(f'Este combo exige {expected_combo_count} modalidades diferentes.', 'error')
+                    return redirect(url_for('mensalidades_admin'))
+                if not expected_combo_count:
+                    selected_modalities = plan.get_modalities()
+                if plan.category == 'Combos & Planos Especiais':
+                    training_days = 'todos'
+                training_day_labels = {
+                    'seg-qua-sex': 'Seg, Qua, Sex', 'ter-qui': 'Ter, Qui', 'todos': 'Todos os dias'
+                }
+                if training_days not in training_day_labels:
+                    flash('Selecione os dias de treino do novo plano.', 'error')
+                    return redirect(url_for('mensalidades_admin'))
+                old_plan = user.plan
+                user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.price}'
+                user.selected_modalities = ', '.join(selected_modalities) if selected_modalities else None
+                db.session.commit()
+                flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{plan.name}”.', 'success')
         elif action == 'update_month':
             user_id = request.form.get('user_id')
             month = request.form.get('month')
@@ -2881,7 +2914,8 @@ def mensalidades_admin():
         pending_count=pending_count,
         exempt_count=exempt_count,
         report_period_start=f'{current_period.year}-01',
-        report_period_end=f'{current_period.year}-{current_period.month:02d}'
+        report_period_end=f'{current_period.year}-{current_period.month:02d}',
+        available_plans=Plan.query.filter(~Plan.name.ilike('%passe livre%')).order_by(Plan.category, Plan.name).all(),
     )
 
 @app.route('/gestao', methods=['GET', 'POST'])
