@@ -136,6 +136,7 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(user.image_consent_scope, 'adult')
             self.assertEqual(user.email, 'novoaluno@example.com')
             self.assertEqual(user.sex, 'prefer_not')
+            self.assertEqual(user.plan, 'Plano Teste • Seg, Qua, Sex — R$ 100,00/mês')
             acceptance = ContractAcceptance.query.filter_by(user_id=user.id).one()
             self.assertEqual(acceptance.source, 'registration')
             self.assertEqual(acceptance.membership_terms_version, MEMBERSHIP_TERMS_VERSION)

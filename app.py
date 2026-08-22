@@ -1706,6 +1706,7 @@ def login():
                 errors.append('Escolha os dias de treino.')
             elif selected_plan in valid_plans:
                 plan_name, plan_price = (part.strip() for part in selected_plan.split('—', 1))
+                plan_name = re.sub(r'\s*\((?:Seg,\s*Qua,\s*Sex|Ter,\s*Qui)\)\s*$', '', plan_name)
                 plan = f'{plan_name} • {training_day_labels[training_days]} — {plan_price}'
             if errors:
                 for error in errors: flash(error, 'error')
