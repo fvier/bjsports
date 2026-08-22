@@ -1349,10 +1349,11 @@ class BJSportsTestCase(unittest.TestCase):
         page = response.get_data(as_text=True)
         self.assertNotIn('Check-in bloqueado', page)
         self.assertIn('Check-in enviado!', page)
-        self.assertIn('ACESSO EXPERIMENTAL DE 60 HORAS', page)
+        self.assertIn('ACESSO EXPERIMENTAL ATIVO', page)
         self.assertIn('TEMPO RESTANTE', page)
-        self.assertIn('um Professor ou Monitor irá liberar seu acesso após confirmar sua mensalidade', page)
+        self.assertIn('um Professor ou Monitor confirmará sua mensalidade e ativará seu acesso definitivo', page)
         self.assertIn('data-trial-countdown="', page)
+        self.assertEqual(page.count('data-trial-countdown="'), 1)
         self.assertIn('AGUARDANDO CONFIRMAÇÃO', page)
         self.assertIn('Check-in realizado', page)
         with app.app_context():

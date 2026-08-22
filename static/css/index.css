@@ -2690,10 +2690,20 @@ body.public-light-theme {
   height: 28px;
   flex-shrink: 0;
 }
+.trial-banner-copy {
+  max-width: 700px;
+}
 .trial-banner-copy strong {
   display: block;
   font-family: var(--font-heading);
   letter-spacing: 0.025em;
+}
+.trial-banner-copy p {
+  margin: 3px 0 0;
+  max-width: 680px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  opacity: 0.95;
 }
 .trial-banner-countdown {
   min-width: 150px;
@@ -2719,6 +2729,9 @@ body.public-light-theme {
   letter-spacing: 0.06em;
 }
 @media (max-width: 720px) {
+  .trial-banner-left {
+    flex-basis: 100%;
+  }
   .trial-banner-countdown,
   .trial-banner-inner > .btn {
     width: 100%;
