@@ -2210,6 +2210,12 @@ def cards_planos():
 def planos_admin():
     allowed_categories = {'Planos Individuais', 'Combos & Planos Especiais'}
     allowed_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+    return_tab = request.form.get('return_tab', request.args.get('tab', 'modalities'))
+    if return_tab not in {'modalities', 'plans'}:
+        return_tab = 'modalities'
+
+    def admin_redirect():
+        return redirect(url_for('planos_admin', tab=return_tab))
 
     def plan_form_values():
         name = request.form.get('name', '').strip()
@@ -2244,7 +2250,7 @@ def planos_admin():
             if errors:
                 for error in errors:
                     flash(error, 'error')
-                return redirect(url_for('planos_admin'))
+                return admin_redirect()
             is_featured = 'is_featured' in request.form
             new_plan = Plan(
                 name=name, category=category, price=price, sub=sub or None,
@@ -2264,7 +2270,7 @@ def planos_admin():
                 if errors:
                     for error in errors:
                         flash(error, 'error')
-                    return redirect(url_for('planos_admin'))
+                    return admin_redirect()
                 old_name, old_price = plan.name, plan.price
                 plan.name, plan.category, plan.price = name, category, price
                 plan.sub, plan.features = sub or None, features or None
@@ -2286,11 +2292,11 @@ def planos_admin():
                 linked_users = User.query.filter(User.plan.ilike(f'{plan.name}%')).count()
                 if linked_users:
                     flash(f'Não é possível excluir: {linked_users} aluno(s) utilizam este plano.', 'error')
-                    return redirect(url_for('planos_admin'))
+                    return admin_redirect()
                 db.session.delete(plan)
                 db.session.commit()
                 flash(f'Plano “{plan.name}” removido do catálogo.', 'info')
-        return redirect(url_for('planos_admin'))
+        return admin_redirect()
 
     plans_list = Plan.query.order_by(Plan.category, Plan.name).all()
     usage = {plan.id: User.query.filter(User.plan.ilike(f'{plan.name}%')).count() for plan in plans_list}
@@ -2299,6 +2305,7 @@ def planos_admin():
         plan_usage=usage, allowed_modalities=sorted(allowed_modalities),
         individual_count=sum(1 for plan in plans_list if plan.category == 'Planos Individuais'),
         special_count=sum(1 for plan in plans_list if plan.category != 'Planos Individuais'),
+        active_tab=return_tab,
     )
 
 @app.route('/gestao/turmas', methods=['GET', 'POST'])

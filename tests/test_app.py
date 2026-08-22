@@ -984,12 +984,19 @@ class BJSportsTestCase(unittest.TestCase):
 
     def test_plan_admin_is_central_source_for_modalities_and_enrollments(self):
         self.login('instrutor')
+        page = self.client.get('/planos_admin').get_data(as_text=True)
+        self.assertIn('data-plan-tab="modalities"', page)
+        self.assertIn('data-plan-tab="plans"', page)
+        self.assertIn('class="plan-admin-table"', page)
+        self.assertNotIn('class="plan-admin-card"', page)
         created = self.client.post('/planos_admin', data={
             'action': 'create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',
             'price': 'R$ 110,00/mês', 'modalities': ['Boxe'], 'sub': 'Boxe oficial',
-            'features': 'Técnica; Condicionamento', 'csrf_token': self.csrf(),
+            'features': 'Técnica; Condicionamento', 'return_tab': 'modalities',
+            'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('cadastrados. O catálogo já foi atualizado', created.get_data(as_text=True))
+        self.assertEqual(created.request.args.get('tab'), 'modalities')
         with app.app_context():
             plan = Plan.query.filter_by(name='Plano Boxe Central').one()
             self.assertEqual(plan.modality, 'Boxe')
@@ -1002,7 +1009,7 @@ class BJSportsTestCase(unittest.TestCase):
             'action': 'update', 'plan_id': plan_id, 'name': 'Boxe Essencial',
             'category': 'Planos Individuais', 'price': 'R$ 115,00/mês',
             'modalities': ['Boxe'], 'sub': 'Plano atualizado', 'features': 'Técnica; Defesa',
-            'csrf_token': self.csrf(),
+            'return_tab': 'modalities', 'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('atualizado em todo o sistema e em 1 matrícula(s)', updated.get_data(as_text=True))
         with app.app_context():
