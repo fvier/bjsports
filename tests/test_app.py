@@ -994,6 +994,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertNotIn('<th>Descrição</th>', page)
         self.assertIn('<thead><tr><th>Ações</th><th>Modalidades</th><th>Horários</th>', page)
         self.assertNotIn('plan-row-identity', page)
+        self.assertIn('class="plan-modality-text"', page)
+        self.assertNotIn('name="modalities" required aria-label="Modalidade"', page)
         self.assertIn('<th>Ter - Qui</th>', page)
         self.assertIn('<th>Seg - Qua - Sex</th>', page)
         self.assertIn('<th>Todos os dias</th>', page)
