@@ -33,7 +33,7 @@
       <div class="class-detail-main-grid">
         <section class="class-detail-panel class-detail-profile">
           <header><span>CONFIGURAÇÃO</span><h2>Informações da turma</h2></header>
-          <dl><div><dt>Instrutor</dt><dd>{{ class_group.instructor }}</dd></div><div><dt>Duração</dt><dd>{{ class_group.duration_minutes }} minutos</dd></div><div><dt>Capacidade</dt><dd>{{ class_group.capacity }} alunos</dd></div><div><dt>Lista de espera</dt><dd>{{ class_group.waiting }} aluno(s)</dd></div><div><dt>Calendário</dt><dd>{{ 'Publicado' if class_group.publish_public else 'Oculto' }}</dd></div><div><dt>Situação</dt><dd>{{ class_group.status|capitalize }}</dd></div></dl>
+          <dl><div><dt>Instrutor</dt><dd>{{ class_group.instructor }}</dd></div><div><dt>Monitor responsável</dt><dd>{{ class_group.responsible_monitor.name if class_group.responsible_monitor else 'Não definido' }}</dd></div><div><dt>Duração</dt><dd>{{ class_group.duration_minutes }} minutos</dd></div><div><dt>Capacidade</dt><dd>{{ class_group.capacity }} alunos</dd></div><div><dt>Lista de espera</dt><dd>{{ class_group.waiting }} aluno(s)</dd></div><div><dt>Calendário</dt><dd>{{ 'Publicado' if class_group.publish_public else 'Oculto' }}</dd></div><div><dt>Situação</dt><dd>{{ class_group.status|capitalize }}</dd></div></dl>
           <div class="class-detail-schedules"><span>DIAS E HORÁRIOS</span>{% for schedule in class_group.schedules %}<strong><i data-lucide="calendar-clock"></i>{{ schedule }}</strong>{% endfor %}</div>
         </section>
 

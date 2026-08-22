@@ -17,7 +17,7 @@
   </a>
 
   <!-- Ícone 2: Documento com Alerta ! Red (Dar baixa nas Mensalidades) -->
-  {% if user_role in ['instrutor', 'monitor'] %}
+  {% if user_role == 'instrutor' %}
   <a href="{{ url_for('mensalidades_admin') }}" class="topbar-action-square" title="Dar Baixa nas Mensalidades ({% if pending_payments_count > 0 %}{{ pending_payments_count }} pagamento(s) pendente(s){% else %}Todas em dia{% endif %})" style="position: relative; width: 38px; height: 38px; border-radius: 10px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(248, 113, 113, 0.35); display: inline-flex; align-items: center; justify-content: center; color: #fca5a5; text-decoration: none; transition: all 0.2s ease;">
     <i data-lucide="file-text" style="width: 19px; height: 19px;"></i>
     {% if pending_payments_count > 0 %}

@@ -831,10 +831,12 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('aluno')
         student_menu = self.client.get('/dashboard').get_data(as_text=True)
         self.assertIn('Calendário de Aulas', student_menu)
-        self.assertIn('CAMPEONATOS', student_menu)
-        self.assertIn('Pesos', student_menu)
-        self.assertIn('Placar e Timer', student_menu)
+        self.assertNotIn('CAMPEONATOS', student_menu)
+        self.assertNotIn('Loja Oficial', student_menu)
+        self.assertNotIn('Pesos', student_menu)
+        self.assertNotIn('Placar e Timer', student_menu)
         self.assertNotIn('Dashboard Financeiro', student_menu)
+        self.assertNotIn('Cards Planos', student_menu)
         self.assertNotIn('Gestão de Planos', student_menu)
         self.assertNotIn('Gestão de Mensalidades', student_menu)
         self.assertNotIn('Gestão de Privilégios', student_menu)
@@ -844,34 +846,43 @@ class BJSportsTestCase(unittest.TestCase):
             data.clear()
         self.login('monitor')
         monitor_menu = self.client.get('/dashboard').get_data(as_text=True)
-        self.assertIn('Confirmar Presenças', monitor_menu)
+        self.assertNotIn('Confirmar Presenças', monitor_menu)
+        self.assertIn('Presenças & Treinos', monitor_menu)
+        self.assertIn('Combos dos Alunos', monitor_menu)
         self.assertNotIn('Dashboard Financeiro', monitor_menu)
         self.assertNotIn('Gestão de Mensalidades', monitor_menu)
         self.assertNotIn('Gestão de Planos', monitor_menu)
         self.assertNotIn('Gestão de Turmas', monitor_menu)
         self.assertNotIn('Gestão de Privilégios', monitor_menu)
         self.assertNotIn('Administração de Graduação', monitor_menu)
-        self.assertIn('CAMPEONATOS', monitor_menu)
-        self.assertIn('Pesos', monitor_menu)
-        self.assertIn('Placar e Timer', monitor_menu)
+        self.assertNotIn('CAMPEONATOS', monitor_menu)
+        self.assertNotIn('Loja Oficial', monitor_menu)
+        self.assertNotIn('Pesos', monitor_menu)
+        self.assertNotIn('Placar e Timer', monitor_menu)
         self.assertNotIn('Integrações • Pagamentos', monitor_menu)
         self.assertNotIn('Integrações • Catraca', monitor_menu)
+        self.assertNotIn('/mensalidades_admin.html', monitor_menu)
 
         with self.client.session_transaction() as data:
             data.clear()
         self.login('instrutor')
         instructor_menu = self.client.get('/dashboard').get_data(as_text=True)
-        self.assertIn('Dashboard Financeiro', instructor_menu)
+        self.assertIn('FINANCEIRO E ADMINISTRAÇÃO', instructor_menu)
+        self.assertIn('Visão Financeira', instructor_menu)
         self.assertIn('Gestão de Turmas', instructor_menu)
-        self.assertIn('Gestão de Planos', instructor_menu)
-        self.assertIn('Gestão de Mensalidades', instructor_menu)
-        self.assertIn('Gestão de Privilégios', instructor_menu)
-        self.assertIn('Administração de Graduação', instructor_menu)
-        self.assertIn('CAMPEONATOS', instructor_menu)
-        self.assertIn('Interno', instructor_menu)
-        self.assertIn('Placar e Timer', instructor_menu)
+        self.assertIn('Planos', instructor_menu)
+        self.assertIn('Mensalidades', instructor_menu)
+        self.assertIn('Usuários e Permissões', instructor_menu)
+        self.assertIn('Graduações', instructor_menu)
+        self.assertNotIn('Cards Planos', instructor_menu)
+        self.assertNotIn('Confirmar Presenças', instructor_menu)
+        self.assertNotIn('CAMPEONATOS', instructor_menu)
+        self.assertNotIn('Loja Oficial', instructor_menu)
+        self.assertNotIn('Interno', instructor_menu)
+        self.assertNotIn('Placar e Timer', instructor_menu)
         self.assertIn('INTEGRAÇÕES', instructor_menu)
         self.assertIn('Catraca', instructor_menu)
+        self.assertIn('/mensalidades_admin.html', instructor_menu)
         payments_page = self.client.get('/integracoes/pagamentos').get_data(as_text=True)
         self.assertIn('CENTRAL DE INTEGRAÇÕES', payments_page)
         self.assertIn('Fluxo automático da mensalidade', payments_page)
@@ -905,12 +916,16 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             class_group = next(item for item in ClassGroup.query.order_by(ClassGroup.id).all() if item.enrolled)
             class_id = class_group.id
+            monitor = User.query.filter_by(role='monitor').first()
+            monitor_id = monitor.id
+            monitor_name = monitor.name
 
         response = self.client.post('/gestao/turmas', data={
             'action': 'update', 'class_id': class_id, 'class_name': 'Turma Atualizada',
             'class_modality': class_group.modality, 'class_audience': 'Adulto',
             'class_schedule': 'Seg, Qua, Sex • 06:30', 'class_instructor': 'Mestre Bolivar',
             'class_capacity': '22', 'class_duration': '75', 'class_status': 'ativa',
+            'responsible_monitor_id': str(monitor_id),
             'publish_public': '1', 'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('Turma Turma Atualizada salva com sucesso!', response.get_data(as_text=True))
@@ -920,6 +935,7 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(class_group.capacity, 22)
             self.assertEqual(class_group.duration_minutes, 75)
             self.assertEqual(class_group.schedules, ['Seg, Qua, Sex • 06:30'])
+            self.assertEqual(class_group.responsible_monitor_id, monitor_id)
 
         detail = self.client.get(f'/gestao/turmas/{class_id}')
         self.assertEqual(detail.status_code, 200)
@@ -928,9 +944,38 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Mensalidades recebidas por competência', detail_page)
         self.assertIn('Taxa de presença', detail_page)
         self.assertIn('Vínculos iniciais de demonstração', detail_page)
+        self.assertIn('Monitor responsável', detail_page)
+        self.assertIn(monitor_name, detail_page)
+
+    def test_monitor_can_be_responsible_for_multiple_classes(self):
+        self.login('instrutor')
+        self.client.get('/gestao/turmas')
+        with app.app_context():
+            monitor_id = User.query.filter_by(role='monitor').first().id
+            classes = ClassGroup.query.order_by(ClassGroup.id).limit(2).all()
+            payloads = [{
+                'action': 'update', 'class_id': item.id, 'class_name': item.name,
+                'class_modality': item.modality, 'class_audience': item.audience,
+                'class_schedule': ' / '.join(item.schedules), 'class_instructor': item.instructor,
+                'class_capacity': str(item.capacity), 'class_duration': str(item.duration_minutes),
+                'class_status': item.status, 'responsible_monitor_id': str(monitor_id),
+            } for item in classes]
+            class_ids = [item.id for item in classes]
+
+        for payload in payloads:
+            payload['csrf_token'] = self.csrf()
+            self.assertEqual(self.client.post('/gestao/turmas', data=payload).status_code, 302)
+
+        with app.app_context():
+            assigned = ClassGroup.query.filter_by(responsible_monitor_id=monitor_id).filter(ClassGroup.id.in_(class_ids)).count()
+            self.assertEqual(assigned, 2)
 
     def test_csrf_is_required(self):
         self.assertEqual(self.client.post('/login', data={'action': 'login'}).status_code, 400)
+
+    def test_store_routes_are_removed(self):
+        self.assertEqual(self.client.get('/loja').status_code, 404)
+        self.assertEqual(self.client.get('/loja.html').status_code, 404)
 
     def test_monthly_payment_has_year(self):
         self.login('instrutor')

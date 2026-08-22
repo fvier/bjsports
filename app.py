@@ -303,6 +303,7 @@ class User(db.Model):
             return True
         if actor_user.role == 'monitor':
             monitor_groups = ClassGroup.query.filter(
+                (ClassGroup.responsible_monitor_id == actor_user.id) |
                 (ClassGroup.instructor.ilike(f'%{actor_user.name}%')) |
                 (ClassGroup.instructor.ilike(f'%{actor_user.username}%'))
             ).all()
@@ -578,6 +579,7 @@ class ClassGroup(db.Model):
     audience = db.Column(db.String(30), nullable=False, default='Adulto')
     schedules_json = db.Column(db.Text, nullable=False, default='[]')
     instructor = db.Column(db.String(120), nullable=False, default='Mestre Bolivar')
+    responsible_monitor_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
     capacity = db.Column(db.Integer, nullable=False, default=20)
     waiting = db.Column(db.Integer, nullable=False, default=0)
     duration_minutes = db.Column(db.Integer, nullable=False, default=60)
@@ -585,6 +587,7 @@ class ClassGroup(db.Model):
     publish_public = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    responsible_monitor = db.relationship('User', foreign_keys=[responsible_monitor_id])
 
     @property
     def schedules(self):
@@ -1181,6 +1184,10 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE attendance ADD COLUMN confirmed_at DATETIME'))
     if 'class_group_id' not in attendance_columns:
         db.session.execute(text('ALTER TABLE attendance ADD COLUMN class_group_id INTEGER REFERENCES class_group(id)'))
+    class_group_columns = {column['name'] for column in inspect(db.engine).get_columns('class_group')}
+    if 'responsible_monitor_id' not in class_group_columns:
+        db.session.execute(text('ALTER TABLE class_group ADD COLUMN responsible_monitor_id INTEGER REFERENCES "user"(id)'))
+        db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_class_group_responsible_monitor_id ON class_group (responsible_monitor_id)'))
     db.session.commit()
     migrate_sqlite_to_postgres()
 
@@ -1568,13 +1575,6 @@ def calendar_push_test():
     except Exception as exc:
         return jsonify({'error': f'Não foi possível enviar o teste: {exc}'}), 503
     return jsonify({'ok': True})
-
-@app.route('/loja')
-@app.route('/loja.html')
-def loja():
-    categories = sorted({product['category'] for product in STORE_PRODUCTS})
-    return render_template('loja.html', page_title='Loja Oficial', products=STORE_PRODUCTS,
-                           store_categories=categories)
 
 @app.route('/blog')
 @app.route('/blog.html')
@@ -2288,6 +2288,8 @@ def gestao_turmas():
         audience = request.form.get('class_audience', '').strip()
         schedules = parse_class_schedules(request.form.get('class_schedule'))
         instructor = request.form.get('class_instructor', '').strip()
+        responsible_monitor_id = request.form.get('responsible_monitor_id', type=int)
+        responsible_monitor = db.session.get(User, responsible_monitor_id) if responsible_monitor_id else None
         capacity = request.form.get('class_capacity', type=int)
         duration = request.form.get('class_duration', type=int)
         status = request.form.get('class_status', 'ativa')
@@ -2304,11 +2306,15 @@ def gestao_turmas():
         if duplicate.first():
             flash('Já existe uma turma cadastrada com esse nome.', 'error')
             return redirect(url_for('gestao_turmas'))
+        if responsible_monitor_id and (not responsible_monitor or responsible_monitor.role != 'monitor'):
+            flash('Selecione um monitor responsável válido.', 'error')
+            return redirect(url_for('gestao_turmas'))
         class_group.name = name
         class_group.modality = modality
         class_group.audience = audience
         class_group.schedules = schedules
         class_group.instructor = instructor
+        class_group.responsible_monitor = responsible_monitor
         class_group.capacity = capacity
         class_group.duration_minutes = duration
         class_group.status = status
@@ -2382,6 +2388,7 @@ def gestao_turmas():
         'gestao_turmas.html', page_title='Gestão de Turmas', classes=classes, overview=overview,
         modalities_smart=modalities_smart_metrics, search_query=search_query,
         modality_filter=modality_filter, status_filter=status_filter,
+        monitors=User.query.filter_by(role='monitor').order_by(User.name).all(),
     )
 
 @app.route('/gestao/turmas/<int:class_id>')

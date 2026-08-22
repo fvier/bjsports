@@ -596,19 +596,6 @@ function setupERPSidebar() {
   const tabContents = document.querySelectorAll('.member-tab-content');
 
   if (sidebar) {
-    const financeGroup = Array.from(sidebar.querySelectorAll('.erp-nav-group')).find((group) =>
-      group.querySelector(':scope > .erp-group-title')?.textContent.trim() === 'FINANCEIRO'
-    );
-    const role = document.body.dataset.userRole;
-    if (financeGroup && ['monitor', 'instrutor'].includes(role) && !financeGroup.querySelector('[data-finance-dashboard]')) {
-      const dashboardLink = document.createElement('a');
-      dashboardLink.href = '/financeiro_dashboard.html';
-      dashboardLink.className = `erp-nav-item${window.location.pathname.includes('financeiro_dashboard') ? ' active' : ''}`;
-      dashboardLink.dataset.financeDashboard = 'true';
-      dashboardLink.innerHTML = '<i data-lucide="chart-no-axes-combined" class="erp-item-icon"></i><span class="erp-item-label">Dashboard Financeiro</span>';
-      financeGroup.insertBefore(dashboardLink, financeGroup.children[1] || null);
-    }
-
     sidebar.querySelectorAll('.erp-nav-group').forEach((group, index) => {
       const title = group.querySelector(':scope > .erp-group-title');
       if (!title) return;
@@ -1026,6 +1013,7 @@ function setupClassManagementPreview() {
   const audienceInput = form?.elements.class_audience;
   const scheduleInput = form?.elements.class_schedule;
   const instructorInput = form?.elements.class_instructor;
+  const responsibleMonitorInput = form?.elements.responsible_monitor_id;
   const capacityInput = form?.elements.class_capacity;
   const durationInput = form?.elements.class_duration;
   const statusInput = form?.elements.class_status;
@@ -1048,6 +1036,7 @@ function setupClassManagementPreview() {
       if (audienceInput && button.dataset.classAudience) audienceInput.value = button.dataset.classAudience;
       if (scheduleInput) scheduleInput.value = button.dataset.classSchedule || '';
       if (instructorInput) instructorInput.value = button.dataset.classInstructor || 'Mestre Bolivar';
+      if (responsibleMonitorInput) responsibleMonitorInput.value = button.dataset.responsibleMonitorId || '';
       if (capacityInput) capacityInput.value = button.dataset.classCapacity || '20';
       if (durationInput) durationInput.value = button.dataset.classDuration || '60';
       if (statusInput) statusInput.value = button.dataset.classStatus || 'ativa';
