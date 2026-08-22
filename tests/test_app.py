@@ -53,9 +53,13 @@ class BJSportsTestCase(unittest.TestCase):
             return {'class_group_id': group.id, 'class_date': class_date.isoformat(), 'class_time': '19:00'}
 
     def test_invalid_login_does_not_create_session(self):
-        self.assertEqual(self.login('inexistente', 'errada').status_code, 302)
+        response = self.login('inexistente', 'errada')
+        self.assertEqual(response.status_code, 302)
         with self.client.session_transaction() as data:
             self.assertNotIn('user_id', data)
+        page = self.client.get('/login').get_data(as_text=True)
+        self.assertIn('solicite uma redefinição de senha ao instrutor', page)
+        self.assertNotIn('senha "123456"', page)
 
     def test_login_redirects_to_welcome_dashboard(self):
         response = self.login('aluno')

@@ -1849,7 +1849,7 @@ def login():
                     return redirect(next_url)
                 return redirect(url_for('dashboard'))
             
-            flash('Usuário/CPF ou senha inválidos. Use seu nome de usuário (ex: "fernandovier" ou "bolivarbjj") e a senha "123456".', 'error')
+            flash('Usuário, CPF, e-mail ou senha inválidos. Confira os dados informados ou solicite uma redefinição de senha ao instrutor.', 'error')
             return redirect(url_for('login'))
 
         elif action == 'register':
