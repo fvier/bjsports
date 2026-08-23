@@ -2919,12 +2919,15 @@ body.public-light-theme {
 .ct-dash-card .ct-card-icon { width: 34px; height: 34px; font-size: 1rem; border-radius: 8px; flex-shrink: 0; }
 .ct-dash-card .ct-card-header h3 { font-size: 1.02rem; }
 
-.prof-dash-body { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-.prof-photo-badge { width: 58px; height: 58px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--accent-gold), #ef4444); flex-shrink: 0; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
-.prof-portrait { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.prof-initials { width: 100%; height: 100%; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-.prof-dash-info h4 { font-family: var(--font-heading); font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0 0 3px; }
-.prof-dash-info .professor-title-badge { font-size: 0.7rem; padding: 2px 8px; margin: 0; }
+.prof-dash-body { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.prof-photo-card { width: 92px; height: 108px; border-radius: 12px; padding: 2px; background: linear-gradient(135deg, var(--accent-gold), rgba(239, 68, 68, 0.8)); flex-shrink: 0; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 12px rgba(245, 158, 11, 0.25); overflow: hidden; }
+.prof-portrait-square { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: 10px; transition: transform 0.3s ease; }
+.prof-portrait-square:hover { transform: scale(1.06); }
+.prof-initials-square { width: 100%; height: 100%; border-radius: 10px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.prof-dash-info { display: flex; flex-direction: column; gap: 4px; }
+.prof-dash-info h4 { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #ffffff; margin: 0; }
+.prof-dash-info .professor-title-badge { font-size: 0.72rem; padding: 3px 9px; margin: 0; align-self: flex-start; }
+.prof-bio-snippet { font-size: 0.78rem; color: #94a3b8; margin: 2px 0 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .professor-actions-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; padding-top: 0; border-top: none; }
 .action-btn-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); transition: box-shadow 0.25s ease, border-color 0.25s ease; }

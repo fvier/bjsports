@@ -55,17 +55,18 @@
           </div>
 
           <div class="prof-dash-body">
-            <div class="prof-photo-badge">
+            <div class="prof-photo-card">
               {% if location.professor_photo %}
-              <img src="{{ url_for('static', filename=location.professor_photo) }}" alt="{{ location.professor_name }}" class="prof-portrait">
+              <img src="{{ url_for('static', filename=location.professor_photo) }}" alt="{{ location.professor_name }}" class="prof-portrait-square">
               {% else %}
-              <div class="prof-initials">🥋</div>
+              <div class="prof-initials-square">🥋</div>
               {% endif %}
             </div>
             
             <div class="prof-dash-info">
               <h4>{{ location.professor_name }}</h4>
               <span class="professor-title-badge">{{ location.professor_title }}</span>
+              <p class="prof-bio-snippet">{{ location.professor_bio }}</p>
             </div>
           </div>
 
