@@ -1740,6 +1740,7 @@ LOCATIONS_DATA = {
         'professor_bio': 'Responsável pelas aulas e turmas na unidade Tênis Clube em Cajazeiras - PB.',
         'professor_phone': '5583999970203',
         'professor_phone_formatted': '(83) 99997-0203',
+        'professor_photo': 'img/prof_luiz.jpg',
         'professor_instagram': '@luizricardocz',
         'logo_ct': 'img/ct_tenis_clube.png',
         'badge_color': 'bg-gold',
