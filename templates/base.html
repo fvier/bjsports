@@ -39,36 +39,36 @@
             Locais <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
           <div class="dropdown-menu glass-panel">
-            <a href="{{ url_for('index') }}#horarios" class="dropdown-item">
+            <a href="{{ url_for('ver_local', slug='cajazeiras-tenis-clube') }}" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
-                <strong>AABB Cajazeiras - PB</strong>
-                <small>Unidade AABB</small>
+                <strong>Cajazeiras (Tênis Clube)</strong>
+                <small>Unidade Tênis Clube</small>
               </div>
             </a>
-            <a href="{{ url_for('index') }}#horarios" class="dropdown-item">
+            <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
                 <strong>Cajazeiras (Sede)</strong>
                 <small>Av. Estrada do Amor (Matriz)</small>
               </div>
             </a>
-            <a href="https://wa.me/5583996527997?text=Quero%20informacoes%20sobre%20o%20local%20Lavras-CE" target="_blank" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-red"></i>
+            <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="dropdown-item">
+              <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
                 <strong>Lavras - CE</strong>
                 <small>Unidade Ceará</small>
               </div>
             </a>
-            <a href="https://wa.me/5583996527997?text=Quero%20informacoes%20sobre%20o%20local%20Pombal-CE" target="_blank" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-red"></i>
+            <a href="{{ url_for('ver_local', slug='pombal') }}" class="dropdown-item">
+              <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
-                <strong>Pombal - CE</strong>
-                <small>Unidade Ceará</small>
+                <strong>Pombal - PB</strong>
+                <small>Unidade Sertão PB</small>
               </div>
             </a>
-            <a href="https://wa.me/5583996527997?text=Quero%20informacoes%20sobre%20o%20local%20Sao%20Joao%20do%20Rio%20do%20Peixe-PB" target="_blank" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-red"></i>
+            <a href="{{ url_for('ver_local', slug='sao-joao-do-rio-do-peixe') }}" class="dropdown-item">
+              <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
                 <strong>São João do Rio do Peixe - PB</strong>
                 <small>Unidade Sertão PB</small>

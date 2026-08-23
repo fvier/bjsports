@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ct-page-wrapper">
+  
+  <!-- HERO HEADER DO CENTRO DE TREINAMENTO COM CO-BRANDING / DUPLA DE LOGOS -->
+  <section class="ct-hero-section">
+    <div class="container">
+      <div class="ct-cobranding-card glass-panel">
+        
+        <!-- LOGO DA BJ SPORTS (ESQUERDA) -->
+        <div class="cobranding-logo-box">
+          <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="cobranding-logo-img main-brand">
+          <span class="cobranding-tag">BJ Sports Matriz</span>
+        </div>
+
+        <!-- DIVISOR DE PARCERIA DA UNIDADE -->
+        <div class="cobranding-divider">
+          <span class="divider-badge">PARCERIA OFICIAL</span>
+          <div class="divider-icon"><i data-lucide="swords" style="width: 24px; height: 24px; color: var(--accent-gold);"></i></div>
+        </div>
+
+        <!-- LOGO DO PROFESSOR / CT DA UNIDADE (DIREITA) -->
+        <div class="cobranding-logo-box">
+          {% if location.logo_ct %}
+          <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="Logo {{ location.name }}" class="cobranding-logo-img ct-brand">
+          {% else %}
+          <div class="cobranding-logo-placeholder">🥋</div>
+          {% endif %}
+          <span class="cobranding-tag">{{ location.professor_name }}</span>
+        </div>
+
+      </div>
+
+      <!-- TÍTULO DA UNIDADE E TAGS DE LOCALIZAÇÃO -->
+      <div class="ct-header-title text-center">
+        <span class="badge-pill {{ location.badge_color }}">CENTRO DE TREINAMENTO • UNIDADE {{ location.state }}</span>
+        <h1 class="ct-title">{{ location.name }}</h1>
+        <p class="ct-subtitle">📍 {{ location.subtitle }}</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SEÇÃO DE INFORMAÇÕES DO CT: PROFESSOR, CONTATO, HORÁRIOS & ENDEREÇO -->
+  <section class="section ct-details-section">
+    <div class="container">
+      
+      <div class="ct-grid-layout">
+        
+        <!-- COLUNA ESQUERDA: CARD DO PROFESSOR E CONTATO RÁPIDO -->
+        <div class="ct-column-left">
+          
+          <!-- Card do Professor Responsável -->
+          <div class="glass-panel ct-card profile-card">
+            <div class="ct-card-header">
+              <span class="ct-card-icon"><i data-lucide="user-check"></i></span>
+              <div>
+                <h3>Professor Responsável</h3>
+                <small>Comando técnico da unidade</small>
+              </div>
+            </div>
+
+            <div class="professor-profile-body">
+              <div class="professor-avatar-badge">🥋</div>
+              <h2 class="professor-name">{{ location.professor_name }}</h2>
+              <span class="professor-title-badge">{{ location.professor_title }}</span>
+              <p class="professor-bio">{{ location.professor_bio }}</p>
+              
+              {% if location.professor_instagram %}
+              <a href="https://instagram.com/{{ location.professor_instagram.replace('@','') }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block instagram-prof-btn">
+                <i data-lucide="instagram"></i> Instagram {{ location.professor_instagram }}
+              </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Card de Contato Direto e Agendamento -->
+          <div class="glass-panel ct-card contact-card">
+            <div class="ct-card-header">
+              <span class="ct-card-icon icon-green"><i data-lucide="message-square"></i></span>
+              <div>
+                <h3>Contato Direto & Agendamento</h3>
+                <small>Tire suas dúvidas ou agende seu treino</small>
+              </div>
+            </div>
+
+            <div class="contact-card-body">
+              <p class="contact-text">Fale diretamente com o <strong>{{ location.professor_name }}</strong> via WhatsApp para agendar sua aula experimental gratuita ou tirar dúvidas sobre matrículas nesta unidade.</p>
+              
+              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20na%20unidade%20{{ location.name }}" target="_blank" class="btn btn-primary btn-glow btn-block wa-direct-btn">
+                <i data-lucide="phone-call"></i> WhatsApp {{ location.professor_phone_formatted }}
+              </a>
+
+              <button class="btn btn-secondary btn-block select-plan-btn" data-modality="Aula Experimental — {{ location.name }}" style="margin-top: 12px;">
+                <i data-lucide="calendar"></i> Agendar Aula Experimental Gratuita
+              </button>
+            </div>
+          </div>
+
+          <!-- Card de Endereço & Como Chegar -->
+          <div class="glass-panel ct-card location-card">
+            <div class="ct-card-header">
+              <span class="ct-card-icon icon-red"><i data-lucide="map-pin"></i></span>
+              <div>
+                <h3>Localização & Endereço</h3>
+                <small>Onde treinar nesta unidade</small>
+              </div>
+            </div>
+
+            <div class="location-card-body">
+              <p class="location-address"><strong>📍 Endereço:</strong><br>{{ location.address }}</p>
+              <p class="location-desc">{{ location.description }}</p>
+              
+              <a href="{{ location.maps_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block maps-btn">
+                <i data-lucide="navigation"></i> Ver no Google Maps
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUNA DIREITA: HORÁRIOS & MODALIDADES OFERECIDAS -->
+        <div class="ct-column-right">
+          
+          <!-- Card de Modalidades Praticadas na Unidade -->
+          <div class="glass-panel ct-card modalities-card">
+            <div class="ct-card-header">
+              <span class="ct-card-icon icon-gold"><i data-lucide="swords"></i></span>
+              <div>
+                <h3>Modalidades Oferecidas</h3>
+                <small>Treinos disponíveis nesta unidade</small>
+              </div>
+            </div>
+
+            <div class="modalities-pills-list">
+              {% for mod in location.modalities %}
+              <span class="modality-pill">
+                <i data-lucide="check-circle-2" class="icon-gold"></i> {{ mod }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Card da Grade de Horários da Unidade -->
+          <div class="glass-panel ct-card schedule-ct-card">
+            <div class="ct-card-header">
+              <span class="ct-card-icon"><i data-lucide="calendar"></i></span>
+              <div>
+                <h3>Grade de Treinos da Unidade</h3>
+                <small>Horários dos treinos no {{ location.name }}</small>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="schedule-table schedule-flight-table">
+                <thead>
+                  <tr>
+                    <th>Horário</th>
+                    <th>Dias da Semana</th>
+                    <th>Modalidade</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for sch in location.schedules %}
+                  <tr class="schedule-flight-row">
+                    <td><strong style="color: var(--accent-gold); font-size: 1.05rem;">{{ sch.time }}</strong></td>
+                    <td><span style="font-weight: 600; color: #e2e8f0;">{{ sch.day }}</span></td>
+                    <td><span class="badge-pill bg-green" style="font-size: 0.75rem;">{{ sch.modality }}</span></td>
+                    <td>
+                      <button class="btn btn-secondary btn-sm select-plan-btn" data-modality="{{ sch.modality }} — {{ location.name }}">
+                        <i data-lucide="log-in"></i> Agendar
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card Informativo do Mestre Bolivar -->
+          <div class="glass-panel ct-card info-ct-card" style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <span style="font-size: 2rem;">🥋</span>
+              <div>
+                <h4 style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">Padrão BJ Sports de Ensino</h4>
+                <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.45;">
+                  Todas as nossas unidades credenciadas seguem a metodologia técnica unificada do Mestre Bolivar, garantindo a mesma qualidade de instrução, controle de presença e avanço nas graduações em qualquer centro de treinamento credenciado.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+</div>
+{% endblock %}

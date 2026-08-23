@@ -1699,6 +1699,154 @@ def calendar_push_test():
         return jsonify({'error': f'Não foi possível enviar o teste: {exc}'}), 503
     return jsonify({'ok': True})
 
+LOCATIONS_DATA = {
+    'cajazeiras-tenis-clube': {
+        'id': 'cajazeiras-tenis-clube',
+        'slug': 'cajazeiras-tenis-clube',
+        'name': 'Cajazeiras (Tênis Clube)',
+        'subtitle': 'Unidade Tênis Clube • Centro de Cajazeiras–PB',
+        'state': 'PB',
+        'city': 'Cajazeiras',
+        'address': 'Rua Eng. Carlos Pires de Sá, Centro, Cajazeiras - PB (Tênis Clube)',
+        'professor_name': 'Mestre Bolivar',
+        'professor_title': 'Professor Faixa Preta 4º Dan & Fundador BJ Sports',
+        'professor_bio': 'Com mais de 20 anos dedicados ao Jiu-Jitsu, Boxe e Muay Thai, lidera a unidade Tênis Clube com foco em técnica apurada, disciplina e formação de atletas.',
+        'professor_phone': '5583996527997',
+        'professor_phone_formatted': '(83) 99652-7997',
+        'professor_instagram': '@bolivar.bjsports',
+        'logo_ct': 'img/ct_tenis_clube.png',
+        'badge_color': 'bg-gold',
+        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids'],
+        'schedules': [
+            {'day': 'Segunda, Quarta e Sexta', 'time': '06:00h', 'modality': 'Boxe Matinal'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '07:30h', 'modality': 'Muay Thai'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Tarde'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:00h', 'modality': 'Jiu-Jitsu Noturno'},
+            {'day': 'Terça e Quinta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Kids'},
+            {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'Boxe Noturno'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Tenis+Clube+Cajazeiras+PB',
+        'description': 'A unidade Tênis Clube conta com espaço amplo, tatame profissional de alta densidade e vestiários para atender com excelência alunos de todas as idades.'
+    },
+    'cajazeiras-sede': {
+        'id': 'cajazeiras-sede',
+        'slug': 'cajazeiras-sede',
+        'name': 'Cajazeiras (Sede Matriz)',
+        'subtitle': 'Sede Matriz Central • Av. Estrada do Amor',
+        'state': 'PB',
+        'city': 'Cajazeiras',
+        'address': 'Av. Estrada do Amor, s/n, Cajazeiras - PB',
+        'professor_name': 'Mestre Bolivar & Equipe BJ Sports',
+        'professor_title': 'Direção Técnica Matriz',
+        'professor_bio': 'Nossa Sede Matriz em Cajazeiras é o centro de formação técnica e administrativa do BJ Sports, reunindo a equipe principal de Monitores e Professores qualificados.',
+        'professor_phone': '5583996527997',
+        'professor_phone_formatted': '(83) 99652-7997',
+        'professor_instagram': '@bjsports_',
+        'logo_ct': 'img/logo_original.png',
+        'badge_color': 'bg-green',
+        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA Profissional', 'Preparação Física'],
+        'schedules': [
+            {'day': 'Segunda a Sexta', 'time': '11:30h', 'modality': 'MMA Profissional'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Tarde'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:00h', 'modality': 'Jiu-Jitsu Noturno'},
+            {'day': 'Terça e Quinta', 'time': '12:00h', 'modality': 'Jiu-Jitsu Meio-Dia'},
+            {'day': 'Terça e Quinta', 'time': '18:00h', 'modality': 'MMA Amador / Iniciantes'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Av.+Estrada+do+Amor,+Cajazeiras+-+PB',
+        'description': 'Nossa Matriz conta com octógono de treinos, tatame oficial de competição e equipamentos de preparação física de última geração.'
+    },
+    'lavras-ce': {
+        'id': 'lavras-ce',
+        'slug': 'lavras-ce',
+        'name': 'Lavras - CE',
+        'subtitle': 'Unidade Lavras da Mangabeira • Ceará',
+        'state': 'CE',
+        'city': 'Lavras da Mangabeira',
+        'address': 'Rua Major José Augusto, Centro, Lavras da Mangabeira - CE',
+        'professor_name': 'Prof. Marcos Silva',
+        'professor_title': 'Professor Faixa Preta Responsável • CT Marcos Silva BJJ',
+        'professor_bio': 'Líder do CT Marcos Silva BJJ em Lavras da Mangabeira, o Prof. Marcos é especialista em graduação infantil e desenvolvimento de equipes competitivas de Jiu-Jitsu no Ceará.',
+        'professor_phone': '5588998765432',
+        'professor_phone_formatted': '(88) 99876-5432',
+        'professor_instagram': '@prof.marcossilva_bjj',
+        'logo_ct': 'img/ct_lavras.png',
+        'badge_color': 'bg-blue',
+        'modalities': ['Jiu-Jitsu Infantil', 'Jiu-Jitsu Adulto', 'Sub-Submission / No-Gi'],
+        'schedules': [
+            {'day': 'Segunda, Quarta e Sexta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids & Juvenil'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto / Competição'},
+            {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'No-Gi / Submission'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Lavras+da+Mangabeira+CE',
+        'description': 'O CT Marcos Silva em Lavras da Mangabeira é referência de lutas na região sul do Ceará, oferecendo ambiente familiar e treinamento técnico diferenciado.'
+    },
+    'pombal': {
+        'id': 'pombal',
+        'slug': 'pombal',
+        'name': 'Pombal - PB',
+        'subtitle': 'Unidade Pombal • Sertão da Paraíba',
+        'state': 'PB',
+        'city': 'Pombal',
+        'address': 'Rua Coronel João Leite, Centro, Pombal - PB',
+        'professor_name': 'Prof. Diego Holanda',
+        'professor_title': 'Professor Faixa Preta • CT Diego Holanda',
+        'professor_bio': 'Com sólida trajetória nas artes marciais, o Prof. Diego ministra treinos de Jiu-Jitsu e Boxe para iniciantes e atletas graduados em Pombal.',
+        'professor_phone': '5583998881234',
+        'professor_phone_formatted': '(83) 99888-1234',
+        'professor_instagram': '@diegoholanda_bjj',
+        'logo_ct': 'img/ct_tenis_clube.png',
+        'badge_color': 'bg-gold',
+        'modalities': ['Jiu-Jitsu Adulto', 'Boxe', 'Jiu-Jitsu Kids'],
+        'schedules': [
+            {'day': 'Segunda, Quarta e Sexta', 'time': '18:30h', 'modality': 'Jiu-Jitsu Kids'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:45h', 'modality': 'Jiu-Jitsu Adulto'},
+            {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'Boxe Fundamental'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Pombal+PB',
+        'description': 'Ambiente totalmente climatizado e projetado para acolher quem quer aprender defesa pessoal, perder peso ou competir no mais alto nível.'
+    },
+    'sao-joao-do-rio-do-peixe': {
+        'id': 'sao-joao-do-rio-do-peixe',
+        'slug': 'sao-joao-do-rio-do-peixe',
+        'name': 'São João do Rio do Peixe - PB',
+        'subtitle': 'Unidade São João do Rio do Peixe • Sertão PB',
+        'state': 'PB',
+        'city': 'São João do Rio do Peixe',
+        'address': 'Rua Padre Rolim, Centro, São João do Rio do Peixe - PB',
+        'professor_name': 'Prof. Renato Dantas',
+        'professor_title': 'Professor Responsável • CT Renato Dantas',
+        'professor_bio': 'Dedicado ao ensino do esporte na comunidade, o Prof. Renato comanda as aulas de Jiu-Jitsu com foco em disciplina, saúde e superação.',
+        'professor_phone': '5583999114321',
+        'professor_phone_formatted': '(83) 99911-4321',
+        'professor_instagram': '@renatodantas_bjj',
+        'logo_ct': 'img/ct_lavras.png',
+        'badge_color': 'bg-gold',
+        'modalities': ['Jiu-Jitsu Adulto', 'Jiu-Jitsu Infantil'],
+        'schedules': [
+            {'day': 'Segunda e Quarta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Sao+Joao+do+Rio+do+Peixe+PB',
+        'description': 'Estrutura aconchegante e focada no desenvolvimento individual de cada aluno, promovendo qualidade de vida e respeito no tatame.'
+    }
+}
+
+@app.route('/locais')
+@app.route('/locais/')
+@app.route('/locais.html')
+def lista_locais():
+    return redirect(url_for('ver_local', slug='cajazeiras-tenis-clube'))
+
+@app.route('/locais/<slug>')
+@app.route('/locais/<slug>.html')
+@app.route('/local/<slug>')
+def ver_local(slug):
+    slug_clean = slug.replace('.html', '').lower()
+    location = LOCATIONS_DATA.get(slug_clean)
+    if not location:
+        location = LOCATIONS_DATA['cajazeiras-tenis-clube']
+    return render_template('local_detalhe.html', page_title=f"CT {location['name']} — BJ Sports", location=location)
+
 @app.route('/blog')
 @app.route('/blog.html')
 def blog():

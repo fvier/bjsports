@@ -2856,3 +2856,40 @@ body.public-light-theme {
 .plan-discount-field{display:flex!important;align-items:center;gap:7px;margin-top:7px}.plan-discount-field span{color:#94a3b8;font-size:.68rem;white-space:nowrap}.plan-discount-field input{min-width:0!important;width:76px!important;padding:5px 7px!important;color:#86efac!important}.sponsored-plan-panel{max-width:650px;margin-top:20px;background:rgba(18,18,28,.95)!important}.sponsored-plan-panel>header{display:flex;align-items:center;gap:12px;margin-bottom:18px}.sponsored-plan-panel>header>svg{color:#4ade80}.sponsored-plan-panel>header strong,.sponsored-plan-panel>header small{display:block}.sponsored-plan-panel>header small{margin-top:3px;color:#94a3b8}.sponsored-add-form label>span,.sponsored-add-form label>small{display:block}.sponsored-add-form label>span{font-weight:800}.sponsored-add-form label>small{margin:4px 0 9px;color:#94a3b8}.sponsored-add-form label>div{display:flex;gap:8px}.sponsored-add-form input{width:110px;border:1px solid var(--border-light);border-radius:8px;padding:10px;background:#0f172a;color:#fff;font-weight:800;letter-spacing:.2em;text-align:center}.sponsored-add-form button,.sponsored-members-list button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:8px;padding:9px 12px;background:#16a34a;color:#fff;font-weight:800;cursor:pointer}.sponsored-members-list{display:grid;gap:8px;margin-top:18px}.sponsored-members-list article{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border-light);border-radius:9px;padding:10px 12px;background:rgba(15,23,42,.65)}.sponsored-members-list article strong,.sponsored-members-list article small{display:block}.sponsored-members-list article small,.sponsored-members-list>p{color:#94a3b8}.sponsored-members-list button{background:rgba(239,68,68,.12);color:#f87171}
 .plan-expanded-editor{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}.plan-behavior-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan-behavior-grid label>span{display:block;margin-bottom:5px;color:#cbd5e1;font-size:.72rem;font-weight:700}.plan-behavior-grid select{width:100%;border:1px solid var(--border-light);border-radius:8px;padding:8px;background:#0f172a;color:#fff}.plan-force-days{grid-column:1/-1;display:flex;align-items:center;gap:8px}@media(max-width:750px){.plan-expanded-editor,.plan-behavior-grid{grid-template-columns:1fr}}
 .registration-plan-details{margin-top:12px;border:1px solid rgba(59,130,246,.28);border-radius:11px;padding:13px;background:rgba(30,58,138,.16)}.registration-plan-details header{display:flex;align-items:center;justify-content:space-between;gap:10px}.registration-plan-details header strong{color:#fff}.registration-plan-details header span{border-radius:999px;padding:4px 8px;background:rgba(34,197,94,.16);color:#86efac;font-size:.7rem;font-weight:800}.registration-plan-details p{margin:7px 0;color:#cbd5e1;font-size:.8rem}.registration-plan-details div{display:flex;flex-wrap:wrap;gap:5px}.registration-plan-details div span{border-radius:6px;padding:4px 7px;background:rgba(59,130,246,.15);color:#bfdbfe;font-size:.7rem;font-weight:700}.registration-plan-details ul{margin:8px 0 0;padding-left:18px;color:#94a3b8;font-size:.75rem}.registration-plan-details>small{display:block;margin-top:8px;color:#facc15;font-weight:700}
+
+/* CENTRO DE TREINAMENTO (CT) - DEDICATED LOCATION STYLES */
+.ct-page-wrapper { padding-bottom: 60px; }
+.ct-hero-section { position: relative; padding: 45px 0 35px; background: radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.95) 75%); }
+.ct-cobranding-card { display: flex; align-items: center; justify-content: center; gap: 28px; max-width: 720px; margin: 0 auto 24px; padding: 24px 32px; background: rgba(18, 18, 28, 0.85); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
+.cobranding-logo-box { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cobranding-logo-img { height: 90px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); transition: transform 0.3s ease; }
+.cobranding-logo-img:hover { transform: scale(1.05); }
+.cobranding-logo-placeholder { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2)); border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.cobranding-tag { font-size: 0.76rem; font-weight: 800; color: #cbd5e1; letter-spacing: 0.05em; text-transform: uppercase; }
+.cobranding-divider { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.divider-badge { font-size: 0.68rem; font-weight: 900; color: var(--accent-gold); background: rgba(245, 158, 11, 0.12); padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); letter-spacing: 0.08em; }
+.divider-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+.ct-header-title .ct-title { font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: #ffffff; margin: 12px 0 4px; text-shadow: 0 2px 10px rgba(0,0,0,0.6); }
+.ct-header-title .ct-subtitle { color: var(--text-muted); font-size: 1.05rem; font-weight: 600; }
+.ct-details-section { padding-top: 20px; }
+.ct-grid-layout { display: grid; grid-template-columns: 1fr 1.35fr; gap: 24px; align-items: start; }
+.ct-card { padding: 22px; margin-bottom: 20px; background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.ct-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.ct-card-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(245, 158, 11, 0.3); }
+.ct-card-header h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0; }
+.ct-card-header small { color: var(--text-muted); font-size: 0.78rem; display: block; }
+.professor-profile-body { text-align: center; }
+.professor-avatar-badge { width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.2)); border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 0 15px rgba(245,158,11,0.25); }
+.professor-name { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #ffffff; margin: 0 0 4px; }
+.professor-title-badge { display: inline-block; padding: 4px 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px; }
+.professor-bio { color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; }
+.contact-card-body .contact-text { color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; }
+.location-card-body .location-address { color: #ffffff; font-size: 0.92rem; line-height: 1.5; margin-bottom: 10px; }
+.location-card-body .location-desc { color: #94a3b8; font-size: 0.84rem; line-height: 1.45; margin-bottom: 14px; }
+.modalities-pills-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.modality-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; color: #ffffff; font-weight: 700; font-size: 0.88rem; }
+@media (max-width: 900px) {
+  .ct-grid-layout { grid-template-columns: 1fr; }
+  .ct-cobranding-card { flex-direction: column; gap: 16px; }
+  .cobranding-logo-img { height: 70px; }
+}

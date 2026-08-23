@@ -1713,6 +1713,19 @@ class BJSportsTestCase(unittest.TestCase):
             updated_student = db.session.get(User, student.id)
             self.assertEqual(updated_student.payment_status, 'Em Dia')
 
+    def test_ver_local_routes(self):
+        res = self.client.get('/locais/cajazeiras-tenis-clube')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Cajazeiras (Tênis Clube)', res.get_data(as_text=True))
+        self.assertIn('Mestre Bolivar', res.get_data(as_text=True))
+
+        res_lavras = self.client.get('/locais/lavras-ce')
+        self.assertEqual(res_lavras.status_code, 200)
+        self.assertIn('Prof. Marcos Silva', res_lavras.get_data(as_text=True))
+
+        res_redirect = self.client.get('/locais')
+        self.assertEqual(res_redirect.status_code, 302)
+
 
 if __name__ == '__main__':
     unittest.main()
