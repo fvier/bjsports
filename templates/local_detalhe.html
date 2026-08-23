@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="ct-page-wrapper">
+<div class="ct-page-wrapper single-viewport-fit">
   
   <!-- HERO HEADER COMPACTO DO CENTRO DE TREINAMENTO -->
   <section class="ct-hero-section">
@@ -14,11 +14,11 @@
           <span class="ct-brand-label">BJ Sports Matriz</span>
         </div>
 
-        <!-- CONTEÚDO CENTRALIZADO (TÍTULO E CIDADE) -->
+        <!-- CONTEÚDO CENTRALIZADO (TÍTULO E ENDEREÇO) -->
         <div class="ct-center-info">
           <div class="ct-badge-row">
             <span class="badge-pill {{ location.badge_color }}">UNIDADE {{ location.state }}</span>
-            <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 13px; height: 13px;"></i> CREDENCIADO</span>
+            <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> CREDENCIADO</span>
           </div>
           <h1 class="ct-title">{{ location.name }}</h1>
           <p class="ct-subtitle">📍 {{ location.address }}</p>
@@ -38,144 +38,123 @@
     </div>
   </section>
 
-  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- DASHBOARD HORIZONTAL EM 3 COLUNAS - FIT EM TELA ÚNICA (ZERO SCROLL) -->
   <section class="section ct-details-section">
     <div class="container">
       
-      <div class="ct-grid-layout">
+      <div class="ct-dashboard-grid">
         
-        <!-- COLUNA ESQUERDA: PERFIL DO PROFESSOR COM ÍCONES RÁPIDOS E LOCALIZAÇÃO -->
-        <div class="ct-column-left">
-          
-          <!-- CARD DO PROFESSOR COM ÍCONES DE AÇÃO RÁPIDA (WHATSAPP, INSTAGRAM, MAPS) -->
-          <div class="glass-panel ct-card profile-card" style="text-align: center;">
-            <div class="ct-card-header">
-              <span class="ct-card-icon"><i data-lucide="user-check"></i></span>
-              <div style="text-align: left;">
-                <h3>Professor Responsável</h3>
-                <small>{{ location.city }} - {{ location.state }}</small>
-              </div>
+        <!-- COLUNA 1: PERFIL DO PROFESSOR & ÍCONES RÁPIDOS -->
+        <div class="glass-panel ct-dash-card prof-dash-card">
+          <div class="ct-card-header">
+            <span class="ct-card-icon"><i data-lucide="user-check"></i></span>
+            <div>
+              <h3>Professor Responsável</h3>
+              <small>{{ location.city }} - {{ location.state }}</small>
             </div>
+          </div>
 
-            <div class="professor-profile-body">
+          <div class="prof-dash-body">
+            <div class="prof-photo-badge">
               {% if location.professor_photo %}
-              <div class="professor-photo-frame">
-                <img src="{{ url_for('static', filename=location.professor_photo) }}" alt="{{ location.professor_name }}" class="professor-portrait-img">
-              </div>
-              {% elif location.logo_ct %}
-              <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="{{ location.professor_name }}" class="professor-avatar-img">
+              <img src="{{ url_for('static', filename=location.professor_photo) }}" alt="{{ location.professor_name }}" class="prof-portrait">
               {% else %}
-              <div class="professor-avatar-badge">🥋</div>
+              <div class="prof-initials">🥋</div>
               {% endif %}
-              
-              <h2 class="professor-name" style="margin-top: 8px;">{{ location.professor_name }}</h2>
+            </div>
+            
+            <div class="prof-dash-info">
+              <h4>{{ location.professor_name }}</h4>
               <span class="professor-title-badge">{{ location.professor_title }}</span>
-              
-              {% if location.professor_bio %}
-              <p class="professor-bio" style="font-size: 0.88rem; color: #cbd5e1; margin: 10px 0 14px;">{{ location.professor_bio }}</p>
-              {% endif %}
-
-              <!-- BARRA COMPACTA DE AÇÃO RÁPIDA (WHATSAPP, INSTAGRAM, MAPS) -->
-              <div class="professor-actions-row">
-                <!-- WHATSAPP -->
-                <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20em%20{{ location.city }}" target="_blank" class="action-btn-item btn-wa" title="Falar no WhatsApp ({{ location.professor_phone_formatted }})">
-                  <div class="action-btn-icon">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                    </svg>
-                  </div>
-                  <span>WhatsApp</span>
-                </a>
-
-                <!-- INSTAGRAM -->
-                {% if location.professor_instagram %}
-                <a href="https://instagram.com/{{ location.professor_instagram.replace('@','') }}" target="_blank" rel="noopener noreferrer" class="action-btn-item btn-ig" title="Instagram {{ location.professor_instagram }}">
-                  <div class="action-btn-icon">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                    </svg>
-                  </div>
-                  <span>Instagram</span>
-                </a>
-                {% endif %}
-
-                <!-- GOOGLE MAPS -->
-                <a href="{{ location.maps_link }}" target="_blank" rel="noopener noreferrer" class="action-btn-item btn-maps" title="Ver no Google Maps">
-                  <div class="action-btn-icon">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                      <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                  </div>
-                  <span>Mapa</span>
-                </a>
-              </div>
-
             </div>
           </div>
 
-          <!-- CARD DE LOCALIZAÇÃO E ENDEREÇO -->
-          <div class="glass-panel ct-card location-card">
-            <div class="ct-card-header">
-              <span class="ct-card-icon icon-red"><i data-lucide="navigation"></i></span>
-              <div>
-                <h3>Endereço</h3>
-                <small>Localização da unidade</small>
+          <!-- ÍCONES COMPACTOS DE AÇÃO (WHATSAPP, INSTAGRAM, MAPS) -->
+          <div class="professor-actions-row">
+            <!-- WHATSAPP -->
+            <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20em%20{{ location.city }}" target="_blank" class="action-btn-item btn-wa" title="Falar no WhatsApp ({{ location.professor_phone_formatted }})">
+              <div class="action-btn-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
               </div>
-            </div>
+              <span>WhatsApp</span>
+            </a>
 
-            <div class="location-card-body">
-              <p class="location-address" style="font-size: 0.9rem; color: #f8fafc; margin-bottom: 10px;"><strong>📍 {{ location.address }}</strong></p>
-              <p class="location-desc" style="font-size: 0.84rem; color: #94a3b8; margin: 0;">{{ location.description }}</p>
-            </div>
+            <!-- INSTAGRAM -->
+            {% if location.professor_instagram %}
+            <a href="https://instagram.com/{{ location.professor_instagram.replace('@','') }}" target="_blank" rel="noopener noreferrer" class="action-btn-item btn-ig" title="Instagram {{ location.professor_instagram }}">
+              <div class="action-btn-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                </svg>
+              </div>
+              <span>Instagram</span>
+            </a>
+            {% endif %}
+
+            <!-- GOOGLE MAPS -->
+            <a href="{{ location.maps_link }}" target="_blank" rel="noopener noreferrer" class="action-btn-item btn-maps" title="Ver no Google Maps">
+              <div class="action-btn-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <span>Mapa</span>
+            </a>
           </div>
-
         </div>
 
-        <!-- COLUNA DIREITA: GRADE DE AULAS (VISÍVEL SEM HORÁRIOS FIXOS) -->
-        <div class="ct-column-right">
-          
-          <!-- CARD DE GRADE DE AULAS / MODALIDADES -->
-          <div class="glass-panel ct-card schedule-ct-card">
-            <div class="ct-card-header">
-              <span class="ct-card-icon icon-gold"><i data-lucide="layout-grid"></i></span>
-              <div>
-                <h3>Grade de Aulas</h3>
-                <small>Modalidades disponíveis no {{ location.name }}</small>
-              </div>
-            </div>
-
-            <!-- GRID DE MODALIDADES DA GRADE -->
-            <div class="ct-modalities-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
-              {% for mod in location.modalities %}
-              <div class="ct-modality-card glass-panel" style="padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; transition: transform 0.2s ease;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
-                  <span style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); color: var(--accent-gold);">
-                    <i data-lucide="swords" style="width: 20px; height: 20px;"></i>
-                  </span>
-                  <span class="badge-pill bg-green" style="font-size: 0.7rem; font-weight: 800;">TURMA REGULAR</span>
-                </div>
-                
-                <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #ffffff; margin: 0 0 6px;">{{ mod }}</h4>
-                <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 14px; line-height: 1.4;">Acompanhamento técnico para praticantes de todas as faixas e idades.</p>
-                
-                <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Gostaria%20de%20saber%20mais%20sobre%20as%20aulas%20de%20{{ mod }}%20em%20{{ location.city }}" target="_blank" class="btn btn-secondary btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                  <i data-lucide="message-circle" style="width: 16px; height: 16px; color: #22c55e;"></i> Consultar Aula
-                </a>
-              </div>
-              {% endfor %}
-            </div>
-
-            <!-- NOTA EXPLICATIVA DE CONTATO -->
-            <div style="margin-top: 18px; padding: 12px 16px; background: rgba(30, 41, 59, 0.6); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 10px; text-align: center;">
-              <p style="margin: 0; font-size: 0.84rem; color: #cbd5e1;">
-                💬 Para consultar dias disponíveis, agendar uma visita ou aula experimental, entre em contato direto pelo WhatsApp com o <strong>{{ location.professor_name }}</strong>.
-              </p>
+        <!-- COLUNA 2: GRADE DE AULAS & MODALIDADES -->
+        <div class="glass-panel ct-dash-card modal-dash-card">
+          <div class="ct-card-header">
+            <span class="ct-card-icon icon-gold"><i data-lucide="layout-grid"></i></span>
+            <div>
+              <h3>Grade de Aulas</h3>
+              <small>Modalidades oferecidas</small>
             </div>
           </div>
 
+          <div class="ct-modalities-compact-list">
+            {% for mod in location.modalities %}
+            <div class="modality-chip-card">
+              <div class="chip-main-info">
+                <i data-lucide="swords" class="icon-gold" style="width: 16px; height: 16px;"></i>
+                <strong>{{ mod }}</strong>
+              </div>
+              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Gostaria%20de%20saber%20os%20horários%20de%20{{ mod }}%20em%20{{ location.city }}" target="_blank" class="chip-wa-btn" title="Consultar horários de {{ mod }}">
+                <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i> Consultar
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- COLUNA 3: LOCALIZAÇÃO & CHANCELA MATRIZ -->
+        <div class="glass-panel ct-dash-card loc-dash-card">
+          <div class="ct-card-header">
+            <span class="ct-card-icon icon-red"><i data-lucide="navigation"></i></span>
+            <div>
+              <h3>Localização</h3>
+              <small>Endereço e chancela</small>
+            </div>
+          </div>
+
+          <div class="loc-dash-body">
+            <p class="loc-address"><strong>📍 {{ location.address }}</strong></p>
+            <p class="loc-desc">{{ location.description }}</p>
+
+            <div class="loc-seal-box">
+              <i data-lucide="shield-check" class="seal-icon"></i>
+              <div>
+                <strong>Chancela Técnica BJ Sports</strong>
+                <small>Supervisão do Mestre Bolivar</small>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
