@@ -75,62 +75,23 @@
         </article>
       </section>
 
-      <!-- FILTROS DE PESQUISA -->
-      <form class="class-management-filters" method="get" style="margin-bottom: 24px;">
-        <label class="class-management-search">
-          <span>Buscar filial</span>
-          <div>
-            <i data-lucide="search"></i>
-            <input type="search" name="q" value="{{ search_query or '' }}" placeholder="Nome da unidade, cidade ou professor">
-          </div>
-        </label>
-        
-        <label>
-          <span>Estado</span>
-          <select name="state">
-            <option value="todos">Todos os estados</option>
-            <option value="PB" {% if state_filter == 'PB' %}selected{% endif %}>Paraíba (PB)</option>
-            <option value="CE" {% if state_filter == 'CE' %}selected{% endif %}>Ceará (CE)</option>
-          </select>
-        </label>
-
-        <button type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
-        {% if search_query or (state_filter and state_filter != 'todos') %}
-        <a href="{{ url_for('locais_admin') }}" title="Limpar filtros"><i data-lucide="x"></i></a>
-        {% endif %}
-      </form>
-
-      <!-- LISTA DE FILIAIS NO FORMATO DO TEMPLATE OFICIAL DA UNIDADE -->
+      <!-- PAINEL DA FILIAL SELECIONADA COM SELETOR DROPDOWN E AÇÕES NO TOPO -->
       <section class="class-management-panel">
-        <header>
-          <div>
-            <span>REDE CADASTRADA</span>
-            <h2>Filiais e Centros de Treinamento</h2>
-          </div>
-          <small>{{ locations_list|length }} resultado(s)</small>
-        </header>
+        <header class="flex-between align-center" style="flex-wrap: wrap; gap: 16px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+          
+          <!-- LADO ESQUERDO: SELETOR DE FILIAL -->
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--accent-gold); letter-spacing: 1px; font-weight: 700; display: block;">REDE CADASTRADA</span>
+              <h2 style="font-size: 1.15rem; margin: 0; color: #fff;">Selecione a Filial</h2>
+            </div>
 
-        <div class="filiais-admin-list p-3" style="display: flex; flex-direction: column; gap: 24px;">
-          {% for loc in locations_list %}
-          <div class="filial-template-block glass-panel" style="padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95);">
-            
-            <!-- BARRA DE AÇÕES SUPERIOR DO CARD DA FILIAL -->
-            <div class="filial-card-top-bar flex-between align-center pb-3 mb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span class="badge-pill {{ loc.badge_color or 'bg-gold' }}">UNIDADE {{ loc.state }}</span>
-                <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> CREDENCIADO</span>
-                <span class="badge-pill bg-dark-subtle" style="font-size:0.75rem; border:1px solid rgba(255,255,255,0.1);">
-                  <i data-lucide="calendar-range" style="width:12px; height:12px;" class="icon-gold"></i> {{ loc.turmas_count or 0 }} turma(s) ativas
-                </span>
-              </div>
-
-              <!-- BOTÕES DE AÇÃO NO TOPO DA FILIAL -->
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <a href="{{ url_for('ver_local', slug=loc.slug) }}" target="_blank" class="btn-icon-action" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 12px; font-size: 0.8rem;" title="Ver Página Pública">
-                  <i data-lucide="external-link"></i> Ver Página Pública
-                </a>
-
-                <button type="button" class="btn-icon-action btn-edit-loc" 
+            <!-- DROPDOWN SELETOR DE FILIAIS -->
+            {% if locations_list %}
+            <div style="position: relative; min-width: 280px;">
+              <select id="filialSelectDropdown" onchange="switchFilialPreview(this.value)" style="background: rgba(30, 41, 59, 0.95); color: #fff; border: 1.5px solid var(--accent-gold); border-radius: 10px; padding: 9px 36px 9px 14px; font-size: 0.92rem; font-weight: 700; width: 100%; cursor: pointer; appearance: none; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
+                {% for loc in locations_list %}
+                <option value="{{ loc.slug }}" 
                   data-id="{{ loc.id }}"
                   data-slug="{{ loc.slug }}"
                   data-name="{{ loc.name }}"
@@ -147,18 +108,73 @@
                   data-modalities="{{ loc.modalities_json or '[]' }}"
                   data-maps="{{ loc.maps_link or '' }}"
                   data-desc="{{ loc.description or '' }}"
-                  style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 6px 12px; font-size: 0.8rem;"
-                  title="Editar Filial">
-                  <i data-lucide="pencil"></i> Editar Filial
-                </button>
+                  {% if loop.first %}selected{% endif %}>
+                  📍 {{ loc.name }} ({{ loc.city }} - {{ loc.state }})
+                </option>
+                {% endfor %}
+              </select>
+              <i data-lucide="chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--accent-gold); width: 18px; height: 18px;"></i>
+            </div>
+            {% endif %}
+          </div>
 
-                <form action="{{ url_for('locais_admin') }}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja remover a filial {{ loc.name }}?');">
-                  <input type="hidden" name="action" value="delete_location">
-                  <input type="hidden" name="location_db_id" value="{{ loc.id }}">
-                  <button type="submit" class="btn-icon-action btn-delete-loc" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 12px; font-size: 0.8rem;" title="Excluir Filial">
-                    <i data-lucide="trash-2"></i> Excluir
-                  </button>
-                </form>
+          <!-- LADO DIREITO: BOTÕES DE AÇÃO PARA A FILIAL SELECIONADA -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="class-management-primary" id="btnOpenAddLocationModal" style="padding: 8px 16px; font-size: 0.85rem;">
+              <i data-lucide="plus"></i> Nova filial
+            </button>
+
+            {% if locations_list %}
+            <button type="button" class="btn-icon-action btn-edit-selected-loc" id="btnEditSelectedFilial"
+              data-id="{{ locations_list[0].id }}"
+              data-slug="{{ locations_list[0].slug }}"
+              data-name="{{ locations_list[0].name }}"
+              data-subtitle="{{ locations_list[0].subtitle or '' }}"
+              data-state="{{ locations_list[0].state }}"
+              data-city="{{ locations_list[0].city }}"
+              data-address="{{ locations_list[0].address }}"
+              data-prof-name="{{ locations_list[0].professor_name or '' }}"
+              data-prof-title="{{ locations_list[0].professor_title or '' }}"
+              data-prof-bio="{{ locations_list[0].professor_bio or '' }}"
+              data-prof-phone="{{ locations_list[0].professor_phone or '' }}"
+              data-prof-formatted="{{ locations_list[0].professor_phone_formatted or '' }}"
+              data-prof-ig="{{ locations_list[0].professor_instagram or '' }}"
+              data-modalities="{{ locations_list[0].modalities_json or '[]' }}"
+              data-maps="{{ locations_list[0].maps_link or '' }}"
+              data-desc="{{ locations_list[0].description or '' }}"
+              style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 16px; font-size: 0.85rem;"
+              title="Editar esta Filial">
+              <i data-lucide="pencil"></i> Editar Filial
+            </button>
+
+            <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
+              <input type="hidden" name="action" value="delete_location">
+              <input type="hidden" name="location_db_id" id="deleteLocationDbId" value="{{ locations_list[0].id }}">
+              <button type="submit" class="btn-icon-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 8px 16px; font-size: 0.85rem;" title="Excluir esta Filial">
+                <i data-lucide="trash-2"></i> Excluir
+              </button>
+            </form>
+
+            <a href="{{ url_for('ver_local', slug=locations_list[0].slug) }}" target="_blank" id="btnViewPublicSelectedFilial" class="btn-icon-action" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 8px 16px; font-size: 0.85rem;" title="Ver Página Pública">
+              <i data-lucide="external-link"></i> Ver Página Pública
+            </a>
+            {% endif %}
+          </div>
+        </header>
+
+        <!-- CONTAINER COM APENAS 1 RESULTADO EXIBIDO POR VEZ (SINGLE RESULT DISPLAY) -->
+        <div class="p-3">
+          {% for loc in locations_list %}
+          <div class="filial-preview-card filial-template-block glass-panel" id="filialCard_{{ loc.slug }}" style="padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95); {% if not loop.first %}display: none;{% endif %}">
+            
+            <!-- TOPO DO CARD DA FILIAL COM BADGES DE INFORMAÇÃO -->
+            <div class="filial-card-top-bar flex-between align-center pb-3 mb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="badge-pill {{ loc.badge_color or 'bg-gold' }}">UNIDADE {{ loc.state }}</span>
+                <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> CREDENCIADO</span>
+                <span class="badge-pill bg-dark-subtle" style="font-size:0.75rem; border:1px solid rgba(255,255,255,0.1);">
+                  <i data-lucide="calendar-range" style="width:12px; height:12px;" class="icon-gold"></i> {{ loc.turmas_count or 0 }} turma(s) ativas
+                </span>
               </div>
             </div>
 
@@ -307,8 +323,8 @@
           {% else %}
           <div class="glass-panel text-center p-5 w-100">
             <i data-lucide="map-pin-off" style="width: 48px; height: 48px; opacity: 0.5;"></i>
-            <h3 class="mt-3">Nenhuma filial encontrada</h3>
-            <p class="text-muted">Ajuste os filtros ou clique em "+ Nova filial" para cadastrar.</p>
+            <h3 class="mt-3">Nenhuma filial cadastrada</h3>
+            <p class="text-muted">Clique em "+ Nova filial" para cadastrar a primeira unidade.</p>
           </div>
           {% endfor %}
         </div>
@@ -417,6 +433,52 @@
 </div>
 
 <script>
+function switchFilialPreview(slug) {
+  // Hide all cards
+  document.querySelectorAll('.filial-preview-card').forEach(card => {
+    card.style.display = 'none';
+  });
+
+  // Show selected card
+  const selectedCard = document.getElementById('filialCard_' + slug);
+  if (selectedCard) {
+    selectedCard.style.display = 'block';
+  }
+
+  // Update top actions (Edit, Delete, View Public)
+  const dropdown = document.getElementById('filialSelectDropdown');
+  if (dropdown) {
+    const opt = dropdown.options[dropdown.selectedIndex];
+    if (opt) {
+      const btnEdit = document.getElementById('btnEditSelectedFilial');
+      if (btnEdit) {
+        btnEdit.dataset.id = opt.dataset.id || '';
+        btnEdit.dataset.slug = opt.dataset.slug || '';
+        btnEdit.dataset.name = opt.dataset.name || '';
+        btnEdit.dataset.subtitle = opt.dataset.subtitle || '';
+        btnEdit.dataset.state = opt.dataset.state || 'PB';
+        btnEdit.dataset.city = opt.dataset.city || '';
+        btnEdit.dataset.address = opt.dataset.address || '';
+        btnEdit.dataset.profName = opt.dataset.profName || '';
+        btnEdit.dataset.profTitle = opt.dataset.profTitle || '';
+        btnEdit.dataset.profBio = opt.dataset.profBio || '';
+        btnEdit.dataset.profPhone = opt.dataset.profPhone || '';
+        btnEdit.dataset.profFormatted = opt.dataset.profFormatted || '';
+        btnEdit.dataset.profIg = opt.dataset.profIg || '';
+        btnEdit.dataset.modalities = opt.dataset.modalities || '[]';
+        btnEdit.dataset.maps = opt.dataset.maps || '';
+        btnEdit.dataset.desc = opt.dataset.desc || '';
+      }
+
+      const inputDeleteId = document.getElementById('deleteLocationDbId');
+      if (inputDeleteId) inputDeleteId.value = opt.dataset.id || '';
+
+      const btnView = document.getElementById('btnViewPublicSelectedFilial');
+      if (btnView) btnView.href = '/local/' + opt.dataset.slug;
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('locationModal');
   const btnOpenAdd = document.getElementById('btnOpenAddLocationModal');
@@ -443,37 +505,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnClose) btnClose.addEventListener('click', closeModal);
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-  // Evento para Editar Local
-  document.querySelectorAll('.btn-edit-loc').forEach(btn => {
-    btn.addEventListener('click', () => {
+  // Evento para Editar Filial Selecionada pelo botão do cabeçalho
+  const btnEditSelected = document.getElementById('btnEditSelectedFilial');
+  if (btnEditSelected) {
+    btnEditSelected.addEventListener('click', () => {
       form.reset();
       inputAction.value = 'edit_location';
-      inputDbId.value = btn.dataset.id;
+      inputDbId.value = btnEditSelected.dataset.id || '';
       
-      document.getElementById('locName').value = btn.dataset.name || '';
-      document.getElementById('locSlug').value = btn.dataset.slug || '';
+      document.getElementById('locName').value = btnEditSelected.dataset.name || '';
+      document.getElementById('locSlug').value = btnEditSelected.dataset.slug || '';
       document.getElementById('locSlug').readOnly = true;
-      document.getElementById('locState').value = btn.dataset.state || 'PB';
-      document.getElementById('locCity').value = btn.dataset.city || '';
-      document.getElementById('locAddress').value = btn.dataset.address || '';
-      document.getElementById('locProfName').value = btn.dataset.profName || '';
-      document.getElementById('locProfTitle').value = btn.dataset.profTitle || '';
-      document.getElementById('locProfPhone').value = btn.dataset.profPhone || '';
-      document.getElementById('locProfIg').value = btn.dataset.profIg || '';
-      document.getElementById('locMaps').value = btn.dataset.maps || '';
-      document.getElementById('locDesc').value = btn.dataset.desc || '';
+      document.getElementById('locState').value = btnEditSelected.dataset.state || 'PB';
+      document.getElementById('locCity').value = btnEditSelected.dataset.city || '';
+      document.getElementById('locAddress').value = btnEditSelected.dataset.address || '';
+      document.getElementById('locProfName').value = btnEditSelected.dataset.profName || '';
+      document.getElementById('locProfTitle').value = btnEditSelected.dataset.profTitle || '';
+      document.getElementById('locProfPhone').value = btnEditSelected.dataset.profPhone || '';
+      document.getElementById('locProfIg').value = btnEditSelected.dataset.profIg || '';
+      document.getElementById('locMaps').value = btnEditSelected.dataset.maps || '';
+      document.getElementById('locDesc').value = btnEditSelected.dataset.desc || '';
 
       try {
-        const mods = JSON.parse(btn.dataset.modalities || '[]');
+        const mods = JSON.parse(btnEditSelected.dataset.modalities || '[]');
         document.getElementById('locModalities').value = mods.join(', ');
       } catch(e) {
         document.getElementById('locModalities').value = '';
       }
 
-      modalTitle.textContent = 'EDITAR FILIAL: ' + (btn.dataset.name || '');
+      modalTitle.textContent = 'EDITAR FILIAL: ' + (btnEditSelected.dataset.name || '');
       openModal();
     });
-  });
+  }
 });
 </script>
 {% endblock %}
