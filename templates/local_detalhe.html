@@ -87,7 +87,11 @@
             </div>
 
             <div class="professor-profile-body">
-              {% if location.logo_ct %}
+              {% if location.professor_photo %}
+              <div class="professor-photo-frame">
+                <img src="{{ url_for('static', filename=location.professor_photo) }}" alt="{{ location.professor_name }}" class="professor-portrait-img">
+              </div>
+              {% elif location.logo_ct %}
               <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="{{ location.professor_name }}" class="professor-avatar-img">
               {% else %}
               <div class="professor-avatar-badge">🥋</div>
@@ -117,8 +121,12 @@
             <div class="contact-card-body">
               <p class="contact-text">Fale diretamente com o <strong>{{ location.professor_name }}</strong> via WhatsApp para agendar sua aula experimental gratuita ou tirar dúvidas sobre matrículas nesta unidade.</p>
               
-              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20na%20unidade%20{{ location.name }}" target="_blank" class="btn btn-primary btn-glow btn-block wa-direct-btn">
-                <i data-lucide="phone-call"></i> WhatsApp {{ location.professor_phone_formatted }}
+              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20na%20unidade%20{{ location.name }}" target="_blank" class="btn btn-whatsapp-inpage btn-block wa-direct-btn">
+                <i data-lucide="message-circle" class="wa-icon"></i>
+                <div>
+                  <strong>Falar no WhatsApp com {{ location.professor_name }}</strong>
+                  <small>{{ location.professor_phone_formatted }}</small>
+                </div>
               </a>
 
               <button class="btn btn-secondary btn-block select-plan-btn" data-modality="Aula Experimental — {{ location.name }}" style="margin-top: 12px;">
