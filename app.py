@@ -592,6 +592,30 @@ class Plan(db.Model):
     def requires_all_days(self):
         return self.force_all_days if self.force_all_days is not None else self.category != 'Planos Individuais'
 
+class Location(db.Model):
+    __tablename__ = 'locations'
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    subtitle = db.Column(db.String(255), nullable=True)
+    state = db.Column(db.String(10), nullable=False, default='PB')
+    city = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(255), nullable=False)
+    professor_name = db.Column(db.String(120), nullable=True)
+    professor_title = db.Column(db.String(120), nullable=True)
+    professor_bio = db.Column(db.Text, nullable=True)
+    professor_phone = db.Column(db.String(30), nullable=True)
+    professor_phone_formatted = db.Column(db.String(30), nullable=True)
+    professor_photo = db.Column(db.String(255), nullable=True)
+    professor_instagram = db.Column(db.String(100), nullable=True)
+    logo_ct = db.Column(db.String(255), nullable=True)
+    badge_color = db.Column(db.String(30), default='bg-gold')
+    modalities_json = db.Column(db.Text, nullable=True, default='[]')
+    maps_link = db.Column(db.String(500), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    active = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login_or_name = db.Column(db.String(120), nullable=False)
@@ -1470,7 +1494,8 @@ def inject_user_context():
         'trial_hours': trial_hours,
         'trial_minutes': trial_minutes,
         'trial_remaining_seconds': trial_remaining_seconds,
-        'csrf_token': csrf_token
+        'csrf_token': csrf_token,
+        'locations_dict': get_locations_dict()
     }
 
 @app.route('/')
@@ -1815,6 +1840,87 @@ LOCATIONS_DATA = {
     }
 }
 
+def slugify(text):
+    if not text:
+        return ''
+    text = text.lower().strip()
+    import re, unicodedata
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+    text = re.sub(r'[^\w\s-]', '', text)
+    return re.sub(r'[-\s]+', '-', text).strip('-')
+
+def seed_locations_if_empty():
+    try:
+        if Location.query.count() == 0:
+            for loc_id, item in LOCATIONS_DATA.items():
+                loc = Location(
+                    slug=item.get('slug', loc_id),
+                    name=item.get('name'),
+                    subtitle=item.get('subtitle'),
+                    state=item.get('state', 'PB'),
+                    city=item.get('city'),
+                    address=item.get('address'),
+                    professor_name=item.get('professor_name'),
+                    professor_title=item.get('professor_title'),
+                    professor_bio=item.get('professor_bio'),
+                    professor_phone=item.get('professor_phone'),
+                    professor_phone_formatted=item.get('professor_phone_formatted'),
+                    professor_photo=item.get('professor_photo'),
+                    professor_instagram=item.get('professor_instagram'),
+                    logo_ct=item.get('logo_ct'),
+                    badge_color=item.get('badge_color', 'bg-gold'),
+                    modalities_json=json.dumps(item.get('modalities', [])),
+                    maps_link=item.get('maps_link'),
+                    description=item.get('description'),
+                    active=True
+                )
+                db.session.add(loc)
+            db.session.commit()
+    except Exception as e:
+        print(f"Error seeding locations: {e}")
+
+def get_locations_dict():
+    try:
+        locs = Location.query.filter_by(active=True).all()
+        if not locs:
+            seed_locations_if_empty()
+            locs = Location.query.filter_by(active=True).all()
+        
+        if not locs:
+            return LOCATIONS_DATA
+
+        result = {}
+        for loc in locs:
+            try:
+                mods = json.loads(loc.modalities_json or '[]')
+            except Exception:
+                mods = []
+            result[loc.slug] = {
+                'id': loc.slug,
+                'db_id': loc.id,
+                'slug': loc.slug,
+                'name': loc.name,
+                'subtitle': loc.subtitle or '',
+                'state': loc.state or 'PB',
+                'city': loc.city or '',
+                'address': loc.address or '',
+                'professor_name': loc.professor_name or '',
+                'professor_title': loc.professor_title or '',
+                'professor_bio': loc.professor_bio or '',
+                'professor_phone': loc.professor_phone or '',
+                'professor_phone_formatted': loc.professor_phone_formatted or '',
+                'professor_photo': loc.professor_photo or '',
+                'professor_instagram': loc.professor_instagram or '',
+                'logo_ct': loc.logo_ct or '',
+                'badge_color': loc.badge_color or 'bg-gold',
+                'modalities': mods,
+                'maps_link': loc.maps_link or '',
+                'description': loc.description or ''
+            }
+        return result
+    except Exception:
+        return LOCATIONS_DATA
+
 @app.route('/locais')
 @app.route('/locais/')
 @app.route('/locais.html')
@@ -1826,10 +1932,140 @@ def lista_locais():
 @app.route('/local/<slug>')
 def ver_local(slug):
     slug_clean = slug.replace('.html', '').lower()
-    location = LOCATIONS_DATA.get(slug_clean)
+    locs_dict = get_locations_dict()
+    location = locs_dict.get(slug_clean)
     if not location:
-        location = LOCATIONS_DATA['cajazeiras-sede']
+        location = next(iter(locs_dict.values()), LOCATIONS_DATA['cajazeiras-sede'])
     return render_template('local_detalhe.html', page_title=f"CT {location['name']} — BJ Sports", location=location)
+
+@app.route('/locais_admin', methods=['GET', 'POST'])
+@app.route('/locais_admin.html', methods=['GET', 'POST'])
+def locais_admin():
+    if not session.get('user_id'):
+        flash('Faça login para acessar a área administrativa.', 'warning')
+        return redirect(url_for('login'))
+    
+    current_user = db.session.get(User, session['user_id'])
+    if not current_user or current_user.role not in {'instrutor', 'admin'}:
+        flash('Acesso restrito à administração.', 'error')
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'add_location':
+            name = request.form.get('name', '').strip()
+            city = request.form.get('city', '').strip()
+            state = request.form.get('state', 'PB').strip()
+            address = request.form.get('address', '').strip()
+            
+            if not name or not city or not address:
+                flash('Preencha os campos obrigatórios (Nome, Cidade e Endereço).', 'error')
+                return redirect(url_for('locais_admin'))
+                
+            raw_slug = request.form.get('slug', '').strip().lower()
+            if not raw_slug:
+                raw_slug = slugify(f"{city}-{state}")
+            else:
+                raw_slug = slugify(raw_slug)
+
+            existing = Location.query.filter_by(slug=raw_slug).first()
+            if existing:
+                flash(f'Já existe um local cadastrado com o identificador "{raw_slug}". Escolha outro slug.', 'error')
+                return redirect(url_for('locais_admin'))
+
+            phone_digits = ''.join(c for c in request.form.get('professor_phone', '') if c.isdigit())
+            if phone_digits and not phone_digits.startswith('55'):
+                phone_digits = '55' + phone_digits
+            
+            formatted_phone = request.form.get('professor_phone_formatted', '').strip()
+            if not formatted_phone and phone_digits:
+                d = phone_digits[2:] if phone_digits.startswith('55') else phone_digits
+                if len(d) >= 10:
+                    formatted_phone = f"({d[:2]}) {d[2:-4]}-{d[-4:]}"
+
+            mods = [m.strip() for m in request.form.get('modalities', '').split(',') if m.strip()]
+            
+            new_loc = Location(
+                slug=raw_slug,
+                name=name,
+                subtitle=request.form.get('subtitle', '').strip(),
+                state=state,
+                city=city,
+                address=address,
+                professor_name=request.form.get('professor_name', '').strip(),
+                professor_title=request.form.get('professor_title', '').strip(),
+                professor_bio=request.form.get('professor_bio', '').strip(),
+                professor_phone=phone_digits,
+                professor_phone_formatted=formatted_phone,
+                professor_instagram=request.form.get('professor_instagram', '').strip(),
+                logo_ct='img/logo_original.png',
+                badge_color='bg-blue' if state == 'CE' else 'bg-gold',
+                modalities_json=json.dumps(mods if mods else ['Jiu-Jitsu']),
+                maps_link=request.form.get('maps_link', '').strip(),
+                description=request.form.get('description', '').strip(),
+                active=True
+            )
+            db.session.add(new_loc)
+            db.session.commit()
+            flash(f'✨ Local "{name}" cadastrado com sucesso!', 'success')
+            return redirect(url_for('locais_admin'))
+
+        elif action == 'edit_location':
+            loc_id = request.form.get('location_db_id')
+            loc = db.session.get(Location, loc_id)
+            if loc:
+                loc.name = request.form.get('name', loc.name).strip()
+                loc.subtitle = request.form.get('subtitle', loc.subtitle).strip()
+                loc.city = request.form.get('city', loc.city).strip()
+                loc.state = request.form.get('state', loc.state).strip()
+                loc.address = request.form.get('address', loc.address).strip()
+                loc.professor_name = request.form.get('professor_name', loc.professor_name).strip()
+                loc.professor_title = request.form.get('professor_title', loc.professor_title).strip()
+                loc.professor_bio = request.form.get('professor_bio', loc.professor_bio).strip()
+                
+                phone_digits = ''.join(c for c in request.form.get('professor_phone', '') if c.isdigit())
+                if phone_digits and not phone_digits.startswith('55'):
+                    phone_digits = '55' + phone_digits
+                loc.professor_phone = phone_digits
+                
+                formatted_phone = request.form.get('professor_phone_formatted', '').strip()
+                if not formatted_phone and phone_digits:
+                    d = phone_digits[2:] if phone_digits.startswith('55') else phone_digits
+                    if len(d) >= 10:
+                        formatted_phone = f"({d[:2]}) {d[2:-4]}-{d[-4:]}"
+                loc.professor_phone_formatted = formatted_phone
+
+                loc.professor_instagram = request.form.get('professor_instagram', loc.professor_instagram).strip()
+                mods = [m.strip() for m in request.form.get('modalities', '').split(',') if m.strip()]
+                loc.modalities_json = json.dumps(mods if mods else ['Jiu-Jitsu'])
+                loc.maps_link = request.form.get('maps_link', loc.maps_link).strip()
+                loc.description = request.form.get('description', loc.description).strip()
+                
+                db.session.commit()
+                flash(f'✨ Local "{loc.name}" atualizado com sucesso!', 'success')
+            return redirect(url_for('locais_admin'))
+
+        elif action == 'delete_location':
+            loc_id = request.form.get('location_db_id')
+            loc = db.session.get(Location, loc_id)
+            if loc:
+                loc_name = loc.name
+                db.session.delete(loc)
+                db.session.commit()
+                flash(f'🗑️ Local "{loc_name}" removido com sucesso!', 'success')
+            return redirect(url_for('locais_admin'))
+
+    locations_list = Location.query.order_by(Location.state.asc(), Location.name.asc()).all()
+    if not locations_list:
+        seed_locations_if_empty()
+        locations_list = Location.query.order_by(Location.state.asc(), Location.name.asc()).all()
+
+    return render_template(
+        'locais_admin.html',
+        page_title='Gestão de Locais e Unidades',
+        locations_list=locations_list
+    )
 
 @app.route('/blog')
 @app.route('/blog.html')

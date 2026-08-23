@@ -1725,6 +1725,38 @@ class BJSportsTestCase(unittest.TestCase):
         res_redirect = self.client.get('/locais')
         self.assertEqual(res_redirect.status_code, 302)
 
+    def test_locais_admin_management(self):
+        self.login('instrutor')
+        
+        # 1. Access admin page
+        res = self.client.get('/locais_admin')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Gestão de Locais e Unidades', res.get_data(as_text=True))
+
+        # 2. Add new location
+        add_res = self.client.post('/locais_admin', data={
+            'action': 'add_location',
+            'name': 'Patos (Centro)',
+            'city': 'Patos',
+            'state': 'PB',
+            'address': 'Rua Pedro Firmino, Centro, Patos - PB',
+            'professor_name': 'Prof. Carlos',
+            'professor_title': 'Professor Responsável',
+            'professor_phone': '83999887766',
+            'professor_instagram': '@bjsportspatos',
+            'modalities': 'Jiu-Jitsu, Boxe',
+            'maps_link': 'https://maps.google.com/?q=Patos+PB',
+            'description': 'Unidade Patos BJ Sports',
+            'csrf_token': self.csrf()
+        }, follow_redirects=True)
+        self.assertEqual(add_res.status_code, 200)
+        self.assertIn('Patos (Centro)', add_res.get_data(as_text=True))
+
+        # 3. View public page for newly added location
+        pub_res = self.client.get('/local/patos-pb')
+        self.assertEqual(pub_res.status_code, 200)
+        self.assertIn('Prof. Carlos', pub_res.get_data(as_text=True))
+
 
 if __name__ == '__main__':
     unittest.main()

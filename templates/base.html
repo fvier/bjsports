@@ -47,37 +47,30 @@
                   <span>🌵</span> PARAÍBA (PB)
                 </div>
                 
-                <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="megamenu-item">
-                  <i data-lucide="building-2" class="icon-gold"></i>
-                  <span>Cajazeiras <strong>(Sede Matriz)</strong></span>
+                {% for loc_slug, loc in (locations_dict or {}).items() %}
+                {% if loc.state == 'PB' %}
+                <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="megamenu-item">
+                  <i data-lucide="{% if 'sede' in loc.slug %}building-2{% else %}map-pin{% endif %}" class="icon-gold"></i>
+                  <span>{{ loc.name }}</span>
                 </a>
-                
-                <a href="{{ url_for('ver_local', slug='cajazeiras-tenis-clube') }}" class="megamenu-item">
-                  <i data-lucide="map-pin" class="icon-gold"></i>
-                  <span>Cajazeiras <strong>(Tênis Clube)</strong></span>
-                </a>
-
-                <a href="{{ url_for('ver_local', slug='pombal') }}" class="megamenu-item">
-                  <i data-lucide="map-pin" class="icon-gold"></i>
-                  <span>Pombal <strong>(PB)</strong></span>
-                </a>
-
-                <a href="{{ url_for('ver_local', slug='sao-joao-do-rio-do-peixe') }}" class="megamenu-item">
-                  <i data-lucide="map-pin" class="icon-gold"></i>
-                  <span>São João do Rio do Peixe <strong>(PB)</strong></span>
-                </a>
+                {% endif %}
+                {% endfor %}
               </div>
 
-              <!-- COLUNA CEARÁ (CE) -->
+              <!-- COLUNA CEARÁ (CE) E OUTROS -->
               <div class="megamenu-col">
                 <div class="megamenu-header state-ce">
-                  <span>☀️</span> CEARÁ (CE)
+                  <span>☀️</span> OUTROS ESTADOS (CE/RN/PE)
                 </div>
 
-                <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="megamenu-item">
+                {% for loc_slug, loc in (locations_dict or {}).items() %}
+                {% if loc.state != 'PB' %}
+                <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="megamenu-item">
                   <i data-lucide="map-pin" class="icon-blue"></i>
-                  <span>Lavras da Mangabeira <strong>(CE)</strong></span>
+                  <span>{{ loc.name }}</span>
                 </a>
+                {% endif %}
+                {% endfor %}
               </div>
 
             </div>
