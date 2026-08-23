@@ -2888,6 +2888,19 @@ body.public-light-theme {
 .ct-center-info { text-align: center; }
 .ct-badge-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .badge-pill-sub { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--accent-gold); border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; }
+
+.pulse-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: rgba(34, 197, 94, 0.18); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ade80; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em; text-decoration: none; animation: pulseGlow 2.2s infinite; transition: all 0.2s ease; }
+.pulse-badge:hover { background: rgba(34, 197, 94, 0.35); color: #ffffff; transform: scale(1.04); }
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.btn-share-unit { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #cbd5e1; border-radius: 20px; font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+.btn-share-unit:hover { background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.4); color: #ffffff; }
+
 .ct-center-info .ct-title { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 900; color: #ffffff; margin: 2px 0; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
 .ct-center-info .ct-subtitle { color: var(--text-muted); font-size: 0.88rem; font-weight: 600; margin: 0; }
 

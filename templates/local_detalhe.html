@@ -19,6 +19,8 @@
           <div class="ct-badge-row">
             <span class="badge-pill {{ location.badge_color }}">UNIDADE {{ location.state }}</span>
             <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> CREDENCIADO</span>
+            <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20agendar%20minha%20Aula%20Experimental%20Gratuita%20em%20{{ location.city }}" target="_blank" class="pulse-badge" title="Agendar Aula Experimental Gratuita">🎁 AULA EXPERIMENTAL GRATUITA</a>
+            <button onclick="shareUnit()" class="btn-share-unit" title="Compartilhar link desta unidade"><i data-lucide="share-2" style="width: 12px; height: 12px;"></i> <span>Compartilhar</span></button>
           </div>
           <h1 class="ct-title">{{ location.name }}</h1>
           <p class="ct-subtitle">📍 {{ location.address }}</p>
@@ -163,4 +165,21 @@
   </section>
 
 </div>
+
+<script>
+function shareUnit() {
+  const shareData = {
+    title: '{{ location.name }} - BJ Sports',
+    text: 'Confira a unidade {{ location.name }} da BJ Sports!',
+    url: window.location.href
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('✨ Link da unidade copiado com sucesso! Pode colar no WhatsApp.');
+    });
+  }
+}
+</script>
 {% endblock %}
