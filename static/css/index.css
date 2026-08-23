@@ -2908,20 +2908,23 @@ body.public-light-theme {
 .professor-title-badge { display: inline-block; padding: 4px 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px; }
 .professor-bio { color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; }
 
-/* PROFESSOR CARD QUICK ACTION ICONS BAR */
-.professor-actions-bar { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
-.prof-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; font-size: 1.25rem; text-decoration: none; transition: transform 0.25s ease, box-shadow 0.25s ease; border: 1px solid rgba(255,255,255,0.15); }
-.prof-icon-btn svg { width: 22px; height: 22px; }
-.prof-icon-btn:hover { transform: translateY(-3px) scale(1.06); }
+/* PROFESSOR CARD QUICK ACTION ICONS & LABELS ROW */
+.professor-actions-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.action-btn-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; transition: transform 0.25s ease; cursor: pointer; }
+.action-btn-item:hover { transform: translateY(-3px); }
+.action-btn-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); transition: box-shadow 0.25s ease, border-color 0.25s ease; }
+.action-btn-item span { font-size: 0.75rem; font-weight: 700; color: #cbd5e1; letter-spacing: 0.02em; transition: color 0.2s ease; }
+.action-btn-item:hover span { color: #ffffff; }
 
-.prof-icon-btn.btn-wa { background: linear-gradient(135deg, #25D366, #128C7E); color: #ffffff; border-color: rgba(37, 211, 102, 0.5); box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35); }
-.prof-icon-btn.btn-wa:hover { box-shadow: 0 6px 20px rgba(37, 211, 102, 0.55); }
+/* BRAND SPECIFIC COLORS & GLOWS */
+.action-btn-item.btn-wa .action-btn-icon { background: linear-gradient(135deg, #25D366, #128C7E); color: #ffffff; border-color: rgba(37, 211, 102, 0.5); box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35); }
+.action-btn-item.btn-wa:hover .action-btn-icon { box-shadow: 0 6px 22px rgba(37, 211, 102, 0.6); }
 
-.prof-icon-btn.btn-ig { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #ffffff; border-color: rgba(220, 39, 67, 0.5); box-shadow: 0 4px 14px rgba(220, 39, 67, 0.35); }
-.prof-icon-btn.btn-ig:hover { box-shadow: 0 6px 20px rgba(220, 39, 67, 0.55); }
+.action-btn-item.btn-ig .action-btn-icon { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #ffffff; border-color: rgba(220, 39, 67, 0.5); box-shadow: 0 4px 14px rgba(220, 39, 67, 0.35); }
+.action-btn-item.btn-ig:hover .action-btn-icon { box-shadow: 0 6px 22px rgba(220, 39, 67, 0.6); }
 
-.prof-icon-btn.btn-maps { background: linear-gradient(135deg, #ea4335, #c5221f); color: #ffffff; border-color: rgba(234, 67, 53, 0.5); box-shadow: 0 4px 14px rgba(234, 67, 53, 0.35); }
-.prof-icon-btn.btn-maps:hover { box-shadow: 0 6px 20px rgba(234, 67, 53, 0.55); }
+.action-btn-item.btn-maps .action-btn-icon { background: linear-gradient(135deg, #ea4335, #c5221f); color: #ffffff; border-color: rgba(234, 67, 53, 0.5); box-shadow: 0 4px 14px rgba(234, 67, 53, 0.35); }
+.action-btn-item.btn-maps:hover .action-btn-icon { box-shadow: 0 6px 22px rgba(234, 67, 53, 0.6); }
 
 .btn-whatsapp-inpage { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 20px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #ffffff !important; font-weight: 800; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35); text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease; text-align: left; }
 .btn-whatsapp-inpage:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(37, 211, 102, 0.55); filter: brightness(1.08); }
