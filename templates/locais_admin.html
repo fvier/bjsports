@@ -1,108 +1,204 @@
+{% set erp_page = true %}
 {% extends "base.html" %}
 
 {% block content %}
-<div class="erp-container">
+<div class="erp-wrapper class-management-page">
   {% include "_erp_sidebar.html" %}
 
-  <main class="erp-main-content">
-    
-    <!-- HEADER DA PÁGINA ADMIN -->
-    <div class="erp-page-header flex-between align-center mb-4">
-      <div>
-        <h1 class="erp-page-title">📍 Gestão de Locais e Unidades</h1>
-        <p class="erp-page-subtitle">Cadastre, edite ou remova centros de treinamento e filiais credenciadas BJ Sports.</p>
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Gestão de Filiais e Unidades</span>
       </div>
-
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav"><i data-lucide="calendar-range"></i> Turmas</a>
-        <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav active"><i data-lucide="map-pin"></i> Filiais</a>
-        <button type="button" class="btn btn-primary btn-glow" id="btnOpenAddLocationModal">
-          <i data-lucide="plus-circle"></i> Cadastrar Novo Local
-        </button>
+      <div class="erp-topbar-right">
+        {% include "_topbar_actions.html" %}
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div>
       </div>
-    </div>
+    </header>
 
-    <!-- CARDS DE RESUMO DE LOCAIS -->
-    <div class="locais-admin-grid">
-      {% for loc in locations_list %}
-      <div class="glass-panel loc-admin-card {% if not loc.active %}loc-inactive{% endif %}">
-        <div class="loc-card-top flex-between align-center">
-          <span class="badge-pill {{ loc.badge_color }}">UNIDADE {{ loc.state }}</span>
-          <div class="loc-card-actions">
-            <button type="button" class="btn-icon-action btn-edit-loc" 
-              data-id="{{ loc.id }}"
-              data-slug="{{ loc.slug }}"
-              data-name="{{ loc.name }}"
-              data-subtitle="{{ loc.subtitle or '' }}"
-              data-state="{{ loc.state }}"
-              data-city="{{ loc.city }}"
-              data-address="{{ loc.address }}"
-              data-prof-name="{{ loc.professor_name or '' }}"
-              data-prof-title="{{ loc.professor_title or '' }}"
-              data-prof-bio="{{ loc.professor_bio or '' }}"
-              data-prof-phone="{{ loc.professor_phone or '' }}"
-              data-prof-formatted="{{ loc.professor_phone_formatted or '' }}"
-              data-prof-ig="{{ loc.professor_instagram or '' }}"
-              data-modalities="{{ loc.modalities_json or '[]' }}"
-              data-maps="{{ loc.maps_link or '' }}"
-              data-desc="{{ loc.description or '' }}"
-              title="Editar Local">
-              <i data-lucide="pencil"></i> Editar
-            </button>
-
-            <form action="{{ url_for('locais_admin') }}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja remover o local {{ loc.name }}?');">
-              <input type="hidden" name="action" value="delete_location">
-              <input type="hidden" name="location_db_id" value="{{ loc.id }}">
-              <button type="submit" class="btn-icon-action btn-delete-loc" title="Remover Local">
-                <i data-lucide="trash-2"></i> Excluir
-              </button>
-            </form>
-          </div>
+    <main class="erp-content class-management-content">
+      
+      <!-- HEADER COM NAVEGAÇÃO ENTRE TURMAS E FILIAIS -->
+      <section class="class-management-heading">
+        <div>
+          <span><i data-lucide="map-pin"></i> REDE E UNIDADES</span>
+          <h1>Gestão de Filiais e Unidades</h1>
+          <p>Cadastre, edite ou remova centros de treinamento e filiais credenciadas BJ Sports.</p>
         </div>
-
-        <div class="loc-card-body mt-3">
-          <h3 class="loc-name">{{ loc.name }}</h3>
-          <p class="loc-address text-muted"><i data-lucide="map-pin" class="icon-gold"></i> {{ loc.address }}</p>
-          
-          <div class="loc-prof-info mt-3">
-            <strong><i data-lucide="user-check"></i> {{ loc.professor_name or 'Sem professor cadastrado' }}</strong>
-            <small class="text-muted block">{{ loc.professor_title or 'Professor Responsável' }}</small>
-            {% if loc.professor_phone_formatted %}
-            <small class="text-green block"><i data-lucide="phone"></i> {{ loc.professor_phone_formatted }}</small>
-            {% endif %}
-            {% if loc.professor_instagram %}
-            <small class="text-purple block"><i data-lucide="instagram"></i> {{ loc.professor_instagram }}</small>
-            {% endif %}
-          </div>
-
-          <div class="loc-card-footer mt-3 flex-between align-center pt-2 border-top">
-            <a href="{{ url_for('ver_local', slug=loc.slug) }}" target="_blank" class="link-view-page">
-              <i data-lucide="external-link"></i> Ver página pública
-            </a>
-            <span class="badge-pill bg-dark-subtle" style="font-size: 0.7rem;">/local/{{ loc.slug }}</span>
-          </div>
+        
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav"><i data-lucide="calendar-range"></i> Turmas</a>
+          <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav active"><i data-lucide="map-pin"></i> Filiais</a>
+          <button type="button" class="class-management-primary" id="btnOpenAddLocationModal">
+            <i data-lucide="plus"></i> Nova filial
+          </button>
         </div>
-      </div>
-      {% else %}
-      <div class="glass-panel text-center p-5 w-100">
-        <i data-lucide="map-pin-off" style="width: 48px; height: 48px; opacity: 0.5;"></i>
-        <h3 class="mt-3">Nenhum local cadastrado</h3>
-        <p class="text-muted">Clique em "Cadastrar Novo Local" para adicionar a primeira unidade.</p>
-      </div>
-      {% endfor %}
-    </div>
+      </section>
 
-  </main>
+      <!-- CARDS DE RESUMO E INFORMAÇÃO -->
+      <section class="class-management-kpis" style="margin-bottom: 24px;">
+        <article>
+          <i data-lucide="building-2"></i>
+          <div>
+            <span>Unidades cadastradas</span>
+            <strong>{{ overview.total if overview else 0 }}</strong>
+            <small>Centros de Treinamento</small>
+          </div>
+        </article>
+
+        <article>
+          <i data-lucide="map"></i>
+          <div>
+            <span>Presença por Estado</span>
+            <strong>{{ overview.pb_count if overview else 0 }} PB / {{ overview.ce_count if overview else 0 }} CE</strong>
+            <small>Paraíba e Ceará</small>
+          </div>
+        </article>
+
+        <article>
+          <i data-lucide="user-check"></i>
+          <div>
+            <span>Professores Responsáveis</span>
+            <strong>{{ overview.professors_count if overview else 0 }}</strong>
+            <small>Lideranças técnicas</small>
+          </div>
+        </article>
+
+        <article class="is-positive">
+          <i data-lucide="calendar-range"></i>
+          <div>
+            <span>Turmas Ativas na Rede</span>
+            <strong>{{ overview.total_classes if overview else 0 }}</strong>
+            <small>Grade operacional</small>
+          </div>
+        </article>
+      </section>
+
+      <!-- FILTROS DE PESQUISA -->
+      <form class="class-management-filters" method="get" style="margin-bottom: 24px;">
+        <label class="class-management-search">
+          <span>Buscar filial</span>
+          <div>
+            <i data-lucide="search"></i>
+            <input type="search" name="q" value="{{ search_query or '' }}" placeholder="Nome da unidade, cidade ou professor">
+          </div>
+        </label>
+        
+        <label>
+          <span>Estado</span>
+          <select name="state">
+            <option value="todos">Todos os estados</option>
+            <option value="PB" {% if state_filter == 'PB' %}selected{% endif %}>Paraíba (PB)</option>
+            <option value="CE" {% if state_filter == 'CE' %}selected{% endif %}>Ceará (CE)</option>
+          </select>
+        </label>
+
+        <button type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
+        {% if search_query or (state_filter and state_filter != 'todos') %}
+        <a href="{{ url_for('locais_admin') }}" title="Limpar filtros"><i data-lucide="x"></i></a>
+        {% endif %}
+      </form>
+
+      <!-- PAINEL ORGANIZADO DE FILIAIS -->
+      <section class="class-management-panel">
+        <header>
+          <div>
+            <span>REDE CADASTRADA</span>
+            <h2>Filiais e Centros de Treinamento</h2>
+          </div>
+          <small>{{ locations_list|length }} resultado(s)</small>
+        </header>
+
+        <div class="locais-admin-grid p-3">
+          {% for loc in locations_list %}
+          <div class="glass-panel loc-admin-card {% if not loc.active %}loc-inactive{% endif %}">
+            <div class="loc-card-top flex-between align-center">
+              <span class="badge-pill {{ loc.badge_color or 'bg-gold' }}">UNIDADE {{ loc.state }}</span>
+              <div class="loc-card-actions">
+                <button type="button" class="btn-icon-action btn-edit-loc" 
+                  data-id="{{ loc.id }}"
+                  data-slug="{{ loc.slug }}"
+                  data-name="{{ loc.name }}"
+                  data-subtitle="{{ loc.subtitle or '' }}"
+                  data-state="{{ loc.state }}"
+                  data-city="{{ loc.city }}"
+                  data-address="{{ loc.address }}"
+                  data-prof-name="{{ loc.professor_name or '' }}"
+                  data-prof-title="{{ loc.professor_title or '' }}"
+                  data-prof-bio="{{ loc.professor_bio or '' }}"
+                  data-prof-phone="{{ loc.professor_phone or '' }}"
+                  data-prof-formatted="{{ loc.professor_phone_formatted or '' }}"
+                  data-prof-ig="{{ loc.professor_instagram or '' }}"
+                  data-modalities="{{ loc.modalities_json or '[]' }}"
+                  data-maps="{{ loc.maps_link or '' }}"
+                  data-desc="{{ loc.description or '' }}"
+                  title="Editar Filial">
+                  <i data-lucide="pencil"></i> Editar
+                </button>
+
+                <form action="{{ url_for('locais_admin') }}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja remover a filial {{ loc.name }}?');">
+                  <input type="hidden" name="action" value="delete_location">
+                  <input type="hidden" name="location_db_id" value="{{ loc.id }}">
+                  <button type="submit" class="btn-icon-action btn-delete-loc" title="Remover Filial">
+                    <i data-lucide="trash-2"></i> Excluir
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div class="loc-card-body mt-3">
+              <h3 class="loc-name">{{ loc.name }}</h3>
+              <p class="loc-address text-muted"><i data-lucide="map-pin" class="icon-gold"></i> {{ loc.address }}</p>
+              
+              <div class="loc-prof-info mt-3">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="user-check" class="icon-gold"></i>
+                  <div>
+                    <strong style="color:#fff; font-size:0.92rem;">{{ loc.professor_name or 'Sem professor cadastrado' }}</strong>
+                    <small class="text-muted block" style="font-size:0.75rem;">{{ loc.professor_title or 'Professor Responsável' }}</small>
+                  </div>
+                </div>
+                {% if loc.professor_phone_formatted %}
+                <small class="text-green block mt-1" style="font-size:0.78rem;"><i data-lucide="phone" style="width:12px; height:12px;"></i> {{ loc.professor_phone_formatted }}</small>
+                {% endif %}
+                {% if loc.professor_instagram %}
+                <small class="text-purple block mt-1" style="font-size:0.78rem;"><i data-lucide="instagram" style="width:12px; height:12px;"></i> {{ loc.professor_instagram }}</small>
+                {% endif %}
+              </div>
+
+              <div class="mt-3 flex-between align-center border-top pt-2" style="border-color: rgba(255,255,255,0.08);">
+                <span class="badge-pill bg-dark-subtle" style="font-size:0.75rem; border:1px solid rgba(255,255,255,0.1);">
+                  <i data-lucide="calendar-range" style="width:12px; height:12px;" class="icon-gold"></i> {{ loc.turmas_count or 0 }} turma(s) ativas
+                </span>
+                <a href="{{ url_for('ver_local', slug=loc.slug) }}" target="_blank" class="link-view-page">
+                  <i data-lucide="external-link"></i> Ver página pública
+                </a>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="glass-panel text-center p-5 w-100" style="grid-column: 1 / -1;">
+            <i data-lucide="map-pin-off" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+            <h3 class="mt-3">Nenhuma filial encontrada</h3>
+            <p class="text-muted">Ajuste os filtros ou clique em "+ Nova filial" para cadastrar.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+    </main>
+  </div>
 </div>
 
-<!-- MODAL CADASTRAR / EDITAR LOCAL -->
+<!-- MODAL CADASTRAR / EDITAR FILIAL -->
 <div class="modal-backdrop hidden" id="locationModal">
   <div class="modal-card glass-panel" style="max-width: 620px;">
     <button type="button" class="modal-close" id="closeLocationModal">&times;</button>
     
     <div class="modal-header text-center mb-4">
-      <h3 id="locationModalTitle">CADASTRAR NOVO LOCAL</h3>
-      <p class="modal-subtitle">Preencha os dados da unidade ou filial BJ Sports</p>
+      <h3 id="locationModalTitle">CADASTRAR NOVA FILIAL</h3>
+      <p class="modal-subtitle">Preencha os dados do Centro de Treinamento ou filial BJ Sports</p>
     </div>
 
     <form action="{{ url_for('locais_admin') }}" method="POST" id="locationForm" class="modal-form">
@@ -111,7 +207,7 @@
 
       <div class="form-row">
         <div class="form-group flex-2">
-          <label for="locName">Nome da Unidade *</label>
+          <label for="locName">Nome da Filial / Unidade *</label>
           <input type="text" id="locName" name="name" placeholder="Ex: Cajazeiras (Tênis Clube)" required>
         </div>
 
@@ -134,7 +230,7 @@
 
         <div class="form-group flex-1">
           <label for="locSlug">Identificador de URL (Slug)</label>
-          <input type="text" id="locSlug" name="slug" placeholder="Ex: cajazeiras-tenis-clube (Gerado se vazio)">
+          <input type="text" id="locSlug" name="slug" placeholder="Ex: cajazeiras-tenis-clube">
         </div>
       </div>
 
@@ -182,12 +278,12 @@
       </div>
 
       <div class="form-group">
-        <label for="locDesc">Descrição Curta da Unidade</label>
+        <label for="locDesc">Descrição Curta da Filial</label>
         <textarea id="locDesc" name="description" rows="2" placeholder="Ex: Estrutura no centro de Cajazeiras com tatame de alta densidade..."></textarea>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow mt-3" id="btnSubmitLocModal">
-        <i data-lucide="check-circle"></i> Salvar Unidade
+        <i data-lucide="check-circle"></i> Salvar Filial
       </button>
     </form>
   </div>
@@ -206,17 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function openModal() { modal.classList.remove('hidden'); }
   function closeModal() { modal.classList.add('hidden'); }
 
-  btnOpenAdd.addEventListener('click', () => {
-    form.reset();
-    inputAction.value = 'add_location';
-    inputDbId.value = '';
-    document.getElementById('locSlug').readOnly = false;
-    modalTitle.textContent = 'CADASTRAR NOVO LOCAL';
-    openModal();
-  });
+  if (btnOpenAdd) {
+    btnOpenAdd.addEventListener('click', () => {
+      form.reset();
+      inputAction.value = 'add_location';
+      inputDbId.value = '';
+      document.getElementById('locSlug').readOnly = false;
+      modalTitle.textContent = 'CADASTRAR NOVA FILIAL';
+      openModal();
+    });
+  }
 
-  btnClose.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  if (btnClose) btnClose.addEventListener('click', closeModal);
+  if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
   // Evento para Editar Local
   document.querySelectorAll('.btn-edit-loc').forEach(btn => {
@@ -227,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       document.getElementById('locName').value = btn.dataset.name || '';
       document.getElementById('locSlug').value = btn.dataset.slug || '';
-      document.getElementById('locSlug').readOnly = true; // Slug fixo no edit
+      document.getElementById('locSlug').readOnly = true;
       document.getElementById('locState').value = btn.dataset.state || 'PB';
       document.getElementById('locCity').value = btn.dataset.city || '';
       document.getElementById('locAddress').value = btn.dataset.address || '';
@@ -245,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('locModalities').value = '';
       }
 
-      modalTitle.textContent = 'EDITAR UNIDADE: ' + (btn.dataset.name || '');
+      modalTitle.textContent = 'EDITAR FILIAL: ' + (btn.dataset.name || '');
       openModal();
     });
   });

@@ -1731,7 +1731,7 @@ class BJSportsTestCase(unittest.TestCase):
         # 1. Access admin page
         res = self.client.get('/locais_admin')
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Gestão de Locais e Unidades', res.get_data(as_text=True))
+        self.assertIn('Gestão de Filiais e Unidades', res.get_data(as_text=True))
 
         # 2. Add new location
         add_res = self.client.post('/locais_admin', data={

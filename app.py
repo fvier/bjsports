@@ -1014,7 +1014,13 @@ def deliver_push(subscription, payload):
 def ensure_db_schema_columns():
     try:
         with db.engine.connect() as conn:
-            conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+            if db.engine.name == 'postgresql':
+                conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+            else:
+                try:
+                    conn.execute(db.text("ALTER TABLE class_group ADD COLUMN location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+                except Exception:
+                    pass
             conn.commit()
     except Exception as exc:
         print(f"Column migration check note: {exc}")
@@ -1954,6 +1960,9 @@ def ver_local(slug):
         location = next(iter(locs_dict.values()), LOCATIONS_DATA['cajazeiras-sede'])
     return render_template('local_detalhe.html', page_title=f"CT {location['name']} — BJ Sports", location=location)
 
+@app.route('/gestao/filiais', methods=['GET', 'POST'])
+@app.route('/gestao/filiais.html', methods=['GET', 'POST'])
+@app.route('/gestao_filiais', methods=['GET', 'POST'])
 @app.route('/locais_admin', methods=['GET', 'POST'])
 @app.route('/locais_admin.html', methods=['GET', 'POST'])
 def locais_admin():
@@ -2024,7 +2033,7 @@ def locais_admin():
             )
             db.session.add(new_loc)
             db.session.commit()
-            flash(f'✨ Local "{name}" cadastrado com sucesso!', 'success')
+            flash(f'✨ Filial "{name}" cadastrada com sucesso!', 'success')
             return redirect(url_for('locais_admin'))
 
         elif action == 'edit_location':
@@ -2059,7 +2068,7 @@ def locais_admin():
                 loc.description = request.form.get('description', loc.description).strip()
                 
                 db.session.commit()
-                flash(f'✨ Local "{loc.name}" atualizado com sucesso!', 'success')
+                flash(f'✨ Filial "{loc.name}" atualizada com sucesso!', 'success')
             return redirect(url_for('locais_admin'))
 
         elif action == 'delete_location':
@@ -2069,18 +2078,59 @@ def locais_admin():
                 loc_name = loc.name
                 db.session.delete(loc)
                 db.session.commit()
-                flash(f'🗑️ Local "{loc_name}" removido com sucesso!', 'success')
+                flash(f'🗑️ Filial "{loc_name}" removida com sucesso!', 'success')
             return redirect(url_for('locais_admin'))
 
-    locations_list = Location.query.order_by(Location.state.asc(), Location.name.asc()).all()
-    if not locations_list:
+    search_query = request.args.get('q', '').strip()
+    state_filter = request.args.get('state', 'todos').strip()
+
+    query = Location.query.filter_by(active=True)
+    if search_query:
+        query = query.filter(
+            Location.name.ilike(f'%{search_query}%') |
+            Location.city.ilike(f'%{search_query}%') |
+            Location.professor_name.ilike(f'%{search_query}%')
+        )
+    if state_filter != 'todos':
+        query = query.filter(Location.state == state_filter)
+
+    locations_list = query.order_by(Location.state.asc(), Location.name.asc()).all()
+    if not locations_list and not search_query and state_filter == 'todos':
         seed_locations_if_empty()
-        locations_list = Location.query.order_by(Location.state.asc(), Location.name.asc()).all()
+        locations_list = Location.query.filter_by(active=True).order_by(Location.state.asc(), Location.name.asc()).all()
+
+    all_locations = Location.query.filter_by(active=True).all()
+    pb_count = sum(1 for loc in all_locations if loc.state == 'PB')
+    ce_count = sum(1 for loc in all_locations if loc.state == 'CE')
+    professors_count = len({loc.professor_name for loc in all_locations if loc.professor_name})
+
+    from sqlalchemy import func
+    turmas_per_location = dict(
+        db.session.query(ClassGroup.location_slug, func.count(ClassGroup.id))
+        .filter(ClassGroup.status == 'ativa')
+        .group_by(ClassGroup.location_slug)
+        .all()
+    )
+    total_classes = sum(turmas_per_location.values())
+
+    for loc in locations_list:
+        loc.turmas_count = turmas_per_location.get(loc.slug, 0)
+
+    overview = {
+        'total': len(all_locations),
+        'pb_count': pb_count,
+        'ce_count': ce_count,
+        'professors_count': professors_count,
+        'total_classes': total_classes
+    }
 
     return render_template(
         'locais_admin.html',
-        page_title='Gestão de Locais e Unidades',
-        locations_list=locations_list
+        page_title='Gestão de Filiais e Unidades',
+        locations_list=locations_list,
+        overview=overview,
+        search_query=search_query,
+        state_filter=state_filter
     )
 
 @app.route('/blog')
