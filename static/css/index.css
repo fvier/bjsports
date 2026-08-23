@@ -3070,3 +3070,7 @@ body.public-light-theme {
 .live-textarea:focus { border-color: var(--accent-gold); box-shadow: 0 0 8px rgba(245, 158, 11, 0.25); background: rgba(30, 41, 59, 0.95); }
 .live-textarea::placeholder { color: #64748b; }
 
+/* DROPDOWN OPTGROUP STYLES */
+select.filial-select-custom optgroup, select#filialSelectDropdown optgroup { font-weight: 800; color: #f59e0b; background: #0f172a; font-size: 0.85rem; padding: 8px 6px; }
+select.filial-select-custom option, select#filialSelectDropdown option { font-weight: 600; color: #ffffff; background: #1e293b; padding: 6px 8px; }
+

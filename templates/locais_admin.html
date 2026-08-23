@@ -79,39 +79,72 @@
       <section class="class-management-panel">
         <header class="flex-between align-center" style="flex-wrap: wrap; gap: 16px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);">
           
-          <!-- LADO ESQUERDO: SELETOR DE FILIAL -->
+          <!-- LADO ESQUERDO: SELETOR DE FILIAL ORGANIZADO POR ESTADOS (IGUAL À LANDING PAGE) -->
           <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
             <div>
               <span style="font-size: 0.72rem; color: var(--accent-gold); letter-spacing: 1px; font-weight: 700; display: block;">REDE CADASTRADA</span>
               <h2 style="font-size: 1.15rem; margin: 0; color: #fff;">Selecione a Filial</h2>
             </div>
 
-            <!-- DROPDOWN SELETOR DE FILIAIS -->
+            <!-- DROPDOWN SELETOR DE FILIAIS ORGANIZADO POR ESTADOS -->
             {% if locations_list %}
-            <div style="position: relative; min-width: 320px;">
+            <div style="position: relative; min-width: 340px;">
               <select id="filialSelectDropdown" onchange="switchFilialPreview(this.value)" style="background: rgba(30, 41, 59, 0.95); color: #fff; border: 1.5px solid var(--accent-gold); border-radius: 10px; padding: 9px 36px 9px 14px; font-size: 0.92rem; font-weight: 700; width: 100%; cursor: pointer; appearance: none; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
                 <option value="" selected disabled>-- Selecione uma filial para editar ou visualizar --</option>
-                {% for loc in locations_list %}
-                <option value="{{ loc.slug }}" 
-                  data-id="{{ loc.id }}"
-                  data-slug="{{ loc.slug }}"
-                  data-name="{{ loc.name }}"
-                  data-subtitle="{{ loc.subtitle or '' }}"
-                  data-state="{{ loc.state }}"
-                  data-city="{{ loc.city }}"
-                  data-address="{{ loc.address }}"
-                  data-prof-name="{{ loc.professor_name or '' }}"
-                  data-prof-title="{{ loc.professor_title or '' }}"
-                  data-prof-bio="{{ loc.professor_bio or '' }}"
-                  data-prof-phone="{{ loc.professor_phone or '' }}"
-                  data-prof-formatted="{{ loc.professor_phone_formatted or '' }}"
-                  data-prof-ig="{{ loc.professor_instagram or '' }}"
-                  data-modalities="{{ loc.modalities_json or '[]' }}"
-                  data-maps="{{ loc.maps_link or '' }}"
-                  data-desc="{{ loc.description or '' }}">
-                  📍 {{ loc.name }} ({{ loc.city }} - {{ loc.state }})
-                </option>
-                {% endfor %}
+                
+                <!-- GRUPO PARAÍBA (PB) -->
+                <optgroup label="🌵 PARAÍBA (PB)">
+                  {% for loc in locations_list %}
+                  {% if loc.state == 'PB' %}
+                  <option value="{{ loc.slug }}" 
+                    data-id="{{ loc.id }}"
+                    data-slug="{{ loc.slug }}"
+                    data-name="{{ loc.name }}"
+                    data-subtitle="{{ loc.subtitle or '' }}"
+                    data-state="{{ loc.state }}"
+                    data-city="{{ loc.city }}"
+                    data-address="{{ loc.address }}"
+                    data-prof-name="{{ loc.professor_name or '' }}"
+                    data-prof-title="{{ loc.professor_title or '' }}"
+                    data-prof-bio="{{ loc.professor_bio or '' }}"
+                    data-prof-phone="{{ loc.professor_phone or '' }}"
+                    data-prof-formatted="{{ loc.professor_phone_formatted or '' }}"
+                    data-prof-ig="{{ loc.professor_instagram or '' }}"
+                    data-modalities="{{ loc.modalities_json or '[]' }}"
+                    data-maps="{{ loc.maps_link or '' }}"
+                    data-desc="{{ loc.description or '' }}">
+                    📍 {{ loc.name }} ({{ loc.city }} - {{ loc.state }})
+                  </option>
+                  {% endif %}
+                  {% endfor %}
+                </optgroup>
+
+                <!-- GRUPO OUTROS ESTADOS (CE/RN/PE) -->
+                <optgroup label="☀️ OUTROS ESTADOS (CE / RN / PE)">
+                  {% for loc in locations_list %}
+                  {% if loc.state != 'PB' %}
+                  <option value="{{ loc.slug }}" 
+                    data-id="{{ loc.id }}"
+                    data-slug="{{ loc.slug }}"
+                    data-name="{{ loc.name }}"
+                    data-subtitle="{{ loc.subtitle or '' }}"
+                    data-state="{{ loc.state }}"
+                    data-city="{{ loc.city }}"
+                    data-address="{{ loc.address }}"
+                    data-prof-name="{{ loc.professor_name or '' }}"
+                    data-prof-title="{{ loc.professor_title or '' }}"
+                    data-prof-bio="{{ loc.professor_bio or '' }}"
+                    data-prof-phone="{{ loc.professor_phone or '' }}"
+                    data-prof-formatted="{{ loc.professor_phone_formatted or '' }}"
+                    data-prof-ig="{{ loc.professor_instagram or '' }}"
+                    data-modalities="{{ loc.modalities_json or '[]' }}"
+                    data-maps="{{ loc.maps_link or '' }}"
+                    data-desc="{{ loc.description or '' }}">
+                    📍 {{ loc.name }} ({{ loc.city }} - {{ loc.state }})
+                  </option>
+                  {% endif %}
+                  {% endfor %}
+                </optgroup>
               </select>
               <i data-lucide="chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--accent-gold); width: 18px; height: 18px;"></i>
             </div>
