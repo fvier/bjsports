@@ -112,7 +112,7 @@
               <span>Aula Experimental Gratuita</span>
             </a>
 
-            <button onclick="shareUnit()" class="btn-share-cta" title="Compartilhar link desta unidade">
+            <button onclick="shareUnit(this)" class="btn-share-cta" title="Compartilhar link desta unidade">
               <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
               <span>Compartilhar</span>
             </button>
@@ -177,7 +177,7 @@
 </div>
 
 <script>
-function shareUnit() {
+function shareUnit(btnEl) {
   const shareData = {
     title: '{{ location.name }} - BJ Sports',
     text: 'Confira a unidade {{ location.name }} da BJ Sports!',
@@ -187,7 +187,16 @@ function shareUnit() {
     navigator.share(shareData).catch(() => {});
   } else {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      alert('✨ Link da unidade copiado com sucesso! Pode colar no WhatsApp.');
+      const btn = btnEl || document.querySelector('.btn-share-cta');
+      if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px; color: #22c55e;"></i> <span style="color: #4ade80;">Copiado!</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          if (window.lucide) lucide.createIcons();
+        }, 2200);
+      }
     });
   }
 }

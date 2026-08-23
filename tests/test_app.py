@@ -1721,7 +1721,7 @@ class BJSportsTestCase(unittest.TestCase):
 
         res_lavras = self.client.get('/locais/lavras-ce')
         self.assertEqual(res_lavras.status_code, 200)
-        self.assertIn('Prof. Marcos Silva', res_lavras.get_data(as_text=True))
+        self.assertIn('Equipe BJ Sports Lavras', res_lavras.get_data(as_text=True))
 
         res_redirect = self.client.get('/locais')
         self.assertEqual(res_redirect.status_code, 302)
