@@ -3074,3 +3074,29 @@ body.public-light-theme {
 select.filial-select-custom optgroup, select#filialSelectDropdown optgroup { font-weight: 800; color: #f59e0b; background: #0f172a; font-size: 0.85rem; padding: 8px 6px; }
 select.filial-select-custom option, select#filialSelectDropdown option { font-weight: 600; color: #ffffff; background: #1e293b; padding: 6px 8px; }
 
+/* INTERACTIVE SMART FILTER CARDS FOR GESTAO TURMAS */
+.smart-metric-card-interactive {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none !important;
+  color: inherit !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.smart-metric-card-interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-gold);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.25);
+  background: rgba(30, 41, 59, 0.95);
+}
+.smart-metric-card-interactive.active-modality-filter {
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.12);
+}
+

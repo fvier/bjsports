@@ -35,73 +35,74 @@
         <article class="is-positive"><i data-lucide="badge-check"></i><div><span>Pessoas com check-in</span><strong>{{ overview.checkin_people }}</strong><small>{{ overview.checkin_records }} registro(s) real(is)</small></div></article>
       </section>
 
-      <!-- INDICADORES REAIS POR MODALIDADE -->
+      <!-- FILTROS RÁPIDOS E ALERTAS DE LOTAÇÃO POR MODALIDADE -->
       <section class="smart-metrics-section" style="margin: 24px 0;">
         <div class="smart-metrics-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
           <div>
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 1px; text-transform: uppercase;">
-              INDICADORES OPERACIONAIS
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 1px; text-transform: uppercase;">
+              FILTRO RÁPIDO & ALERTAS DE LOTAÇÃO
             </span>
             <h2 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; color: #fff; margin-top: 2px;">
-              Dados reais por modalidade
+              Panorama por modalidade
             </h2>
           </div>
-          <small style="color: var(--text-muted); font-size: 0.82rem;">Atualizado com check-ins, presenças e vínculos salvos no sistema</small>
+
+          {% if modality_filter != 'todas' %}
+          <a href="{{ url_for('gestao_turmas') }}" class="btn-icon-action" style="background: rgba(245, 158, 11, 0.15); border-color: var(--accent-gold); color: var(--accent-gold); padding: 6px 14px; font-size: 0.82rem;">
+            <i data-lucide="eye"></i> Mostrar todas as modalidades
+          </a>
+          {% else %}
+          <small style="color: var(--text-muted); font-size: 0.82rem;">Clique em qualquer modalidade abaixo para filtrar as turmas instantaneamente</small>
+          {% endif %}
         </div>
 
-        <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <!-- CARDS INTERATIVOS DE FILTRO RÁPIDO -->
+        <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
           {% for sm in modalities_smart %}
-          <article class="smart-metric-card" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+          {% set is_active_filter = (modality_filter == sm.name) %}
+          <a href="{{ url_for('gestao_turmas', modality=sm.name, location_slug=location_filter, status=status_filter) }}" 
+             class="smart-metric-card-interactive {% if is_active_filter %}active-modality-filter{% endif %}"
+             title="Clique para filtrar as turmas de {{ sm.name }}">
             
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <!-- HEADER DO CARD: ÍCONE, NOME E ALERTA -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="modality-badge" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(30, 41, 59, 0.8); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+                <span class="modality-badge" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.2rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
                   <i data-lucide="{{ sm.icon }}"></i>
                 </span>
                 <div>
-                  <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0;">{{ sm.name }}</h3>
-                  <small style="color: #94a3b8; font-size: 0.78rem;">{{ sm.classes_count }} turma(s) na grade</small>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0;">{{ sm.name }}</h3>
+                  <small style="color: #94a3b8; font-size: 0.78rem;">{{ sm.classes_count }} turma(s) ativas</small>
                 </div>
               </div>
-              <span class="badge-pill {% if sm.checkin_records %}bg-green{% else %}bg-amber{% endif %}" style="font-size: 0.72rem; padding: 4px 8px;">
-                {{ 'Com registros' if sm.checkin_records else 'Sem check-ins' }}
-              </span>
+
+              {% if sm.occupancy >= 80 %}
+              <span class="badge-pill bg-red" style="font-size: 0.7rem; padding: 3px 8px;">🔥 Alta Demanda</span>
+              {% elif sm.waiting > 0 %}
+              <span class="badge-pill bg-amber" style="font-size: 0.7rem; padding: 3px 8px;">💡 {{ sm.waiting }} na espera</span>
+              {% else %}
+              <span class="badge-pill bg-green" style="font-size: 0.7rem; padding: 3px 8px;">✅ Vagas Abertas</span>
+              {% endif %}
             </div>
 
-            <div class="smart-indicators-list" style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
-              <!-- Vínculos persistidos -->
-              <div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                  <span style="color: #cbd5e1;"><strong>Alunos vinculados</strong>:</span>
-                  <strong style="color: #fff;">{{ sm.enrolled }}/{{ sm.capacity }} ({{ sm.occupancy }}%)</strong>
-                </div>
-                <div style="width: 100%; height: 6px; background: rgba(51, 65, 85, 0.6); border-radius: 3px; overflow: hidden;">
-                  <div style="width: {{ sm.occupancy }}%; height: 100%; background: {% if sm.occupancy >= 80 %}#22c55e{% elif sm.occupancy >= 50 %}#eab308{% else %}#ef4444{% endif %}; border-radius: 3px;"></div>
-                </div>
+            <!-- BARRA DE PROGRESSO DE OCUPAÇÃO DA MODALIDADE -->
+            <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px;">
+                <span style="color: #cbd5e1;">Ocupação total:</span>
+                <strong style="color: #fff;">{{ sm.enrolled }}/{{ sm.capacity }} alunos ({{ sm.occupancy }}%)</strong>
               </div>
-
-              <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
-                <span style="color: #cbd5e1;"><strong>Pessoas com check-in</strong>:</span>
-                <strong style="color: {{ '#4ade80' if sm.checkin_people else '#94a3b8' }};">{{ sm.checkin_people }}</strong>
-              </div>
-
-              <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
-                <span style="color: #cbd5e1;"><strong>Registros de check-in</strong>:</span>
-                <strong style="color: {{ '#4ade80' if sm.checkin_records else '#94a3b8' }};">{{ sm.checkin_records }}</strong>
-              </div>
-
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #cbd5e1;"><strong>Presenças confirmadas</strong>:</span>
-                <strong style="color: {{ '#38bdf8' if sm.confirmed_attendances else '#94a3b8' }};">{{ sm.confirmed_attendances }}</strong>
-              </div>
-
-              <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 6px;">
-                <span style="color: #cbd5e1;"><strong>Aguardando confirmação</strong>:</span>
-                <strong style="color: {{ '#facc15' if sm.pending_attendances else '#94a3b8' }};">{{ sm.pending_attendances }}</strong>
+              <div style="width: 100%; height: 7px; background: rgba(51, 65, 85, 0.8); border-radius: 4px; overflow: hidden;">
+                <div style="width: {{ sm.occupancy }}%; height: 100%; background: {% if sm.occupancy >= 80 %}#ef4444{% elif sm.occupancy >= 50 %}#eab308{% else %}#22c55e{% endif %}; border-radius: 4px; transition: width 0.3s ease;"></div>
               </div>
             </div>
 
-          </article>
+            <!-- RODA PÉ DO CARD: AÇÃO VISUAL -->
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; padding-top: 4px; color: var(--accent-gold); font-weight: 700;">
+              <span>{% if is_active_filter %}✓ Filtrando {{ sm.name }}{% else %}Filtrar turmas de {{ sm.name }}{% endif %}</span>
+              <i data-lucide="{% if is_active_filter %}check-circle-2{% else %}arrow-right{% endif %}" style="width: 15px; height: 15px;"></i>
+            </div>
+
+          </a>
           {% endfor %}
         </div>
       </section>
