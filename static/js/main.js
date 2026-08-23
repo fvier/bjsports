@@ -816,15 +816,63 @@ function setupERPSidebar() {
     });
   }
 
+  let sidebarOpenTimer = null;
+  let sidebarCloseTimer = null;
+
   if (hamburgerBtn && sidebar) {
     hamburgerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
+      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
       sidebar.classList.toggle('collapsed');
     });
   }
 
   if (sidebar) {
     const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+    const expandSidebar = () => {
+      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
+      sidebar.classList.remove('collapsed');
+    };
+
+    const collapseSidebar = () => {
+      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
+      sidebar.classList.add('collapsed');
+
+      sidebar.querySelectorAll('.erp-nav-group').forEach((group) => {
+        const title = group.querySelector(':scope > .erp-group-title');
+        group.classList.add('is-collapsed');
+        if (title) {
+          title.setAttribute('aria-expanded', 'false');
+          try {
+            localStorage.setItem(title.dataset.sidebarStorageKey, 'collapsed');
+          } catch (_) {}
+        }
+      });
+    };
+
+    const requestOpenSidebar = () => {
+      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
+      if (!sidebar.classList.contains('collapsed')) return;
+
+      if (!sidebarOpenTimer) {
+        sidebarOpenTimer = setTimeout(() => {
+          expandSidebar();
+          sidebarOpenTimer = null;
+        }, 1500); // 1,5 segundos de mouse em cima para abrir
+      }
+    };
+
+    const requestCloseSidebar = () => {
+      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
+
+      if (sidebarCloseTimer) clearTimeout(sidebarCloseTimer);
+      sidebarCloseTimer = setTimeout(() => {
+        collapseSidebar();
+        sidebarCloseTimer = null;
+      }, 2000); // 2,0 segundos após se afastar para recolher obrigatoriamente
+    };
 
     const enableAutomaticCollapse = () => {
       if (supportsHover.matches) {
@@ -835,35 +883,15 @@ function setupERPSidebar() {
     };
 
     sidebar.addEventListener('mouseenter', () => {
-      if (supportsHover.matches) sidebar.classList.remove('collapsed');
-    });
-
-    document.addEventListener('mousemove', (event) => {
-      if (!supportsHover.matches || !sidebar.classList.contains('collapsed')) return;
-
-      const sidebarEdge = sidebar.getBoundingClientRect().right;
-      const proximityArea = 24;
-      if (event.clientX <= sidebarEdge + proximityArea) {
-        sidebar.classList.remove('collapsed');
+      if (supportsHover.matches) {
+        requestOpenSidebar();
       }
     });
 
     sidebar.addEventListener('mouseleave', () => {
-      if (!supportsHover.matches) return;
-
-      sidebar.querySelectorAll('.erp-nav-group').forEach((group) => {
-        const title = group.querySelector(':scope > .erp-group-title');
-        group.classList.add('is-collapsed');
-        if (title) {
-          title.setAttribute('aria-expanded', 'false');
-          try {
-            localStorage.setItem(title.dataset.sidebarStorageKey, 'collapsed');
-          } catch (_) {
-            // O recolhimento visual funciona mesmo sem acesso ao storage.
-          }
-        }
-      });
-      sidebar.classList.add('collapsed');
+      if (supportsHover.matches) {
+        requestCloseSidebar();
+      }
     });
 
     supportsHover.addEventListener('change', enableAutomaticCollapse);
