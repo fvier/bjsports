@@ -1011,7 +1011,16 @@ def deliver_push(subscription, payload):
         vapid_claims={'sub': subject},
     )
 
+def ensure_db_schema_columns():
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+            conn.commit()
+    except Exception as exc:
+        print(f"Column migration check note: {exc}")
+
 def ensure_class_groups():
+    ensure_db_schema_columns()
     if ClassGroup.query.count() == 0:
         for item in DEFAULT_CLASS_GROUPS:
             class_group = ClassGroup(
