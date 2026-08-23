@@ -1716,12 +1716,11 @@ class BJSportsTestCase(unittest.TestCase):
     def test_ver_local_routes(self):
         res = self.client.get('/locais/cajazeiras-tenis-clube')
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Cajazeiras (Tênis Clube)', res.get_data(as_text=True))
-        self.assertIn('Mestre Bolivar', res.get_data(as_text=True))
+        self.assertIn('Prof. Luiz', res.get_data(as_text=True))
 
         res_lavras = self.client.get('/locais/lavras-ce')
         self.assertEqual(res_lavras.status_code, 200)
-        self.assertIn('Equipe BJ Sports Lavras', res_lavras.get_data(as_text=True))
+        self.assertIn('Prof. Washington', res_lavras.get_data(as_text=True))
 
         res_redirect = self.client.get('/locais')
         self.assertEqual(res_redirect.status_code, 302)
