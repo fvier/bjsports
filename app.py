@@ -3273,7 +3273,7 @@ def gestao_turmas():
             'checkin_records': checkin_records,
             'confirmed_attendances': confirmed_attendances,
             'pending_attendances': pending_attendances,
-            'icon': 'circle-dot' if mod == 'Jiu-Jitsu' else ('swords' if mod == 'Boxe' else ('flame' if mod == 'MMA' else 'dumbbell'))
+            'icon': get_icon_for_modality(mod)
         })
 
     return render_template(
@@ -3282,6 +3282,138 @@ def gestao_turmas():
         modality_filter=modality_filter, status_filter=status_filter, location_filter=location_filter,
         locations_dict=get_locations_dict(),
         monitors=User.query.filter_by(role='monitor').order_by(User.name).all(),
+    )
+
+DEFAULT_MODALITY_ICONS = {
+    'Jiu-Jitsu': 'award',
+    'Boxe': 'swords',
+    'Muay Thai': 'flame',
+    'MMA': 'zap',
+    'Jiu-Jitsu Kids': 'sparkles',
+    'Defesa Pessoal': 'shield-check',
+    'Submission': 'activity',
+    'Judo': 'target',
+    'Wrestling': 'biceps-flexed',
+    'Funcional Fight': 'heart-pulse',
+    'Treino Especial': 'star'
+}
+
+def get_modality_icons_path():
+    return os.path.join(app.instance_path, 'modality_icons.json')
+
+def get_modality_icons():
+    filepath = get_modality_icons_path()
+    icons = dict(DEFAULT_MODALITY_ICONS)
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                saved = json.load(f)
+                if isinstance(saved, dict):
+                    icons.update(saved)
+        except Exception as e:
+            app.logger.error(f"Erro ao ler modality_icons.json: {e}")
+    return icons
+
+def save_modality_icons(icons_dict):
+    filepath = get_modality_icons_path()
+    os.makedirs(app.instance_path, exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(icons_dict, f, ensure_ascii=False, indent=2)
+
+def get_icon_for_modality(modality_name):
+    icons = get_modality_icons()
+    if modality_name in icons:
+        return icons[modality_name]
+    mod_lower = str(modality_name).lower()
+    for k, v in icons.items():
+        if k.lower() in mod_lower or mod_lower in k.lower():
+            return v
+    return 'award'
+
+@app.route('/gestao/icones', methods=['GET', 'POST'])
+@app.route('/gestao_icones.html', methods=['GET', 'POST'])
+@role_required('instrutor')
+def gestao_icones():
+    ensure_class_groups()
+    if request.method == 'POST':
+        action = request.form.get('action', '')
+        if action == 'save_modality_icons':
+            icons = get_modality_icons()
+            for key, val in request.form.items():
+                if key.startswith('icon_mod_'):
+                    mod_name = key[9:]
+                    val_str = val.strip()
+                    if mod_name and val_str:
+                        icons[mod_name] = val_str
+            
+            new_mod_name = request.form.get('new_modality_name', '').strip()
+            new_mod_icon = request.form.get('new_modality_icon', '').strip()
+            if new_mod_name and new_mod_icon:
+                icons[new_mod_name] = new_mod_icon
+                
+            save_modality_icons(icons)
+            flash('✨ Ícones das modalidades atualizados com sucesso!', 'success')
+            return redirect(url_for('gestao_icones'))
+
+    all_class_groups = ClassGroup.query.all()
+    modalities_in_use = set(c.modality for c in all_class_groups if c.modality)
+    
+    locations = Location.query.all()
+    for loc in locations:
+        try:
+            mods = json.loads(loc.modalities_json or '[]')
+            for m in mods:
+                if m: modalities_in_use.add(m)
+        except Exception:
+            pass
+            
+    for default_mod in DEFAULT_MODALITY_ICONS.keys():
+        modalities_in_use.add(default_mod)
+
+    current_icons = get_modality_icons()
+    
+    modality_items = []
+    for mod_name in sorted(modalities_in_use):
+        classes_using = [c for c in all_class_groups if c.modality == mod_name]
+        icon_name = current_icons.get(mod_name, get_icon_for_modality(mod_name))
+        modality_items.append({
+            'name': mod_name,
+            'icon': icon_name,
+            'classes_count': len(classes_using),
+            'classes_sample': [c.name for c in classes_using[:3]]
+        })
+
+    preset_icons = [
+        {'name': 'award', 'label': '🏆 Graduação', 'icon': 'award'},
+        {'name': 'swords', 'label': '⚔️ Combate', 'icon': 'swords'},
+        {'name': 'flame', 'label': '🔥 Fogo / Muay Thai', 'icon': 'flame'},
+        {'name': 'zap', 'label': '⚡ Raio / MMA', 'icon': 'zap'},
+        {'name': 'sparkles', 'label': '✨ Brilho / Kids', 'icon': 'sparkles'},
+        {'name': 'shield-check', 'label': '🛡️ Escudo / Defesa', 'icon': 'shield-check'},
+        {'name': 'heart-pulse', 'label': '💓 Pulso / Funcional', 'icon': 'heart-pulse'},
+        {'name': 'target', 'label': '🎯 Alvo / Judô', 'icon': 'target'},
+        {'name': 'biceps-flexed', 'label': '💪 Força / Wrestling', 'icon': 'biceps-flexed'},
+        {'name': 'activity', 'label': '📈 Performance', 'icon': 'activity'},
+        {'name': 'trophy', 'label': '🥇 Troféu / Torneio', 'icon': 'trophy'},
+        {'name': 'star', 'label': '⭐ Estrela / Especial', 'icon': 'star'},
+        {'name': 'crown', 'label': '👑 Coroa / Elite', 'icon': 'crown'},
+        {'name': 'dumbbell', 'label': '🏋️ Haltere / Peso', 'icon': 'dumbbell'},
+        {'name': 'user-check', 'label': '🥋 Mestre / Professor', 'icon': 'user-check'},
+        {'name': 'badge-check', 'label': 'Chancela / Selo', 'icon': 'badge-check'}
+    ]
+
+    overview = {
+        'total_modalities': len(modality_items),
+        'active_classes': len(all_class_groups),
+        'total_presets': len(preset_icons)
+    }
+
+    return render_template(
+        'gestao_icones.html',
+        page_title='Gestão de Ícones e Modalidades',
+        modality_items=modality_items,
+        preset_icons=preset_icons,
+        overview=overview
     )
 
 @app.route('/gestao/turmas/<int:class_id>')

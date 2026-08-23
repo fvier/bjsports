@@ -1,0 +1,224 @@
+{% set erp_page = true %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="erp-wrapper class-management-page">
+  {% include "_erp_sidebar.html" %}
+
+  <div class="erp-main-container">
+    <header class="erp-topbar">
+      <div class="erp-topbar-left">
+        <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
+        <span class="erp-blue-badge">BJ Sports ERP • Associação de Ícones e Modalidades</span>
+      </div>
+      <div class="erp-topbar-right">
+        {% include "_topbar_actions.html" %}
+        <div class="erp-user-badge"><span class="erp-avatar">🥋</span><span class="erp-user-name">{{ user_name }}</span><span class="badge-pill bg-green">INSTRUTOR</span></div>
+      </div>
+    </header>
+
+    <main class="erp-content class-management-content">
+      
+      <!-- HEADER COM NAVEGAÇÃO (TURMAS, FILIAIS, ÍCONES) -->
+      <section class="class-management-heading">
+        <div>
+          <span><i data-lucide="shapes"></i> PERSONALIZAÇÃO VISUAL</span>
+          <h1>Associação de Ícones e Modalidades</h1>
+          <p>Escolha e personalize os ícones de cada modalidade esportiva (Jiu-Jitsu, Boxe, Muay Thai, MMA, Kids, etc.) para exibição nas turmas e unidades.</p>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav"><i data-lucide="calendar-range"></i> Turmas</a>
+          <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav"><i data-lucide="map-pin"></i> Filiais</a>
+          <a href="{{ url_for('gestao_icones') }}" class="btn-sub-nav active"><i data-lucide="shapes"></i> Ícones</a>
+          
+          <button type="submit" form="formModalityIcons" class="class-management-primary btn-glow" style="background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; font-weight: 800; padding: 10px 22px;">
+            <i data-lucide="save"></i> Salvar Ícones
+          </button>
+        </div>
+      </section>
+
+      <!-- CARDS DE KPIS E RESUMO -->
+      <section class="class-management-kpis" style="margin-bottom: 24px;">
+        <article>
+          <i data-lucide="shapes"></i>
+          <div>
+            <span>Modalidades Mapeadas</span>
+            <strong>{{ overview.total_modalities }}</strong>
+            <small>Com ícones configuráveis</small>
+          </div>
+        </article>
+
+        <article>
+          <i data-lucide="calendar-range"></i>
+          <div>
+            <span>Turmas Ativas</span>
+            <strong>{{ overview.active_classes }}</strong>
+            <small>Usando estes ícones</small>
+          </div>
+        </article>
+
+        <article class="is-positive">
+          <i data-lucide="sparkles"></i>
+          <div>
+            <span>Biblioteca de Ícones</span>
+            <strong>{{ overview.total_presets }} ícones</strong>
+            <small>Presets prontos para escolha</small>
+          </div>
+        </article>
+      </section>
+
+      <!-- FORMULÁRIO DE GESTÃO DE ÍCONES -->
+      <form action="{{ url_for('gestao_icones') }}" method="POST" id="formModalityIcons">
+        <input type="hidden" name="action" value="save_modality_icons">
+
+        <!-- PAINEL PRINCIPAL DE ÍCONES POR MODALIDADE -->
+        <section class="class-management-panel p-4" style="background: rgba(18, 18, 28, 0.95); border-radius: 18px; border: 1px solid var(--border-light);">
+          
+          <div class="flex-between align-center pb-3 mb-4" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--accent-gold); letter-spacing: 1px; font-weight: 700; display: block;">MODALIDADES E ÍCONES</span>
+              <h2 style="font-size: 1.25rem; margin: 0; color: #fff;">Associe cada modalidade ao seu ícone representativo</h2>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-glow" style="padding: 9px 20px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 10px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); cursor: pointer;">
+              <i data-lucide="save"></i> Salvar Ícones
+            </button>
+          </div>
+
+          <!-- GRID DE CARDS DAS MODALIDADES -->
+          <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;">
+            
+            {% for item in modality_items %}
+            <div class="glass-panel" style="padding: 18px; border-radius: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+              
+              <!-- TOPO DO CARD: PREVIEW DO ÍCONE E NOME -->
+              <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+                <div id="iconBadge_{{ loop.index }}" style="width: 52px; height: 52px; border-radius: 14px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.5rem; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
+                  <i data-lucide="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px;"></i>
+                </div>
+
+                <div style="flex: 1;">
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 2px;">{{ item.name }}</h3>
+                  <small style="color: #94a3b8; font-size: 0.78rem; display: block;">
+                    {{ item.classes_count }} turma(s) ativas usando este ícone
+                  </small>
+                </div>
+              </div>
+
+              <!-- SELETOR E INPUT DO ÍCONE LUCIDE -->
+              <div style="margin-bottom: 14px;">
+                <label style="font-size: 0.72rem; color: #60a5fa; font-weight: 700; display: block; margin-bottom: 4px;">
+                  📌 ÍCONE LUCIDE SELECIONADO
+                </label>
+                <div class="live-input-group">
+                  <i data-lucide="sparkles" style="color: var(--accent-gold);"></i>
+                  <input type="text" 
+                    name="icon_mod_{{ item.name }}" 
+                    id="iconInput_{{ loop.index }}" 
+                    value="{{ item.icon }}" 
+                    class="live-input" 
+                    placeholder="Ex: award, swords, flame, zap"
+                    oninput="updateIconPreview('iconInput_{{ loop.index }}', 'iconLucide_{{ loop.index }}')">
+                </div>
+              </div>
+
+              <!-- PRESETS RÁPIDOS DE ÍCONES (CLIQUE PARA SELECIONAR) -->
+              <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 6px;">
+                  💡 PRESETS RÁPIDOS (CLIQUE PARA ATRIBUIR):
+                </label>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  {% for p in preset_icons %}
+                  <button type="button" 
+                    class="btn-icon-action" 
+                    style="padding: 4px 8px; font-size: 0.72rem; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1;"
+                    title="{{ p.label }}"
+                    onclick="selectPresetIcon('{{ p.icon }}', 'iconInput_{{ loop.index }}', 'iconLucide_{{ loop.index }}')">
+                    <i data-lucide="{{ p.icon }}" style="width: 12px; height: 12px; color: var(--accent-gold);"></i> {{ p.icon }}
+                  </button>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- PRÉ-VISUALIZAÇÃO DE COMO FICA NO CARD DA TURMA -->
+              <div style="background: rgba(15, 23, 42, 0.9); border: 1px dashed rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; margin-top: 10px;">
+                <span style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px;">
+                  👀 Exemplo de exibição no sistema:
+                </span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 26px; height: 26px; border-radius: 6px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+                    <i data-lucide="{{ item.icon }}" id="sampleLucide_{{ loop.index }}" style="width: 15px; height: 15px;"></i>
+                  </span>
+                  <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">
+                    {{ item.name }} {% if item.classes_sample %}({{ item.classes_sample[0] }}){% endif %}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+            {% endfor %}
+
+          </div>
+
+          <!-- ADICIONAR NOVA MODALIDADE PERSONALIZADA -->
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 12px;">
+              ➕ Adicionar Nova Modalidade Personalizada
+            </h3>
+
+            <div class="form-row" style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <div class="form-group flex-2 mb-0">
+                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome da Nova Modalidade</label>
+                <input type="text" name="new_modality_name" placeholder="Ex: Krav Maga, Jiu-Jitsu No-Gi, Kickboxing" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
+              </div>
+
+              <div class="form-group flex-1 mb-0">
+                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome do Ícone Lucide</label>
+                <input type="text" name="new_modality_icon" placeholder="Ex: shield, flame, zap" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
+              </div>
+
+              <div class="form-group mb-0" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary btn-glow" style="padding: 9px 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border: none; border-radius: 8px;">
+                  <i data-lucide="plus-circle"></i> Adicionar Modalidade
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </form>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function selectPresetIcon(iconName, inputId, mainIconId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.value = iconName;
+    updateIconPreview(inputId, mainIconId);
+  }
+}
+
+function updateIconPreview(inputId, mainIconId) {
+  const input = document.getElementById(inputId);
+  const iconName = input ? input.value.trim() : '';
+  const mainIcon = document.getElementById(mainIconId);
+  const sampleIndex = mainIconId.replace('iconLucide_', '');
+  const sampleIcon = document.getElementById('sampleLucide_' + sampleIndex);
+
+  if (mainIcon && iconName) {
+    mainIcon.setAttribute('data-lucide', iconName);
+  }
+  if (sampleIcon && iconName) {
+    sampleIcon.setAttribute('data-lucide', iconName);
+  }
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+</script>
+{% endblock %}

@@ -495,6 +495,23 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(revision.updated_by_username, 'monitor')
             self.assertIn('Até 57,5 kg', revision.changes_json)
 
+    def test_gestao_icones_management(self):
+        self.login('instrutor')
+        resp = self.client.get('/gestao/icones')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('Associação de Ícones e Modalidades', resp.get_data(as_text=True))
+        
+        post_resp = self.client.post('/gestao/icones', data={
+            'action': 'save_modality_icons',
+            'icon_mod_Jiu-Jitsu': 'award',
+            'icon_mod_Boxe': 'swords',
+            'new_modality_name': 'Krav Maga',
+            'new_modality_icon': 'shield',
+            'csrf_token': self.csrf()
+        }, follow_redirects=True)
+        self.assertEqual(post_resp.status_code, 200)
+        self.assertIn('Ícones das modalidades atualizados', post_resp.get_data(as_text=True))
+
     def test_monitor_controls_scoreboard_while_student_has_read_only_access(self):
         with app.app_context():
             championship = InternalChampionship(
