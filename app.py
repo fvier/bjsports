@@ -1700,6 +1700,33 @@ def calendar_push_test():
     return jsonify({'ok': True})
 
 LOCATIONS_DATA = {
+    'cajazeiras-sede': {
+        'id': 'cajazeiras-sede',
+        'slug': 'cajazeiras-sede',
+        'name': 'Cajazeiras (Sede Matriz)',
+        'subtitle': 'Sede Matriz Central • Av. Estrada do Amor',
+        'state': 'PB',
+        'city': 'Cajazeiras',
+        'address': 'Av. Estrada do Amor, s/n, Cajazeiras - PB',
+        'professor_name': 'Mestre Bolivar & Equipe BJ Sports',
+        'professor_title': 'Direção Técnica Matriz',
+        'professor_bio': 'Nossa Sede Matriz em Cajazeiras é o centro de formação técnica e administrativa do BJ Sports, reunindo a equipe principal de Monitores e Professores qualificados.',
+        'professor_phone': '5583996527997',
+        'professor_phone_formatted': '(83) 99652-7997',
+        'professor_instagram': '@bjsports_',
+        'logo_ct': 'img/logo_original.png',
+        'badge_color': 'bg-green',
+        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA Profissional', 'Preparação Física'],
+        'schedules': [
+            {'day': 'Segunda a Sexta', 'time': '11:30h', 'modality': 'MMA Profissional'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Tarde'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:00h', 'modality': 'Jiu-Jitsu Noturno'},
+            {'day': 'Terça e Quinta', 'time': '12:00h', 'modality': 'Jiu-Jitsu Meio-Dia'},
+            {'day': 'Terça e Quinta', 'time': '18:00h', 'modality': 'MMA Amador / Iniciantes'}
+        ],
+        'maps_link': 'https://maps.google.com/?q=Av.+Estrada+do+Amor,+Cajazeiras+-+PB',
+        'description': 'Nossa Matriz conta com octógono de treinos, tatame oficial de competição e equipamentos de preparação física de última geração.'
+    },
     'cajazeiras-tenis-clube': {
         'id': 'cajazeiras-tenis-clube',
         'slug': 'cajazeiras-tenis-clube',
@@ -1727,33 +1754,6 @@ LOCATIONS_DATA = {
         ],
         'maps_link': 'https://maps.google.com/?q=Tenis+Clube+Cajazeiras+PB',
         'description': 'A unidade Tênis Clube conta com espaço amplo, tatame profissional de alta densidade e vestiários para atender com excelência alunos de todas as idades.'
-    },
-    'cajazeiras-sede': {
-        'id': 'cajazeiras-sede',
-        'slug': 'cajazeiras-sede',
-        'name': 'Cajazeiras (Sede Matriz)',
-        'subtitle': 'Sede Matriz Central • Av. Estrada do Amor',
-        'state': 'PB',
-        'city': 'Cajazeiras',
-        'address': 'Av. Estrada do Amor, s/n, Cajazeiras - PB',
-        'professor_name': 'Mestre Bolivar & Equipe BJ Sports',
-        'professor_title': 'Direção Técnica Matriz',
-        'professor_bio': 'Nossa Sede Matriz em Cajazeiras é o centro de formação técnica e administrativa do BJ Sports, reunindo a equipe principal de Monitores e Professores qualificados.',
-        'professor_phone': '5583996527997',
-        'professor_phone_formatted': '(83) 99652-7997',
-        'professor_instagram': '@bjsports_',
-        'logo_ct': 'img/logo_original.png',
-        'badge_color': 'bg-green',
-        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA Profissional', 'Preparação Física'],
-        'schedules': [
-            {'day': 'Segunda a Sexta', 'time': '11:30h', 'modality': 'MMA Profissional'},
-            {'day': 'Segunda, Quarta e Sexta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Tarde'},
-            {'day': 'Segunda, Quarta e Sexta', 'time': '19:00h', 'modality': 'Jiu-Jitsu Noturno'},
-            {'day': 'Terça e Quinta', 'time': '12:00h', 'modality': 'Jiu-Jitsu Meio-Dia'},
-            {'day': 'Terça e Quinta', 'time': '18:00h', 'modality': 'MMA Amador / Iniciantes'}
-        ],
-        'maps_link': 'https://maps.google.com/?q=Av.+Estrada+do+Amor,+Cajazeiras+-+PB',
-        'description': 'Nossa Matriz conta com octógono de treinos, tatame oficial de competição e equipamentos de preparação física de última geração.'
     },
     'lavras-ce': {
         'id': 'lavras-ce',
@@ -1835,7 +1835,7 @@ LOCATIONS_DATA = {
 @app.route('/locais/')
 @app.route('/locais.html')
 def lista_locais():
-    return redirect(url_for('ver_local', slug='cajazeiras-tenis-clube'))
+    return redirect(url_for('ver_local', slug='cajazeiras-sede'))
 
 @app.route('/locais/<slug>')
 @app.route('/locais/<slug>.html')
@@ -1844,7 +1844,7 @@ def ver_local(slug):
     slug_clean = slug.replace('.html', '').lower()
     location = LOCATIONS_DATA.get(slug_clean)
     if not location:
-        location = LOCATIONS_DATA['cajazeiras-tenis-clube']
+        location = LOCATIONS_DATA['cajazeiras-sede']
     return render_template('local_detalhe.html', page_title=f"CT {location['name']} — BJ Sports", location=location)
 
 @app.route('/blog')

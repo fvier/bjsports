@@ -39,6 +39,19 @@
             Locais <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
           <div class="dropdown-menu glass-panel">
+            <!-- PARAÍBA (PB) -->
+            <div style="padding: 6px 12px 4px; font-size: 0.72rem; font-weight: 900; color: var(--accent-gold); letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>🌵</span> PARAÍBA (PB)
+            </div>
+            
+            <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="dropdown-item">
+              <i data-lucide="building-2" class="icon-gold"></i>
+              <div>
+                <strong>Cajazeiras (Sede Matriz)</strong>
+                <small>Av. Estrada do Amor (Matriz)</small>
+              </div>
+            </a>
+            
             <a href="{{ url_for('ver_local', slug='cajazeiras-tenis-clube') }}" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
@@ -46,20 +59,7 @@
                 <small>Unidade Tênis Clube</small>
               </div>
             </a>
-            <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-gold"></i>
-              <div>
-                <strong>Cajazeiras (Sede)</strong>
-                <small>Av. Estrada do Amor (Matriz)</small>
-              </div>
-            </a>
-            <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-gold"></i>
-              <div>
-                <strong>Lavras - CE</strong>
-                <small>Unidade Ceará</small>
-              </div>
-            </a>
+
             <a href="{{ url_for('ver_local', slug='pombal') }}" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
@@ -67,11 +67,25 @@
                 <small>Unidade Sertão PB</small>
               </div>
             </a>
+
             <a href="{{ url_for('ver_local', slug='sao-joao-do-rio-do-peixe') }}" class="dropdown-item">
               <i data-lucide="map-pin" class="icon-gold"></i>
               <div>
                 <strong>São João do Rio do Peixe - PB</strong>
                 <small>Unidade Sertão PB</small>
+              </div>
+            </a>
+
+            <!-- CEARÁ (CE) -->
+            <div style="padding: 10px 12px 4px; font-size: 0.72rem; font-weight: 900; color: #60a5fa; letter-spacing: 0.08em; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); margin: 6px 0 4px; display: flex; align-items: center; gap: 6px;">
+              <span>☀️</span> CEARÁ (CE)
+            </div>
+
+            <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="dropdown-item">
+              <i data-lucide="map-pin" class="icon-blue"></i>
+              <div>
+                <strong>Lavras - CE</strong>
+                <small>Unidade Lavras da Mangabeira</small>
               </div>
             </a>
           </div>
