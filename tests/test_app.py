@@ -1757,6 +1757,12 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(pub_res.status_code, 200)
         self.assertIn('Prof. Carlos', pub_res.get_data(as_text=True))
 
+    def test_gestao_turmas_e_filiais_routes(self):
+        self.login('instrutor')
+        res = self.client.get('/gestao/turmas-e-filiais')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Gestão de Turmas e Filiais', res.get_data(as_text=True))
+
 
 if __name__ == '__main__':
     unittest.main()

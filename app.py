@@ -716,9 +716,16 @@ class ClassGroup(db.Model):
     duration_minutes = db.Column(db.Integer, nullable=False, default=60)
     status = db.Column(db.String(20), nullable=False, default='ativa')
     publish_public = db.Column(db.Boolean, nullable=False, default=True)
+    location_slug = db.Column(db.String(80), nullable=False, default='cajazeiras-sede')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     responsible_monitor = db.relationship('User', foreign_keys=[responsible_monitor_id])
+
+    @property
+    def location_info(self):
+        locs = get_locations_dict()
+        slug = self.location_slug or 'cajazeiras-sede'
+        return locs.get(slug, locs.get('cajazeiras-sede', {'name': 'Cajazeiras (Sede Matriz)', 'badge_color': 'bg-green'}))
 
     @property
     def schedules(self):
@@ -3005,6 +3012,10 @@ def planos_admin():
 
 @app.route('/gestao/turmas', methods=['GET', 'POST'])
 @app.route('/gestao/turmas.html', methods=['GET', 'POST'])
+@app.route('/gestao/turmas-e-filiais', methods=['GET', 'POST'])
+@app.route('/gestao/turmas-e-filiais.html', methods=['GET', 'POST'])
+@app.route('/gestao_turmas', methods=['GET', 'POST'])
+@app.route('/gestao_turmas.html', methods=['GET', 'POST'])
 @role_required('instrutor')
 def gestao_turmas():
     ensure_class_groups()
@@ -3024,6 +3035,8 @@ def gestao_turmas():
         capacity = request.form.get('class_capacity', type=int)
         duration = request.form.get('class_duration', type=int)
         status = request.form.get('class_status', 'ativa')
+        location_slug = request.form.get('class_location_slug', 'cajazeiras-sede').strip()
+
         duplicate = ClassGroup.query.filter(ClassGroup.name == name)
         if action == 'update':
             duplicate = duplicate.filter(ClassGroup.id != class_group.id)
@@ -3049,6 +3062,7 @@ def gestao_turmas():
         class_group.capacity = capacity
         class_group.duration_minutes = duration
         class_group.status = status
+        class_group.location_slug = location_slug
         class_group.publish_public = request.form.get('publish_public') == '1'
         if action == 'create':
             db.session.add(class_group)
@@ -3059,6 +3073,7 @@ def gestao_turmas():
     search_query = request.args.get('q', '').strip()
     modality_filter = request.args.get('modality', 'todas')
     status_filter = request.args.get('status', 'todos')
+    location_filter = request.args.get('location_slug', 'todas')
     query = ClassGroup.query
     if search_query:
         query = query.filter(
@@ -3071,6 +3086,8 @@ def gestao_turmas():
         query = query.filter(ClassGroup.modality == modality_filter)
     if status_filter != 'todos':
         query = query.filter(ClassGroup.status == status_filter)
+    if location_filter != 'todas':
+        query = query.filter(ClassGroup.location_slug == location_filter)
     classes = query.order_by(ClassGroup.modality, ClassGroup.name).all()
 
     all_classes = ClassGroup.query.order_by(ClassGroup.id).all()
@@ -3166,9 +3183,10 @@ def gestao_turmas():
         })
 
     return render_template(
-        'gestao_turmas.html', page_title='Gestão de Turmas', classes=classes, overview=overview,
+        'gestao_turmas.html', page_title='Gestão de Turmas e Filiais', classes=classes, overview=overview,
         modalities_smart=modalities_smart_metrics, search_query=search_query,
-        modality_filter=modality_filter, status_filter=status_filter,
+        modality_filter=modality_filter, status_filter=status_filter, location_filter=location_filter,
+        locations_dict=get_locations_dict(),
         monitors=User.query.filter_by(role='monitor').order_by(User.name).all(),
     )
 
