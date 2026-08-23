@@ -214,6 +214,24 @@ body {
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.72);
 }
 
+/* MEGAMENU COMPACT DROPDOWN FOR LOCAIS */
+.dropdown-menu.dropdown-megamenu { width: 500px; padding: 14px 16px; border-radius: 14px; background: #12121c !important; border: 1px solid rgba(245, 158, 11, 0.35); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85); }
+.megamenu-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; }
+.megamenu-col { display: flex; flex-direction: column; gap: 3px; }
+.megamenu-header { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 6px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.megamenu-header.state-pb { color: var(--accent-gold); }
+.megamenu-header.state-ce { color: #60a5fa; }
+.megamenu-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; color: #e2e8f0; text-decoration: none; font-size: 0.83rem; transition: background 0.2s ease, transform 0.2s ease; border: 1px solid transparent; }
+.megamenu-item:hover { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.25); color: #ffffff; transform: translateX(3px); }
+.megamenu-item i, .megamenu-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.megamenu-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.82rem; }
+.megamenu-item strong { color: #ffffff; font-weight: 800; }
+
+@media (max-width: 768px) {
+  .dropdown-menu.dropdown-megamenu { width: 290px; }
+  .megamenu-grid { grid-template-columns: 1fr; gap: 10px; }
+}
+
 .nav-dropdown:hover .dropdown-menu {
   opacity: 1;
   visibility: visible;

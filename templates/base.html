@@ -38,56 +38,49 @@
           <button class="nav-item nav-dropdown-trigger">
             Locais <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
-          <div class="dropdown-menu glass-panel">
-            <!-- PARAÍBA (PB) -->
-            <div style="padding: 6px 12px 4px; font-size: 0.72rem; font-weight: 900; color: var(--accent-gold); letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-              <span>🌵</span> PARAÍBA (PB)
+          <div class="dropdown-menu dropdown-megamenu glass-panel">
+            <div class="megamenu-grid">
+              
+              <!-- COLUNA PARAÍBA (PB) -->
+              <div class="megamenu-col">
+                <div class="megamenu-header state-pb">
+                  <span>🌵</span> PARAÍBA (PB)
+                </div>
+                
+                <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="megamenu-item">
+                  <i data-lucide="building-2" class="icon-gold"></i>
+                  <span>Cajazeiras <strong>(Sede Matriz)</strong></span>
+                </a>
+                
+                <a href="{{ url_for('ver_local', slug='cajazeiras-tenis-clube') }}" class="megamenu-item">
+                  <i data-lucide="map-pin" class="icon-gold"></i>
+                  <span>Cajazeiras <strong>(Tênis Clube)</strong></span>
+                </a>
+
+                <a href="{{ url_for('ver_local', slug='pombal') }}" class="megamenu-item">
+                  <i data-lucide="map-pin" class="icon-gold"></i>
+                  <span>Pombal <strong>(PB)</strong></span>
+                </a>
+
+                <a href="{{ url_for('ver_local', slug='sao-joao-do-rio-do-peixe') }}" class="megamenu-item">
+                  <i data-lucide="map-pin" class="icon-gold"></i>
+                  <span>São João do Rio do Peixe <strong>(PB)</strong></span>
+                </a>
+              </div>
+
+              <!-- COLUNA CEARÁ (CE) -->
+              <div class="megamenu-col">
+                <div class="megamenu-header state-ce">
+                  <span>☀️</span> CEARÁ (CE)
+                </div>
+
+                <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="megamenu-item">
+                  <i data-lucide="map-pin" class="icon-blue"></i>
+                  <span>Lavras da Mangabeira <strong>(CE)</strong></span>
+                </a>
+              </div>
+
             </div>
-            
-            <a href="{{ url_for('ver_local', slug='cajazeiras-sede') }}" class="dropdown-item">
-              <i data-lucide="building-2" class="icon-gold"></i>
-              <div>
-                <strong>Cajazeiras (Sede Matriz)</strong>
-                <small>Av. Estrada do Amor (Matriz)</small>
-              </div>
-            </a>
-            
-            <a href="{{ url_for('ver_local', slug='cajazeiras-tenis-clube') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-gold"></i>
-              <div>
-                <strong>Cajazeiras (Tênis Clube)</strong>
-                <small>Unidade Tênis Clube</small>
-              </div>
-            </a>
-
-            <a href="{{ url_for('ver_local', slug='pombal') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-gold"></i>
-              <div>
-                <strong>Pombal - PB</strong>
-                <small>Unidade Sertão PB</small>
-              </div>
-            </a>
-
-            <a href="{{ url_for('ver_local', slug='sao-joao-do-rio-do-peixe') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-gold"></i>
-              <div>
-                <strong>São João do Rio do Peixe - PB</strong>
-                <small>Unidade Sertão PB</small>
-              </div>
-            </a>
-
-            <!-- CEARÁ (CE) -->
-            <div style="padding: 10px 12px 4px; font-size: 0.72rem; font-weight: 900; color: #60a5fa; letter-spacing: 0.08em; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); margin: 6px 0 4px; display: flex; align-items: center; gap: 6px;">
-              <span>☀️</span> CEARÁ (CE)
-            </div>
-
-            <a href="{{ url_for('ver_local', slug='lavras-ce') }}" class="dropdown-item">
-              <i data-lucide="map-pin" class="icon-blue"></i>
-              <div>
-                <strong>Lavras - CE</strong>
-                <small>Unidade Lavras da Mangabeira</small>
-              </div>
-            </a>
           </div>
         </div>
 
