@@ -13,9 +13,13 @@
         <p class="erp-page-subtitle">Cadastre, edite ou remova centros de treinamento e filiais credenciadas BJ Sports.</p>
       </div>
 
-      <button type="button" class="btn btn-primary btn-glow" id="btnOpenAddLocationModal">
-        <i data-lucide="plus-circle"></i> Cadastrar Novo Local
-      </button>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav"><i data-lucide="calendar-range"></i> Turmas</a>
+        <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav active"><i data-lucide="map-pin"></i> Filiais</a>
+        <button type="button" class="btn btn-primary btn-glow" id="btnOpenAddLocationModal">
+          <i data-lucide="plus-circle"></i> Cadastrar Novo Local
+        </button>
+      </div>
     </div>
 
     <!-- CARDS DE RESUMO DE LOCAIS -->

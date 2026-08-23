@@ -20,7 +20,11 @@
     <main class="erp-content class-management-content">
       <section class="class-management-heading">
         <div><span><i data-lucide="clipboard-list"></i> GESTÃO OPERACIONAL</span><h1>Gestão de Turmas e Filiais</h1><p>Administre a grade oficial de cada filial/unidade, os responsáveis, horários, capacidade e vínculos dos alunos.</p></div>
-        <button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav active"><i data-lucide="calendar-range"></i> Turmas</a>
+          <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav"><i data-lucide="map-pin"></i> Filiais</a>
+          <button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>
+        </div>
       </section>
 
       <section class="class-management-kpis">
