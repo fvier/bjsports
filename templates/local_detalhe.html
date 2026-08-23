@@ -3,42 +3,38 @@
 {% block content %}
 <div class="ct-page-wrapper">
   
-  <!-- HERO HEADER DO CENTRO DE TREINAMENTO COM CO-BRANDING / DUPLA DE LOGOS -->
+  <!-- HERO HEADER COMPACTO DO CENTRO DE TREINAMENTO (CO-BRANDING INTEGRADO) -->
   <section class="ct-hero-section">
     <div class="container">
-      <div class="ct-cobranding-card glass-panel">
+      <div class="ct-compact-banner glass-panel">
         
-        <!-- LOGO DA BJ SPORTS (ESQUERDA) -->
-        <div class="cobranding-logo-box">
-          <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="cobranding-logo-img main-brand">
-          <span class="cobranding-tag">BJ Sports Matriz</span>
+        <!-- LOGO BJ SPORTS MATRIZ (ESQUERDA) -->
+        <div class="ct-brand-side">
+          <img src="{{ url_for('static', filename='img/logo_transparent.png') }}" alt="BJ Sports Logo" class="ct-logo-img">
+          <span class="ct-brand-label">BJ Sports Matriz</span>
         </div>
 
-        <!-- DIVISOR DE PARCERIA DA UNIDADE -->
-        <div class="cobranding-divider">
-          <span class="divider-badge">PARCERIA OFICIAL</span>
-          <div class="divider-icon"><i data-lucide="swords" style="width: 24px; height: 24px; color: var(--accent-gold);"></i></div>
+        <!-- CONTEÚDO CENTRALIZADO (TAGS, TÍTULO E SUBTÍTULO) -->
+        <div class="ct-center-info">
+          <div class="ct-badge-row">
+            <span class="badge-pill {{ location.badge_color }}">CENTRO DE TREINAMENTO • UNIDADE {{ location.state }}</span>
+            <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--accent-gold);"></i> PARCERIA OFICIAL</span>
+          </div>
+          <h1 class="ct-title">{{ location.name }}</h1>
+          <p class="ct-subtitle">📍 {{ location.subtitle }}</p>
         </div>
 
         <!-- LOGO DO PROFESSOR / CT DA UNIDADE (DIREITA) -->
-        <div class="cobranding-logo-box">
+        <div class="ct-brand-side">
           {% if location.logo_ct %}
-          <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="Logo {{ location.name }}" class="cobranding-logo-img ct-brand">
+          <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="Logo {{ location.name }}" class="ct-logo-img ct-partner-img">
           {% else %}
-          <div class="cobranding-logo-placeholder">🥋</div>
+          <div class="ct-logo-placeholder">🥋</div>
           {% endif %}
-          <span class="cobranding-tag">{{ location.professor_name }}</span>
+          <span class="ct-brand-label">{{ location.professor_name }}</span>
         </div>
 
       </div>
-
-      <!-- TÍTULO DA UNIDADE E TAGS DE LOCALIZAÇÃO -->
-      <div class="ct-header-title text-center">
-        <span class="badge-pill {{ location.badge_color }}">CENTRO DE TREINAMENTO • UNIDADE {{ location.state }}</span>
-        <h1 class="ct-title">{{ location.name }}</h1>
-        <p class="ct-subtitle">📍 {{ location.subtitle }}</p>
-      </div>
-
     </div>
   </section>
 
@@ -62,7 +58,11 @@
             </div>
 
             <div class="professor-profile-body">
+              {% if location.logo_ct %}
+              <img src="{{ url_for('static', filename=location.logo_ct) }}" alt="{{ location.professor_name }}" class="professor-avatar-img">
+              {% else %}
               <div class="professor-avatar-badge">🥋</div>
+              {% endif %}
               <h2 class="professor-name">{{ location.professor_name }}</h2>
               <span class="professor-title-badge">{{ location.professor_title }}</span>
               <p class="professor-bio">{{ location.professor_bio }}</p>
