@@ -75,7 +75,7 @@
         </article>
       </section>
 
-      <!-- PAINEL DA FILIAL SELECIONADA COM SELETOR DROPDOWN E AÇÕES NO TOPO -->
+      <!-- PAINEL INTERATIVO DE EDIÇÃO E VISUALIZAÇÃO NO TEMPLATE DA FILIAL -->
       <section class="class-management-panel">
         <header class="flex-between align-center" style="flex-wrap: wrap; gap: 16px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);">
           
@@ -90,7 +90,7 @@
             {% if locations_list %}
             <div style="position: relative; min-width: 320px;">
               <select id="filialSelectDropdown" onchange="switchFilialPreview(this.value)" style="background: rgba(30, 41, 59, 0.95); color: #fff; border: 1.5px solid var(--accent-gold); border-radius: 10px; padding: 9px 36px 9px 14px; font-size: 0.92rem; font-weight: 700; width: 100%; cursor: pointer; appearance: none; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
-                <option value="" selected disabled>-- Selecione uma filial para visualizar / editar --</option>
+                <option value="" selected disabled>-- Selecione uma filial para editar ou visualizar --</option>
                 {% for loc in locations_list %}
                 <option value="{{ loc.slug }}" 
                   data-id="{{ loc.id }}"
@@ -118,7 +118,7 @@
             {% endif %}
           </div>
 
-          <!-- LADO DIREITO: BOTÕES DE AÇÃO PARA A FILIAL SELECIONADA -->
+          <!-- LADO DIREITO: BOTÕES DE AÇÃO SUPERIORES -->
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="class-management-primary" id="btnOpenAddLocationModal" style="padding: 8px 16px; font-size: 0.85rem;">
               <i data-lucide="plus"></i> Nova filial
@@ -127,8 +127,8 @@
             {% if locations_list %}
             <button type="button" class="btn-icon-action btn-edit-selected-loc" id="btnEditSelectedFilial"
               style="display: none; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 16px; font-size: 0.85rem;"
-              title="Editar esta Filial">
-              <i data-lucide="pencil"></i> Editar Filial
+              title="Abrir Formulário Completo de Edição">
+              <i data-lucide="sliders-horizontal"></i> Form Completo
             </button>
 
             <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display: none;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
@@ -146,25 +146,39 @@
           </div>
         </header>
 
-        <!-- CONTAINER COM APENAS 1 RESULTADO EXIBIDO POR VEZ -->
+        <!-- CONTAINER DO TEMPLATE INTERATIVO DA FILIAL -->
         <div class="p-3">
           
           <!-- CARD PLACEHOLDER QUANDO NENHUMA FILIAL ESTÁ SELECIONADA -->
           <div id="noFilialSelectedCard" class="glass-panel text-center p-5 w-100" style="border-radius: 18px; border: 1px dashed rgba(245, 158, 11, 0.4); background: rgba(18, 18, 28, 0.8);">
             <i data-lucide="map-pin" style="width: 52px; height: 52px; color: var(--accent-gold); opacity: 0.7; margin-bottom: 12px;"></i>
             <h3 style="color: #fff; font-weight: 700; margin-bottom: 6px;">Nenhuma filial selecionada</h3>
-            <p class="text-muted" style="max-width: 500px; margin: 0 auto 18px; font-size: 0.9rem;">
-              Selecione uma filial no menu suspenso acima para visualizar as informações completas, consultar modalidades, editar dados ou fazer upload de fotos/logos.
+            <p class="text-muted" style="max-width: 520px; margin: 0 auto 18px; font-size: 0.9rem;">
+              Selecione uma filial no menu suspenso acima para carregar o visual interativo. Você poderá editar modalidades clicando nelas, trocar fotos/logos e salvar tudo diretamente no template!
             </p>
             <button type="button" class="class-management-primary" onclick="document.getElementById('btnOpenAddLocationModal').click();">
               <i data-lucide="plus"></i> Cadastrar Nova Filial
             </button>
           </div>
 
+          <!-- CARDS TEMPLATE INTERATIVOS (APENAS O SELECIONADO É EXIBIDO) -->
           {% for loc in locations_list %}
-          <div class="filial-preview-card filial-template-block glass-panel" id="filialCard_{{ loc.slug }}" style="display: none; padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95);">
-            
-            <!-- TOPO DO CARD DA FILIAL COM BADGES DE INFORMAÇÃO -->
+          <form action="{{ url_for('locais_admin') }}" method="POST" enctype="multipart/form-data" class="filial-preview-card filial-template-block glass-panel" id="filialCard_{{ loc.slug }}" style="display: none; padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95);">
+            <input type="hidden" name="action" value="edit_location">
+            <input type="hidden" name="location_db_id" value="{{ loc.id }}">
+            <input type="hidden" name="name" value="{{ loc.name }}">
+            <input type="hidden" name="state" value="{{ loc.state }}">
+            <input type="hidden" name="city" value="{{ loc.city }}">
+            <input type="hidden" name="address" value="{{ loc.address }}">
+            <input type="hidden" name="professor_name" value="{{ loc.professor_name }}">
+            <input type="hidden" name="professor_title" value="{{ loc.professor_title }}">
+            <input type="hidden" name="professor_phone" value="{{ loc.professor_phone }}">
+            <input type="hidden" name="professor_instagram" value="{{ loc.professor_instagram }}">
+            <input type="hidden" name="description" value="{{ loc.description }}">
+            <input type="hidden" name="maps_link" value="{{ loc.maps_link }}">
+            <input type="hidden" name="modalities" id="modalitiesInput_{{ loc.slug }}" value="{{ loc.modalities|join(', ') }}">
+
+            <!-- BARRA DE AÇÃO DIRETA DO CARD DO TEMPLATE -->
             <div class="filial-card-top-bar flex-between align-center pb-3 mb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <span class="badge-pill {{ loc.badge_color or 'bg-gold' }}">UNIDADE {{ loc.state }}</span>
@@ -173,9 +187,15 @@
                   <i data-lucide="calendar-range" style="width:12px; height:12px;" class="icon-gold"></i> {{ loc.turmas_count or 0 }} turma(s) ativas
                 </span>
               </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="submit" class="btn btn-primary btn-glow" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border: none;" title="Salvar todas as alterações da filial">
+                  <i data-lucide="save"></i> Salvar Alterações da Filial
+                </button>
+              </div>
             </div>
 
-            <!-- HERO COMPACT BANNER DA FILIAL (IGUAL LOCAL_DETALHE) -->
+            <!-- HERO COMPACT BANNER DA FILIAL (COM INTERAÇÃO DE LOGO) -->
             <div class="ct-compact-banner glass-panel mb-3" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
               <!-- LOGO BJ SPORTS MATRIZ (ESQUERDA) -->
               <div class="ct-brand-side">
@@ -189,21 +209,26 @@
                 <p class="ct-subtitle" style="margin: 0; color: #94a3b8; font-size: 0.85rem;">📍 {{ loc.address }}</p>
               </div>
 
-              <!-- LOGO DO PROFESSOR / CT DA UNIDADE (DIREITA) -->
-              <div class="ct-brand-side">
+              <!-- LOGO DO CT COM BOTAO DE UPLOAD INTERATIVO (DIREITA) -->
+              <div class="ct-brand-side interactive-upload-container" onclick="document.getElementById('logoFile_{{ loc.slug }}').click();" title="Clique para trocar o Logo do CT">
+                <input type="file" name="logo_ct_file" id="logoFile_{{ loc.slug }}" accept="image/*" class="hidden-file-input" onchange="previewTemplateImage(this, 'logoImg_{{ loc.slug }}', 'logoPlaceholder_{{ loc.slug }}')">
+                
                 {% if loc.logo_ct %}
-                <img src="{{ url_for('static', filename=loc.logo_ct) }}" alt="Logo {{ loc.name }}" class="ct-logo-img ct-partner-img" style="height: 42px;">
+                <img src="{{ url_for('static', filename=loc.logo_ct) }}" id="logoImg_{{ loc.slug }}" alt="Logo {{ loc.name }}" class="ct-logo-img ct-partner-img" style="height: 42px;">
+                <div class="ct-logo-placeholder" id="logoPlaceholder_{{ loc.slug }}" style="display: none;">🥋</div>
                 {% else %}
-                <div class="ct-logo-placeholder">🥋</div>
+                <img src="" id="logoImg_{{ loc.slug }}" alt="Logo" class="ct-logo-img ct-partner-img" style="height: 42px; display: none;">
+                <div class="ct-logo-placeholder" id="logoPlaceholder_{{ loc.slug }}">🥋</div>
                 {% endif %}
-                <span class="ct-brand-label">{{ loc.professor_name or 'Equipe BJ Sports' }}</span>
+                <span class="ct-brand-label" style="color: var(--accent-gold); font-weight: 800; font-size: 0.75rem;">🖼️ Carregar Logo</span>
+                <div class="upload-photo-overlay">🖼️ Carregar Logo</div>
               </div>
             </div>
 
             <!-- DASHBOARD HORIZONTAL EM 3 COLUNAS DA FILIAL -->
             <div class="ct-dashboard-grid">
               
-              <!-- COLUNA 1: PERFIL DO PROFESSOR -->
+              <!-- COLUNA 1: PERFIL DO PROFESSOR COM FOTO INTERATIVA -->
               <div class="glass-panel ct-dash-card prof-dash-card" style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px;">
                 <div class="ct-card-header" style="margin-bottom: 12px; padding-bottom: 8px;">
                   <span class="ct-card-icon"><i data-lucide="user-check"></i></span>
@@ -214,12 +239,18 @@
                 </div>
 
                 <div class="prof-dash-body" style="display: flex; gap: 12px; align-items: center;">
-                  <div class="prof-photo-card" style="width: 70px; height: 84px; flex-shrink: 0;">
+                  <!-- FOTO DO PROFESSOR COM INTERAÇÃO DE UPLOAD -->
+                  <div class="prof-photo-card interactive-upload-container" style="width: 76px; height: 90px; flex-shrink: 0;" onclick="document.getElementById('profFile_{{ loc.slug }}').click();" title="Clique para trocar a foto do professor">
+                    <input type="file" name="professor_photo_file" id="profFile_{{ loc.slug }}" accept="image/*" class="hidden-file-input" onchange="previewTemplateImage(this, 'profImg_{{ loc.slug }}', 'profPlaceholder_{{ loc.slug }}')">
+                    
                     {% if loc.professor_photo %}
-                    <img src="{{ url_for('static', filename=loc.professor_photo) }}" alt="{{ loc.professor_name }}" class="prof-portrait-square">
+                    <img src="{{ url_for('static', filename=loc.professor_photo) }}" id="profImg_{{ loc.slug }}" alt="{{ loc.professor_name }}" class="prof-portrait-square">
+                    <div class="prof-initials-square" id="profPlaceholder_{{ loc.slug }}" style="font-size: 1.5rem; display: none;">🥋</div>
                     {% else %}
-                    <div class="prof-initials-square" style="font-size: 1.5rem;">🥋</div>
+                    <img src="" id="profImg_{{ loc.slug }}" alt="Foto Professor" class="prof-portrait-square" style="display: none;">
+                    <div class="prof-initials-square" id="profPlaceholder_{{ loc.slug }}" style="font-size: 1.5rem;">🥋</div>
                     {% endif %}
+                    <div class="upload-photo-overlay">📸 Carregar Foto</div>
                   </div>
                   
                   <div class="prof-dash-info">
@@ -266,26 +297,24 @@
                 </div>
               </div>
 
-              <!-- COLUNA 2: MODALIDADES OFERECIDAS -->
+              <!-- COLUNA 2: MODALIDADES OFERECIDAS CLICÁVEIS/INTERATIVAS -->
               <div class="glass-panel ct-dash-card modal-dash-card" style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px;">
-                <div class="ct-card-header" style="margin-bottom: 12px; padding-bottom: 8px;">
+                <div class="ct-card-header" style="margin-bottom: 8px; padding-bottom: 8px;">
                   <span class="ct-card-icon icon-gold"><i data-lucide="layout-grid"></i></span>
                   <div>
-                    <h3 style="font-size: 1rem; margin: 0; color: #fff;">Modalidades Oferecidas</h3>
-                    <small style="color: #94a3b8;">Unidade {{ loc.name }}</small>
+                    <h3 style="font-size: 1rem; margin: 0; color: #fff;">Modalidades (Clique para Ativar)</h3>
+                    <small style="color: #94a3b8;">Selecione o que é oferecido nesta filial</small>
                   </div>
                 </div>
 
-                <div class="ct-modalities-compact-list">
-                  {% for mod in loc.modalities %}
-                  <div class="modality-chip-card" style="padding: 6px 12px;">
-                    <div class="chip-main-info">
-                      <i data-lucide="swords" class="icon-gold" style="width: 14px; height: 14px;"></i>
-                      <strong style="font-size: 0.85rem;">{{ mod }}</strong>
-                    </div>
-                  </div>
-                  {% else %}
-                  <small class="text-muted">Jiu-Jitsu, Boxe, Muay Thai</small>
+                <div class="ct-modalities-interactive-list" id="modalityChipsBox_{{ loc.slug }}">
+                  {% set available_modalities = ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids', 'Defesa Pessoal', 'Submission', 'Judo', 'Wrestling', 'Funcional Fight'] %}
+                  {% for mod in available_modalities %}
+                  {% set is_selected = mod in loc.modalities %}
+                  <button type="button" class="modality-toggle-chip {% if is_selected %}active{% endif %}" data-mod-name="{{ mod }}" onclick="toggleModalityChip(this, '{{ mod }}', 'modalitiesInput_{{ loc.slug }}')">
+                    <i data-lucide="{% if is_selected %}check-circle-2{% else %}circle{% endif %}" class="mod-icon" style="width: 14px; height: 14px;"></i>
+                    <span>{{ mod }}</span>
+                  </button>
                   {% endfor %}
                 </div>
               </div>
@@ -316,7 +345,7 @@
 
             </div>
 
-          </div>
+          </form>
           {% endfor %}
         </div>
       </section>
@@ -325,7 +354,7 @@
   </div>
 </div>
 
-<!-- MODAL CADASTRAR / EDITAR FILIAL COM SUPORTE A UPLOAD DE IMAGENS -->
+<!-- MODAL CADASTRAR / EDITAR FILIAL COM FORMULÁRIO COMPLETO -->
 <div class="modal-backdrop hidden" id="locationModal">
   <div class="modal-card glass-panel" style="max-width: 650px;">
     <button type="button" class="modal-close" id="closeLocationModal">&times;</button>
@@ -439,6 +468,51 @@
 </div>
 
 <script>
+// Função para preview instantâneo da foto do professor e logo do CT no template
+function previewTemplateImage(input, imgId, placeholderId) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById(imgId);
+      const placeholder = document.getElementById(placeholderId);
+      if (img) {
+        img.src = e.target.result;
+        img.style.display = 'block';
+      }
+      if (placeholder) {
+        placeholder.style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Função para alternar chips de modalidades interativamente no template
+function toggleModalityChip(btn, modalityName, inputId) {
+  btn.classList.toggle('active');
+  
+  // Atualiza a lista de modalidades ativas para o input hidden do form
+  const container = btn.parentElement;
+  const activeChips = container.querySelectorAll('.modality-toggle-chip.active');
+  const selectedMods = Array.from(activeChips).map(c => c.getAttribute('data-mod-name'));
+  
+  const hiddenInput = document.getElementById(inputId);
+  if (hiddenInput) {
+    hiddenInput.value = selectedMods.join(', ');
+  }
+
+  // Atualiza ícone Lucide
+  const icon = btn.querySelector('.mod-icon');
+  if (icon) {
+    if (btn.classList.contains('active')) {
+      icon.setAttribute('data-lucide', 'check-circle-2');
+    } else {
+      icon.setAttribute('data-lucide', 'circle');
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
 function switchFilialPreview(slug) {
   const placeholder = document.getElementById('noFilialSelectedCard');
   const btnEdit = document.getElementById('btnEditSelectedFilial');
@@ -525,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnClose) btnClose.addEventListener('click', closeModal);
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-  // Evento para Editar Filial Selecionada pelo botão do cabeçalho
+  // Evento para Editar Filial Selecionada pelo formulário modal completo
   const btnEditSelected = document.getElementById('btnEditSelectedFilial');
   if (btnEditSelected) {
     btnEditSelected.addEventListener('click', () => {

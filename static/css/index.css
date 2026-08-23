@@ -3041,3 +3041,20 @@ body.public-light-theme {
 .btn-sub-nav:hover { background: rgba(51, 65, 85, 0.9); color: #ffffff; border-color: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
 .btn-sub-nav.active { background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border-color: var(--accent-gold); box-shadow: 0 0 14px rgba(245, 158, 11, 0.35); }
 
+/* INTERACTIVE LIVE EDIT TEMPLATE STYLES */
+.hidden-file-input { display: none !important; }
+.interactive-upload-container { position: relative; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; }
+.interactive-upload-container:hover { transform: scale(1.03); }
+.interactive-upload-container:hover .prof-portrait-square,
+.interactive-upload-container:hover .prof-initials-square,
+.interactive-upload-container:hover .ct-partner-img { filter: brightness(1.15); box-shadow: 0 0 14px rgba(245, 158, 11, 0.5); }
+
+.upload-photo-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.8); color: #f59e0b; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 10px; opacity: 0; transition: opacity 0.2s ease; padding: 4px; border: 1.5px dashed var(--accent-gold); backdrop-filter: blur(2px); }
+.interactive-upload-container:hover .upload-photo-overlay { opacity: 1; }
+
+.ct-modalities-interactive-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.modality-toggle-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; }
+.modality-toggle-chip:hover { background: rgba(51, 65, 85, 0.9); color: #ffffff; border-color: rgba(245, 158, 11, 0.4); transform: translateY(-1px); }
+.modality-toggle-chip.active { background: rgba(245, 158, 11, 0.2); border-color: var(--accent-gold); color: #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.25); }
+.modality-toggle-chip.active .mod-icon { color: var(--accent-gold); }
+
