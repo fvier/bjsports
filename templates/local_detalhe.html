@@ -38,13 +38,42 @@
     </div>
   </section>
 
-  <!-- SEÇÃO DE INFORMAÇÕES DO CT: PROFESSOR, CONTATO, HORÁRIOS & ENDEREÇO -->
+  <!-- SEÇÃO DE APRESENTAÇÃO COMPLETA DO CENTRO DE TREINAMENTO -->
   <section class="section ct-details-section">
     <div class="container">
       
+      <!-- CARD DE SOBRE A ESTRUTURA E METODOLOGIA DO CT -->
+      <div class="glass-panel ct-card ct-about-card" style="margin-bottom: 24px;">
+        <div class="ct-card-header">
+          <span class="ct-card-icon icon-gold"><i data-lucide="building-2"></i></span>
+          <div>
+            <h3>Sobre o Centro de Treinamento</h3>
+            <small>Estrutura, valores e ambiente de treino no {{ location.name }}</small>
+          </div>
+        </div>
+
+        <p class="ct-about-text" style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
+          {{ location.description }}
+        </p>
+
+        {% if location.highlights %}
+        <div class="ct-highlights-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+          {% for hl in location.highlights %}
+          <div class="ct-highlight-item" style="padding: 16px; background: rgba(15, 23, 42, 0.7); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <h4 style="color: #facc15; font-family: var(--font-heading); font-size: 1.02rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="check-circle" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> {{ hl.title }}
+            </h4>
+            <p style="color: #94a3b8; font-size: 0.86rem; line-height: 1.45; margin: 0;">{{ hl.desc }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- GRID PRINCIPAL DE DUAS COLUNAS: PROFESSOR / CONTATO + MODALIDADES / HORÁRIOS -->
       <div class="ct-grid-layout">
         
-        <!-- COLUNA ESQUERDA: CARD DO PROFESSOR E CONTATO RÁPIDO -->
+        <!-- COLUNA ESQUERDA: CARD DO PROFESSOR, CONTATO E ENDEREÇO -->
         <div class="ct-column-left">
           
           <!-- Card do Professor Responsável -->
@@ -120,7 +149,7 @@
 
         </div>
 
-        <!-- COLUNA DIREITA: HORÁRIOS & MODALIDADES OFERECIDAS -->
+        <!-- COLUNA DIREITA: MODALIDADES OFERECIDAS E HORÁRIOS DOS TREINOS -->
         <div class="ct-column-right">
           
           <!-- Card de Modalidades Praticadas na Unidade -->
@@ -180,14 +209,14 @@
             </div>
           </div>
 
-          <!-- Card Informativo do Mestre Bolivar -->
+          <!-- Card Informativo de Metodologia e Chancela BJ Sports -->
           <div class="glass-panel ct-card info-ct-card" style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
             <div style="display: flex; gap: 14px; align-items: flex-start;">
               <span style="font-size: 2rem;">🥋</span>
               <div>
-                <h4 style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">Padrão BJ Sports de Ensino</h4>
-                <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.45;">
-                  Todas as nossas unidades credenciadas seguem a metodologia técnica unificada do Mestre Bolivar, garantindo a mesma qualidade de instrução, controle de presença e avanço nas graduações em qualquer centro de treinamento credenciado.
+                <h4 style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">Metodologia Credenciada BJ Sports</h4>
+                <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+                  Todas as unidades credenciadas contam com acompanhamento técnico unificado, histórico digital de graduações e controle de frequência. Ao se matricular nesta unidade, você faz parte do ecossistema BJ Sports sob a supervisão do Mestre Bolivar.
                 </p>
               </div>
             </div>

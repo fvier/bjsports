@@ -1716,6 +1716,11 @@ LOCATIONS_DATA = {
         'professor_instagram': '@bjsports_',
         'logo_ct': 'img/logo_original.png',
         'badge_color': 'bg-green',
+        'highlights': [
+            {'title': 'Sede Matriz & Centro Técnico', 'desc': 'A matriz central onde a metodologia BJ Sports é continuamente atualizada pelo Mestre Bolivar.'},
+            {'title': 'Octógono & Tatame Oficial', 'desc': 'Estrutura profissional com octógono, tatames de alto nível e área de preparação física.'},
+            {'title': 'Formação de Professores & Atletas', 'desc': 'Núcleo de formação técnica, exames de faixa e preparação para grandes ligas e campeonatos.'}
+        ],
         'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA Profissional', 'Preparação Física'],
         'schedules': [
             {'day': 'Segunda a Sexta', 'time': '11:30h', 'modality': 'MMA Profissional'},
@@ -1743,6 +1748,11 @@ LOCATIONS_DATA = {
         'professor_instagram': '@bolivar.bjsports',
         'logo_ct': 'img/ct_tenis_clube.png',
         'badge_color': 'bg-gold',
+        'highlights': [
+            {'title': 'Localização Central Privilegiada', 'desc': 'Localizada no coração de Cajazeiras com facilidade de acesso, estacionamento e segurança.'},
+            {'title': 'Tatame Amplo & Climatizado', 'desc': 'Espaço de treino moderno e higienizado para aulas infantis, juvenis e de adultos.'},
+            {'title': 'Comando Direto do Fundador', 'desc': 'Treinos presenciais conduzidos pessoalmente pelo Mestre Bolivar com foco em evolução técnica.'}
+        ],
         'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids'],
         'schedules': [
             {'day': 'Segunda, Quarta e Sexta', 'time': '06:00h', 'modality': 'Boxe Matinal'},
@@ -1771,6 +1781,11 @@ LOCATIONS_DATA = {
         'professor_instagram': '@prof.marcossilva_bjj',
         'logo_ct': 'img/ct_lavras.png',
         'badge_color': 'bg-blue',
+        'highlights': [
+            {'title': 'Polo de Referência no Sul do Ceará', 'desc': 'Unidade oficial de difusão da metodologia BJ Sports em solo cearense.'},
+            {'title': 'Especialista em Jiu-Jitsu Kids & Adulto', 'desc': 'Metodologia pedagógica adaptada para crianças com respeito, foco e disciplina.'},
+            {'title': 'Treino de Competição & No-Gi', 'desc': 'Aulas preparatórias de Submission sem kimono e apoio total aos competidores da região.'}
+        ],
         'modalities': ['Jiu-Jitsu Infantil', 'Jiu-Jitsu Adulto', 'Sub-Submission / No-Gi'],
         'schedules': [
             {'day': 'Segunda, Quarta e Sexta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids & Juvenil'},
@@ -1796,6 +1811,11 @@ LOCATIONS_DATA = {
         'professor_instagram': '@diegoholanda_bjj',
         'logo_ct': 'img/ct_tenis_clube.png',
         'badge_color': 'bg-gold',
+        'highlights': [
+            {'title': 'Estrutura Completa & Climatizada', 'desc': 'Ambiente moderno e refrigerado para treinos confortáveis mesmo nos dias mais quentes.'},
+            {'title': 'Formação Técnica em Boxe & Jiu-Jitsu', 'desc': 'Desenvolvimento de defesa pessoal, condicionamento físico e domínio no tatame.'},
+            {'title': 'Acompanhamento Individualizado', 'desc': 'Instruções personalizadas para quem está começando do zero até os faixas pretas.'}
+        ],
         'modalities': ['Jiu-Jitsu Adulto', 'Boxe', 'Jiu-Jitsu Kids'],
         'schedules': [
             {'day': 'Segunda, Quarta e Sexta', 'time': '18:30h', 'modality': 'Jiu-Jitsu Kids'},
@@ -1821,13 +1841,18 @@ LOCATIONS_DATA = {
         'professor_instagram': '@francishercules.bjj',
         'logo_ct': 'img/ct_francis_hercules.png',
         'badge_color': 'bg-gold',
-        'modalities': ['Jiu-Jitsu Adulto', 'Jiu-Jitsu Infantil'],
+        'highlights': [
+            {'title': 'Liderança do Prof. Francis Hercules', 'desc': 'Treinos ministrados com paixão, rigor técnico e valores da arte suave para toda a família.'},
+            {'title': 'Ambiente Acolhedor & Defesa Pessoal', 'desc': 'Espaço seguro para adultos e crianças desenvolverem autoconfiança, saúde e força mental.'},
+            {'title': 'Credenciamento Oficial BJ Sports', 'desc': 'Alunos integrados ao sistema de graduação e chancela técnica da matriz BJ Sports.'}
+        ],
+        'modalities': ['Jiu-Jitsu Adulto', 'Jiu-Jitsu Infantil', 'Defesa Pessoal'],
         'schedules': [
             {'day': 'Segunda e Quarta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids'},
             {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto'}
         ],
         'maps_link': 'https://maps.google.com/?q=Sao+Joao+do+Rio+do+Peixe+PB',
-        'description': 'Estrutura aconchegante e focada no desenvolvimento individual de cada aluno, promovendo qualidade de vida e respeito no tatame.'
+        'description': 'O Centro de Treinamento Francis Hercules em São João do Rio do Peixe é referência no ensino de Jiu-Jitsu no Sertão paraibano, unindo o método de excelência BJ Sports a um acompanhamento individualizado para todas as faixas e idades.'
     }
 }
 
