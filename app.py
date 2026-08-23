@@ -1710,49 +1710,39 @@ LOCATIONS_DATA = {
         'address': 'Av. Estrada do Amor, s/n, Cajazeiras - PB',
         'professor_name': 'Mestre Bolivar & Equipe BJ Sports',
         'professor_title': 'Direção Técnica Matriz',
-        'professor_bio': 'Nossa Sede Matriz em Cajazeiras é o centro de formação técnica e administrativa do BJ Sports, reunindo a equipe principal de Monitores e Professores qualificados.',
+        'professor_bio': 'Sede principal e centro de formação técnica do BJ Sports.',
         'professor_phone': '5583996527997',
         'professor_phone_formatted': '(83) 99652-7997',
         'professor_instagram': '@bjsports_',
         'logo_ct': 'img/logo_original.png',
         'badge_color': 'bg-green',
-        'highlights': [
-            {'title': 'Sede Matriz & Centro Técnico', 'desc': 'A matriz central onde a metodologia BJ Sports é continuamente atualizada pelo Mestre Bolivar.'},
-            {'title': 'Octógono & Tatame Oficial', 'desc': 'Estrutura profissional com octógono, tatames de alto nível e área de preparação física.'},
-            {'title': 'Formação de Professores & Atletas', 'desc': 'Núcleo de formação técnica, exames de faixa e preparação para grandes ligas e campeonatos.'}
-        ],
-        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA Profissional', 'Preparação Física'],
+        'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Preparação Física'],
         'schedules': [
             {'day': 'Segunda a Sexta', 'time': '11:30h', 'modality': 'MMA Profissional'},
             {'day': 'Segunda, Quarta e Sexta', 'time': '17:00h', 'modality': 'Jiu-Jitsu Tarde'},
             {'day': 'Segunda, Quarta e Sexta', 'time': '19:00h', 'modality': 'Jiu-Jitsu Noturno'},
             {'day': 'Terça e Quinta', 'time': '12:00h', 'modality': 'Jiu-Jitsu Meio-Dia'},
-            {'day': 'Terça e Quinta', 'time': '18:00h', 'modality': 'MMA Amador / Iniciantes'}
+            {'day': 'Terça e Quinta', 'time': '18:00h', 'modality': 'MMA Amador'}
         ],
         'maps_link': 'https://maps.google.com/?q=Av.+Estrada+do+Amor,+Cajazeiras+-+PB',
-        'description': 'Nossa Matriz conta com octógono de treinos, tatame oficial de competição e equipamentos de preparação física de última geração.'
+        'description': 'Estrutura completa com octógono de treinos, tatame de competição e equipamentos de preparação física.'
     },
     'cajazeiras-tenis-clube': {
         'id': 'cajazeiras-tenis-clube',
         'slug': 'cajazeiras-tenis-clube',
         'name': 'Cajazeiras (Tênis Clube)',
-        'subtitle': 'Unidade Tênis Clube • Centro de Cajazeiras–PB',
+        'subtitle': 'Unidade Tênis Clube • Centro',
         'state': 'PB',
         'city': 'Cajazeiras',
         'address': 'Rua Eng. Carlos Pires de Sá, Centro, Cajazeiras - PB (Tênis Clube)',
         'professor_name': 'Mestre Bolivar',
-        'professor_title': 'Professor Faixa Preta 4º Dan & Fundador BJ Sports',
-        'professor_bio': 'Com mais de 20 anos dedicados ao Jiu-Jitsu, Boxe e Muay Thai, lidera a unidade Tênis Clube com foco em técnica apurada, disciplina e formação de atletas.',
+        'professor_title': 'Faixa Preta 4º Dan',
+        'professor_bio': 'Professor de Jiu-Jitsu, Boxe e Muay Thai na unidade Tênis Clube.',
         'professor_phone': '5583996527997',
         'professor_phone_formatted': '(83) 99652-7997',
         'professor_instagram': '@bolivar.bjsports',
         'logo_ct': 'img/ct_tenis_clube.png',
         'badge_color': 'bg-gold',
-        'highlights': [
-            {'title': 'Localização Central Privilegiada', 'desc': 'Localizada no coração de Cajazeiras com facilidade de acesso, estacionamento e segurança.'},
-            {'title': 'Tatame Amplo & Climatizado', 'desc': 'Espaço de treino moderno e higienizado para aulas infantis, juvenis e de adultos.'},
-            {'title': 'Comando Direto do Fundador', 'desc': 'Treinos presenciais conduzidos pessoalmente pelo Mestre Bolivar com foco em evolução técnica.'}
-        ],
         'modalities': ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu Kids'],
         'schedules': [
             {'day': 'Segunda, Quarta e Sexta', 'time': '06:00h', 'modality': 'Boxe Matinal'},
@@ -1763,59 +1753,49 @@ LOCATIONS_DATA = {
             {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'Boxe Noturno'}
         ],
         'maps_link': 'https://maps.google.com/?q=Tenis+Clube+Cajazeiras+PB',
-        'description': 'A unidade Tênis Clube conta com espaço amplo, tatame profissional de alta densidade e vestiários para atender com excelência alunos de todas as idades.'
+        'description': 'Estrutura no centro de Cajazeiras com tatame de alta densidade e vestiários.'
     },
     'lavras-ce': {
         'id': 'lavras-ce',
         'slug': 'lavras-ce',
         'name': 'Lavras - CE',
-        'subtitle': 'Unidade Lavras da Mangabeira • Ceará',
+        'subtitle': 'Unidade Lavras da Mangabeira • CE',
         'state': 'CE',
         'city': 'Lavras da Mangabeira',
         'address': 'Rua Major José Augusto, Centro, Lavras da Mangabeira - CE',
         'professor_name': 'Prof. Marcos Silva',
-        'professor_title': 'Professor Faixa Preta Responsável • CT Marcos Silva BJJ',
-        'professor_bio': 'Líder do CT Marcos Silva BJJ em Lavras da Mangabeira, o Prof. Marcos é especialista em graduação infantil e desenvolvimento de equipes competitivas de Jiu-Jitsu no Ceará.',
+        'professor_title': 'Professor Faixa Preta Responsável',
+        'professor_bio': 'Responsável pelas turmas de Jiu-Jitsu em Lavras da Mangabeira - CE.',
         'professor_phone': '5588998765432',
         'professor_phone_formatted': '(88) 99876-5432',
         'professor_instagram': '@prof.marcossilva_bjj',
         'logo_ct': 'img/ct_lavras.png',
         'badge_color': 'bg-blue',
-        'highlights': [
-            {'title': 'Polo de Referência no Sul do Ceará', 'desc': 'Unidade oficial de difusão da metodologia BJ Sports em solo cearense.'},
-            {'title': 'Especialista em Jiu-Jitsu Kids & Adulto', 'desc': 'Metodologia pedagógica adaptada para crianças com respeito, foco e disciplina.'},
-            {'title': 'Treino de Competição & No-Gi', 'desc': 'Aulas preparatórias de Submission sem kimono e apoio total aos competidores da região.'}
-        ],
-        'modalities': ['Jiu-Jitsu Infantil', 'Jiu-Jitsu Adulto', 'Sub-Submission / No-Gi'],
+        'modalities': ['Jiu-Jitsu Infantil', 'Jiu-Jitsu Adulto', 'No-Gi'],
         'schedules': [
-            {'day': 'Segunda, Quarta e Sexta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids & Juvenil'},
-            {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto / Competição'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids'},
+            {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto'},
             {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'No-Gi / Submission'}
         ],
         'maps_link': 'https://maps.google.com/?q=Lavras+da+Mangabeira+CE',
-        'description': 'O CT Marcos Silva em Lavras da Mangabeira é referência de lutas na região sul do Ceará, oferecendo ambiente familiar e treinamento técnico diferenciado.'
+        'description': 'Centro de Treinamento credenciado BJ Sports em Lavras da Mangabeira - CE.'
     },
     'pombal': {
         'id': 'pombal',
         'slug': 'pombal',
         'name': 'Pombal - PB',
-        'subtitle': 'Unidade Pombal • Sertão da Paraíba',
+        'subtitle': 'Unidade Pombal • Sertão PB',
         'state': 'PB',
         'city': 'Pombal',
         'address': 'Rua Coronel João Leite, Centro, Pombal - PB',
         'professor_name': 'Prof. Diego Holanda',
-        'professor_title': 'Professor Faixa Preta • CT Diego Holanda',
-        'professor_bio': 'Com sólida trajetória nas artes marciais, o Prof. Diego ministra treinos de Jiu-Jitsu e Boxe para iniciantes e atletas graduados em Pombal.',
+        'professor_title': 'Professor Faixa Preta',
+        'professor_bio': 'Responsável pelos treinos de Jiu-Jitsu e Boxe em Pombal - PB.',
         'professor_phone': '5583998881234',
         'professor_phone_formatted': '(83) 99888-1234',
         'professor_instagram': '@diegoholanda_bjj',
         'logo_ct': 'img/ct_tenis_clube.png',
         'badge_color': 'bg-gold',
-        'highlights': [
-            {'title': 'Estrutura Completa & Climatizada', 'desc': 'Ambiente moderno e refrigerado para treinos confortáveis mesmo nos dias mais quentes.'},
-            {'title': 'Formação Técnica em Boxe & Jiu-Jitsu', 'desc': 'Desenvolvimento de defesa pessoal, condicionamento físico e domínio no tatame.'},
-            {'title': 'Acompanhamento Individualizado', 'desc': 'Instruções personalizadas para quem está começando do zero até os faixas pretas.'}
-        ],
         'modalities': ['Jiu-Jitsu Adulto', 'Boxe', 'Jiu-Jitsu Kids'],
         'schedules': [
             {'day': 'Segunda, Quarta e Sexta', 'time': '18:30h', 'modality': 'Jiu-Jitsu Kids'},
@@ -1823,7 +1803,7 @@ LOCATIONS_DATA = {
             {'day': 'Terça e Quinta', 'time': '19:00h', 'modality': 'Boxe Fundamental'}
         ],
         'maps_link': 'https://maps.google.com/?q=Pombal+PB',
-        'description': 'Ambiente totalmente climatizado e projetado para acolher quem quer aprender defesa pessoal, perder peso ou competir no mais alto nível.'
+        'description': 'Espaço de treinos para Jiu-Jitsu e Boxe em Pombal.'
     },
     'sao-joao-do-rio-do-peixe': {
         'id': 'sao-joao-do-rio-do-peixe',
@@ -1834,26 +1814,18 @@ LOCATIONS_DATA = {
         'city': 'São João do Rio do Peixe',
         'address': 'Rua Padre Rolim, Centro, São João do Rio do Peixe - PB',
         'professor_name': 'Prof. Francis Hercules',
-        'professor_title': 'Professor Faixa Preta Responsável • CT Francis Hercules',
-        'professor_bio': 'Com liderança e dedicação ao Jiu-Jitsu no Sertão da Paraíba, o Prof. Francis Hercules ministra treinos de alto nível focados em disciplina, técnica e formação de campeões.',
+        'professor_title': 'Professor Faixa Preta Responsável',
+        'professor_bio': 'Responsável pelas aulas de Jiu-Jitsu e Defesa Pessoal em São João do Rio do Peixe - PB.',
         'professor_phone': '5583999388621',
         'professor_phone_formatted': '(83) 99938-8621',
         'professor_photo': 'img/prof_francis_hercules.jpg',
         'professor_instagram': '@francishercules.bjj',
         'logo_ct': 'img/ct_francis_hercules.png',
         'badge_color': 'bg-gold',
-        'highlights': [
-            {'title': 'Liderança do Prof. Francis Hercules', 'desc': 'Treinos ministrados com paixão, rigor técnico e valores da arte suave para toda a família.'},
-            {'title': 'Ambiente Acolhedor & Defesa Pessoal', 'desc': 'Espaço seguro para adultos e crianças desenvolverem autoconfiança, saúde e força mental.'},
-            {'title': 'Credenciamento Oficial BJ Sports', 'desc': 'Alunos integrados ao sistema de graduação e chancela técnica da matriz BJ Sports.'}
-        ],
         'modalities': ['Jiu-Jitsu Adulto', 'Jiu-Jitsu Infantil', 'Defesa Pessoal'],
-        'schedules': [
-            {'day': 'Segunda e Quarta', 'time': '18:00h', 'modality': 'Jiu-Jitsu Kids'},
-            {'day': 'Segunda, Quarta e Sexta', 'time': '19:30h', 'modality': 'Jiu-Jitsu Adulto'}
-        ],
+        'schedules': [],
         'maps_link': 'https://maps.google.com/?q=Sao+Joao+do+Rio+do+Peixe+PB',
-        'description': 'O Centro de Treinamento Francis Hercules em São João do Rio do Peixe é referência no ensino de Jiu-Jitsu no Sertão paraibano, unindo o método de excelência BJ Sports a um acompanhamento individualizado para todas as faixas e idades.'
+        'description': 'Centro de Treinamento credenciado BJ Sports em São João do Rio do Peixe - PB.'
     }
 }
 

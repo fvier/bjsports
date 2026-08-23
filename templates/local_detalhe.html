@@ -3,7 +3,7 @@
 {% block content %}
 <div class="ct-page-wrapper">
   
-  <!-- HERO HEADER COMPACTO DO CENTRO DE TREINAMENTO (CO-BRANDING INTEGRADO) -->
+  <!-- HERO HEADER COMPACTO DO CENTRO DE TREINAMENTO -->
   <section class="ct-hero-section">
     <div class="container">
       <div class="ct-compact-banner glass-panel">
@@ -14,14 +14,14 @@
           <span class="ct-brand-label">BJ Sports Matriz</span>
         </div>
 
-        <!-- CONTEÚDO CENTRALIZADO (TAGS, TÍTULO E SUBTÍTULO) -->
+        <!-- CONTEÚDO CENTRALIZADO (TÍTULO E CIDADE) -->
         <div class="ct-center-info">
           <div class="ct-badge-row">
-            <span class="badge-pill {{ location.badge_color }}">CENTRO DE TREINAMENTO • UNIDADE {{ location.state }}</span>
-            <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--accent-gold);"></i> PARCERIA OFICIAL</span>
+            <span class="badge-pill {{ location.badge_color }}">UNIDADE {{ location.state }}</span>
+            <span class="badge-pill-sub"><i data-lucide="shield-check" style="width: 13px; height: 13px;"></i> CREDENCIADO</span>
           </div>
           <h1 class="ct-title">{{ location.name }}</h1>
-          <p class="ct-subtitle">📍 {{ location.subtitle }}</p>
+          <p class="ct-subtitle">📍 {{ location.address }}</p>
         </div>
 
         <!-- LOGO DO PROFESSOR / CT DA UNIDADE (DIREITA) -->
@@ -38,51 +38,22 @@
     </div>
   </section>
 
-  <!-- SEÇÃO DE APRESENTAÇÃO COMPLETA DO CENTRO DE TREINAMENTO -->
+  <!-- CONTEÚDO PRINCIPAL (LAYOUT MINIMALISTA) -->
   <section class="section ct-details-section">
     <div class="container">
       
-      <!-- CARD DE SOBRE A ESTRUTURA E METODOLOGIA DO CT -->
-      <div class="glass-panel ct-card ct-about-card" style="margin-bottom: 24px;">
-        <div class="ct-card-header">
-          <span class="ct-card-icon icon-gold"><i data-lucide="building-2"></i></span>
-          <div>
-            <h3>Sobre o Centro de Treinamento</h3>
-            <small>Estrutura, valores e ambiente de treino no {{ location.name }}</small>
-          </div>
-        </div>
-
-        <p class="ct-about-text" style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">
-          {{ location.description }}
-        </p>
-
-        {% if location.highlights %}
-        <div class="ct-highlights-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
-          {% for hl in location.highlights %}
-          <div class="ct-highlight-item" style="padding: 16px; background: rgba(15, 23, 42, 0.7); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
-            <h4 style="color: #facc15; font-family: var(--font-heading); font-size: 1.02rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="check-circle" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> {{ hl.title }}
-            </h4>
-            <p style="color: #94a3b8; font-size: 0.86rem; line-height: 1.45; margin: 0;">{{ hl.desc }}</p>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- GRID PRINCIPAL DE DUAS COLUNAS: PROFESSOR / CONTATO + MODALIDADES / HORÁRIOS -->
       <div class="ct-grid-layout">
         
-        <!-- COLUNA ESQUERDA: CARD DO PROFESSOR, CONTATO E ENDEREÇO -->
+        <!-- COLUNA ESQUERDA: PERFIL DO PROFESSOR COM BOTÃO WHATSAPP E ENDEREÇO -->
         <div class="ct-column-left">
           
-          <!-- Card do Professor Responsável -->
-          <div class="glass-panel ct-card profile-card">
+          <!-- Card do Professor com Botão WhatsApp Integrado -->
+          <div class="glass-panel ct-card profile-card" style="text-align: center;">
             <div class="ct-card-header">
               <span class="ct-card-icon"><i data-lucide="user-check"></i></span>
-              <div>
+              <div style="text-align: left;">
                 <h3>Professor Responsável</h3>
-                <small>Comando técnico da unidade</small>
+                <small>{{ location.city }} - {{ location.state }}</small>
               </div>
             </div>
 
@@ -96,60 +67,45 @@
               {% else %}
               <div class="professor-avatar-badge">🥋</div>
               {% endif %}
-              <h2 class="professor-name">{{ location.professor_name }}</h2>
-              <span class="professor-title-badge">{{ location.professor_title }}</span>
-              <p class="professor-bio">{{ location.professor_bio }}</p>
               
+              <h2 class="professor-name" style="margin-top: 8px;">{{ location.professor_name }}</h2>
+              <span class="professor-title-badge">{{ location.professor_title }}</span>
+              
+              {% if location.professor_bio %}
+              <p class="professor-bio" style="font-size: 0.88rem; color: #cbd5e1; margin: 10px 0 16px;">{{ location.professor_bio }}</p>
+              {% endif %}
+
+              <!-- BOTÃO DE CONTATO WHATSAPP DIRETO JUNTO AO PROFESSOR -->
+              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20Prof.%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20em%20{{ location.city }}" target="_blank" class="btn btn-whatsapp-inpage btn-block wa-direct-btn" style="margin-bottom: 10px;">
+                <i data-lucide="message-circle" class="wa-icon"></i>
+                <div style="text-align: left;">
+                  <strong>Entrar em Contato</strong>
+                  <small>{{ location.professor_phone_formatted }}</small>
+                </div>
+              </a>
+
               {% if location.professor_instagram %}
-              <a href="https://instagram.com/{{ location.professor_instagram.replace('@','') }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block instagram-prof-btn">
+              <a href="https://instagram.com/{{ location.professor_instagram.replace('@','') }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block instagram-prof-btn" style="margin-top: 8px;">
                 <i data-lucide="instagram"></i> Instagram {{ location.professor_instagram }}
               </a>
               {% endif %}
             </div>
           </div>
 
-          <!-- Card de Contato Direto e Agendamento -->
-          <div class="glass-panel ct-card contact-card">
-            <div class="ct-card-header">
-              <span class="ct-card-icon icon-green"><i data-lucide="message-square"></i></span>
-              <div>
-                <h3>Contato Direto & Agendamento</h3>
-                <small>Tire suas dúvidas ou agende seu treino</small>
-              </div>
-            </div>
-
-            <div class="contact-card-body">
-              <p class="contact-text">Fale diretamente com o <strong>{{ location.professor_name }}</strong> via WhatsApp para agendar sua aula experimental gratuita ou tirar dúvidas sobre matrículas nesta unidade.</p>
-              
-              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20{{ location.professor_name }}!%20Vim%20pelo%20site%20da%20BJ%20Sports%20e%20gostaria%20de%20informações%20sobre%20as%20aulas%20na%20unidade%20{{ location.name }}" target="_blank" class="btn btn-whatsapp-inpage btn-block wa-direct-btn">
-                <i data-lucide="message-circle" class="wa-icon"></i>
-                <div>
-                  <strong>Falar no WhatsApp com {{ location.professor_name }}</strong>
-                  <small>{{ location.professor_phone_formatted }}</small>
-                </div>
-              </a>
-
-              <button class="btn btn-secondary btn-block select-plan-btn" data-modality="Aula Experimental — {{ location.name }}" style="margin-top: 12px;">
-                <i data-lucide="calendar"></i> Agendar Aula Experimental Gratuita
-              </button>
-            </div>
-          </div>
-
-          <!-- Card de Endereço & Como Chegar -->
+          <!-- Card de Endereço & Localização -->
           <div class="glass-panel ct-card location-card">
             <div class="ct-card-header">
               <span class="ct-card-icon icon-red"><i data-lucide="map-pin"></i></span>
               <div>
-                <h3>Localização & Endereço</h3>
-                <small>Onde treinar nesta unidade</small>
+                <h3>Localização</h3>
+                <small>Endereço da unidade</small>
               </div>
             </div>
 
             <div class="location-card-body">
-              <p class="location-address"><strong>📍 Endereço:</strong><br>{{ location.address }}</p>
-              <p class="location-desc">{{ location.description }}</p>
+              <p class="location-address"><strong>📍 {{ location.address }}</strong></p>
               
-              <a href="{{ location.maps_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block maps-btn">
+              <a href="{{ location.maps_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-block maps-btn" style="margin-top: 12px;">
                 <i data-lucide="navigation"></i> Ver no Google Maps
               </a>
             </div>
@@ -157,16 +113,16 @@
 
         </div>
 
-        <!-- COLUNA DIREITA: MODALIDADES OFERECIDAS E HORÁRIOS DOS TREINOS -->
+        <!-- COLUNA DIREITA: MODALIDADES E GRADE DE TREINOS -->
         <div class="ct-column-right">
           
-          <!-- Card de Modalidades Praticadas na Unidade -->
+          <!-- Card de Modalidades -->
           <div class="glass-panel ct-card modalities-card">
             <div class="ct-card-header">
               <span class="ct-card-icon icon-gold"><i data-lucide="swords"></i></span>
               <div>
-                <h3>Modalidades Oferecidas</h3>
-                <small>Treinos disponíveis nesta unidade</small>
+                <h3>Modalidades</h3>
+                <small>Treinos ministrados nesta unidade</small>
               </div>
             </div>
 
@@ -179,16 +135,17 @@
             </div>
           </div>
 
-          <!-- Card da Grade de Horários da Unidade -->
+          <!-- Card de Grade de Treinos / Horários -->
           <div class="glass-panel ct-card schedule-ct-card">
             <div class="ct-card-header">
               <span class="ct-card-icon"><i data-lucide="calendar"></i></span>
               <div>
-                <h3>Grade de Treinos da Unidade</h3>
-                <small>Horários dos treinos no {{ location.name }}</small>
+                <h3>Grade de Treinos</h3>
+                <small>Horários das aulas</small>
               </div>
             </div>
 
+            {% if location.schedules and location.schedules|length > 0 %}
             <div class="table-responsive">
               <table class="schedule-table schedule-flight-table">
                 <thead>
@@ -196,7 +153,7 @@
                     <th>Horário</th>
                     <th>Dias da Semana</th>
                     <th>Modalidade</th>
-                    <th>Ação</th>
+                    <th>Contato</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -206,28 +163,30 @@
                     <td><span style="font-weight: 600; color: #e2e8f0;">{{ sch.day }}</span></td>
                     <td><span class="badge-pill bg-green" style="font-size: 0.75rem;">{{ sch.modality }}</span></td>
                     <td>
-                      <button class="btn btn-secondary btn-sm select-plan-btn" data-modality="{{ sch.modality }} — {{ location.name }}">
-                        <i data-lucide="log-in"></i> Agendar
-                      </button>
+                      <a href="https://wa.me/{{ location.professor_phone }}?text=Olá!%20Gostaria%20de%20informações%20sobre%20o%20treino%20de%20{{ sch.modality }}%20em%20{{ location.city }}" target="_blank" class="btn btn-secondary btn-sm">
+                        <i data-lucide="message-circle"></i> Contato
+                      </a>
                     </td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
-          </div>
-
-          <!-- Card Informativo de Metodologia e Chancela BJ Sports -->
-          <div class="glass-panel ct-card info-ct-card" style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
-            <div style="display: flex; gap: 14px; align-items: flex-start;">
-              <span style="font-size: 2rem;">🥋</span>
-              <div>
-                <h4 style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">Metodologia Credenciada BJ Sports</h4>
-                <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
-                  Todas as unidades credenciadas contam com acompanhamento técnico unificado, histórico digital de graduações e controle de frequência. Ao se matricular nesta unidade, você faz parte do ecossistema BJ Sports sob a supervisão do Mestre Bolivar.
-                </p>
-              </div>
+            {% else %}
+            <!-- SEM HORÁRIOS DEFINIDOS: MENSAGEM DIRETA DE CONTATO -->
+            <div style="padding: 16px 12px; text-align: center;">
+              <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5; margin-bottom: 16px;">
+                Para consultar os horários disponíveis e agendar uma visita a esta unidade, entre em contato diretamente com o professor.
+              </p>
+              <a href="https://wa.me/{{ location.professor_phone }}?text=Olá%20Prof.%20{{ location.professor_name }}!%20Gostaria%20de%20saber%20os%20horários%20de%20treino%20em%20{{ location.city }}" target="_blank" class="btn btn-whatsapp-inpage btn-block">
+                <i data-lucide="message-circle" class="wa-icon"></i>
+                <div style="text-align: left;">
+                  <strong>Entrar em Contato com o Professor</strong>
+                  <small>{{ location.professor_phone_formatted }}</small>
+                </div>
+              </a>
             </div>
+            {% endif %}
           </div>
 
         </div>
