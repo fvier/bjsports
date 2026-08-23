@@ -1960,6 +1960,24 @@ def ver_local(slug):
         location = next(iter(locs_dict.values()), LOCATIONS_DATA['cajazeiras-sede'])
     return render_template('local_detalhe.html', page_title=f"CT {location['name']} — BJ Sports", location=location)
 
+def save_uploaded_location_image(file_storage, prefix):
+    if not file_storage or not getattr(file_storage, 'filename', None):
+        return None
+    import os, time
+    from werkzeug.utils import secure_filename
+    sec_name = secure_filename(file_storage.filename)
+    if not sec_name:
+        return None
+    ext = os.path.splitext(sec_name)[1].lower()
+    if ext not in {'.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif'}:
+        ext = '.png'
+    filename = f"{prefix}_{int(time.time())}{ext}"
+    upload_dir = os.path.join(app.static_folder, 'img', 'uploads')
+    os.makedirs(upload_dir, exist_ok=True)
+    save_path = os.path.join(upload_dir, filename)
+    file_storage.save(save_path)
+    return f"img/uploads/{filename}"
+
 @app.route('/gestao/filiais', methods=['GET', 'POST'])
 @app.route('/gestao/filiais.html', methods=['GET', 'POST'])
 @app.route('/gestao_filiais', methods=['GET', 'POST'])
@@ -2011,6 +2029,12 @@ def locais_admin():
 
             mods = [m.strip() for m in request.form.get('modalities', '').split(',') if m.strip()]
             
+            prof_photo_file = request.files.get('professor_photo_file')
+            prof_photo_path = save_uploaded_location_image(prof_photo_file, f"prof_{raw_slug}")
+
+            logo_ct_file = request.files.get('logo_ct_file')
+            logo_ct_path = save_uploaded_location_image(logo_ct_file, f"ct_{raw_slug}")
+
             new_loc = Location(
                 slug=raw_slug,
                 name=name,
@@ -2023,8 +2047,9 @@ def locais_admin():
                 professor_bio=request.form.get('professor_bio', '').strip(),
                 professor_phone=phone_digits,
                 professor_phone_formatted=formatted_phone,
+                professor_photo=prof_photo_path or '',
                 professor_instagram=request.form.get('professor_instagram', '').strip(),
-                logo_ct='img/logo_original.png',
+                logo_ct=logo_ct_path or 'img/logo_original.png',
                 badge_color='bg-blue' if state == 'CE' else 'bg-gold',
                 modalities_json=json.dumps(mods if mods else ['Jiu-Jitsu']),
                 maps_link=request.form.get('maps_link', '').strip(),
@@ -2067,6 +2092,16 @@ def locais_admin():
                 loc.maps_link = request.form.get('maps_link', loc.maps_link).strip()
                 loc.description = request.form.get('description', loc.description).strip()
                 
+                prof_photo_file = request.files.get('professor_photo_file')
+                prof_photo_path = save_uploaded_location_image(prof_photo_file, f"prof_{loc.slug}")
+                if prof_photo_path:
+                    loc.professor_photo = prof_photo_path
+
+                logo_ct_file = request.files.get('logo_ct_file')
+                logo_ct_path = save_uploaded_location_image(logo_ct_file, f"ct_{loc.slug}")
+                if logo_ct_path:
+                    loc.logo_ct = logo_ct_path
+
                 db.session.commit()
                 flash(f'✨ Filial "{loc.name}" atualizada com sucesso!', 'success')
             return redirect(url_for('locais_admin'))

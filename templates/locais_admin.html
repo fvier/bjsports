@@ -86,10 +86,11 @@
               <h2 style="font-size: 1.15rem; margin: 0; color: #fff;">Selecione a Filial</h2>
             </div>
 
-            <!-- DROPDOWN SELETOR DE FILIAIS -->
+            <!-- DROPDOWN SELETOR DE FILIAIS (NENHUM SELECIONADO POR PADRÃO) -->
             {% if locations_list %}
-            <div style="position: relative; min-width: 280px;">
+            <div style="position: relative; min-width: 320px;">
               <select id="filialSelectDropdown" onchange="switchFilialPreview(this.value)" style="background: rgba(30, 41, 59, 0.95); color: #fff; border: 1.5px solid var(--accent-gold); border-radius: 10px; padding: 9px 36px 9px 14px; font-size: 0.92rem; font-weight: 700; width: 100%; cursor: pointer; appearance: none; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
+                <option value="" selected disabled>-- Selecione uma filial para visualizar / editar --</option>
                 {% for loc in locations_list %}
                 <option value="{{ loc.slug }}" 
                   data-id="{{ loc.id }}"
@@ -107,8 +108,7 @@
                   data-prof-ig="{{ loc.professor_instagram or '' }}"
                   data-modalities="{{ loc.modalities_json or '[]' }}"
                   data-maps="{{ loc.maps_link or '' }}"
-                  data-desc="{{ loc.description or '' }}"
-                  {% if loop.first %}selected{% endif %}>
+                  data-desc="{{ loc.description or '' }}">
                   📍 {{ loc.name }} ({{ loc.city }} - {{ loc.state }})
                 </option>
                 {% endfor %}
@@ -126,46 +126,43 @@
 
             {% if locations_list %}
             <button type="button" class="btn-icon-action btn-edit-selected-loc" id="btnEditSelectedFilial"
-              data-id="{{ locations_list[0].id }}"
-              data-slug="{{ locations_list[0].slug }}"
-              data-name="{{ locations_list[0].name }}"
-              data-subtitle="{{ locations_list[0].subtitle or '' }}"
-              data-state="{{ locations_list[0].state }}"
-              data-city="{{ locations_list[0].city }}"
-              data-address="{{ locations_list[0].address }}"
-              data-prof-name="{{ locations_list[0].professor_name or '' }}"
-              data-prof-title="{{ locations_list[0].professor_title or '' }}"
-              data-prof-bio="{{ locations_list[0].professor_bio or '' }}"
-              data-prof-phone="{{ locations_list[0].professor_phone or '' }}"
-              data-prof-formatted="{{ locations_list[0].professor_phone_formatted or '' }}"
-              data-prof-ig="{{ locations_list[0].professor_instagram or '' }}"
-              data-modalities="{{ locations_list[0].modalities_json or '[]' }}"
-              data-maps="{{ locations_list[0].maps_link or '' }}"
-              data-desc="{{ locations_list[0].description or '' }}"
-              style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 16px; font-size: 0.85rem;"
+              style="display: none; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 16px; font-size: 0.85rem;"
               title="Editar esta Filial">
               <i data-lucide="pencil"></i> Editar Filial
             </button>
 
-            <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
+            <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display: none;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
               <input type="hidden" name="action" value="delete_location">
-              <input type="hidden" name="location_db_id" id="deleteLocationDbId" value="{{ locations_list[0].id }}">
+              <input type="hidden" name="location_db_id" id="deleteLocationDbId" value="">
               <button type="submit" class="btn-icon-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 8px 16px; font-size: 0.85rem;" title="Excluir esta Filial">
                 <i data-lucide="trash-2"></i> Excluir
               </button>
             </form>
 
-            <a href="{{ url_for('ver_local', slug=locations_list[0].slug) }}" target="_blank" id="btnViewPublicSelectedFilial" class="btn-icon-action" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 8px 16px; font-size: 0.85rem;" title="Ver Página Pública">
+            <a href="#" target="_blank" id="btnViewPublicSelectedFilial" class="btn-icon-action" style="display: none; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 8px 16px; font-size: 0.85rem;" title="Ver Página Pública">
               <i data-lucide="external-link"></i> Ver Página Pública
             </a>
             {% endif %}
           </div>
         </header>
 
-        <!-- CONTAINER COM APENAS 1 RESULTADO EXIBIDO POR VEZ (SINGLE RESULT DISPLAY) -->
+        <!-- CONTAINER COM APENAS 1 RESULTADO EXIBIDO POR VEZ -->
         <div class="p-3">
+          
+          <!-- CARD PLACEHOLDER QUANDO NENHUMA FILIAL ESTÁ SELECIONADA -->
+          <div id="noFilialSelectedCard" class="glass-panel text-center p-5 w-100" style="border-radius: 18px; border: 1px dashed rgba(245, 158, 11, 0.4); background: rgba(18, 18, 28, 0.8);">
+            <i data-lucide="map-pin" style="width: 52px; height: 52px; color: var(--accent-gold); opacity: 0.7; margin-bottom: 12px;"></i>
+            <h3 style="color: #fff; font-weight: 700; margin-bottom: 6px;">Nenhuma filial selecionada</h3>
+            <p class="text-muted" style="max-width: 500px; margin: 0 auto 18px; font-size: 0.9rem;">
+              Selecione uma filial no menu suspenso acima para visualizar as informações completas, consultar modalidades, editar dados ou fazer upload de fotos/logos.
+            </p>
+            <button type="button" class="class-management-primary" onclick="document.getElementById('btnOpenAddLocationModal').click();">
+              <i data-lucide="plus"></i> Cadastrar Nova Filial
+            </button>
+          </div>
+
           {% for loc in locations_list %}
-          <div class="filial-preview-card filial-template-block glass-panel" id="filialCard_{{ loc.slug }}" style="padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95); {% if not loop.first %}display: none;{% endif %}">
+          <div class="filial-preview-card filial-template-block glass-panel" id="filialCard_{{ loc.slug }}" style="display: none; padding: 22px; border-radius: 18px; border: 1px solid var(--border-light); background: rgba(18, 18, 28, 0.95);">
             
             <!-- TOPO DO CARD DA FILIAL COM BADGES DE INFORMAÇÃO -->
             <div class="filial-card-top-bar flex-between align-center pb-3 mb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
@@ -320,12 +317,6 @@
             </div>
 
           </div>
-          {% else %}
-          <div class="glass-panel text-center p-5 w-100">
-            <i data-lucide="map-pin-off" style="width: 48px; height: 48px; opacity: 0.5;"></i>
-            <h3 class="mt-3">Nenhuma filial cadastrada</h3>
-            <p class="text-muted">Clique em "+ Nova filial" para cadastrar a primeira unidade.</p>
-          </div>
           {% endfor %}
         </div>
       </section>
@@ -334,9 +325,9 @@
   </div>
 </div>
 
-<!-- MODAL CADASTRAR / EDITAR FILIAL -->
+<!-- MODAL CADASTRAR / EDITAR FILIAL COM SUPORTE A UPLOAD DE IMAGENS -->
 <div class="modal-backdrop hidden" id="locationModal">
-  <div class="modal-card glass-panel" style="max-width: 620px;">
+  <div class="modal-card glass-panel" style="max-width: 650px;">
     <button type="button" class="modal-close" id="closeLocationModal">&times;</button>
     
     <div class="modal-header text-center mb-4">
@@ -344,7 +335,7 @@
       <p class="modal-subtitle">Preencha os dados do Centro de Treinamento ou filial BJ Sports</p>
     </div>
 
-    <form action="{{ url_for('locais_admin') }}" method="POST" id="locationForm" class="modal-form">
+    <form action="{{ url_for('locais_admin') }}" method="POST" id="locationForm" class="modal-form" enctype="multipart/form-data">
       <input type="hidden" name="action" id="locAction" value="add_location">
       <input type="hidden" name="location_db_id" id="locDbId" value="">
 
@@ -380,6 +371,21 @@
       <div class="form-group">
         <label for="locAddress">Endereço Completo *</label>
         <input type="text" id="locAddress" name="address" placeholder="Ex: Rua Eng. Carlos Pires de Sá, Centro, Cajazeiras - PB" required>
+      </div>
+
+      <!-- CAMPOS DE UPLOAD DE IMAGEM DA FILIAL E DO PROFESSOR -->
+      <div class="form-row" style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;">
+        <div class="form-group flex-1">
+          <label for="locProfPhotoFile">📸 Upload Foto do Professor</label>
+          <input type="file" id="locProfPhotoFile" name="professor_photo_file" accept="image/*" style="font-size: 0.8rem;">
+          <small class="field-hint" style="color: #94a3b8; font-size: 0.72rem; display: block; margin-top: 2px;">Envie a foto de perfil do mestre/professor</small>
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="locLogoCtFile">🖼️ Upload Logo do CT / Unidade</label>
+          <input type="file" id="locLogoCtFile" name="logo_ct_file" accept="image/*" style="font-size: 0.8rem;">
+          <small class="field-hint" style="color: #94a3b8; font-size: 0.72rem; display: block; margin-top: 2px;">Envie o escudo/logo PNG da unidade</small>
+        </div>
       </div>
 
       <hr style="border-color: rgba(255,255,255,0.08); margin: 16px 0;">
@@ -434,23 +440,38 @@
 
 <script>
 function switchFilialPreview(slug) {
-  // Hide all cards
+  const placeholder = document.getElementById('noFilialSelectedCard');
+  const btnEdit = document.getElementById('btnEditSelectedFilial');
+  const formDelete = document.getElementById('formDeleteSelectedFilial');
+  const btnView = document.getElementById('btnViewPublicSelectedFilial');
+
+  // Hide all preview cards
   document.querySelectorAll('.filial-preview-card').forEach(card => {
     card.style.display = 'none';
   });
 
-  // Show selected card
+  if (!slug) {
+    if (placeholder) placeholder.style.display = 'block';
+    if (btnEdit) btnEdit.style.display = 'none';
+    if (formDelete) formDelete.style.display = 'none';
+    if (btnView) btnView.style.display = 'none';
+    return;
+  }
+
+  if (placeholder) placeholder.style.display = 'none';
+  if (btnEdit) btnEdit.style.display = 'inline-flex';
+  if (formDelete) formDelete.style.display = 'inline';
+  if (btnView) btnView.style.display = 'inline-flex';
+
   const selectedCard = document.getElementById('filialCard_' + slug);
   if (selectedCard) {
     selectedCard.style.display = 'block';
   }
 
-  // Update top actions (Edit, Delete, View Public)
   const dropdown = document.getElementById('filialSelectDropdown');
   if (dropdown) {
     const opt = dropdown.options[dropdown.selectedIndex];
-    if (opt) {
-      const btnEdit = document.getElementById('btnEditSelectedFilial');
+    if (opt && opt.dataset.id) {
       if (btnEdit) {
         btnEdit.dataset.id = opt.dataset.id || '';
         btnEdit.dataset.slug = opt.dataset.slug || '';
@@ -473,7 +494,6 @@ function switchFilialPreview(slug) {
       const inputDeleteId = document.getElementById('deleteLocationDbId');
       if (inputDeleteId) inputDeleteId.value = opt.dataset.id || '';
 
-      const btnView = document.getElementById('btnViewPublicSelectedFilial');
       if (btnView) btnView.href = '/local/' + opt.dataset.slug;
     }
   }
@@ -509,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnEditSelected = document.getElementById('btnEditSelectedFilial');
   if (btnEditSelected) {
     btnEditSelected.addEventListener('click', () => {
+      if (!btnEditSelected.dataset.id) return;
       form.reset();
       inputAction.value = 'edit_location';
       inputDbId.value = btnEditSelected.dataset.id || '';
