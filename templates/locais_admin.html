@@ -86,7 +86,7 @@
               <h2 style="font-size: 1.15rem; margin: 0; color: #fff;">Selecione a Filial</h2>
             </div>
 
-            <!-- DROPDOWN SELETOR DE FILIAIS (NENHUM SELECIONADO POR PADRÃO) -->
+            <!-- DROPDOWN SELETOR DE FILIAIS -->
             {% if locations_list %}
             <div style="position: relative; min-width: 320px;">
               <select id="filialSelectDropdown" onchange="switchFilialPreview(this.value)" style="background: rgba(30, 41, 59, 0.95); color: #fff; border: 1.5px solid var(--accent-gold); border-radius: 10px; padding: 9px 36px 9px 14px; font-size: 0.92rem; font-weight: 700; width: 100%; cursor: pointer; appearance: none; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
@@ -118,15 +118,16 @@
             {% endif %}
           </div>
 
-          <!-- LADO DIREITO: BOTÕES DE AÇÃO SUPERIORES -->
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="class-management-primary" id="btnOpenAddLocationModal" style="padding: 8px 16px; font-size: 0.85rem;">
-              <i data-lucide="plus"></i> Nova filial
+          <!-- CANTO SUPERIOR DIREITO DO PAINEL: BOTÕES DE AÇÃO E SALVAR ALTERAÇÕES -->
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto;">
+            {% if locations_list %}
+            <!-- BOTÃO DE SALVAR DESTACADO NO CANTO SUPERIOR DIREITO -->
+            <button type="button" class="btn btn-success btn-glow" id="btnHeaderSaveFilial" style="display: none; padding: 9px 20px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 10px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); cursor: pointer;" onclick="submitCurrentFilialForm();" title="Salvar todas as alterações da filial selecionada">
+              <i data-lucide="save"></i> Salvar Alterações
             </button>
 
-            {% if locations_list %}
             <button type="button" class="btn-icon-action btn-edit-selected-loc" id="btnEditSelectedFilial"
-              style="display: none; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 16px; font-size: 0.85rem;"
+              style="display: none; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 8px 14px; font-size: 0.85rem;"
               title="Abrir Formulário Completo de Edição">
               <i data-lucide="sliders-horizontal"></i> Form Completo
             </button>
@@ -134,15 +135,19 @@
             <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display: none;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
               <input type="hidden" name="action" value="delete_location">
               <input type="hidden" name="location_db_id" id="deleteLocationDbId" value="">
-              <button type="submit" class="btn-icon-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 8px 16px; font-size: 0.85rem;" title="Excluir esta Filial">
+              <button type="submit" class="btn-icon-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 8px 14px; font-size: 0.85rem;" title="Excluir esta Filial">
                 <i data-lucide="trash-2"></i> Excluir
               </button>
             </form>
 
-            <a href="#" target="_blank" id="btnViewPublicSelectedFilial" class="btn-icon-action" style="display: none; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 8px 16px; font-size: 0.85rem;" title="Ver Página Pública">
+            <a href="#" target="_blank" id="btnViewPublicSelectedFilial" class="btn-icon-action" style="display: none; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 8px 14px; font-size: 0.85rem;" title="Ver Página Pública">
               <i data-lucide="external-link"></i> Ver Página Pública
             </a>
             {% endif %}
+
+            <button type="button" class="class-management-primary" id="btnOpenAddLocationModal" style="padding: 8px 16px; font-size: 0.85rem;">
+              <i data-lucide="plus"></i> Nova filial
+            </button>
           </div>
         </header>
 
@@ -168,7 +173,7 @@
             <input type="hidden" name="location_db_id" value="{{ loc.id }}">
             <input type="hidden" name="modalities" id="modalitiesInput_{{ loc.slug }}" value="{{ loc.modalities|join(', ') }}">
 
-            <!-- BARRA DE AÇÃO DIRETA DO CARD DO TEMPLATE -->
+            <!-- BARRA DE AÇÃO DIRETA NO TOPO DO CARD DA FILIAL -->
             <div class="filial-card-top-bar flex-between align-center pb-3 mb-3" style="border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <span class="badge-pill {{ loc.badge_color or 'bg-gold' }}">UNIDADE {{ loc.state }}</span>
@@ -178,9 +183,10 @@
                 </span>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <button type="submit" class="btn btn-primary btn-glow" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border: none;" title="Salvar todas as alterações da filial">
-                  <i data-lucide="save"></i> Salvar Alterações da Filial
+              <!-- CANTO SUPERIOR DIREITO DO CARD: BOTÃO DE SALVAR ALTERAÇÕES -->
+              <div style="margin-left: auto;">
+                <button type="submit" class="btn btn-primary btn-glow" style="padding: 9px 20px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 10px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); cursor: pointer;" title="Salvar todas as alterações da filial">
+                  <i data-lucide="save"></i> Salvar Alterações
                 </button>
               </div>
             </div>
@@ -468,6 +474,17 @@
 </div>
 
 <script>
+// Função para submeter a filial selecionada no momento
+function submitCurrentFilialForm() {
+  const dropdown = document.getElementById('filialSelectDropdown');
+  if (dropdown && dropdown.value) {
+    const activeForm = document.getElementById('filialCard_' + dropdown.value);
+    if (activeForm) {
+      activeForm.submit();
+    }
+  }
+}
+
 // Função para preview instantâneo da foto do professor e logo do CT no template
 function previewTemplateImage(input, imgId, placeholderId) {
   if (input.files && input.files[0]) {
@@ -515,6 +532,7 @@ function toggleModalityChip(btn, modalityName, inputId) {
 
 function switchFilialPreview(slug) {
   const placeholder = document.getElementById('noFilialSelectedCard');
+  const btnHeaderSave = document.getElementById('btnHeaderSaveFilial');
   const btnEdit = document.getElementById('btnEditSelectedFilial');
   const formDelete = document.getElementById('formDeleteSelectedFilial');
   const btnView = document.getElementById('btnViewPublicSelectedFilial');
@@ -526,6 +544,7 @@ function switchFilialPreview(slug) {
 
   if (!slug) {
     if (placeholder) placeholder.style.display = 'block';
+    if (btnHeaderSave) btnHeaderSave.style.display = 'none';
     if (btnEdit) btnEdit.style.display = 'none';
     if (formDelete) formDelete.style.display = 'none';
     if (btnView) btnView.style.display = 'none';
@@ -533,6 +552,7 @@ function switchFilialPreview(slug) {
   }
 
   if (placeholder) placeholder.style.display = 'none';
+  if (btnHeaderSave) btnHeaderSave.style.display = 'inline-flex';
   if (btnEdit) btnEdit.style.display = 'inline-flex';
   if (formDelete) formDelete.style.display = 'inline';
   if (btnView) btnView.style.display = 'inline-flex';
