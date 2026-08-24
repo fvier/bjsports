@@ -68,7 +68,7 @@
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="modality-badge" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.2rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
-                  {% if sm.icon in ['mma_glove', 'boxing_gloves', 'jiujitsu_kimono', 'kids_running', 'baby_blocks'] %}
+                  {% if sm.icon in ['mma_glove', 'boxing_gloves', 'jiujitsu_kimono', 'kids_running', 'baby_blocks', 'hand_wrap', 'boxing_upright', 'glove_touch', 'handshake_clasp', 'running_shoe'] %}
                     <img src="/static/img/icons/{{ sm.icon }}_light.png" alt="{{ sm.name }}" style="width: 24px; height: 24px; object-fit: contain;">
                   {% else %}
                     <i data-lucide="{{ sm.icon }}"></i>

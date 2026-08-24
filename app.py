@@ -3406,8 +3406,13 @@ def gestao_icones():
 
     preset_icons = [
         {'name': 'mma_glove', 'label': '🥊 Luva MMA (Transparente)', 'icon': 'mma_glove'},
-        {'name': 'boxing_gloves', 'label': '🥊 Luvas de Boxe (Transparente)', 'icon': 'boxing_gloves'},
+        {'name': 'boxing_gloves', 'label': '🥊 Luvas de Boxe Penduradas', 'icon': 'boxing_gloves'},
+        {'name': 'boxing_upright', 'label': '🥊 Luvas de Boxe Par', 'icon': 'boxing_upright'},
+        {'name': 'hand_wrap', 'label': '🥊 Mão Enfaixada / Bandagem', 'icon': 'hand_wrap'},
+        {'name': 'glove_touch', 'label': '🥊 Touch de Luvas / Sparring', 'icon': 'glove_touch'},
         {'name': 'jiujitsu_kimono', 'label': '🥋 Kimono Jiu-Jitsu (Transparente)', 'icon': 'jiujitsu_kimono'},
+        {'name': 'handshake_clasp', 'label': '🤝 Pegada / Respeito / União', 'icon': 'handshake_clasp'},
+        {'name': 'running_shoe', 'label': '👟 Tênis Corrida / Funcional', 'icon': 'running_shoe'},
         {'name': 'kids_running', 'label': '🏃 Crianças / Kids (Transparente)', 'icon': 'kids_running'},
         {'name': 'baby_blocks', 'label': '👶 Baby / Blocos (Transparente)', 'icon': 'baby_blocks'},
         {'name': 'award', 'label': '🏆 Graduação', 'icon': 'award'},
