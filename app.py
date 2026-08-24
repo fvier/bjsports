@@ -282,14 +282,18 @@ class User(db.Model):
     birth_date = db.Column(db.Date)
     must_change_password = db.Column(db.Boolean, nullable=False, default=False)
     password_reset_by_username = db.Column(db.String(80))
-    password_reset_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     @property
     def original_due_day(self):
-        if self.initial_due_date and self.initial_due_date.isdigit():
+        if hasattr(self, 'initial_due_date') and self.initial_due_date and str(self.initial_due_date).isdigit():
             return int(self.initial_due_date)
-        if self.created_at:
-            d = self.created_at.day
+        ca = getattr(self, 'created_at', None)
+        if ca and hasattr(ca, 'day'):
+            d = ca.day
             return d if d <= 28 else 28
+        if hasattr(self, 'due_date') and self.due_date and str(self.due_date).isdigit():
+            return int(self.due_date)
         return 5
 
     def get_selected_modalities_list(self):
