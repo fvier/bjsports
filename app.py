@@ -625,16 +625,20 @@ class Plan(db.Model):
         return mods
 
     def get_price_for_schedule(self, schedule):
-        if self.get_shared_type() in {'couple', 'family'} or self.price == 'Calculado via Desconto':
-            if self.discount_percent and self.discount_percent > 0:
-                return f"{int(self.discount_percent)}% OFF"
-            return "Calculado via Desconto"
         prices = {
             'ter-qui': self.price_ter_qui,
             'seg-qua-sex': self.price_seg_qua_sex,
             'todos': self.price_all_days,
         }
-        return prices.get(schedule) or self.price
+        if prices.get(schedule):
+            return prices.get(schedule)
+        if self.price and 'R$' in str(self.price):
+            return self.price
+        if self.get_shared_type() in {'couple', 'family'} or self.price == 'Calculado via Desconto':
+            if self.discount_percent and self.discount_percent > 0:
+                return f"{int(self.discount_percent)}% OFF"
+            return "Calculado via Desconto"
+        return self.price
 
     def get_selection_count(self):
         if self.selection_count is not None:
@@ -3974,8 +3978,8 @@ def mensalidades_admin():
                 item for item in request.form.getlist('selected_modalities')
                 if item in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
             ))
-            if not user or user.role != 'aluno':
-                flash('Aluno não encontrado para alteração do plano.', 'error')
+            if not user:
+                flash('Usuário não encontrado para alteração do plano.', 'error')
             elif is_private_class and (not private_instructor or private_instructor.role not in {'professor', 'instrutor', 'monitor'}):
                 flash('Escolha um professor ou monitor válido para a aula particular.', 'error')
             elif not is_private_class and (not plan or 'passe livre' in plan.name.casefold()):
