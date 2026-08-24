@@ -4550,45 +4550,67 @@ def integracoes_catraca():
         device_model=device_model, device_brand=device_brand,
     )
 
+def get_sponsored_plan_type_for_user(user):
+    if not user or user.sponsor_id:
+        return None
+    plan_lower = (user.plan or '').lower()
+    if any(k in plan_lower for k in ['casal', 'duo', 'parceir']):
+        return 'couple'
+    if any(k in plan_lower for k in ['família', 'familia', 'membro', 'dependente', 'grupo', 'parentes']):
+        return 'family'
+    if user.sponsored_dependents or user.role in {'instrutor', 'professor', 'admin'}:
+        return 'family'
+    return None
+
 @app.route('/configuracoes', methods=['GET', 'POST'])
 @app.route('/configuracoes.html', methods=['GET', 'POST'])
 @login_required
 def configuracoes():
+    user = db.session.get(User, session['user_id'])
+    sponsored_plan_type = get_sponsored_plan_type_for_user(user)
+
     if request.method == 'POST':
         action = request.form.get('action', 'update_profile')
-        user = db.session.get(User, session['user_id'])
-        normalized_plan = (user.plan or '').casefold()
-        sponsored_plan_type = None if user.sponsor_id else ('couple' if 'casal' in normalized_plan else ('family' if 'família' in normalized_plan or 'familia' in normalized_plan else None))
         if action == 'add_plan_dependent':
-            cpf3 = ''.join(character for character in request.form.get('dependent_cpf3', '') if character.isdigit())
-            if not sponsored_plan_type:
-                flash('Seu plano atual não permite incluir integrantes.', 'error')
-            elif len(cpf3) != 3:
-                flash('Informe exatamente os 3 primeiros números do CPF.', 'error')
-            elif sponsored_plan_type == 'couple' and user.sponsored_dependents:
-                flash('O Plano Casal permite somente um(a) parceiro(a).', 'error')
-            else:
-                candidates = [candidate for candidate in User.query.filter_by(role='aluno').all()
-                              if candidate.id != user.id and ''.join(c for c in candidate.cpf if c.isdigit()).startswith(cpf3)]
-                if not candidates:
-                    flash('Nenhum cadastro válido foi encontrado com esse início de CPF.', 'error')
-                elif len(candidates) > 1:
-                    flash('Mais de um cadastro possui esse início de CPF. Solicite à equipe uma identificação segura.', 'error')
+            dependent_user_id = request.form.get('dependent_user_id', type=int)
+            search_query = request.form.get('dependent_search', '').strip() or request.form.get('dependent_cpf3', '').strip()
+            
+            target_dependent = None
+            if dependent_user_id:
+                target_dependent = db.session.get(User, dependent_user_id)
+            elif search_query:
+                clean_digits = ''.join(c for c in search_query if c.isdigit())
+                query_filter = User.query.filter(User.id != user.id)
+                if clean_digits and len(clean_digits) >= 3:
+                    candidates = [c for c in query_filter.all() if ''.join(ch for ch in c.cpf if ch.isdigit()).startswith(clean_digits)]
                 else:
-                    dependent = candidates[0]
-                    if dependent.sponsor_id:
-                        flash('Essa pessoa já está vinculada a outro plano.', 'error')
-                    elif dependent.sponsored_dependents:
-                        flash('Uma conta titular não pode ser adicionada como dependente.', 'error')
-                    else:
-                        dependent.sponsored_previous_plan = dependent.plan
-                        dependent.sponsored_previous_modalities = dependent.selected_modalities
-                        dependent.sponsor_id = user.id
-                        dependent.sponsor_started_at = datetime.utcnow()
-                        dependent.plan = user.plan
-                        dependent.selected_modalities = user.selected_modalities
-                        db.session.commit()
-                        flash(f'{dependent.name} foi incluído(a) no seu plano sem cobrança individual.', 'success')
+                    candidates = query_filter.filter(
+                        User.name.ilike(f'%{search_query}%') | User.username.ilike(f'%{search_query}%')
+                    ).all()
+
+                if not candidates:
+                    flash('Nenhum cadastro válido foi encontrado com esses dados.', 'error')
+                elif len(candidates) > 1:
+                    flash('Mais de um cadastro foi encontrado. Selecione a pessoa específica na lista suspensa.', 'error')
+                else:
+                    target_dependent = candidates[0]
+
+            if target_dependent:
+                if target_dependent.id == user.id:
+                    flash('Você não pode adicionar a si mesmo como dependente.', 'error')
+                elif target_dependent.sponsor_id:
+                    flash(f'{target_dependent.name} já está vinculado(a) ao plano de outro titular.', 'error')
+                elif target_dependent.sponsored_dependents:
+                    flash('Uma conta que já possui dependentes não pode ser adicionada como dependente.', 'error')
+                else:
+                    target_dependent.sponsored_previous_plan = target_dependent.plan
+                    target_dependent.sponsored_previous_modalities = target_dependent.selected_modalities
+                    target_dependent.sponsor_id = user.id
+                    target_dependent.sponsor_started_at = datetime.utcnow()
+                    target_dependent.plan = user.plan
+                    target_dependent.selected_modalities = user.selected_modalities
+                    db.session.commit()
+                    flash(f'✨ {target_dependent.name} foi incluído(a) com sucesso no seu plano {user.plan}!', 'success')
             return redirect(url_for('configuracoes'))
         if action == 'remove_plan_dependent':
             dependent = db.session.get(User, request.form.get('dependent_id', type=int))
@@ -4625,11 +4647,10 @@ def configuracoes():
         else:
             flash('Nome ou telefone inválido.', 'error')
         return redirect(url_for('configuracoes'))
-    user = db.session.get(User, session['user_id'])
-    normalized_plan = (user.plan or '').casefold()
-    sponsored_plan_type = None if user.sponsor_id else ('couple' if 'casal' in normalized_plan else ('family' if 'família' in normalized_plan or 'familia' in normalized_plan else None))
+
+    available_students = User.query.filter(User.id != user.id, User.sponsor_id.is_(None)).order_by(User.name).all()
     return render_template('configuracoes.html', page_title='Configurações & Perfil', profile_user=user,
-                           sponsored_plan_type=sponsored_plan_type)
+                           sponsored_plan_type=sponsored_plan_type, available_students=available_students)
 
 @app.route('/gestao/modalidades-combo', methods=['GET', 'POST'])
 @login_required
