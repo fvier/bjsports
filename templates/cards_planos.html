@@ -172,9 +172,24 @@
 
               <!-- Preço -->
               <div style="margin-bottom: 14px;">
-                <span style="font-size: 1.8rem; font-weight: 900; color: var(--accent-gold); font-family: var(--font-heading);">
-                  {{ plan.price }}
-                </span>
+                {% if plan.get_shared_type() in ['couple', 'family'] or plan.price == 'Calculado via Desconto' %}
+                  {% if plan.discount_percent and plan.discount_percent > 0 %}
+                    <span style="font-size: 1.8rem; font-weight: 900; color: var(--accent-gold); font-family: var(--font-heading);">
+                      {{ plan.discount_percent|round|int }}% OFF
+                    </span>
+                    <small style="display: block; color: #cbd5e1; font-size: 0.78rem; margin-top: 2px;">
+                      Calculado via desconto sobre as modalidades
+                    </small>
+                  {% else %}
+                    <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold); font-family: var(--font-heading);">
+                      Desconto Especial
+                    </span>
+                  {% endif %}
+                {% else %}
+                  <span style="font-size: 1.8rem; font-weight: 900; color: var(--accent-gold); font-family: var(--font-heading);">
+                    {{ plan.price }}
+                  </span>
+                {% endif %}
               </div>
 
               <!-- Subtítulo / Descrição -->

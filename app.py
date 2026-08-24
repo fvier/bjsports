@@ -570,6 +570,10 @@ class Plan(db.Model):
         return mods
 
     def get_price_for_schedule(self, schedule):
+        if self.get_shared_type() in {'couple', 'family'} or self.price == 'Calculado via Desconto':
+            if self.discount_percent and self.discount_percent > 0:
+                return f"{int(self.discount_percent)}% OFF"
+            return "Calculado via Desconto"
         prices = {
             'ter-qui': self.price_ter_qui,
             'seg-qua-sex': self.price_seg_qua_sex,

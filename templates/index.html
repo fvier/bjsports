@@ -115,8 +115,26 @@
           <p class="plano-sub">{{ plan.sub if plan.sub else plan.category }}</p>
 
           <div class="plano-price-box">
-            <span class="main-price">{{ plan.price }}</span>
-            <span class="price-detail">Invista na sua evolução no tatame</span>
+            {% if plan.get_shared_type() in ['couple', 'family'] or plan.price == 'Calculado via Desconto' %}
+              {% if plan.discount_percent and plan.discount_percent > 0 %}
+                <span class="main-price" style="font-size: 2rem; font-weight: 900; color: var(--accent-gold);">
+                  {{ plan.discount_percent|round|int }}% OFF
+                </span>
+                <span class="price-detail" style="color: #cbd5e1; font-weight: 600; display: block; margin-top: 2px;">
+                  Desconto no valor total das modalidades
+                </span>
+              {% else %}
+                <span class="main-price" style="font-size: 1.5rem; font-weight: 800; color: var(--accent-gold);">
+                  Desconto Especial
+                </span>
+                <span class="price-detail" style="color: #cbd5e1; font-weight: 600; display: block; margin-top: 2px;">
+                  Calculado via desconto configurado
+                </span>
+              {% endif %}
+            {% else %}
+              <span class="main-price">{{ plan.price }}</span>
+              <span class="price-detail">Invista na sua evolução no tatame</span>
+            {% endif %}
           </div>
 
           {% if plan.features %}
