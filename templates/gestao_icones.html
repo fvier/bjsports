@@ -71,6 +71,7 @@
       <!-- FORMULÁRIO DE GESTÃO DE ÍCONES -->
       <form action="{{ url_for('gestao_icones') }}" method="POST" id="formModalityIcons">
         <input type="hidden" name="action" value="save_modality_icons">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <!-- PAINEL PRINCIPAL DE ÍCONES POR MODALIDADE -->
         <section class="class-management-panel p-4" style="background: rgba(18, 18, 28, 0.95); border-radius: 18px; border: 1px solid var(--border-light);">
@@ -81,12 +82,12 @@
               <h2 style="font-size: 1.25rem; margin: 0; color: #fff;">Associe cada modalidade ao seu ícone representativo</h2>
             </div>
 
-            <button type="submit" class="btn btn-success btn-glow" style="padding: 9px 20px; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 10px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); cursor: pointer;">
-              <i data-lucide="save"></i> Salvar Ícones
+            <button type="submit" class="btn btn-success btn-glow" style="padding: 10px 24px; font-size: 0.92rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 10px; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); cursor: pointer;">
+              <i data-lucide="save"></i> Salvar Todos os Ícones
             </button>
           </div>
 
-          <!-- GRID DE CARDS DAS MODALIDADES -->
+          <!-- MAPA DE IMAGENS CUSTOMIZADAS -->
           {% set custom_images = {
             'mma_glove': '/static/img/icons/mma_glove_light.png',
             'boxing_gloves': '/static/img/icons/boxing_gloves_light.png',
@@ -105,86 +106,79 @@
             'female_fighter': '/static/img/icons/female_fighter_light.png'
           } %}
 
-          <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 24px;">
             
             {% for item in modality_items %}
-            <div class="glass-panel" style="padding: 18px; border-radius: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+            {% set card_idx = loop.index %}
+            <div class="glass-panel" id="modalityCard_{{ card_idx }}" style="padding: 22px; border-radius: 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12); position: relative;">
               
-              <!-- TOPO DO CARD: PREVIEW DO ÍCONE E NOME -->
-              <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
-                <div id="iconBadgeWrapper_{{ loop.index }}" style="width: 52px; height: 52px; border-radius: 14px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.5rem; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
-                  {% if item.icon in custom_images %}
-                    <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px; object-fit: contain;">
-                  {% else %}
-                    <i data-lucide="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px;"></i>
-                  {% endif %}
-                </div>
+              <!-- CAMPO OCULTO QUE GUARDA O VALOR SELECIONADO -->
+              <input type="hidden" name="icon_mod_{{ item.name }}" id="iconInput_{{ card_idx }}" value="{{ item.icon }}">
 
-                <div style="flex: 1;">
-                  <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 2px;">{{ item.name }}</h3>
-                  <small style="color: #94a3b8; font-size: 0.78rem; display: block;">
-                    {{ item.classes_count }} turma(s) ativas usando este ícone
-                  </small>
-                </div>
-              </div>
-
-              <!-- SELETOR E INPUT DO ÍCONE LUCIDE / CUSTOM -->
-              <div style="margin-bottom: 14px;">
-                <label style="font-size: 0.72rem; color: #60a5fa; font-weight: 700; display: block; margin-bottom: 4px;">
-                  📌 ÍCONE / CHAVE DE IMAGEM SELECIONADA
-                </label>
-                <div class="live-input-group">
-                  <i data-lucide="sparkles" style="color: var(--accent-gold);"></i>
-                  <input type="text" 
-                    name="icon_mod_{{ item.name }}" 
-                    id="iconInput_{{ loop.index }}" 
-                    value="{{ item.icon }}" 
-                    class="live-input" 
-                    placeholder="Ex: jiujitsu_kimono, boxing_gloves, mma_glove, kids_running, baby_blocks"
-                    oninput="updateIconPreview('iconInput_{{ loop.index }}', 'iconBadgeWrapper_{{ loop.index }}', 'sampleBadgeWrapper_{{ loop.index }}')">
-                </div>
-              </div>
-
-              <!-- PRESETS RÁPIDOS DE ÍCONES (CLIQUE PARA SELECIONAR) -->
-              <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 6px;">
-                  💡 PRESETS RÁPIDOS E IMAGENS TRANSPARENTES (CLIQUE PARA ATRIBUIR):
-                </label>
-                
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                  {% for p in preset_icons %}
-                  <button type="button" 
-                    class="btn-icon-action" 
-                    style="padding: 4px 8px; font-size: 0.72rem; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; display: inline-flex; align-items: center; gap: 4px;"
-                    title="{{ p.label }}"
-                    onclick="selectPresetIcon('{{ p.icon }}', 'iconInput_{{ loop.index }}', 'iconBadgeWrapper_{{ loop.index }}', 'sampleBadgeWrapper_{{ loop.index }}')">
-                    {% if p.icon in custom_images %}
-                      <img src="{{ custom_images[p.icon] }}" style="width: 14px; height: 14px; object-fit: contain;">
-                    {% else %}
-                      <i data-lucide="{{ p.icon }}" style="width: 12px; height: 12px; color: var(--accent-gold);"></i>
-                    {% endif %}
-                    {{ p.icon }}
-                  </button>
-                  {% endfor %}
-                </div>
-              </div>
-
-              <!-- PRÉ-VISUALIZAÇÃO DE COMO FICA NO CARD DA TURMA -->
-              <div style="background: rgba(15, 23, 42, 0.9); border: 1px dashed rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; margin-top: 10px;">
-                <span style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px;">
-                  👀 Exemplo de exibição no sistema:
-                </span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span id="sampleBadgeWrapper_{{ loop.index }}" style="width: 26px; height: 26px; border-radius: 6px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+              <!-- TOPO DO CARD: PREVIEW DO ÍCONE E NOME DA MODALIDADE -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.08); flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <div id="iconBadgeWrapper_{{ card_idx }}" style="width: 58px; height: 58px; border-radius: 14px; background: rgba(30, 41, 59, 0.9); border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);">
                     {% if item.icon in custom_images %}
-                      <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" style="width: 16px; height: 16px; object-fit: contain;">
+                      <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" style="width: 34px; height: 34px; object-fit: contain;">
                     {% else %}
-                      <i data-lucide="{{ item.icon }}" id="sampleLucide_{{ loop.index }}" style="width: 15px; height: 15px;"></i>
+                      <i data-lucide="{{ item.icon }}" style="width: 32px; height: 32px;"></i>
+                    {% endif %}
+                  </div>
+
+                  <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0 0 4px;">{{ item.name }}</h3>
+                    <span style="color: #94a3b8; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                      <i data-lucide="users" style="width: 14px; height: 14px; color: #38bdf8;"></i>
+                      {{ item.classes_count }} turma(s) em funcionamento
+                    </span>
+                  </div>
+                </div>
+
+                <!-- PREVIEW NO CARD DA TURMA -->
+                <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 14px; display: flex; align-items: center; gap: 10px;">
+                  <small style="color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Como fica na turma:</small>
+                  <span id="sampleBadgeWrapper_{{ card_idx }}" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(15, 23, 42, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+                    {% if item.icon in custom_images %}
+                      <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" style="width: 18px; height: 18px; object-fit: contain;">
+                    {% else %}
+                      <i data-lucide="{{ item.icon }}" style="width: 16px; height: 16px;"></i>
                     {% endif %}
                   </span>
-                  <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">
-                    {{ item.name }} {% if item.classes_sample %}({{ item.classes_sample[0] }}){% endif %}
-                  </span>
+                </div>
+              </div>
+
+              <!-- GALERIA VISUAL DOS 15 ÍCONES (CLIQUE PARA SELECIONAR) -->
+              <div>
+                <label style="font-size: 0.78rem; color: #38bdf8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">
+                  🎯 Selecione o ícone desejado para {{ item.name }}:
+                </label>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
+                  {% for p in preset_icons %}
+                  {% set is_sel = (item.icon == p.icon) %}
+                  <div class="icon-picker-option {% if is_sel %}selected{% endif %}"
+                       id="presetCard_{{ card_idx }}_{{ p.icon }}"
+                       onclick="chooseIconForModality('{{ card_idx }}', '{{ p.icon }}', '{{ custom_images.get(p.icon, '') }}')"
+                       style="padding: 12px 10px; border-radius: 12px; background: {% if is_sel %}linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.25)){% else %}rgba(30, 41, 59, 0.5){% endif %}; border: 2px solid {% if is_sel %}#38bdf8{% else %}rgba(255,255,255,0.08){% endif %}; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: all 0.2s ease; box-shadow: {% if is_sel %}0 0 14px rgba(56, 189, 248, 0.3){% else %}none{% endif %};">
+                    
+                    <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                      {% if p.icon in custom_images %}
+                        <img src="{{ custom_images[p.icon] }}" alt="{{ p.label }}" style="width: 32px; height: 32px; object-fit: contain;">
+                      {% else %}
+                        <i data-lucide="{{ p.icon }}" style="width: 28px; height: 28px; color: var(--accent-gold);"></i>
+                      {% endif %}
+                    </div>
+
+                    <span style="font-size: 0.74rem; font-weight: 700; color: {% if is_sel %}#ffffff{% else %}#cbd5e1{% endif %}; line-height: 1.2;">
+                      {{ p.label }}
+                    </span>
+
+                    <span class="selected-badge" style="font-size: 0.65rem; font-weight: 800; background: #38bdf8; color: #0f172a; padding: 2px 8px; border-radius: 6px; display: {% if is_sel %}inline-block{% else %}none{% endif %};">
+                      ✓ Selecionado
+                    </span>
+                  </div>
+                  {% endfor %}
                 </div>
               </div>
 
@@ -193,29 +187,11 @@
 
           </div>
 
-          <!-- ADICIONAR NOVA MODALIDADE PERSONALIZADA -->
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 12px;">
-              ➕ Adicionar Nova Modalidade Personalizada
-            </h3>
-
-            <div class="form-row" style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <div class="form-group flex-2 mb-0">
-                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome da Nova Modalidade</label>
-                <input type="text" name="new_modality_name" placeholder="Ex: Krav Maga, Jiu-Jitsu No-Gi, Kickboxing" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
-              </div>
-
-              <div class="form-group flex-1 mb-0">
-                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome do Ícone Lucide ou Imagem</label>
-                <input type="text" name="new_modality_icon" placeholder="Ex: jiujitsu_kimono, boxing_gloves, flame" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
-              </div>
-
-              <div class="form-group mb-0" style="display: flex; align-items: flex-end;">
-                <button type="submit" class="btn btn-primary btn-glow" style="padding: 9px 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border: none; border-radius: 8px;">
-                  <i data-lucide="plus-circle"></i> Adicionar Modalidade
-                </button>
-              </div>
-            </div>
+          <!-- BARRA DE SALVAMENTO FINAL -->
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-success btn-glow" style="padding: 12px 30px; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 12px; box-shadow: 0 0 24px rgba(34, 197, 94, 0.4); cursor: pointer;">
+              <i data-lucide="save"></i> Salvar Todos os Ícones
+            </button>
           </div>
 
         </section>
@@ -244,33 +220,53 @@ const customImages = {
   'female_fighter': '/static/img/icons/female_fighter_light.png'
 };
 
-function selectPresetIcon(iconName, inputId, mainBadgeId, sampleBadgeId) {
-  const input = document.getElementById(inputId);
-  if (input) {
-    input.value = iconName;
-    updateIconPreview(inputId, mainBadgeId, sampleBadgeId);
-  }
-}
+function chooseIconForModality(cardIndex, iconName, imageSrc) {
+  // 1. Atualizar o valor no input oculto do formulário
+  const input = document.getElementById('iconInput_' + cardIndex);
+  if (input) input.value = iconName;
 
-function updateIconPreview(inputId, mainBadgeId, sampleBadgeId) {
-  const input = document.getElementById(inputId);
-  const iconName = input ? input.value.trim() : '';
-  const mainBadge = document.getElementById(mainBadgeId);
-  const sampleBadge = document.getElementById(sampleBadgeId);
+  // 2. Atualizar o preview no badge grande do topo do card
+  const badgeWrapper = document.getElementById('iconBadgeWrapper_' + cardIndex);
+  const sampleWrapper = document.getElementById('sampleBadgeWrapper_' + cardIndex);
 
-  if (mainBadge && iconName) {
-    if (customImages[iconName]) {
-      mainBadge.innerHTML = `<img src="${customImages[iconName]}" alt="${iconName}" style="width: 28px; height: 28px; object-fit: contain;">`;
-    } else {
-      mainBadge.innerHTML = `<i data-lucide="${iconName}" style="width: 28px; height: 28px;"></i>`;
-    }
+  const imgSrc = imageSrc || customImages[iconName];
+
+  if (imgSrc) {
+    if (badgeWrapper) badgeWrapper.innerHTML = `<img src="${imgSrc}" alt="${iconName}" style="width: 34px; height: 34px; object-fit: contain;">`;
+    if (sampleWrapper) sampleWrapper.innerHTML = `<img src="${imgSrc}" alt="${iconName}" style="width: 18px; height: 18px; object-fit: contain;">`;
+  } else {
+    if (badgeWrapper) badgeWrapper.innerHTML = `<i data-lucide="${iconName}" style="width: 32px; height: 32px;"></i>`;
+    if (sampleWrapper) sampleWrapper.innerHTML = `<i data-lucide="${iconName}" style="width: 16px; height: 16px;"></i>`;
   }
 
-  if (sampleBadge && iconName) {
-    if (customImages[iconName]) {
-      sampleBadge.innerHTML = `<img src="${customImages[iconName]}" alt="${iconName}" style="width: 16px; height: 16px; object-fit: contain;">`;
-    } else {
-      sampleBadge.innerHTML = `<i data-lucide="${iconName}" style="width: 15px; height: 15px;"></i>`;
+  // 3. Atualizar destaque visual nas opções da galeria
+  const container = document.getElementById('modalityCard_' + cardIndex);
+  if (container) {
+    container.querySelectorAll('.icon-picker-option').forEach(card => {
+      card.style.background = 'rgba(30, 41, 59, 0.5)';
+      card.style.borderColor = 'rgba(255,255,255,0.08)';
+      card.style.boxShadow = 'none';
+      card.classList.remove('selected');
+      
+      const textSpan = card.querySelector('span');
+      if (textSpan) textSpan.style.color = '#cbd5e1';
+
+      const badge = card.querySelector('.selected-badge');
+      if (badge) badge.style.display = 'none';
+    });
+
+    const activeCard = document.getElementById(`presetCard_${cardIndex}_${iconName}`);
+    if (activeCard) {
+      activeCard.style.background = 'linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.25))';
+      activeCard.style.borderColor = '#38bdf8';
+      activeCard.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.3)';
+      activeCard.classList.add('selected');
+      
+      const textSpan = activeCard.querySelector('span');
+      if (textSpan) textSpan.style.color = '#ffffff';
+
+      const badge = activeCard.querySelector('.selected-badge');
+      if (badge) badge.style.display = 'inline-block';
     }
   }
 
