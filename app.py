@@ -422,6 +422,12 @@ class User(db.Model):
             payment_obj = persisted_payments.get(m)
             if payment_obj:
                 status = payment_obj.status
+                # Sincroniza o valor da fatura do mês atual se ainda não tiver sido paga
+                if status != 'pago' and m == current_month and not self.is_fee_exempt_for(year, m):
+                    curr_p = float(self.get_numeric_price(year, m))
+                    if float(payment_obj.amount) != curr_p and float(payment_obj.amount) > 0:
+                        payment_obj.amount = Decimal(str(curr_p))
+                        db.session.commit()
                 amount = float(payment_obj.amount)
             elif self.is_fee_exempt_for(year, m):
                 status = 'isento'
@@ -512,10 +518,10 @@ class User(db.Model):
         ):
             overdue_count = 1
             month = current_month or datetime.now().month
-            overdue_months = [{'month': f'{month:02d}', 'name': '', 'status': 'atrasado'}]
+            overdue_months = [{'month': f'{month:02d}', 'name': '', 'status': 'atrasado', 'amount': self.get_plan_price()}]
 
         unit_price = self.get_plan_price()
-        total_debt = overdue_count * unit_price
+        total_debt = sum(m.get('amount', unit_price) for m in overdue_months) if overdue_months else 0.0
         months_str = ", ".join([f"{m['month']}/{m['name']}" for m in overdue_months]) if overdue_months else "08/Ago"
 
         return {
@@ -4005,39 +4011,48 @@ def mensalidades_admin():
                 adjustment = Decimal('0.00')
                 if old_price != new_price and not user.monthly_fee_exempt:
                     now = datetime.now()
-                    import calendar
-                    days_in_month = Decimal(calendar.monthrange(now.year, now.month)[1])
-                    current_day = Decimal(now.day)
-                    remaining_days = max(Decimal('0'), days_in_month - current_day + Decimal('1'))
+                    current_payment = MonthlyPayment.query.filter_by(
+                        user_id=user.id, year=now.year, month=now.month
+                    ).first()
 
-                    if remaining_days > Decimal('0'):
-                        old_credit = (old_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                        new_cost = (new_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                        adjustment = new_cost - old_credit
-
-                        target_month = now.month + 1
-                        target_year = now.year
-                        if target_month == 13:
-                            target_month = 1
-                            target_year += 1
-
-                        next_payment = MonthlyPayment.query.filter_by(
-                            user_id=user.id, year=target_year, month=target_month
-                        ).first()
-
-                        if not next_payment:
-                            next_payment = MonthlyPayment(
-                                user_id=user.id,
-                                year=target_year,
-                                month=target_month,
-                                status='futuro',
-                                amount=new_price + adjustment
-                            )
-                            db.session.add(next_payment)
-                        else:
-                            if next_payment.status != 'pago':
-                                next_payment.amount = new_price + adjustment
+                    # Se a fatura do mês atual ainda NÃO foi paga, atualiza diretamente o valor da fatura aberta
+                    if current_payment and current_payment.status != 'pago':
+                        current_payment.amount = new_price
                         db.session.commit()
+                    else:
+                        import calendar
+                        days_in_month = Decimal(calendar.monthrange(now.year, now.month)[1])
+                        current_day = Decimal(now.day)
+                        remaining_days = max(Decimal('0'), days_in_month - current_day + Decimal('1'))
+
+                        if remaining_days > Decimal('0'):
+                            old_credit = (old_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                            new_cost = (new_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                            adjustment = new_cost - old_credit
+
+                            target_month = now.month + 1
+                            target_year = now.year
+                            if target_month == 13:
+                                target_month = 1
+                                target_year += 1
+
+                            next_payment = MonthlyPayment.query.filter_by(
+                                user_id=user.id, year=target_year, month=target_month
+                            ).first()
+
+                            if not next_payment:
+                                next_payment = MonthlyPayment(
+                                    user_id=user.id,
+                                    year=target_year,
+                                    month=target_month,
+                                    status='futuro',
+                                    amount=new_price + adjustment
+                                )
+                                db.session.add(next_payment)
+                            else:
+                                if next_payment.status != 'pago':
+                                    next_payment.amount = new_price + adjustment
+                            db.session.commit()
 
                 new_plan_name = 'Aula Particular' if is_private_class else plan.name
                 if adjustment > 0:
