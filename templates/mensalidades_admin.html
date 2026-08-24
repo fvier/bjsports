@@ -287,25 +287,56 @@
                         </form>
 
                         {% if can_manage %}
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="margin: 10px 0; background: rgba(59, 130, 246, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.25);">
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="margin: 12px 0; background: rgba(15, 23, 42, 0.7); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                           <input type="hidden" name="user_id" value="{{ u.id }}">
                           <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
-                          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                          <input type="hidden" name="due_date" id="dueDateVal-{{ u.id }}" value="{{ u.due_date }}">
+                          
+                          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                              <i data-lucide="calendar-days" style="width: 20px; height: 20px; color: #60a5fa;"></i>
+                              <i data-lucide="calendar" style="width: 20px; height: 20px; color: #38bdf8;"></i>
                               <div>
-                                <strong style="color: #ffffff; font-size: 0.85rem; display: block;">Alterar Dia de Vencimento</strong>
-                                <small style="color: var(--text-muted); font-size: 0.74rem;">Informe o novo dia do mês (1 a 28) para o vencimento de {{ u.name }}.</small>
+                                <strong style="color: #ffffff; font-size: 0.85rem; display: block;">Seletor de Vencimento (Calendário)</strong>
+                                <small style="color: var(--text-muted); font-size: 0.74rem;">Clique no calendário ou no dia desejado (1 a 28) para definir o vencimento de {{ u.name }}.</small>
                               </div>
                             </div>
+                            
+                            <!-- Campo Date Picker com Popup de Calendário Integrado -->
                             <div style="display: flex; align-items: center; gap: 8px;">
-                              <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 700;">Dia</span>
-                              <input type="number" name="due_date" value="{{ u.due_date }}" min="1" max="28" required style="width: 75px; text-align: center; font-size: 1rem; font-weight: 800; padding: 6px 8px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);" placeholder="1-28">
-                              <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 600;">de cada mês</span>
-                              <button type="submit" class="btn btn-sm btn-primary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; margin-left: 4px;">
-                                <i data-lucide="check" style="width: 14px; height: 14px;"></i> Salvar
+                              <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 600;">Calendário:</span>
+                              <input type="date" id="datePicker-{{ u.id }}"
+                                     value="2026-08-{{ '%02d'|format(u.due_date|int if u.due_date and u.due_date.isdigit() else 15) }}"
+                                     min="2026-01-01" max="2026-12-31"
+                                     onchange="
+                                       const d = new Date(this.value + 'T00:00:00');
+                                       let day = d.getDate();
+                                       if (day > 28) day = 28;
+                                       document.getElementById('dueDateVal-{{ u.id }}').value = day;
+                                       this.form.submit();
+                                     "
+                                     style="background: #1e293b; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 5px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                              <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                                🗓️ Vence Dia {{ u.due_date }}
+                              </span>
+                            </div>
+                          </div>
+
+                          <!-- Grade de Dias Estilo Calendário Inline (1 a 28) -->
+                          <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Seleção Rápida de Dias do Mês:</span>
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 380px;">
+                              {% for day_num in range(1, 29) %}
+                              <button type="button"
+                                      onclick="
+                                        document.getElementById('dueDateVal-{{ u.id }}').value = '{{ day_num }}';
+                                        this.form.submit();
+                                      "
+                                      style="padding: 6px 0; border-radius: 6px; font-size: 0.8rem; font-weight: 800; border: 1px solid {% if u.due_date == day_num|string %}#38bdf8{% else %}rgba(255,255,255,0.08){% endif %}; background: {% if u.due_date == day_num|string %}linear-gradient(135deg, #0284c7, #2563eb){% else %}rgba(255,255,255,0.04){% endif %}; color: {% if u.due_date == day_num|string %}#ffffff{% else %}#cbd5e1{% endif %}; cursor: pointer; transition: all 0.15s ease;"
+                                      title="Definir vencimento para todo dia {{ day_num }}">
+                                {{ day_num }}
                               </button>
+                              {% endfor %}
                             </div>
                           </div>
                         </form>
