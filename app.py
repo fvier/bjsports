@@ -3375,6 +3375,36 @@ def get_icon_for_modality(modality_name):
             return v
     return 'award'
 
+def get_class_group_icons_path():
+    return os.path.join(app.instance_path, 'class_group_icons.json')
+
+def get_class_group_icons():
+    filepath = get_class_group_icons_path()
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                saved = json.load(f)
+                if isinstance(saved, dict):
+                    return saved
+        except Exception as e:
+            app.logger.error(f"Erro ao ler class_group_icons.json: {e}")
+    return {}
+
+def save_class_group_icons(icons_dict):
+    filepath = get_class_group_icons_path()
+    os.makedirs(app.instance_path, exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(icons_dict, f, ensure_ascii=False, indent=2)
+
+def get_icon_for_class_group(class_group):
+    cg_icons = get_class_group_icons()
+    cg_id_str = str(class_group.id) if hasattr(class_group, 'id') else ''
+    if cg_id_str and cg_id_str in cg_icons:
+        return cg_icons[cg_id_str]
+    if hasattr(class_group, 'name') and class_group.name in cg_icons:
+        return cg_icons[class_group.name]
+    return get_icon_for_modality(getattr(class_group, 'modality', ''))
+
 @app.route('/gestao/icones', methods=['GET', 'POST'])
 @app.route('/gestao_icones.html', methods=['GET', 'POST'])
 @role_required('instrutor')
@@ -3383,24 +3413,26 @@ def gestao_icones():
     if request.method == 'POST':
         action = request.form.get('action', '')
         if action == 'save_modality_icons':
-            icons = get_modality_icons()
+            mod_icons = get_modality_icons()
+            cg_icons = get_class_group_icons()
+
             for key, val in request.form.items():
+                val_str = val.strip()
                 if key.startswith('icon_mod_'):
                     mod_name = key[9:]
-                    val_str = val.strip()
                     if mod_name and val_str:
-                        icons[mod_name] = val_str
+                        mod_icons[mod_name] = val_str
+                elif key.startswith('icon_class_'):
+                    class_id = key[11:]
+                    if class_id and val_str:
+                        cg_icons[class_id] = val_str
             
-            new_mod_name = request.form.get('new_modality_name', '').strip()
-            new_mod_icon = request.form.get('new_modality_icon', '').strip()
-            if new_mod_name and new_mod_icon:
-                icons[new_mod_name] = new_mod_icon
-                
-            save_modality_icons(icons)
-            flash('✨ Ícones das modalidades atualizados com sucesso!', 'success')
+            save_modality_icons(mod_icons)
+            save_class_group_icons(cg_icons)
+            flash('✨ Ícones das modalidades e turmas atualizados com sucesso!', 'success')
             return redirect(url_for('gestao_icones'))
 
-    all_class_groups = ClassGroup.query.all()
+    all_class_groups = ClassGroup.query.order_by(ClassGroup.name).all()
     modalities_in_use = set(c.modality for c in all_class_groups if c.modality)
     
     locations = Location.query.all()
@@ -3412,6 +3444,7 @@ def gestao_icones():
         except Exception:
             pass
     current_icons = get_modality_icons()
+    current_cg_icons = get_class_group_icons()
     
     modality_items = []
     for mod_name in sorted(modalities_in_use):
@@ -3422,6 +3455,17 @@ def gestao_icones():
             'icon': icon_name,
             'classes_count': len(classes_using),
             'classes_sample': [c.name for c in classes_using[:3]]
+        })
+
+    turma_items = []
+    for cg in all_class_groups:
+        cg_icon = current_cg_icons.get(str(cg.id), get_icon_for_class_group(cg))
+        turma_items.append({
+            'id': cg.id,
+            'name': cg.name,
+            'modality': cg.modality,
+            'audience': cg.audience,
+            'icon': cg_icon
         })
 
     preset_icons = [
@@ -3452,6 +3496,7 @@ def gestao_icones():
         'gestao_icones.html',
         page_title='Gestão de Ícones e Modalidades',
         modality_items=modality_items,
+        turma_items=turma_items,
         preset_icons=preset_icons,
         overview=overview
     )
