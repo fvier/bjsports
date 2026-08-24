@@ -3304,20 +3304,9 @@ def gestao_turmas():
 
 DEFAULT_MODALITY_ICONS = {
     'Jiu-Jitsu': 'jiujitsu_kimono',
-    'Jiu-Jitsu Feminino': 'female_fighter',
     'Boxe': 'boxing_gloves',
     'Muay Thai': 'hand_wrap',
-    'MMA': 'mma_glove',
-    'Jiu-Jitsu Kids': 'kids_running',
-    'Jiu-Jitsu Baby': 'baby_blocks',
-    'Kids': 'kids_running',
-    'Baby': 'baby_blocks',
-    'Defesa Pessoal': 'shield-check',
-    'Submission': 'glove_touch',
-    'Judo': 'target',
-    'Wrestling': 'handshake_clasp',
-    'Funcional Fight': 'running_shoe',
-    'Treino Especial': 'star'
+    'MMA': 'mma_glove'
 }
 
 def get_modality_icons_path():
@@ -3388,10 +3377,6 @@ def gestao_icones():
                 if m: modalities_in_use.add(m)
         except Exception:
             pass
-            
-    for default_mod in DEFAULT_MODALITY_ICONS.keys():
-        modalities_in_use.add(default_mod)
-
     current_icons = get_modality_icons()
     
     modality_items = []
