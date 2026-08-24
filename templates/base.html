@@ -142,9 +142,88 @@
           <i data-lucide="user-check"></i> Área do Aluno
         </a>
         {% endif %}
+
+        <!-- Botão Hambúrguer Mobile -->
+        <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menu de navegação">
+          <i data-lucide="menu"></i>
+        </button>
       </div>
     </div>
   </header>
+
+  <!-- Drawer de Navegação Mobile -->
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-drawer-header">
+      <div class="brand-link">
+        <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports" class="header-logo">
+        <div class="brand-text">
+          <span class="brand-name">BJ SPORTS</span>
+          <span class="brand-sub">CENTRO DE TREINAMENTO</span>
+        </div>
+      </div>
+      <button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Fechar menu">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <div class="mobile-drawer-body">
+      <nav class="mobile-drawer-nav">
+        <a href="{{ url_for('index') }}" class="mobile-nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+          <i data-lucide="home" class="icon-red"></i> <span>Início</span>
+        </a>
+        
+        <div class="mobile-nav-group">
+          <button type="button" class="mobile-nav-group-trigger" id="mobileLocaisTrigger">
+            <span><i data-lucide="map-pin" class="icon-gold"></i> Locais & Filiais</span>
+            <i data-lucide="chevron-down" class="group-chevron"></i>
+          </button>
+          <div class="mobile-nav-subitems hidden" id="mobileLocaisSubitems">
+            <span class="sub-header">🌵 Paraíba (PB)</span>
+            {% for loc_slug, loc in (locations_dict or {}).items() %}
+            {% if loc.state == 'PB' %}
+            <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="mobile-subnav-link">
+              <i data-lucide="building-2"></i> {{ loc.name }}
+            </a>
+            {% endif %}
+            {% endfor %}
+
+            <span class="sub-header" style="margin-top: 10px;">☀️ Outros Estados</span>
+            {% for loc_slug, loc in (locations_dict or {}).items() %}
+            {% if loc.state != 'PB' %}
+            <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="mobile-subnav-link">
+              <i data-lucide="map-pin"></i> {{ loc.name }}
+            </a>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <a href="{{ url_for('loja') }}" class="mobile-nav-link {% if request.endpoint == 'loja' %}active{% endif %}">
+          <i data-lucide="shopping-bag" class="icon-gold"></i> <span>Loja BJ Sports</span> <span class="badge-pill bg-gold" style="font-size: 0.65rem; margin-left: auto;">NOVO</span>
+        </a>
+
+        <a href="{{ url_for('blog') }}" class="mobile-nav-link {% if request.endpoint == 'blog' %}active{% endif %}">
+          <i data-lucide="newspaper" class="icon-blue"></i> <span>Blog do Tatame</span>
+        </a>
+      </nav>
+
+      <div class="mobile-drawer-actions">
+        {% if is_logged_in %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-block btn-glow mb-2" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i data-lucide="layout-dashboard"></i> Minha Área de Aluno
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-block text-red" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i data-lucide="log-out"></i> Sair da Conta
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-block btn-glow" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i data-lucide="log-in"></i> Área do Aluno / Login
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </aside>
   {% endif %}
 
   {% with messages = get_flashed_messages(with_categories=true) %}

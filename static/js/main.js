@@ -2028,6 +2028,43 @@ function setupCustomConfirmForms() {
   });
 }
 
+function setupMobileNavDrawer() {
+  const mobileNavToggle = document.getElementById('mobileNavToggle');
+  const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+  const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+  const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+  const mobileLocaisTrigger = document.getElementById('mobileLocaisTrigger');
+  const mobileLocaisSubitems = document.getElementById('mobileLocaisSubitems');
+
+  function openMobileDrawer() {
+    if (mobileNavDrawer && mobileNavOverlay) {
+      mobileNavDrawer.classList.add('active');
+      mobileNavOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  function closeMobileDrawer() {
+    if (mobileNavDrawer && mobileNavOverlay) {
+      mobileNavDrawer.classList.remove('active');
+      mobileNavOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (mobileNavToggle) mobileNavToggle.addEventListener('click', openMobileDrawer);
+  if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', closeMobileDrawer);
+  if (mobileNavOverlay) mobileNavOverlay.addEventListener('click', closeMobileDrawer);
+
+  if (mobileLocaisTrigger && mobileLocaisSubitems) {
+    mobileLocaisTrigger.addEventListener('click', () => {
+      mobileLocaisTrigger.classList.toggle('active');
+      mobileLocaisSubitems.classList.toggle('hidden');
+    });
+  }
+}
+
 // DOM Loaded
 document.addEventListener('DOMContentLoaded', () => {
   const trialCountdowns = [...document.querySelectorAll('[data-trial-countdown]')];
@@ -2073,5 +2110,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupChampionshipScoreboard();
   setupContractPage();
   setupCustomConfirmForms();
+  setupMobileNavDrawer();
   initIcons();
 });
