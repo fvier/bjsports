@@ -197,23 +197,9 @@
                   </td>
 
                   <td style="text-align: center;">
-                    {% set can_manage = u.can_be_managed_by(current_user) %}
-                    {% if can_manage %}
-                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-block;">
-                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <input type="hidden" name="user_id" value="{{ u.id }}">
-                      <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
-                      <select name="due_date" onchange="this.form.submit()" title="Clique para alterar o dia de vencimento deste aluno" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-weight: 700; cursor: pointer; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem;">
-                        {% for d in range(1, 29) %}
-                        <option value="{{ d }}" {% if u.due_date == d|string %}selected{% endif %} style="background: #0f172a; color: #fff;">Dia {{ d }}</option>
-                        {% endfor %}
-                      </select>
-                    </form>
-                    {% else %}
-                    <span class="badge-pill-mini" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3);">
+                    <span class="badge-pill-mini" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-weight: 700;">
                       Dia {{ u.due_date }}
                     </span>
-                    {% endif %}
                   </td>
 
                   <!-- CÁLCULO DE MENSALIDADES EM ABERTO E VALOR TOTAL DEVIDO -->
@@ -307,20 +293,18 @@
                           <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
                           <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                              <i data-lucide="calendar" style="width: 18px; height: 18px; color: #60a5fa;"></i>
+                              <i data-lucide="calendar-days" style="width: 20px; height: 20px; color: #60a5fa;"></i>
                               <div>
-                                <strong style="color: #ffffff; font-size: 0.82rem; display: block;">Alterar Dia de Vencimento</strong>
-                                <small style="color: var(--text-muted); font-size: 0.74rem;">Escolha o novo dia do mês (1 a 28) em que vence a mensalidade de {{ u.name }}.</small>
+                                <strong style="color: #ffffff; font-size: 0.85rem; display: block;">Alterar Dia de Vencimento</strong>
+                                <small style="color: var(--text-muted); font-size: 0.74rem;">Informe o novo dia do mês (1 a 28) para o vencimento de {{ u.name }}.</small>
                               </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                              <select name="due_date" required style="padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); font-weight: 700;">
-                                {% for d in range(1, 29) %}
-                                <option value="{{ d }}" {% if u.due_date == d|string %}selected{% endif %}>Dia {{ d }} de cada mês</option>
-                                {% endfor %}
-                              </select>
-                              <button type="submit" class="btn btn-sm btn-primary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">
-                                <i data-lucide="save" style="width: 14px; height: 14px;"></i> Salvar Dia
+                              <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 700;">Dia</span>
+                              <input type="number" name="due_date" value="{{ u.due_date }}" min="1" max="28" required style="width: 75px; text-align: center; font-size: 1rem; font-weight: 800; padding: 6px 8px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);" placeholder="1-28">
+                              <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 600;">de cada mês</span>
+                              <button type="submit" class="btn btn-sm btn-primary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; margin-left: 4px;">
+                                <i data-lucide="check" style="width: 14px; height: 14px;"></i> Salvar
                               </button>
                             </div>
                           </div>
