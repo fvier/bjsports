@@ -241,146 +241,238 @@
                   </td>
                 </tr>
 
-                <!-- DRAWER DE MESES MINIMALISTA COM MENU DROPDOWN PARA DAR BAIXA NO MÊS -->
+                <!-- DRAWER REFORMULADO DE GESTÃO DO ALUNO COM ABAS E EXPLICAÇÕES (UX/UI) -->
                 <tr id="drawer-{{ u.id }}" class="month-drawer-row hidden">
-                  <td colspan="8" class="monthly-detail-drawer">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                      <div>
-                        <strong style="color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem;">
-                          🗓️ Histórico 2026 de {{ u.name }} — 
-                          {% if details['count'] > 0 %}
-                            <span style="color: #f97316; font-weight: 800;">Débito: {{ details['count'] }} mês(es) atrasado(s) = Total R$ {{ "%.2f"|format(details['total_debt']) }}</span>
-                          {% elif u.monthly_fee_exempt %}
-                            <span class="fee-exempt-text">Isento desde a competência atual</span>
-                          {% else %}
-                            <span style="color: #4ade80;">Situação: Em Dia</span>
-                          {% endif %}
-                        </strong>
-                        <span style="display: block; font-size: 0.74rem; color: var(--text-muted);">
-                          Clique em qualquer mês para dar baixa ou alternar entre Pago (Verde), Atrasado (Laranja) e A Vencer (Branco):
-                        </span>
-                        
-                        {% set can_manage = u.can_be_managed_by(current_user) %}
-                        {% if u.payment_status != 'Em Dia' and not u.monthly_fee_exempt %}
-                          <div style="margin-top: 8px;">
+                  <td colspan="8" class="monthly-detail-drawer" style="padding: 16px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(56, 189, 248, 0.3); border-bottom: 2px solid rgba(56, 189, 248, 0.5);">
+                    
+                    <!-- BANNER DE CABEÇALHO DO ALUNO COM MÉTRICAS -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(30, 41, 59, 0.8); padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="user-check" style="width: 22px; height: 22px; color: #38bdf8;"></i>
+                        <div>
+                          <strong style="color: #ffffff; font-size: 0.92rem; display: block; font-family: var(--font-heading);">
+                            Painel do Aluno: {{ u.name }} (@{{ u.username }})
+                          </strong>
+                          <span style="font-size: 0.76rem; color: var(--text-muted);">
+                            Plano Atual: <strong style="color: #e2e8f0;">{{ plan_name }}</strong> • Vencimento: <strong style="color: #38bdf8;">Dia {{ u.due_date }}</strong>
+                          </span>
+                        </div>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        {% if details['count'] > 0 %}
+                          <span class="badge-pill-mini bg-orange" style="font-weight: 800; font-size: 0.78rem;">
+                            🔴 PENDENTE R$ {{ "%.2f"|format(details['total_debt']) }} ({{ details['count'] }} mês/meses)
+                          </span>
+                        {% elif u.monthly_fee_exempt %}
+                          <span class="badge-pill-mini fee-exempt-badge" style="font-size: 0.78rem;">🟣 ISENTO DE MENSALIDADE</span>
+                        {% else %}
+                          <span class="badge-pill-mini bg-green" style="font-size: 0.78rem;">🟢 SITUAÇÃO EM DIA</span>
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <!-- NAVEGAÇÃO POR ABAS DO DRAWER -->
+                    <div class="drawer-tabs-nav" style="display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 14px; flex-wrap: wrap;">
+                      <button type="button" class="drawer-tab-btn active" onclick="switchDrawerTab('{{ u.id }}', 'historico')" id="tabBtn-{{ u.id }}-historico">
+                        <i data-lucide="calendar-range" style="width: 14px; height: 14px;"></i> 1. Histórico &amp; Dar Baixa
+                      </button>
+                      <button type="button" class="drawer-tab-btn" onclick="switchDrawerTab('{{ u.id }}', 'vencimento')" id="tabBtn-{{ u.id }}-vencimento">
+                        <i data-lucide="calendar-days" style="width: 14px; height: 14px;"></i> 2. Ajustar Vencimento &amp; Proporcional
+                      </button>
+                      <button type="button" class="drawer-tab-btn" onclick="switchDrawerTab('{{ u.id }}', 'plano')" id="tabBtn-{{ u.id }}-plano">
+                        <i data-lucide="repeat" style="width: 14px; height: 14px;"></i> 3. Alterar Plano &amp; Modalidades
+                      </button>
+                      <button type="button" class="drawer-tab-btn" onclick="switchDrawerTab('{{ u.id }}', 'config')" id="tabBtn-{{ u.id }}-config">
+                        <i data-lucide="settings" style="width: 14px; height: 14px;"></i> 4. Senha &amp; Isenção
+                      </button>
+                    </div>
+
+                    <!-- ABA 1: HISTÓRICO & DAR BAIXA -->
+                    <div class="drawer-tab-pane" id="tabPane-{{ u.id }}-historico">
+                      <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                          <div>
+                            <strong style="color: #ffffff; font-size: 0.85rem; display: block;">🗓️ Histórico Anual de Mensalidades (2026)</strong>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Cada card exibe a data de vencimento e o valor em R$. Clique no mês para dar baixa ou mudar o status (Pago / Atrasado / A Vencer).</small>
+                          </div>
+                          {% set can_manage = u.can_be_managed_by(current_user) %}
+                          {% if u.payment_status != 'Em Dia' and not u.monthly_fee_exempt %}
                             {% if can_manage %}
                               <form action="{{ url_for('dar_baixa_mensalidade', user_id=u.id) }}" method="POST" style="display: inline-block;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn btn-sm btn-primary btn-glow" style="font-size: 0.8rem; padding: 5px 12px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; font-weight: 700;">
-                                  <i data-lucide="check-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> ⚡ Dar Baixa na Mensalidade
+                                <button type="submit" class="btn btn-sm btn-primary btn-glow" style="font-size: 0.8rem; padding: 6px 14px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; font-weight: 700;">
+                                  <i data-lucide="check-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> ⚡ Dar Baixa na Fatura Aberta
                                 </button>
                               </form>
                             {% else %}
-                              <button type="button" class="btn btn-sm btn-secondary" disabled title="Somente o Monitor responsável por esta turma ou o Professor pode dar baixa nesta mensalidade." style="font-size: 0.8rem; padding: 5px 12px; opacity: 0.65; cursor: not-allowed;">
-                                <i data-lucide="lock" style="width: 14px; height: 14px; margin-right: 4px;"></i> Dar Baixa (Turma de outro Monitor)
+                              <button type="button" class="btn btn-sm btn-secondary" disabled style="font-size: 0.8rem; padding: 6px 14px; opacity: 0.65;">
+                                <i data-lucide="lock" style="width: 14px; height: 14px; margin-right: 4px;"></i> Somente Monitor Responsável
                               </button>
                             {% endif %}
-                          </div>
+                          {% endif %}
+                        </div>
+
+                        <!-- LISTA DE MESES DO ANO COM VALORES -->
+                        {% if u.monthly_fee_exempt %}
+                        <div class="fee-exempt-summary" style="margin-bottom: 10px;"><i data-lucide="shield-check"></i><div><strong>Isenção de Mensalidade Ativa</strong><small>Nenhuma cobrança nova é gerada. Pagamentos passados estão gravados no histórico.</small></div></div>
                         {% endif %}
 
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-password-reset" data-confirm="Redefinir a senha de {{ u.name|e }} para a senha padrão 'bemvindo'?" data-confirm-title="🔑 Redefinir Senha de Aluno" data-confirm-ok-text="Sim, Redefinir Senha">
-                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                          <input type="hidden" name="action" value="reset_student_password">
-                          <input type="hidden" name="user_id" value="{{ u.id }}">
-                          <button type="submit"><i data-lucide="key-round"></i>Resetar senha</button>
-                          <small>A senha temporária será <strong>bemvindo</strong> e deverá ser alterada no próximo acesso.</small>
-                        </form>
-
-                        {% if can_manage %}
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="margin: 12px 0; background: rgba(15, 23, 42, 0.7); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                          <input type="hidden" name="user_id" value="{{ u.id }}">
-                          <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
-                          <input type="hidden" name="due_date" id="dueDateVal-{{ u.id }}" value="{{ u.due_date }}">
-                          
-                          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                              <i data-lucide="calendar" style="width: 20px; height: 20px; color: #38bdf8;"></i>
-                              <div>
-                                <strong style="color: #ffffff; font-size: 0.85rem; display: block;">Seletor de Vencimento (Calendário)</strong>
-                                <small style="color: var(--text-muted); font-size: 0.74rem;">Clique no calendário ou no dia desejado (1 a 28) para definir o vencimento de {{ u.name }}.</small>
-                              </div>
-                            </div>
-                            
-                            <!-- Campo Date Picker com Popup de Calendário Integrado -->
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                              <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 600;">Calendário:</span>
-                              <input type="date" id="datePicker-{{ u.id }}"
-                                     value="2026-08-{{ '%02d'|format(u.due_date|int if u.due_date and u.due_date.isdigit() else 15) }}"
-                                     min="2026-01-01" max="2026-12-31"
-                                     onchange="
-                                       const d = new Date(this.value + 'T00:00:00');
-                                       let day = d.getDate();
-                                       if (day > 28) day = 28;
-                                       document.getElementById('dueDateVal-{{ u.id }}').value = day;
-                                       this.form.submit();
-                                     "
-                                     style="background: #1e293b; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 5px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                              <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);">
-                                🗓️ Vence Dia {{ u.due_date }}
-                              </span>
-                            </div>
-                          </div>
-
-                          <!-- Grade de Dias Estilo Calendário Inline (1 a 28) -->
-                          <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Seleção Rápida de Dias do Mês:</span>
-                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 380px;">
-                              {% for day_num in range(1, 29) %}
-                              <button type="button"
-                                      onclick="
-                                        document.getElementById('dueDateVal-{{ u.id }}').value = '{{ day_num }}';
-                                        this.form.submit();
-                                      "
-                                      style="padding: 6px 0; border-radius: 6px; font-size: 0.8rem; font-weight: 800; border: 1px solid {% if u.due_date == day_num|string %}#38bdf8{% else %}rgba(255,255,255,0.08){% endif %}; background: {% if u.due_date == day_num|string %}linear-gradient(135deg, #0284c7, #2563eb){% else %}rgba(255,255,255,0.04){% endif %}; color: {% if u.due_date == day_num|string %}#ffffff{% else %}#cbd5e1{% endif %}; cursor: pointer; transition: all 0.15s ease;"
-                                      title="Definir vencimento para todo dia {{ day_num }}">
-                                {{ day_num }}
+                        <div class="month-badges-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                          {% for m in u_months %}
+                            <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
+                              <button type="button" class="month-badge-pill month-status-{{ m.status }}" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 72px; padding: 6px 8px;" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do vencimento {{ m.due_day }}/{{ m.name }} ({{ m.formatted_amount }})"{% endif %}>
+                                <span style="font-size: 0.8rem; font-weight: 800;">{{ m.due_day }} {{ m.name }}</span>
+                                <small style="font-size: 0.72rem; font-weight: 700; color: #ffffff; opacity: 0.95; margin-top: 2px;">{{ m.formatted_amount }}</small>
                               </button>
-                              {% endfor %}
+
+                              {% if m.status != 'isento' %}<div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
+                                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
+                                  Vencimento {{ m.due_day }}/{{ m.name }} ({{ m.formatted_amount }}):
+                                </span>
+                                <form action="{{ url_for('api_update_month_status') }}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
+                                  <input type="hidden" name="user_id" value="{{ u.id }}">
+                                  <input type="hidden" name="month" value="{{ m.month }}">
+                                  <input type="hidden" name="year" value="{{ now.year }}">
+                                  <button type="submit" name="status" value="pago" class="btn-pop-option status-pago">🟢 Marcar PAGO</button>
+                                  <button type="submit" name="status" value="atrasado" class="btn-pop-option status-atrasado">🟠 Marcar ATRASADO</button>
+                                  <button type="submit" name="status" value="futuro" class="btn-pop-option status-futuro">⚪ Marcar A VENCER</button>
+                                </form>
+                              </div>{% endif %}
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- ABA 2: AJUSTAR DIA DE VENCIMENTO & PROPORCIONAL -->
+                    <div class="drawer-tab-pane hidden" id="tabPane-{{ u.id }}-vencimento">
+                      {% set can_manage = u.can_be_managed_by(current_user) %}
+                      {% if can_manage %}
+                      <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
+                        <input type="hidden" name="due_date" id="dueDateVal-{{ u.id }}" value="{{ u.due_date }}">
+
+                        <div style="background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px;">
+                          <strong style="color: #38bdf8; font-size: 0.82rem; display: block; margin-bottom: 2px;">💡 Como funciona a alteração de vencimento?</strong>
+                          <p style="color: #cbd5e1; font-size: 0.76rem; margin: 0; line-height: 1.45;">
+                            O aluno vence originalmente no <strong>Dia {{ u.due_date }}</strong>. Ao adiar o dia de vencimento (ex: de dia 5 para dia 20), o sistema calcula os <strong>dias adicionais do ciclo (+15 dias)</strong> e aplica o valor proporcional na fatura em aberto. Os meses subsequentes retornam ao valor mensal normal do plano.
+                          </p>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                          <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="calendar-days" style="width: 20px; height: 20px; color: #38bdf8;"></i>
+                            <div>
+                              <strong style="color: #ffffff; font-size: 0.85rem; display: block;">Seletor de Vencimento (Calendário)</strong>
+                              <small style="color: var(--text-muted); font-size: 0.74rem;">Selecione no calendário ou clique na grade abaixo (Dia 1 a 28):</small>
                             </div>
                           </div>
-                        </form>
-                        {% endif %}
+                          
+                          <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 600;">Calendário:</span>
+                            <input type="date" id="datePicker-{{ u.id }}"
+                                   value="2026-08-{{ '%02d'|format(u.due_date|int if u.due_date and u.due_date.isdigit() else 15) }}"
+                                   min="2026-01-01" max="2026-12-31"
+                                   onchange="
+                                     const d = new Date(this.value + 'T00:00:00');
+                                     let day = d.getDate();
+                                     if (day > 28) day = 28;
+                                     document.getElementById('dueDateVal-{{ u.id }}').value = day;
+                                     this.form.submit();
+                                   "
+                                   style="background: #1e293b; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                            <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.15); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                              🗓️ Vence Todo Dia {{ u.due_date }}
+                            </span>
+                          </div>
+                        </div>
 
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor student-plan-registration-style" data-student-plan-editor data-current-plan="{{ u.plan }}">
-                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                          <input type="hidden" name="action" value="update_student_plan">
-                          <input type="hidden" name="user_id" value="{{ u.id }}">
-                          <div class="student-plan-editor-heading"><i data-lucide="repeat-2"></i><div><strong>Plano e modalidades do aluno</strong><small>A mudança vale para o perfil e para as próximas competências. O histórico financeiro permanece intacto.</small></div></div>
-                          <div class="student-plan-type-switch"><span>Escolha o tipo de matrícula</span><div><button type="button" data-student-plan-type="individual">Modalidades Individuais</button><button type="button" data-student-plan-type="special">Combos &amp; Planos Especiais</button></div></div>
-                          <label class="student-plan-main-select"><span>Selecione o plano / modalidade</span><select name="plan_id" data-student-plan-select required><option value="">Selecione uma opção</option></select></label>
-                          {% set current_plan_lower = u.plan|lower %}
-                          <fieldset class="student-plan-days"><legend>Escolha os dias de treino</legend><input type="hidden" name="training_days" data-student-training-days value="{% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}ter-qui{% elif 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}todos{% else %}seg-qua-sex{% endif %}"><div><button type="button" data-student-day="seg-qua-sex"><span>Seg - Qua - Sex</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="ter-qui"><span>Ter &amp; Qui</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="todos"><span>Todos dias</span><strong data-student-day-price>—</strong></button></div></fieldset>
-                          <fieldset class="student-combo-slots hidden" data-student-combo-modalities><legend>Escolha as modalidades do combo</legend>{% set student_modalities = u.get_selected_modalities_list() %}<div>{% for slot in range(1,4) %}<label data-student-combo-slot="{{ slot }}"><span>Modalidade {{ slot }}</span><select name="selected_modalities" disabled><option value="">Selecione</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if student_modalities|length >= slot and student_modalities[slot - 1] == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>{% endfor %}</div><small data-combo-help>As modalidades devem ser diferentes entre si.</small></fieldset>
-                          <label class="student-private-professional hidden" data-student-private-professional><span>Professor ou monitor responsável</span><select name="private_instructor" disabled><option value="">Selecione</option>{% for professional in plan_professionals %}<option value="{{ professional.username }}">{{ professional.name }} — {{ 'Professor' if professional.role in ['professor', 'instrutor'] else 'Monitor' }}</option>{% endfor %}</select></label>
-                          <button type="submit"><i data-lucide="save"></i>Salvar novo plano</button>
-                        </form>
-
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="fee-exemption-form">
-                          <input type="hidden" name="action" value="toggle_exemption">
-                          <input type="hidden" name="user_id" value="{{ u.id }}">
-                          <input type="hidden" name="is_exempt" value="{{ '1' if u.monthly_fee_exempt else '0' }}">
-                          <label>
-                            <input type="checkbox" {% if u.monthly_fee_exempt %}checked{% endif %} onchange="this.form.elements.is_exempt.value = this.checked ? '1' : '0'; this.form.submit()">
-                            <span><strong>Isenção de mensalidade</strong><small>Vale da competência atual em diante, sem alterar pagamentos ou débitos anteriores.</small></span>
-                          </label>
-                          {% if u.monthly_fee_exempt and u.fee_exempted_by_username %}<small class="fee-exemption-audit">Ativada por @{{ u.fee_exempted_by_username }}{% if u.fee_exempted_at %} em {{ u.fee_exempted_at.strftime('%d/%m/%Y às %H:%M') }}{% endif %}</small>{% endif %}
-                        </form>
-                      </div>
-
-                      <!-- LISTA DE MESES COM MENU DROPDOWN PARA CADA MÊS -->
-                      {% if u.monthly_fee_exempt %}
-                      <div class="fee-exempt-summary"><i data-lucide="shield-check"></i><div><strong>Nenhuma cobrança nova</strong><small>Pagamentos e débitos anteriores permanecem no histórico.</small></div></div>
-                      {% endif %}
-                      <div class="month-badges-container" style="gap: 10px;">
-                        {% for m in u_months %}
-                          <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
-                            
-                            <!-- Botão/Badge do Mês com Dia do Vencimento e Valor R$ -->
-                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 72px; padding: 6px 8px;" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do vencimento {{ m.due_day }}/{{ m.name }} ({{ m.formatted_amount }})"{% endif %}>
-                              <span style="font-size: 0.8rem; font-weight: 800;">{{ m.due_day }} {{ m.name }}</span>
-                              <small style="font-size: 0.72rem; font-weight: 700; color: #ffffff; opacity: 0.95; margin-top: 2px;">{{ m.formatted_amount }}</small>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                          <span style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Grade de Dias do Mês (1 a 28):</span>
+                          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 380px;">
+                            {% for day_num in range(1, 29) %}
+                            <button type="button"
+                                    onclick="
+                                      document.getElementById('dueDateVal-{{ u.id }}').value = '{{ day_num }}';
+                                      this.form.submit();
+                                    "
+                                    style="padding: 6px 0; border-radius: 6px; font-size: 0.8rem; font-weight: 800; border: 1px solid {% if u.due_date == day_num|string %}#38bdf8{% else %}rgba(255,255,255,0.08){% endif %}; background: {% if u.due_date == day_num|string %}linear-gradient(135deg, #0284c7, #2563eb){% else %}rgba(255,255,255,0.04){% endif %}; color: {% if u.due_date == day_num|string %}#ffffff{% else %}#cbd5e1{% endif %}; cursor: pointer; transition: all 0.15s ease;"
+                                    title="Definir vencimento para todo dia {{ day_num }}">
+                              {{ day_num }}
                             </button>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </form>
+                      {% else %}
+                      <div style="padding: 16px; color: #94a3b8; font-size: 0.82rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                        <i data-lucide="lock"></i> Somente o professor ou monitor responsável pode alterar a data de vencimento deste aluno.
+                      </div>
+                      {% endif %}
+                    </div>
+
+                    <!-- ABA 3: ALTERAR PLANO & MODALIDADES -->
+                    <div class="drawer-tab-pane hidden" id="tabPane-{{ u.id }}-plano">
+                      <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor student-plan-registration-style" data-student-plan-editor data-current-plan="{{ u.plan }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="action" value="update_student_plan">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <div class="student-plan-editor-heading"><i data-lucide="repeat-2"></i><div><strong>Plano e modalidades do aluno</strong><small>A mudança vale para o perfil e para as próximas competências. O histórico financeiro permanece intacto.</small></div></div>
+                        <div class="student-plan-type-switch"><span>Escolha o tipo de matrícula</span><div><button type="button" data-student-plan-type="individual">Modalidades Individuais</button><button type="button" data-student-plan-type="special">Combos &amp; Planos Especiais</button></div></div>
+                        <label class="student-plan-main-select"><span>Selecione o plano / modalidade</span><select name="plan_id" data-student-plan-select required><option value="">Selecione uma opção</option></select></label>
+                        {% set current_plan_lower = u.plan|lower %}
+                        <fieldset class="student-plan-days"><legend>Escolha os dias de treino</legend><input type="hidden" name="training_days" data-student-training-days value="{% if 'ter, qui' in current_plan_lower or 'ter & qui' in current_plan_lower %}ter-qui{% elif 'todos os dias' in current_plan_lower or 'passe livre' in current_plan_lower %}todos{% else %}seg-qua-sex{% endif %}"><div><button type="button" data-student-day="seg-qua-sex"><span>Seg - Qua - Sex</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="ter-qui"><span>Ter &amp; Qui</span><strong data-student-day-price>—</strong></button><button type="button" data-student-day="todos"><span>Todos dias</span><strong data-student-day-price>—</strong></button></div></fieldset>
+                        <fieldset class="student-combo-slots hidden" data-student-combo-modalities><legend>Escolha as modalidades do combo</legend>{% set student_modalities = u.get_selected_modalities_list() %}<div>{% for slot in range(1,4) %}<label data-student-combo-slot="{{ slot }}"><span>Modalidade {{ slot }}</span><select name="selected_modalities" disabled><option value="">Selecione</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if student_modalities|length >= slot and student_modalities[slot - 1] == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>{% endfor %}</div><small data-combo-help>As modalidades devem ser diferentes entre si.</small></fieldset>
+                        <label class="student-private-professional hidden" data-student-private-professional><span>Professor ou monitor responsável</span><select name="private_instructor" disabled><option value="">Selecione</option>{% for professional in plan_professionals %}<option value="{{ professional.username }}">{{ professional.name }} — {{ 'Professor' if professional.role in ['professor', 'instrutor'] else 'Monitor' }}</option>{% endfor %}</select></label>
+                        <button type="submit"><i data-lucide="save"></i>Salvar novo plano</button>
+                      </form>
+                    </div>
+
+                    <!-- ABA 4: SENHA & ISENÇÃO -->
+                    <div class="drawer-tab-pane hidden" id="tabPane-{{ u.id }}-config">
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                        
+                        <!-- CARD 1: RESET DE SENHA -->
+                        <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                          <strong style="color: #ffffff; font-size: 0.85rem; display: block; margin-bottom: 4px;">🗝️ Redefinição de Senha do Aluno</strong>
+                          <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 10px;">
+                            Reseta a senha de {{ u.name }} para a senha padrão temporária <strong>bemvindo</strong>. O aluno será obrigado a alterar no próximo acesso.
+                          </p>
+                          <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-password-reset" data-confirm="Redefinir a senha de {{ u.name|e }} para a senha padrão 'bemvindo'?" data-confirm-title="🔑 Redefinir Senha de Aluno" data-confirm-ok-text="Sim, Redefinir Senha">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="action" value="reset_student_password">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+                            <button type="submit" class="btn btn-sm btn-secondary" style="font-size: 0.8rem; font-weight: 700;"><i data-lucide="key-round"></i> Resetar para 'bemvindo'</button>
+                          </form>
+                        </div>
+
+                        <!-- CARD 2: ISENÇÃO DE MENSALIDADE -->
+                        <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                          <strong style="color: #ffffff; font-size: 0.85rem; display: block; margin-bottom: 4px;">🛡️ Isenção de Mensalidade</strong>
+                          <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 10px;">
+                            Isenta o aluno de novas cobranças da competência atual em diante, preservando pagamentos anteriores.
+                          </p>
+                          <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="fee-exemption-form">
+                            <input type="hidden" name="action" value="toggle_exemption">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+                            <input type="hidden" name="is_exempt" value="{{ '1' if u.monthly_fee_exempt else '0' }}">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                              <input type="checkbox" {% if u.monthly_fee_exempt %}checked{% endif %} onchange="this.form.elements.is_exempt.value = this.checked ? '1' : '0'; this.form.submit()">
+                              <span><strong style="color: #ffffff; font-size: 0.82rem;">Ativar Isenção de Mensalidade</strong></span>
+                            </label>
+                            {% if u.monthly_fee_exempt and u.fee_exempted_by_username %}
+                            <small class="fee-exemption-audit" style="display: block; margin-top: 6px; color: #a7f3d0; font-size: 0.72rem;">Ativada por @{{ u.fee_exempted_by_username }}{% if u.fee_exempted_at %} em {{ u.fee_exempted_at.strftime('%d/%m/%Y às %H:%M') }}{% endif %}</small>
+                            {% endif %}
+                          </form>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </td>
+                </tr>
 
                             <!-- Menu Dropdown para Dar Baixa no Mês Específico -->
                             {% if m.status != 'isento' %}<div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
@@ -782,5 +874,45 @@
         }
       });
     })();
+
+    function switchDrawerTab(userId, tabName) {
+      const drawer = document.getElementById('drawer-' + userId);
+      if (!drawer) return;
+      drawer.querySelectorAll('.drawer-tab-pane').forEach(pane => pane.classList.add('hidden'));
+      drawer.querySelectorAll('.drawer-tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const targetPane = document.getElementById('tabPane-' + userId + '-' + tabName);
+      const targetBtn = document.getElementById('tabBtn-' + userId + '-' + tabName);
+      if (targetPane) targetPane.classList.remove('hidden');
+      if (targetBtn) targetBtn.classList.add('active');
+    }
   </script>
+
+  <style>
+    .drawer-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .drawer-tab-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+    }
+    .drawer-tab-btn.active {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+  </style>
 {% endblock %}
