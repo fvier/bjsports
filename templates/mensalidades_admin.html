@@ -472,38 +472,6 @@
                     </div>
 
                   </td>
-                </tr>
-
-                            <!-- Menu Dropdown para Dar Baixa no Mês Específico -->
-                            {% if m.status != 'isento' %}<div class="month-popup-menu hidden" id="pop-{{ u.id }}-{{ m.month }}">
-                              <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: center;">
-                                Vencimento {{ m.due_day }}/{{ m.name }}:
-                              </span>
-
-                              <form action="{{ url_for('api_update_month_status') }}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
-                                <input type="hidden" name="user_id" value="{{ u.id }}">
-                                <input type="hidden" name="month" value="{{ m.month }}">
-                                <input type="hidden" name="year" value="{{ now.year }}">
-
-                                <button type="submit" name="status" value="pago" class="btn-pop-option status-pago">
-                                  🟢 Marcar PAGO (Verde)
-                                </button>
-                                <button type="submit" name="status" value="atrasado" class="btn-pop-option status-atrasado">
-                                  🟠 Marcar ATRASADO (Laranja)
-                                </button>
-                                <button type="submit" name="status" value="futuro" class="btn-pop-option status-futuro">
-                                  ⚪ Marcar A VENCER (Branco)
-                                </button>
-                              </form>
-                            </div>{% endif %}
-
-                          </div>
-                        {% endfor %}
-                      </div>
-
-                    </div>
-                  </td>
-                </tr>
                 {% endfor %}
               </tbody>
             </table>
