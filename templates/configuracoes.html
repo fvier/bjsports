@@ -38,20 +38,20 @@
         <!-- NAVEGAÇÃO DE GUIAS MINIMALISTAS -->
         <div class="minimal-tabs-bar" style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; flex-wrap: wrap;">
           <button type="button" id="tabBtn_cadastrais" onclick="switchConfigTab('cadastrais')" class="minimal-tab-btn active-minimal-tab" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #ffffff; border: 1px solid #38bdf8; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 16px rgba(2, 132, 199, 0.4); transition: all 0.2s ease;">
-            <i data-lucide="user" style="width: 18px; height: 18px;"></i> Dados Cadastrais
+            <i data-lucide="user" style="width: 18px; height: 18px;"></i> Cadastro
           </button>
           
           <button type="button" id="tabBtn_medicas" onclick="switchConfigTab('medicas')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
-            <i data-lucide="activity" style="width: 18px; height: 18px; color: #f87171;"></i> Restrição Médica, Lesão ou Condição de Saúde
+            <i data-lucide="activity" style="width: 18px; height: 18px; color: #f87171;"></i> Saúde & Lesões
           </button>
 
           {% if sponsored_plan_type %}
           <button type="button" id="tabBtn_modalidades" onclick="switchConfigTab('modalidades')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
-            <i data-lucide="users" style="width: 18px; height: 18px; color: #38bdf8;"></i> Personalize as modalidades e integrantes do grupo
+            <i data-lucide="users" style="width: 18px; height: 18px; color: #38bdf8;"></i> Integrantes & Combo
           </button>
 
           <button type="button" id="tabBtn_fatura" onclick="switchConfigTab('fatura')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
-            <i data-lucide="receipt" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> Resumo da Fatura Total do Combo Família
+            <i data-lucide="receipt" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> Fatura do Combo
           </button>
           {% endif %}
         </div>
