@@ -87,6 +87,14 @@
           </div>
 
           <!-- GRID DE CARDS DAS MODALIDADES -->
+          {% set custom_images = {
+            'mma_glove': '/static/img/icons/mma_glove_light.png',
+            'boxing_gloves': '/static/img/icons/boxing_gloves_light.png',
+            'jiujitsu_kimono': '/static/img/icons/jiujitsu_kimono_light.png',
+            'kids_running': '/static/img/icons/kids_running_light.png',
+            'baby_blocks': '/static/img/icons/baby_blocks_light.png'
+          } %}
+
           <div class="smart-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;">
             
             {% for item in modality_items %}
@@ -94,8 +102,12 @@
               
               <!-- TOPO DO CARD: PREVIEW DO ÍCONE E NOME -->
               <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
-                <div id="iconBadge_{{ loop.index }}" style="width: 52px; height: 52px; border-radius: 14px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.5rem; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
-                  <i data-lucide="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px;"></i>
+                <div id="iconBadgeWrapper_{{ loop.index }}" style="width: 52px; height: 52px; border-radius: 14px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.5rem; box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);">
+                  {% if item.icon in custom_images %}
+                    <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px; object-fit: contain;">
+                  {% else %}
+                    <i data-lucide="{{ item.icon }}" id="iconLucide_{{ loop.index }}" style="width: 28px; height: 28px;"></i>
+                  {% endif %}
                 </div>
 
                 <div style="flex: 1;">
@@ -106,10 +118,10 @@
                 </div>
               </div>
 
-              <!-- SELETOR E INPUT DO ÍCONE LUCIDE -->
+              <!-- SELETOR E INPUT DO ÍCONE LUCIDE / CUSTOM -->
               <div style="margin-bottom: 14px;">
                 <label style="font-size: 0.72rem; color: #60a5fa; font-weight: 700; display: block; margin-bottom: 4px;">
-                  📌 ÍCONE LUCIDE SELECIONADO
+                  📌 ÍCONE / CHAVE DE IMAGEM SELECIONADA
                 </label>
                 <div class="live-input-group">
                   <i data-lucide="sparkles" style="color: var(--accent-gold);"></i>
@@ -118,25 +130,30 @@
                     id="iconInput_{{ loop.index }}" 
                     value="{{ item.icon }}" 
                     class="live-input" 
-                    placeholder="Ex: award, swords, flame, zap"
-                    oninput="updateIconPreview('iconInput_{{ loop.index }}', 'iconLucide_{{ loop.index }}')">
+                    placeholder="Ex: jiujitsu_kimono, boxing_gloves, mma_glove, kids_running, baby_blocks"
+                    oninput="updateIconPreview('iconInput_{{ loop.index }}', 'iconBadgeWrapper_{{ loop.index }}', 'sampleBadgeWrapper_{{ loop.index }}')">
                 </div>
               </div>
 
               <!-- PRESETS RÁPIDOS DE ÍCONES (CLIQUE PARA SELECIONAR) -->
               <div style="margin-bottom: 12px;">
                 <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 6px;">
-                  💡 PRESETS RÁPIDOS (CLIQUE PARA ATRIBUIR):
+                  💡 PRESETS RÁPIDOS E IMAGENS TRANSPARENTES (CLIQUE PARA ATRIBUIR):
                 </label>
                 
                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                   {% for p in preset_icons %}
                   <button type="button" 
                     class="btn-icon-action" 
-                    style="padding: 4px 8px; font-size: 0.72rem; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1;"
+                    style="padding: 4px 8px; font-size: 0.72rem; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; display: inline-flex; align-items: center; gap: 4px;"
                     title="{{ p.label }}"
-                    onclick="selectPresetIcon('{{ p.icon }}', 'iconInput_{{ loop.index }}', 'iconLucide_{{ loop.index }}')">
-                    <i data-lucide="{{ p.icon }}" style="width: 12px; height: 12px; color: var(--accent-gold);"></i> {{ p.icon }}
+                    onclick="selectPresetIcon('{{ p.icon }}', 'iconInput_{{ loop.index }}', 'iconBadgeWrapper_{{ loop.index }}', 'sampleBadgeWrapper_{{ loop.index }}')">
+                    {% if p.icon in custom_images %}
+                      <img src="{{ custom_images[p.icon] }}" style="width: 14px; height: 14px; object-fit: contain;">
+                    {% else %}
+                      <i data-lucide="{{ p.icon }}" style="width: 12px; height: 12px; color: var(--accent-gold);"></i>
+                    {% endif %}
+                    {{ p.icon }}
                   </button>
                   {% endfor %}
                 </div>
@@ -148,8 +165,12 @@
                   👀 Exemplo de exibição no sistema:
                 </span>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="width: 26px; height: 26px; border-radius: 6px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
-                    <i data-lucide="{{ item.icon }}" id="sampleLucide_{{ loop.index }}" style="width: 15px; height: 15px;"></i>
+                  <span id="sampleBadgeWrapper_{{ loop.index }}" style="width: 26px; height: 26px; border-radius: 6px; background: rgba(30, 41, 59, 0.9); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+                    {% if item.icon in custom_images %}
+                      <img src="{{ custom_images[item.icon] }}" alt="{{ item.icon }}" style="width: 16px; height: 16px; object-fit: contain;">
+                    {% else %}
+                      <i data-lucide="{{ item.icon }}" id="sampleLucide_{{ loop.index }}" style="width: 15px; height: 15px;"></i>
+                    {% endif %}
                   </span>
                   <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">
                     {{ item.name }} {% if item.classes_sample %}({{ item.classes_sample[0] }}){% endif %}
@@ -175,8 +196,8 @@
               </div>
 
               <div class="form-group flex-1 mb-0">
-                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome do Ícone Lucide</label>
-                <input type="text" name="new_modality_icon" placeholder="Ex: shield, flame, zap" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
+                <label style="font-size: 0.8rem; color: #cbd5e1;">Nome do Ícone Lucide ou Imagem</label>
+                <input type="text" name="new_modality_icon" placeholder="Ex: jiujitsu_kimono, boxing_gloves, flame" class="live-input" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.12); padding: 8px 12px; border-radius: 8px;">
               </div>
 
               <div class="form-group mb-0" style="display: flex; align-items: flex-end;">
@@ -195,27 +216,44 @@
 </div>
 
 <script>
-function selectPresetIcon(iconName, inputId, mainIconId) {
+const customImages = {
+  'mma_glove': '/static/img/icons/mma_glove_light.png',
+  'boxing_gloves': '/static/img/icons/boxing_gloves_light.png',
+  'jiujitsu_kimono': '/static/img/icons/jiujitsu_kimono_light.png',
+  'kids_running': '/static/img/icons/kids_running_light.png',
+  'baby_blocks': '/static/img/icons/baby_blocks_light.png'
+};
+
+function selectPresetIcon(iconName, inputId, mainBadgeId, sampleBadgeId) {
   const input = document.getElementById(inputId);
   if (input) {
     input.value = iconName;
-    updateIconPreview(inputId, mainIconId);
+    updateIconPreview(inputId, mainBadgeId, sampleBadgeId);
   }
 }
 
-function updateIconPreview(inputId, mainIconId) {
+function updateIconPreview(inputId, mainBadgeId, sampleBadgeId) {
   const input = document.getElementById(inputId);
   const iconName = input ? input.value.trim() : '';
-  const mainIcon = document.getElementById(mainIconId);
-  const sampleIndex = mainIconId.replace('iconLucide_', '');
-  const sampleIcon = document.getElementById('sampleLucide_' + sampleIndex);
+  const mainBadge = document.getElementById(mainBadgeId);
+  const sampleBadge = document.getElementById(sampleBadgeId);
 
-  if (mainIcon && iconName) {
-    mainIcon.setAttribute('data-lucide', iconName);
+  if (mainBadge && iconName) {
+    if (customImages[iconName]) {
+      mainBadge.innerHTML = `<img src="${customImages[iconName]}" alt="${iconName}" style="width: 28px; height: 28px; object-fit: contain;">`;
+    } else {
+      mainBadge.innerHTML = `<i data-lucide="${iconName}" style="width: 28px; height: 28px;"></i>`;
+    }
   }
-  if (sampleIcon && iconName) {
-    sampleIcon.setAttribute('data-lucide', iconName);
+
+  if (sampleBadge && iconName) {
+    if (customImages[iconName]) {
+      sampleBadge.innerHTML = `<img src="${customImages[iconName]}" alt="${iconName}" style="width: 16px; height: 16px; object-fit: contain;">`;
+    } else {
+      sampleBadge.innerHTML = `<i data-lucide="${iconName}" style="width: 15px; height: 15px;"></i>`;
+    }
   }
+
   if (window.lucide) {
     lucide.createIcons();
   }

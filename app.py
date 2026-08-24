@@ -3303,11 +3303,14 @@ def gestao_turmas():
     )
 
 DEFAULT_MODALITY_ICONS = {
-    'Jiu-Jitsu': 'award',
-    'Boxe': 'swords',
+    'Jiu-Jitsu': 'jiujitsu_kimono',
+    'Boxe': 'boxing_gloves',
     'Muay Thai': 'flame',
-    'MMA': 'zap',
-    'Jiu-Jitsu Kids': 'sparkles',
+    'MMA': 'mma_glove',
+    'Jiu-Jitsu Kids': 'kids_running',
+    'Jiu-Jitsu Baby': 'baby_blocks',
+    'Kids': 'kids_running',
+    'Baby': 'baby_blocks',
     'Defesa Pessoal': 'shield-check',
     'Submission': 'activity',
     'Judo': 'target',
@@ -3402,6 +3405,11 @@ def gestao_icones():
         })
 
     preset_icons = [
+        {'name': 'mma_glove', 'label': '🥊 Luva MMA (Transparente)', 'icon': 'mma_glove'},
+        {'name': 'boxing_gloves', 'label': '🥊 Luvas de Boxe (Transparente)', 'icon': 'boxing_gloves'},
+        {'name': 'jiujitsu_kimono', 'label': '🥋 Kimono Jiu-Jitsu (Transparente)', 'icon': 'jiujitsu_kimono'},
+        {'name': 'kids_running', 'label': '🏃 Crianças / Kids (Transparente)', 'icon': 'kids_running'},
+        {'name': 'baby_blocks', 'label': '👶 Baby / Blocos (Transparente)', 'icon': 'baby_blocks'},
         {'name': 'award', 'label': '🏆 Graduação', 'icon': 'award'},
         {'name': 'swords', 'label': '⚔️ Combate', 'icon': 'swords'},
         {'name': 'flame', 'label': '🔥 Fogo / Muay Thai', 'icon': 'flame'},
