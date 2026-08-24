@@ -113,77 +113,240 @@
         </div>
 
         {% if sponsored_plan_type %}
-        <section class="glass-panel sponsored-plan-panel" style="max-width: 720px; margin-top: 24px; padding: 24px; border-radius: 18px; background: rgba(18, 18, 28, 0.95); border: 2px solid rgba(74, 222, 128, 0.3); box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);">
-          <header style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-            <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(74, 222, 128, 0.4); display: flex; align-items: center; justify-content: center; color: #4ade80;">
-              <i data-lucide="users-round" style="width: 26px; height: 26px;"></i>
+        <section class="glass-panel family-combo-builder-panel" style="max-width: 820px; margin-top: 24px; padding: 26px; border-radius: 20px; background: rgba(18, 18, 30, 0.96); border: 2px solid rgba(56, 189, 248, 0.35); box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);">
+          
+          <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(37, 99, 235, 0.3)); border: 1px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);">
+                <i data-lucide="users-round" style="width: 28px; height: 28px;"></i>
+              </div>
+              <div>
+                <span style="color: var(--accent-gold); font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">MONTE O SEU COMBO FAMÍLIA</span>
+                <h2 style="font-size: 1.3rem; margin: 2px 0 0; color: #ffffff;">Personalize as modalidades e integrantes do grupo</h2>
+              </div>
             </div>
-            <div>
-              <strong style="font-size: 1.15rem; color: #ffffff; display: block;">
-                👨‍👩‍👧‍👦 {{ 'Plano Casal' if sponsored_plan_type == 'couple' else 'Plano Família / Grupo' }}
-              </strong>
-              <small style="color: #94a3b8; font-size: 0.82rem;">
-                Você é o titular ({{ profile_user.name }}) e o único responsável pelas mensalidades dos dependentes deste plano.
-              </small>
-            </div>
+
+            <span style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 0.85rem;">
+              🎁 Inclui 1 Titular + 2 Familiares no Pacote Base
+            </span>
           </header>
 
-          <form action="{{ url_for('configuracoes') }}" method="post" class="sponsored-add-form" style="background: rgba(30, 41, 59, 0.6); padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px;">
+          <form action="{{ url_for('configuracoes') }}" method="post" id="formFamilyCombo">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="action" value="add_plan_dependent">
+            <input type="hidden" name="action" value="save_family_combo">
 
-            <label style="display: block; margin-bottom: 10px;">
-              <span style="font-weight: 800; color: #38bdf8; font-size: 0.92rem; display: block; margin-bottom: 4px;">
-                ➕ Adicionar Integrante / Familiar ao seu Plano:
-              </span>
-              <small style="color: #94a3b8; font-size: 0.8rem; display: block; margin-bottom: 10px;">
-                Selecione um aluno da academia abaixo ou digite o Nome / CPF para vincular sem cobrança individual.
-              </small>
-            </label>
+            <!-- 1. SEÇÃO DO TITULAR -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; margin-bottom: 22px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+                <span style="color: #38bdf8; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="user-check" style="width: 20px; height: 20px; color: var(--accent-gold);"></i>
+                  Titular da Conta: <strong style="color: #ffffff;">{{ profile_user.name }} (@{{ profile_user.username }})</strong>
+                </span>
+                <span style="background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">TITULAR RESPONSÁVEL</span>
+              </div>
 
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <select name="dependent_user_id" style="flex: 1; min-width: 220px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.88rem;">
-                <option value="">-- Selecione o aluno na lista --</option>
-                {% for student in available_students %}
-                <option value="{{ student.id }}">{{ student.name }} (@{{ student.username }})</option>
+              <label style="display: block; font-size: 0.82rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">
+                🥋 Modalidade Escolhida pelo Titular:
+              </label>
+              <select name="titular_modality" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.9rem;">
+                {% set tit_mods = profile_user.selected_modalities or 'Jiu-Jitsu' %}
+                {% for m in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu & Boxe (Passe Livre)'] %}
+                <option value="{{ m }}" {% if m == tit_mods %}selected{% endif %}>{{ m }}</option>
                 {% endfor %}
               </select>
-
-              <input name="dependent_search" type="text" placeholder="Ou digite Nome / CPF" style="flex: 1; min-width: 180px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.88rem;">
-
-              <button type="submit" class="btn btn-success" style="padding: 10px 20px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i> Vinculado
-              </button>
             </div>
-          </form>
 
-          <div class="sponsored-members-list">
-            <h4 style="font-size: 0.88rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
-              📋 Integrantes Atualmente Vinculados ({{ profile_user.sponsored_dependents|length }}):
-            </h4>
-
-            {% for dependent in profile_user.sponsored_dependents %}
-            <article style="display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid rgba(74,222,128,0.3); border-radius: 12px; padding: 12px 16px; background: rgba(15, 23, 42, 0.85); margin-bottom: 8px;">
-              <div>
-                <strong style="color: #ffffff; font-size: 1rem; display: block;">{{ dependent.name }}</strong>
-                <small style="color: #4ade80; font-size: 0.8rem; font-weight: 700;">@{{ dependent.username }} · Integrante do Plano Família (Isento de cobrança individual)</small>
-              </div>
-              <form action="{{ url_for('configuracoes') }}" method="post" data-confirm="Remover {{ dependent.name|e }} deste plano?" data-confirm-danger="true">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="action" value="remove_plan_dependent">
-                <input type="hidden" name="dependent_id" value="{{ dependent.id }}">
-                <button type="submit" title="Remover integrante" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                  <i data-lucide="user-minus" style="width: 16px; height: 16px;"></i> Remover
+            <!-- 2. INTEGRANTES FAMILIARES -->
+            <div style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+                <h3 style="font-size: 1.05rem; color: #ffffff; margin: 0; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="users" style="width: 20px; height: 20px; color: #38bdf8;"></i>
+                  Integrantes e Familiares do Combo
+                </h3>
+                <button type="button" onclick="addFamilyMemberSlot()" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 800; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);">
+                  <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> + Adicionar Mais Um Familiar
                 </button>
-              </form>
-            </article>
-            {% else %}
-            <div style="text-align: center; padding: 20px; background: rgba(30, 41, 59, 0.4); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
-              <p style="color: #94a3b8; font-size: 0.88rem; margin: 0;">Nenhum familiar vinculado ainda. Utilize a busca acima para adicionar seus dependentes ao plano!</p>
+              </div>
+
+              <div id="familySlotsContainer" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- SERÁ PREENCHIDO VIA JAVASCRIP COM OS INTEGRANTES -->
+              </div>
             </div>
-            {% endfor %}
-          </div>
+
+            <!-- 3. RESUMO DA FATURA TOTAL EM TEMPO REAL -->
+            <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border: 2px solid var(--accent-gold); border-radius: 16px; padding: 22px; box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.12); flex-wrap: wrap;">
+                <span style="color: var(--accent-gold); font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="receipt" style="width: 22px; height: 22px;"></i> Resumo da Fatura Total do Combo Família
+                </span>
+                <span id="badgeFamilySummaryStatus" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; border: 1px solid rgba(74,222,128,0.3);">
+                  Pacote Base (1 Titular + 2 Integrantes)
+                </span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; font-size: 0.9rem; color: #cbd5e1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span>• Pacote Base Família (Titular + 2 Integrantes):</span>
+                  <strong style="color: #ffffff; font-size: 1rem;">R$ 280,00/mês</strong>
+                </div>
+                <div id="extraMembersRow" style="display: flex; justify-content: space-between; align-items: center; display: none;">
+                  <span>• Integrantes Extras Adicionais (<span id="extraMembersCount">0</span>):</span>
+                  <strong style="color: #4ade80; font-size: 1rem;" id="extraMembersPrice">+ R$ 0,00/mês</strong>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
+                <div>
+                  <span style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; display: block;">Valor Total da Mensalidade do Grupo:</span>
+                  <strong style="font-size: 1.7rem; color: var(--accent-gold);" id="totalComboInvoicePrice">R$ 280,00/mês</strong>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-glow" style="padding: 12px 28px; font-size: 0.98rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">
+                  <i data-lucide="save"></i> Salvar e Atualizar Combo Família
+                </button>
+              </div>
+            </div>
+
+          </form>
         </section>
+
+        <!-- SCRIPT CLIENT-SIDE DO GERENCIADOR DE COMBO FAMÍLIA -->
+        <script>
+          const ALL_STUDENTS = [
+            {% for student in available_students %}
+            { id: {{ student.id }}, name: "{{ student.name|e }}", username: "{{ student.username|e }}", modalities: "{{ student.selected_modalities or 'Jiu-Jitsu' }}" },
+            {% endfor %}
+          ];
+
+          const INITIAL_DEPENDENTS = [
+            {% for dep in profile_user.sponsored_dependents %}
+            { id: {{ dep.id }}, name: "{{ dep.name|e }}", username: "{{ dep.username|e }}", modality: "{{ dep.selected_modalities or 'Jiu-Jitsu' }}" },
+            {% endfor %}
+          ];
+
+          let slotCount = 0;
+
+          function renderFamilySlot(index, existingDep = None) {
+            const container = document.getElementById('familySlotsContainer');
+            const slotId = index;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'family-slot-card';
+            wrapper.id = `familySlot_${slotId}`;
+            wrapper.style.cssText = 'background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative;';
+
+            let optionsHtml = '<option value="">-- Selecione o familiar cadastrado --</option>';
+            ALL_STUDENTS.forEach(st => {
+              const isSelected = existingDep && existingDep.id === st.id;
+              optionsHtml += `<option value="${st.id}" ${isSelected ? 'selected' : ''}>${st.name} (@${st.username})</option>`;
+            });
+
+            const currentModality = existingDep ? existingDep.modality : 'Jiu-Jitsu';
+            const modalities = ['Jiu-Jitsu', 'Jiu-Jitsu Kids', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu & Boxe (Passe Livre)'];
+            let modOptionsHtml = '';
+            modalities.forEach(m => {
+              modOptionsHtml += `<option value="${m}" ${m === currentModality ? 'selected' : ''}>${m}</option>`;
+            });
+
+            const isExtra = index > 2;
+
+            wrapper.innerHTML = `
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <span style="font-size: 0.88rem; font-weight: 800; color: ${isExtra ? '#4ade80' : '#38bdf8'}; display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="user" style="width: 16px; height: 16px;"></i> Integrante ${index} ${isExtra ? '(Adicional Extra +R$ 70,00)' : '(Incluído no Pacote Base)'}:
+                </span>
+                ${index > 2 ? `<button type="button" onclick="removeFamilySlot(${slotId})" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remover Slot</button>` : ''}
+              </div>
+
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1.2; min-width: 220px;">
+                  <label style="display: block; font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Familiar / Aluno Cadastrado:</label>
+                  <select name="family_member_id_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 9px 12px; font-weight: 700; font-size: 0.88rem;">
+                    ${optionsHtml}
+                  </select>
+                </div>
+
+                <div style="flex: 1; min-width: 180px;">
+                  <label style="display: block; font-size: 0.76rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Modalidade Escolhida para o Familiar:</label>
+                  <select name="family_member_modality_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 9px 12px; font-weight: 700; font-size: 0.88rem;">
+                    ${modOptionsHtml}
+                  </select>
+                </div>
+              </div>
+            `;
+
+            container.appendChild(wrapper);
+            if (window.lucide) window.lucide.createIcons();
+          }
+
+          function addFamilyMemberSlot() {
+            slotCount++;
+            renderFamilySlot(slotCount, null);
+            recalculateFamilyInvoice();
+          }
+
+          function removeFamilySlot(slotId) {
+            const el = document.getElementById(`familySlot_${slotId}`);
+            if (el) {
+              el.remove();
+              recalculateFamilyInvoice();
+            }
+          }
+
+          function recalculateFamilyInvoice() {
+            const slots = document.querySelectorAll('.family-slot-card');
+            let filledCount = 0;
+            slots.forEach(slot => {
+              const sel = slot.querySelector('select[name^="family_member_id_"]');
+              if (sel && sel.value) filledCount++;
+            });
+
+            const totalMembers = 1 + filledCount; // 1 Titular + dependentes selecionados
+            const extraMembers = Math.max(0, totalMembers - 3);
+            const basePrice = 280.00;
+            const extraPrice = extraMembers * 70.00;
+            const totalInvoice = basePrice + extraPrice;
+
+            const extraRow = document.getElementById('extraMembersRow');
+            const extraCountEl = document.getElementById('extraMembersCount');
+            const extraPriceEl = document.getElementById('extraMembersPrice');
+            const totalPriceEl = document.getElementById('totalComboInvoicePrice');
+            const badgeStatus = document.getElementById('badgeFamilySummaryStatus');
+
+            if (extraMembers > 0) {
+              extraRow.style.display = 'flex';
+              extraCountEl.innerText = extraMembers;
+              extraPriceEl.innerText = `+ R$ ${extraPrice.toFixed(2).replace('.', ',')}/mês`;
+              badgeStatus.innerText = `Pacote Família (${totalMembers} Integrantes)`;
+            } else {
+              extraRow.style.display = 'none';
+              badgeStatus.innerText = `Pacote Base (1 Titular + 2 Integrantes)`;
+            }
+
+            totalPriceEl.innerText = `R$ ${totalInvoice.toFixed(2).replace('.', ',')}/mês`;
+          }
+
+          document.addEventListener('DOMContentLoaded', () => {
+            if (INITIAL_DEPENDENTS.length > 0) {
+              INITIAL_DEPENDENTS.forEach((dep, idx) => {
+                slotCount = idx + 1;
+                renderFamilySlot(slotCount, dep);
+              });
+              // Garante pelo menos 2 slots
+              while (slotCount < 2) {
+                slotCount++;
+                renderFamilySlot(slotCount, null);
+              }
+            } else {
+              slotCount = 1;
+              renderFamilySlot(1, null);
+              slotCount = 2;
+              renderFamilySlot(2, null);
+            }
+            recalculateFamilyInvoice();
+          });
+        </script>
+
         {% elif profile_user.plan_sponsor %}
         <section class="glass-panel sponsored-plan-panel" style="max-width: 720px; margin-top: 24px; padding: 20px; border-radius: 16px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(56, 189, 248, 0.3);">
           <header style="display: flex; align-items: center; gap: 12px;">

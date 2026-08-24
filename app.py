@@ -4571,7 +4571,61 @@ def configuracoes():
 
     if request.method == 'POST':
         action = request.form.get('action', 'update_profile')
-        if action == 'add_plan_dependent':
+        if action == 'save_family_combo':
+            titular_modality = request.form.get('titular_modality', '').strip()
+            if titular_modality:
+                user.selected_modalities = titular_modality
+
+            existing_dependents = {d.id: d for d in user.sponsored_dependents}
+            submitted_ids = set()
+
+            # Processar integrantes enviados
+            member_indices = [k.replace('family_member_id_', '') for k in request.form.keys() if k.startswith('family_member_id_')]
+            
+            valid_new_dependents = []
+            for idx in member_indices:
+                dep_id = request.form.get(f'family_member_id_{idx}', type=int)
+                dep_mod = request.form.get(f'family_member_modality_{idx}', '').strip()
+                if dep_id and dep_id != user.id:
+                    dep_user = db.session.get(User, dep_id)
+                    if dep_user and (dep_user.sponsor_id is None or dep_user.sponsor_id == user.id):
+                        submitted_ids.add(dep_user.id)
+                        dep_user.sponsor_id = user.id
+                        dep_user.sponsor_started_at = dep_user.sponsor_started_at or datetime.utcnow()
+                        dep_user.plan = user.plan
+                        if dep_mod:
+                            dep_user.selected_modalities = dep_mod
+                        valid_new_dependents.append(dep_user)
+
+            # Desvincular integrantes removidos
+            for old_id, old_dep in existing_dependents.items():
+                if old_id not in submitted_ids:
+                    old_dep.sponsor_id = None
+                    old_dep.sponsor_started_at = None
+                    if old_dep.sponsored_previous_plan:
+                        old_dep.plan = old_dep.sponsored_previous_plan
+                    old_dep.sponsored_previous_modalities = None
+                    old_dep.sponsored_previous_plan = None
+
+            total_members = 1 + len(submitted_ids)
+            extra_members = max(0, total_members - 3)
+            base_price = Decimal('280.00')
+            extra_price = Decimal('70.00') * extra_members
+            total_combo_price = base_price + extra_price
+
+            user.plan = f"Plano Família ({total_members} Integrantes) — R$ {total_combo_price:.2f}/mês".replace('.', ',')
+
+            # Atualiza o valor da fatura do mês atual se estiver em aberto
+            now = datetime.now()
+            open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month, status='atrasado').first()
+            if not open_payment:
+                open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month, status='futuro').first()
+            if open_payment:
+                open_payment.amount = total_combo_price
+
+            db.session.commit()
+            flash(f'✨ Combo Família salvo com sucesso! {total_members} integrantes vinculados. Fatura do grupo: R$ {total_combo_price:.2f}/mês'.replace('.', ','), 'success')
+            return redirect(url_for('configuracoes'))
             dependent_user_id = request.form.get('dependent_user_id', type=int)
             search_query = request.form.get('dependent_search', '').strip() or request.form.get('dependent_cpf3', '').strip()
             
