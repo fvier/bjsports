@@ -367,17 +367,10 @@
                         <!-- EXPLICAÇÃO TEXTUAL COMPLETA E TRANSPARENTE -->
                         <div style="background: rgba(56, 189, 248, 0.08); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.5;">
                           <i data-lucide="info" style="width: 14px; height: 14px; color: #38bdf8; vertical-align: -2px; margin-right: 4px;"></i>
-                          {% if current_extra > 0.01 %}
-                            <strong>Explicação da Fatura Atual ({% if current_m_obj.item %}{{ current_m_obj.item.name }}{% endif %}):</strong> A fatura deste mês é de <strong>R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}</strong> porque contém o plano base (R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}) somado a <strong>+R$ {{ "%.2f"|format(current_extra)|replace('.', ',') }}</strong> de dias adicionais decorrentes do ajuste de vencimento para o <strong>dia {{ u.due_date }}</strong>.
-                          {% endif %}
-
                           {% if next_extra > 0.01 %}
-                            <br style="margin-bottom: 4px;">
-                            <strong>Explicação da Próxima Fatura ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %}):</strong> Como o mês atual já estava pago ao alterar o vencimento, o ajuste proporcional de <strong>+R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }}</strong> foi adicionado ao lançamento do próximo mês, totalizando <strong>R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong>. Após isso, os meses seguintes retornam ao valor fixo normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
-                          {% endif %}
-
-                          {% if current_extra <= 0.01 and next_extra <= 0.01 %}
-                            <strong>Explicação do valor:</strong> O aluno possui ciclo mensal fixo com vencimento para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e o próximo lançamento permanecem fixados no valor padrão do plano de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                            <strong>Mudança de Vencimento Aplicada no Mês Seguinte ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %}):</strong> A fatura do mês atual permanece inalterada no valor normal (R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}). O ajuste proporcional de <strong>+R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }}</strong> decorrente da mudança de vencimento para o <strong>dia {{ u.due_date }}</strong> foi adicionado ao lançamento do <strong>mês seguinte ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %})</strong>, totalizando <strong>R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong>. Após essa transição, os meses subsequentes retornam ao valor mensal normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                          {% else %}
+                            <strong>Explicação do valor:</strong> O aluno possui ciclo mensal regular com vencimento para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e os lançamentos futuros permanecem no valor padrão do plano de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
                           {% endif %}
                         </div>
 
@@ -1059,7 +1052,7 @@
 
       if (simExplanation) {
         if (extraDays > 0) {
-          simExplanation.innerHTML = `<strong>Simulação do ajuste:</strong> Ao alterar do dia <strong>${currentDueDay}</strong> para o dia <strong>${selectedDay}</strong>, serão adicionados <strong>+${extraDays} dias</strong> no ciclo da fatura em aberto (+R$ ${extraCost.toFixed(2).replace('.', ',')}). Nos meses seguintes, o valor retorna ao normal de <strong>R$ ${baselinePrice.toFixed(2).replace('.', ',')}</strong>. Clique em <strong>Salvar Nova Data de Vencimento</strong> para confirmar.`;
+          simExplanation.innerHTML = `<strong>Simulação da alteração:</strong> A fatura do mês atual permanece inalterada. Ao alterar do dia <strong>${currentDueDay}</strong> para o dia <strong>${selectedDay}</strong>, o acréscimo proporcional de <strong>+R$ ${extraCost.toFixed(2).replace('.', ',')}</strong> (+${extraDays} dias) será lançado no <strong>MÊS SEGUINTE</strong>, totalizando <strong>R$ ${newTotal.toFixed(2).replace('.', ',')}</strong>. Nos meses posteriores, a cobrança se estabiliza em <strong>R$ ${baselinePrice.toFixed(2).replace('.', ',')}</strong> todo dia ${selectedDay}.`;
         } else {
           simExplanation.innerHTML = `O vencimento selecionado é exatamente o mesmo dia atual (Dia ${currentDueDay}). Nenhuma alteração no valor.`;
         }

@@ -648,7 +648,7 @@ class MonthlyPayment(db.Model):
 
 
 def change_user_due_date_with_proration(user, new_due_date):
-    """Altera o vencimento e acrescenta APENAS à próxima fatura aberta os dias extras do ciclo."""
+    """Altera o vencimento e acrescenta o proporcional de dias extras obrigatoriamente no MÊS SEGUINTE."""
     try:
         new_day = int(new_due_date)
         if not (1 <= new_day <= 28):
@@ -670,25 +670,19 @@ def change_user_due_date_with_proration(user, new_due_date):
         return {'days': extra_days, 'amount': Decimal('0.00'), 'payment': None}
 
     now = datetime.now()
-    target_year, target_month = now.year, now.month
-
-    # Verifica o status de pagamento do mês atual
-    current_payment = MonthlyPayment.query.filter_by(
-        user_id=user.id, year=target_year, month=target_month
-    ).first()
-
-    # Se a fatura do mês atual já está paga, a alteração reflete exclusivamente na fatura do Próximo Mês
-    if user.payment_status == 'Em Dia' or (current_payment and current_payment.status == 'pago'):
-        target_month += 1
-        if target_month == 13:
-            target_month, target_year = 1, target_year + 1
+    # A alteração de vencimento reflete obrigatoriamente no MÊS SEGUINTE (target_month = now.month + 1)
+    target_month = now.month + 1
+    target_year = now.year
+    if target_month == 13:
+        target_month = 1
+        target_year += 1
 
     baseline_amount = Decimal(str(user.get_numeric_price(target_year, target_month)))
     proportional_amount = (baseline_amount * Decimal(extra_days) / Decimal(30)).quantize(
         Decimal('0.01'), rounding=ROUND_HALF_UP
     )
 
-    # Reseta faturas abertas de outros meses para o valor base normal, garantindo apenas UMA fatura com proporcional
+    # Reseta faturas abertas de outros meses para o valor base normal do plano (mantendo o mês atual intacto)
     other_unpaid_payments = MonthlyPayment.query.filter(
         MonthlyPayment.user_id == user.id,
         MonthlyPayment.status != 'pago'
@@ -698,7 +692,7 @@ def change_user_due_date_with_proration(user, new_due_date):
         if (p.year, p.month) != (target_year, target_month):
             p.amount = Decimal(str(user.get_numeric_price(p.year, p.month)))
 
-    # Atualiza ou cria a fatura de transição com o valor base + proporcional
+    # Atualiza ou cria a fatura do MÊS SEGUINTE com o valor base + proporcional
     target_payment = MonthlyPayment.query.filter_by(
         user_id=user.id, year=target_year, month=target_month
     ).first()
@@ -706,7 +700,7 @@ def change_user_due_date_with_proration(user, new_due_date):
     if not target_payment:
         target_payment = MonthlyPayment(
             user_id=user.id, year=target_year, month=target_month,
-            status='futuro' if (target_year, target_month) != (now.year, now.month) else 'atrasado',
+            status='futuro',
             amount=baseline_amount + proportional_amount
         )
         db.session.add(target_payment)
