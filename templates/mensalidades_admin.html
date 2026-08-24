@@ -289,6 +289,84 @@
 
                     <!-- ABA 1: HISTÓRICO & DAR BAIXA -->
                     <div class="drawer-tab-pane" id="tabPane-{{ u.id }}-historico">
+
+                      <!-- CARD EXPLICATIVO DO CÁLCULO E PRÓXIMO LANÇAMENTO -->
+                      {% set current_m_obj = namespace(item=None) %}
+                      {% set next_m_obj = namespace(item=None) %}
+                      {% for m in u_months %}
+                        {% if m.month == now.month %}
+                          {% set current_m_obj.item = m %}
+                        {% elif m.month == (now.month + 1) %}
+                          {% set next_m_obj.item = m %}
+                        {% endif %}
+                      {% endfor %}
+
+                      {% set baseline_price = u.get_numeric_price(now.year, now.month) %}
+                      {% set current_amount = current_m_obj.item.amount if current_m_obj.item else baseline_price %}
+                      {% set extra_amount = current_amount - baseline_price %}
+
+                      <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);">
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+                          <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8;">
+                              <i data-lucide="receipt" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div>
+                              <strong style="color: #ffffff; font-size: 0.9rem; display: block;">Detalhamento da Fatura • Competência {{ '%02d'|format(now.month) }}/{{ now.year }}</strong>
+                              <small style="color: #94a3b8; font-size: 0.75rem;">Entenda o valor cobrado neste mês e o previsto para os próximos meses.</small>
+                            </div>
+                          </div>
+
+                          <div style="text-align: right;">
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block;">Fatura em Aberto</span>
+                            <strong style="font-size: 1.15rem; color: #38bdf8;">R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}</strong>
+                          </div>
+                        </div>
+
+                        <!-- COMPOSIÇÃO DOS VALORES (BASE, PROPORCIONAL E PRÓXIMO LANÇAMENTO) -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                          
+                          <!-- ITEM 1: PLANO BASE -->
+                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #60a5fa;">
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">📌 Mensalidade Padrão</span>
+                            <strong style="font-size: 0.95rem; color: #ffffff; display: block; margin-top: 2px;">R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>
+                            <small style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ u.plan }}">{{ u.plan or 'Plano Regular' }}</small>
+                          </div>
+
+                          <!-- ITEM 2: AJUSTE PROPORCIONAL (SE HOUVER) -->
+                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid {% if extra_amount > 0.01 %}#f59e0b{% else %}#22c55e{% endif %};">
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">⚖️ Ajuste Proporcional</span>
+                            {% if extra_amount > 0.01 %}
+                              <strong style="font-size: 0.95rem; color: #fbbf24; display: block; margin-top: 2px;">+ R$ {{ "%.2f"|format(extra_amount)|replace('.', ',') }}</strong>
+                              <small style="font-size: 0.72rem; color: #fef08a; display: block; margin-top: 2px;">Dias extras do novo vencimento</small>
+                            {% else %}
+                              <strong style="font-size: 0.95rem; color: #4ade80; display: block; margin-top: 2px;">Sem proporcional (R$ 0,00)</strong>
+                              <small style="font-size: 0.72rem; color: #a7f3d0; display: block; margin-top: 2px;">Ciclo normal de 30 dias</small>
+                            {% endif %}
+                          </div>
+
+                          <!-- ITEM 3: PRÓXIMO LANÇAMENTO -->
+                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">🔮 Próximo Mês ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% else %}Próx. Mês{% endif %})</span>
+                            <strong style="font-size: 0.95rem; color: #e9d5ff; display: block; margin-top: 2px;">R$ {{ "%.2f"|format(next_m_obj.item.amount if next_m_obj.item else baseline_price)|replace('.', ',') }}</strong>
+                            <small style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-top: 2px;">Vencimento normal todo dia {{ u.due_date }}</small>
+                          </div>
+
+                        </div>
+
+                        <!-- EXPLICAÇÃO TEXTUAL DAS OCORRÊNCIAS -->
+                        <div style="background: rgba(56, 189, 248, 0.08); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.45;">
+                          <i data-lucide="info" style="width: 14px; height: 14px; color: #38bdf8; vertical-align: -2px; margin-right: 4px;"></i>
+                          {% if extra_amount > 0.01 %}
+                            <strong>Explicação do valor:</strong> O dia de vencimento foi ajustado para todo <strong>dia {{ u.due_date }}</strong>. Por isso, a fatura deste mês inclui a mensalidade base de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> mais o acréscimo proporcional de <strong>+R$ {{ "%.2f"|format(extra_amount)|replace('.', ',') }}</strong> referente aos dias estendidos. Nos próximos meses, a cobrança se estabiliza no valor normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> todo dia {{ u.due_date }}.
+                          {% else %}
+                            <strong>Explicação do valor:</strong> O aluno está com ciclo regular com vencimento fixado para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e o próximo lançamento permanecem fixados no valor padrão de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                          {% endif %}
+                        </div>
+
+                      </div>
+
                       <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 12px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                           <div>
