@@ -300,6 +300,33 @@
                           <small>A senha temporária será <strong>bemvindo</strong> e deverá ser alterada no próximo acesso.</small>
                         </form>
 
+                        {% if can_manage %}
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="margin: 10px 0; background: rgba(59, 130, 246, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.25);">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <input type="hidden" name="user_id" value="{{ u.id }}">
+                          <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
+                          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                              <i data-lucide="calendar" style="width: 18px; height: 18px; color: #60a5fa;"></i>
+                              <div>
+                                <strong style="color: #ffffff; font-size: 0.82rem; display: block;">Alterar Dia de Vencimento</strong>
+                                <small style="color: var(--text-muted); font-size: 0.74rem;">Escolha o novo dia do mês (1 a 28) em que vence a mensalidade de {{ u.name }}.</small>
+                              </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                              <select name="due_date" required style="padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; background: #0f172a; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); font-weight: 700;">
+                                {% for d in range(1, 29) %}
+                                <option value="{{ d }}" {% if u.due_date == d|string %}selected{% endif %}>Dia {{ d }} de cada mês</option>
+                                {% endfor %}
+                              </select>
+                              <button type="submit" class="btn btn-sm btn-primary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">
+                                <i data-lucide="save" style="width: 14px; height: 14px;"></i> Salvar Dia
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                        {% endif %}
+
                         <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-plan-editor student-plan-registration-style" data-student-plan-editor data-current-plan="{{ u.plan }}">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                           <input type="hidden" name="action" value="update_student_plan">
