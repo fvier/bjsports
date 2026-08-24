@@ -378,11 +378,15 @@
           button.disabled = !selected;
         });
       } else {
-        document.getElementById('regTrainingDays').value = '';
+        const pLabel = (selectedPlan?.label || '').toLowerCase();
+        const defaultSched = (pLabel.includes('ter') || pLabel.includes('qui')) ? 'ter-qui' :
+                             ((pLabel.includes('seg') || pLabel.includes('qua') || pLabel.includes('sex')) ? 'seg-qua-sex' : 'todos');
+        document.getElementById('regTrainingDays').value = defaultSched;
         document.querySelectorAll('[data-plan-schedule]').forEach(button => {
           button.disabled = false;
-          button.classList.remove('active');
-          button.setAttribute('aria-pressed', 'false');
+          const selected = button.dataset.planSchedule === defaultSched;
+          button.classList.toggle('active', selected);
+          button.setAttribute('aria-pressed', String(selected));
         });
       }
       const details = document.getElementById('registrationPlanDetails');
@@ -414,6 +418,15 @@
         });
         document.getElementById('regTrainingDays').value = button.dataset.planSchedule;
       });
+    });
+
+    document.getElementById('portalRegisterForm')?.addEventListener('submit', function() {
+      const btn = document.getElementById('btnRegisterSubmit');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Realizando matrícula...';
+        if (window.lucide) window.lucide.createIcons();
+      }
     });
 
     renderPlanOptions();

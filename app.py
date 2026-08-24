@@ -2516,6 +2516,15 @@ def login():
                     errors.append('Uma das modalidades escolhidas para o combo é inválida.')
             if selected_plan_record and selected_plan_record.requires_all_days():
                 training_days = 'todos'
+            elif not training_days and selected_plan_record:
+                p_name_lower = selected_plan_record.name.lower()
+                if 'ter' in p_name_lower or 'qui' in p_name_lower:
+                    training_days = 'ter-qui'
+                elif 'seg' in p_name_lower or 'qua' in p_name_lower or 'sex' in p_name_lower:
+                    training_days = 'seg-qua-sex'
+                else:
+                    training_days = 'todos'
+
             training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
             if training_days not in training_day_labels:
                 errors.append('Escolha os dias de treino.')
@@ -2530,10 +2539,21 @@ def login():
                 for error in errors: flash(error, 'error')
                 return redirect(url_for('login', mode='register'))
 
-            existing_user = User.query.filter(
-                (User.username == username) | (User.cpf == cpf) | (db.func.lower(User.email) == email)
-            ).first()
-            if not existing_user:
+            existing_username = User.query.filter(User.username == username).first()
+            existing_cpf = User.query.filter(User.cpf == cpf).first()
+            existing_email = User.query.filter(db.func.lower(User.email) == email).first()
+
+            if existing_username:
+                flash(f'O nome de usuário @{username} já está em uso. Por favor, escolha outro nome de usuário.', 'error')
+                return redirect(url_for('login', mode='register'))
+            if existing_cpf:
+                flash(f'O CPF {cpf} já está cadastrado na plataforma. Caso já possua conta, acesse com seu CPF e senha.', 'error')
+                return redirect(url_for('login', mode='register'))
+            if existing_email:
+                flash(f'O e-mail {email} já está cadastrado na plataforma.', 'error')
+                return redirect(url_for('login', mode='register'))
+
+            if True:
                 new_user = User(
                     username=username,
                     name=name,
@@ -2584,9 +2604,6 @@ def login():
                 session['user_plan'] = new_user.plan
                 session['user_due_date'] = new_user.due_date
                 session['first_registration'] = True
-            else:
-                flash('Usuário, CPF ou e-mail já cadastrado. Entre com sua senha.', 'error')
-                return redirect(url_for('login', mode='register'))
             return redirect(url_for('dashboard'))
 
         elif action == 'update_due_date':
