@@ -4554,9 +4554,9 @@ def get_sponsored_plan_type_for_user(user):
     if not user or user.sponsor_id:
         return None
     plan_lower = (user.plan or '').lower()
-    if any(k in plan_lower for k in ['casal', 'duo', 'parceir']):
+    if 'casal' in plan_lower or 'parceir' in plan_lower:
         return 'couple'
-    if any(k in plan_lower for k in ['família', 'familia', 'membro', 'dependente', 'grupo', 'parentes']):
+    if 'família' in plan_lower or 'familia' in plan_lower:
         return 'family'
     if user.sponsored_dependents or user.role in {'instrutor', 'professor', 'admin'}:
         return 'family'
