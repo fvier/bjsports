@@ -376,10 +376,10 @@
                         {% for m in u_months %}
                           <div class="month-dropdown-wrapper" style="position: relative; display: inline-block;">
                             
-                            <!-- Botão/Badge do Mês com Dia do Vencimento -->
-                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do vencimento {{ m.due_day }}/{{ m.name }}"{% endif %}>
-                              <span>{{ m.due_day }}</span>
-                              <small>{{ m.name }}</small>
+                            <!-- Botão/Badge do Mês com Dia do Vencimento e Valor R$ -->
+                            <button type="button" class="month-badge-pill month-status-{{ m.status }}" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 72px; padding: 6px 8px;" {% if m.status == 'isento' %}disabled title="Competência isenta de mensalidade"{% else %}onclick="toggleMonthMenu('{{ u.id }}', '{{ m.month }}')" title="Clique para dar baixa ou alterar status do vencimento {{ m.due_day }}/{{ m.name }} ({{ m.formatted_amount }})"{% endif %}>
+                              <span style="font-size: 0.8rem; font-weight: 800;">{{ m.due_day }} {{ m.name }}</span>
+                              <small style="font-size: 0.72rem; font-weight: 700; color: #ffffff; opacity: 0.95; margin-top: 2px;">{{ m.formatted_amount }}</small>
                             </button>
 
                             <!-- Menu Dropdown para Dar Baixa no Mês Específico -->

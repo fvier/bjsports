@@ -399,35 +399,36 @@ class User(db.Model):
             7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
         }
         hist = self.get_month_history_dict() if year == datetime.now().year else {}
-        persisted = {p.month: p.status for p in self.payments if p.year == year}
+        persisted_payments = {p.month: p for p in self.payments if p.year == year}
 
         for m in range(start, 13):
             m_str = f"{m:02d}"
-            if m in persisted and persisted[m] == 'pago':
-                status = 'pago'
+            payment_obj = persisted_payments.get(m)
+            if payment_obj:
+                status = payment_obj.status
+                amount = float(payment_obj.amount)
             elif self.is_fee_exempt_for(year, m):
                 status = 'isento'
-            elif m in persisted:
-                status = persisted[m]
-            elif m_str in hist:
-                status = hist[m_str]
+                amount = 0.0
             else:
-                if m < current_month:
-                    status = 'pago' # Verde
+                amount = self.get_numeric_price(year, m)
+                if m_str in hist:
+                    status = hist[m_str]
+                elif m < current_month:
+                    status = 'pago'
                 elif m == current_month:
-                    if self.payment_status == 'Em Dia':
-                        status = 'pago' # Verde
-                    else:
-                        status = 'atrasado' # Laranja
+                    status = 'pago' if self.payment_status == 'Em Dia' else 'atrasado'
                 else:
-                    status = 'futuro' # Branco
+                    status = 'futuro'
 
             due_day_str = f"{int(self.due_date):02d}" if self.due_date and self.due_date.isdigit() else "15"
             months.append({
                 'month': m_str,
                 'name': month_names.get(m, ''),
                 'due_day': due_day_str,
-                'status': status
+                'status': status,
+                'amount': amount,
+                'formatted_amount': f"R$ {amount:.2f}".replace('.', ',')
             })
         return months
 
