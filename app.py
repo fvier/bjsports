@@ -3907,10 +3907,14 @@ def mensalidades_admin():
             user = db.session.get(User, user_id)
             if user:
                 if new_status in {'Em Dia', 'Pendente'}: user.payment_status = new_status
+                proration_msg = ""
                 if new_due_date and new_due_date.isdigit() and 1 <= int(new_due_date) <= 28:
-                    user.due_date = str(int(new_due_date))
+                    if str(new_due_date) != str(user.due_date):
+                        res = change_user_due_date_with_proration(user, new_due_date)
+                        if res and res.get('days', 0) > 0 and res.get('amount', 0) > 0:
+                            proration_msg = f" (Acréscimo proporcional: +{res['days']} dia(s) = R$ {res['amount']:.2f})"
                 db.session.commit()
-                flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
+                flash(f'Vencimento de {user.name} alterado para o Dia {user.due_date}{proration_msg}! Status: {user.payment_status}', 'success')
         
         filter_day = request.args.get('day', 'todos')
         search_query = request.args.get('q', '')
