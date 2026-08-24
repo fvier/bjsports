@@ -4657,10 +4657,16 @@ def configuracoes():
     if request.method == 'POST':
         action = request.form.get('action', 'update_profile')
         if action == 'save_family_combo':
-            titular_modality = request.form.get('titular_modality', '').strip()
-            titular_schedule = request.form.get('titular_schedule', 'todos').strip()
-            if titular_modality:
-                user.selected_modalities = titular_modality
+            titular_mods = request.form.getlist('titular_modality')
+            titular_scheds = request.form.getlist('titular_schedule')
+            
+            if titular_mods:
+                user.selected_modalities = ', '.join(dict.fromkeys(titular_mods))
+
+            gross_total = Decimal('0.00')
+            for i, mod in enumerate(titular_mods):
+                sched = titular_scheds[i] if i < len(titular_scheds) else 'todos'
+                gross_total += calculate_modality_rate(mod, sched)
 
             existing_dependents = {d.id: d for d in user.sponsored_dependents}
             submitted_ids = set()
@@ -4668,13 +4674,10 @@ def configuracoes():
             # Processar integrantes enviados
             member_indices = [k.replace('family_member_id_', '') for k in request.form.keys() if k.startswith('family_member_id_')]
             
-            valid_new_dependents = []
-            gross_total = calculate_modality_rate(user.selected_modalities, titular_schedule)
-
             for idx in member_indices:
                 dep_id = request.form.get(f'family_member_id_{idx}', type=int)
-                dep_mod = request.form.get(f'family_member_modality_{idx}', '').strip()
-                dep_sched = request.form.get(f'family_member_schedule_{idx}', 'todos').strip()
+                dep_mods = request.form.getlist(f'family_member_modality_{idx}')
+                dep_scheds = request.form.getlist(f'family_member_schedule_{idx}')
                 
                 if dep_id and dep_id != user.id:
                     dep_user = db.session.get(User, dep_id)
@@ -4683,10 +4686,12 @@ def configuracoes():
                         dep_user.sponsor_id = user.id
                         dep_user.sponsor_started_at = dep_user.sponsor_started_at or datetime.utcnow()
                         dep_user.plan = user.plan
-                        if dep_mod:
-                            dep_user.selected_modalities = dep_mod
-                        valid_new_dependents.append(dep_user)
-                        gross_total += calculate_modality_rate(dep_user.selected_modalities, dep_sched)
+                        if dep_mods:
+                            dep_user.selected_modalities = ', '.join(dict.fromkeys(dep_mods))
+                        
+                        for i, m in enumerate(dep_mods):
+                            s = dep_scheds[i] if i < len(dep_scheds) else 'todos'
+                            gross_total += calculate_modality_rate(m, s)
 
             # Desvincular integrantes removidos
             for old_id, old_dep in existing_dependents.items():
@@ -4699,16 +4704,16 @@ def configuracoes():
                     old_dep.sponsored_previous_plan = None
 
             total_members = 1 + len(submitted_ids)
-            discount_amount = gross_total * Decimal('0.10')
+            discount_amount = (gross_total * Decimal('0.10')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             total_combo_price = gross_total - discount_amount
 
             formatted_price = f"R$ {total_combo_price:.2f}".replace('.', ',')
             user.plan = f"Plano Família ({total_members} Membros) — {formatted_price}/mês (10% OFF)"
 
-            # Atualiza o valor da fatura do mês atual se estiver em aberto
+            # Atualiza a fatura do mês atual se houver pagamento pendente em aberto
             now = datetime.now()
-            open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month, status='atrasado').first()
-            if not open_payment:
+            open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month).filter(MonthlyPayment.status != 'pago').first()
+            if open_payment:
                 open_payment.amount = total_combo_price
 
             db.session.commit()

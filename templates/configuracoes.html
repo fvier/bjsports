@@ -36,29 +36,29 @@
         </div>
 
         <!-- NAVEGAÇÃO DE GUIAS MINIMALISTAS -->
-        <div class="minimal-tabs-bar" style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; flex-wrap: wrap;">
-          <button type="button" id="tabBtn_cadastrais" onclick="switchConfigTab('cadastrais')" class="minimal-tab-btn active-minimal-tab" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #ffffff; border: 1px solid #38bdf8; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 16px rgba(2, 132, 199, 0.4); transition: all 0.2s ease;">
+        <div class="minimal-tabs-bar" style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; flex-wrap: wrap; width: 100%;">
+          <button type="button" id="tabBtn_cadastrais" onclick="switchConfigTab('cadastrais')" class="minimal-tab-btn active-minimal-tab" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #ffffff; border: 1px solid #38bdf8; padding: 10px 22px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 16px rgba(2, 132, 199, 0.4); transition: all 0.2s ease;">
             <i data-lucide="user" style="width: 18px; height: 18px;"></i> Cadastro
           </button>
           
-          <button type="button" id="tabBtn_medicas" onclick="switchConfigTab('medicas')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+          <button type="button" id="tabBtn_medicas" onclick="switchConfigTab('medicas')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 22px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
             <i data-lucide="activity" style="width: 18px; height: 18px; color: #f87171;"></i> Saúde & Lesões
           </button>
 
           {% if sponsored_plan_type %}
-          <button type="button" id="tabBtn_modalidades" onclick="switchConfigTab('modalidades')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+          <button type="button" id="tabBtn_modalidades" onclick="switchConfigTab('modalidades')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 22px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
             <i data-lucide="users" style="width: 18px; height: 18px; color: #38bdf8;"></i> Integrantes & Combo
           </button>
 
-          <button type="button" id="tabBtn_fatura" onclick="switchConfigTab('fatura')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+          <button type="button" id="tabBtn_fatura" onclick="switchConfigTab('fatura')" class="minimal-tab-btn" style="background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 22px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
             <i data-lucide="receipt" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> Fatura do Combo
           </button>
           {% endif %}
         </div>
 
         <!-- 1. GUIA: DADOS CADASTRAIS -->
-        <div id="tabContent_cadastrais" class="tab-pane-content" style="display: block;">
-          <div class="glass-panel" style="max-width: 680px; background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light); padding: 24px; border-radius: 18px;">
+        <div id="tabContent_cadastrais" class="tab-pane-content" style="display: block; width: 100%;">
+          <div class="glass-panel" style="width: 100%; max-width: 100%; background: rgba(18, 18, 28, 0.95); border: 1px solid var(--border-light); padding: 26px; border-radius: 18px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px;">
               <i data-lucide="user" class="icon-gold" style="width: 22px; height: 22px;"></i> Dados Cadastrais
             </h3>
@@ -66,23 +66,25 @@
             <form action="{{ url_for('configuracoes') }}" method="POST" class="modal-form">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Nome Completo</label>
-                <input type="text" name="name" value="{{ user_name }}" required style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                  <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Nome Completo</label>
+                  <input type="text" name="name" value="{{ user_name }}" required style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
+                </div>
+
+                <div class="form-group">
+                  <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Nome de Usuário (Login)</label>
+                  <input type="text" value="@{{ username }}" disabled style="opacity: 0.7; width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-weight: 700;">
+                </div>
+
+                <div class="form-group">
+                  <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">WhatsApp / Telefone</label>
+                  <input type="tel" name="phone" value="({{ profile_user.ddd }}) {{ profile_user.phone }}" required style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Nome de Usuário (Login)</label>
-                <input type="text" value="@{{ username }}" disabled style="opacity: 0.7; width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; font-weight: 700;">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 16px;">
-                <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">WhatsApp / Telefone</label>
-                <input type="tel" name="phone" value="({{ profile_user.ddd }}) {{ profile_user.phone }}" required style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
-              </div>
-
-              <div class="form-row" style="display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 1; min-width: 200px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px;">
+                <div class="form-group">
                   <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Faixa no Jiu-Jitsu</label>
                   <select name="belt_color" style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
                     {% for color, label in [('branca','Branca'),('azul','Azul'),('roxa','Roxa'),('marrom','Marrom'),('preta','Preta')] %}
@@ -90,7 +92,7 @@
                     {% endfor %}
                   </select>
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 160px;">
+                <div class="form-group">
                   <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Grau Atual</label>
                   <select name="belt_degree" style="width: 100%; padding: 11px 14px; border-radius: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700;">
                     {% for degree in range(0, 5) %}<option value="{{ degree }}" {% if profile_user.belt_degree == degree %}selected{% endif %}>{{ degree }}º grau</option>{% endfor %}
@@ -114,7 +116,7 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary btn-block btn-glow" style="margin-top: 22px; width: 100%; padding: 12px; font-weight: 800; border-radius: 12px;">
+              <button type="submit" class="btn btn-primary btn-glow" style="margin-top: 22px; width: 100%; padding: 13px; font-weight: 800; border-radius: 12px;">
                 <i data-lucide="save"></i> Salvar Alterações Cadastrais
               </button>
             </form>
@@ -122,8 +124,8 @@
         </div>
 
         <!-- 2. GUIA: RESTRIÇÃO MÉDICA E SAÚDE -->
-        <div id="tabContent_medicas" class="tab-pane-content" style="display: none;">
-          <div class="glass-panel" style="max-width: 680px; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(239, 68, 68, 0.35); padding: 24px; border-radius: 18px;">
+        <div id="tabContent_medicas" class="tab-pane-content" style="display: none; width: 100%;">
+          <div class="glass-panel" style="width: 100%; max-width: 100%; background: rgba(18, 18, 28, 0.95); border: 1px solid rgba(239, 68, 68, 0.35); padding: 26px; border-radius: 18px;">
             <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: #f87171; display: flex; align-items: center; gap: 10px;">
               <i data-lucide="activity" style="width: 22px; height: 22px;"></i> Restrição Médica, Lesão ou Condição de Saúde
             </h3>
@@ -141,10 +143,10 @@
                 <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 8px;">
                   Descreva abaixo qualquer restrição ou atenção médica:
                 </label>
-                <textarea name="medical_restriction" rows="4" placeholder="Ex: Nenhuma restrição, cirurgia no joelho esquerdo em 2024, asma moderada, hipertensão..." style="width: 100%; padding: 14px; border-radius: 12px; background: #0f172a; border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; font-size: 0.92rem; font-weight: 600; line-height: 1.5;">{{ profile_user.medical_restriction or '' }}</textarea>
+                <textarea name="medical_restriction" rows="5" placeholder="Ex: Nenhuma restrição, cirurgia no joelho esquerdo em 2024, asma moderada, hipertensão..." style="width: 100%; padding: 14px; border-radius: 12px; background: #0f172a; border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; font-size: 0.92rem; font-weight: 600; line-height: 1.5;">{{ profile_user.medical_restriction or '' }}</textarea>
               </div>
 
-              <button type="submit" class="btn btn-danger btn-glow" style="margin-top: 20px; width: 100%; padding: 12px; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; cursor: pointer;">
+              <button type="submit" class="btn btn-danger btn-glow" style="margin-top: 20px; width: 100%; padding: 13px; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; cursor: pointer;">
                 <i data-lucide="save"></i> Salvar Informações de Saúde
               </button>
             </form>
@@ -153,8 +155,8 @@
 
         {% if sponsored_plan_type %}
         <!-- 3. GUIA: PERSONALIZE AS MODALIDADES E INTEGRANTES -->
-        <div id="tabContent_modalidades" class="tab-pane-content" style="display: none;">
-          <section class="glass-panel family-combo-builder-panel" style="max-width: 840px; padding: 26px; border-radius: 20px; background: rgba(18, 18, 30, 0.96); border: 2px solid rgba(56, 189, 248, 0.35); box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);">
+        <div id="tabContent_modalidades" class="tab-pane-content" style="display: none; width: 100%;">
+          <section class="glass-panel family-combo-builder-panel" style="width: 100%; max-width: 100%; padding: 26px; border-radius: 20px; background: rgba(18, 18, 30, 0.96); border: 2px solid rgba(56, 189, 248, 0.35); box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);">
             
             <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 14px;">
@@ -163,12 +165,12 @@
                 </div>
                 <div>
                   <span style="color: var(--accent-gold); font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">COMBO FAMÍLIA • DESCONTO AUTOMÁTICO</span>
-                  <h2 style="font-size: 1.25rem; margin: 2px 0 0; color: #ffffff;">Escolha as modalidades de cada integrante da família</h2>
+                  <h2 style="font-size: 1.3rem; margin: 2px 0 0; color: #ffffff;">Personalize os integrantes e adicione modalidades para cada familiar</h2>
                 </div>
               </div>
 
               <span style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 0.85rem;">
-                🎁 10% OFF em todas as modalidades do Combo
+                🎁 10% OFF no valor total das modalidades
               </span>
             </header>
 
@@ -176,61 +178,45 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="action" value="save_family_combo">
 
-              <!-- SEÇÃO DO TITULAR -->
-              <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; margin-bottom: 22px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
-                  <span style="color: #38bdf8; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="user-check" style="width: 20px; height: 20px; color: var(--accent-gold);"></i>
+              <!-- SEÇÃO DO TITULAR DA CONTA -->
+              <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+                  <span style="color: #38bdf8; font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="user-check" style="width: 22px; height: 22px; color: var(--accent-gold);"></i>
                     Titular da Conta: <strong style="color: #ffffff;">{{ profile_user.name }} (@{{ profile_user.username }})</strong>
                   </span>
-                  <span style="background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;">TITULAR RESPONSÁVEL</span>
+                  <span style="background: #0284c7; color: #fff; font-size: 0.76rem; font-weight: 800; padding: 4px 12px; border-radius: 8px;">TITULAR RESPONSÁVEL</span>
                 </div>
 
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                  <div style="flex: 1; min-width: 200px;">
-                    <label style="display: block; font-size: 0.78rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">
-                      🥋 Modalidades Escolhidas pelo Titular:
-                    </label>
-                    <select name="titular_modality" id="titularModalitySelect" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.88rem;">
-                      {% set tit_mods = profile_user.selected_modalities or 'Jiu-Jitsu' %}
-                      {% for m in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu & Boxe (Combo 2)', 'Passe Livre (Todas as Modalidades)'] %}
-                      <option value="{{ m }}" {% if m == tit_mods %}selected{% endif %}>{{ m }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-
-                  <div style="width: 210px;">
-                    <label style="display: block; font-size: 0.78rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">
-                      📅 Frequência de Treino:
-                    </label>
-                    <select name="titular_schedule" id="titularScheduleSelect" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.88rem;">
-                      <option value="todos" selected>Todos os Dias (Full)</option>
-                      <option value="seg-qua-sex">Seg, Qua e Sex (3x)</option>
-                      <option value="ter-qui">Ter e Qui (2x)</option>
-                    </select>
-                  </div>
+                <!-- CONTAINER DE MODALIDADES DO TITULAR -->
+                <div id="titularModalityContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+                  <!-- RENDERIZADO VIA JS -->
                 </div>
+
+                <button type="button" onclick="addModalityRowToTitular()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                  <i data-lucide="plus" style="width: 14px; height: 14px;"></i> + Adicionar Outra Modalidade para o Titular
+                </button>
               </div>
 
-              <!-- INTEGRANTES FAMILIARES COM VALIDAÇÃO DE CPF (3 PRIMEIROS DÍGITOS) -->
-              <div style="margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
-                  <h3 style="font-size: 1.05rem; color: #ffffff; margin: 0; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="users" style="width: 20px; height: 20px; color: #38bdf8;"></i>
-                    Integrantes do Grupo (Validação via 3 Dígitos do CPF)
+              <!-- INTEGRANTES FAMILIARES COM VALIDAÇÃO POR CPF COMPLETO (11 DÍGITOS) -->
+              <div style="margin-bottom: 26px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                  <h3 style="font-size: 1.1rem; color: #ffffff; margin: 0; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="users" style="width: 22px; height: 22px; color: #38bdf8;"></i>
+                    Integrantes do Grupo (Validação por CPF Completo)
                   </h3>
-                  <button type="button" onclick="addFamilyMemberSlot()" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 800; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);">
-                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> + Adicionar Familiar ao Grupo
+                  <button type="button" onclick="addFamilyMemberSlot()" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(2, 132, 199, 0.4);">
+                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> + Adicionar Mais Um Familiar ao Grupo
                   </button>
                 </div>
 
-                <div id="familySlotsContainer" style="display: flex; flex-direction: column; gap: 14px;">
-                  <!-- SLOTS DOS FAMILIARES RENDERIZADOS VIA JS COM VALIDADOR DE CPF -->
+                <div id="familySlotsContainer" style="display: flex; flex-direction: column; gap: 18px;">
+                  <!-- INTEGRANTES 1 E 2 RENDERIZADOS GARANTIDAMENTE VIA JS -->
                 </div>
               </div>
 
               <div style="text-align: right;">
-                <button type="submit" class="btn btn-primary btn-glow" style="padding: 12px 24px; font-weight: 800; border-radius: 12px;">
+                <button type="submit" class="btn btn-primary btn-glow" style="padding: 14px 32px; font-weight: 800; font-size: 1rem; border-radius: 12px;">
                   <i data-lucide="save"></i> Salvar Integrantes e Ir para a Fatura
                 </button>
               </div>
@@ -239,8 +225,8 @@
         </div>
 
         <!-- 4. GUIA: RESUMO DA FATURA TOTAL DO COMBO FAMÍLIA -->
-        <div id="tabContent_fatura" class="tab-pane-content" style="display: none;">
-          <section class="glass-panel" style="max-width: 840px; padding: 26px; border-radius: 20px; background: rgba(18, 18, 30, 0.96); border: 2px solid var(--accent-gold); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);">
+        <div id="tabContent_fatura" class="tab-pane-content" style="display: none; width: 100%;">
+          <section class="glass-panel" style="width: 100%; max-width: 100%; padding: 26px; border-radius: 20px; background: rgba(18, 18, 30, 0.96); border: 2px solid var(--accent-gold); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);">
             
             <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 14px;">
@@ -248,8 +234,8 @@
                   <i data-lucide="receipt" style="width: 28px; height: 28px;"></i>
                 </div>
                 <div>
-                  <span style="color: var(--accent-gold); font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">CÁLCULO AUTOMÁTICO DE DESCONTO</span>
-                  <h2 style="font-size: 1.3rem; margin: 2px 0 0; color: #ffffff;">Resumo da Fatura do Combo Família</h2>
+                  <span style="color: var(--accent-gold); font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">FATURAMENTO DO GRUPO</span>
+                  <h2 style="font-size: 1.3rem; margin: 2px 0 0; color: #ffffff;">Resumo da Fatura Total do Combo Família</h2>
                 </div>
               </div>
 
@@ -264,24 +250,24 @@
             </div>
 
             <!-- RESUMO DOS SUBTOTAIS E DESCONTO FAMÍLIA 10% -->
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding: 16px; background: rgba(15, 23, 42, 0.8); border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
-              <div style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.88rem;">
-                <span>Subtotal das Modalidades Escolhidas:</span>
-                <strong id="invoiceGrossSubtotal" style="color: #ffffff;">R$ 0,00</strong>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; padding: 18px; background: rgba(15, 23, 42, 0.8); border-radius: 14px; border: 1px solid rgba(245, 158, 11, 0.35);">
+              <div style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.92rem;">
+                <span>Soma Subtotal das Modalidades do Grupo:</span>
+                <strong id="invoiceGrossSubtotal" style="color: #ffffff; font-size: 1.05rem;">R$ 0,00</strong>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; color: #4ade80; font-size: 0.92rem; font-weight: 800;">
-                <span>🎁 Desconto do Combo Família (10% OFF):</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; color: #4ade80; font-size: 1rem; font-weight: 800;">
+                <span>🎁 Desconto Especial Combo Família (10% OFF):</span>
                 <strong id="invoiceDiscount10">- R$ 0,00</strong>
               </div>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
               <div>
-                <span style="font-size: 0.82rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; display: block;">Valor Total Líquido da Fatura:</span>
-                <strong style="font-size: 1.85rem; color: var(--accent-gold);" id="totalComboInvoicePrice">R$ 0,00/mês</strong>
+                <span style="font-size: 0.82rem; color: #94a3b8; text-transform: uppercase; font-weight: 800; display: block;">Valor Total Líquido da Fatura Mensal:</span>
+                <strong style="font-size: 2rem; color: var(--accent-gold);" id="totalComboInvoicePrice">R$ 0,00/mês</strong>
               </div>
 
-              <button type="button" onclick="document.getElementById('formFamilyCombo').submit();" class="btn btn-success btn-glow" style="padding: 14px 32px; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">
+              <button type="button" onclick="document.getElementById('formFamilyCombo').submit();" class="btn btn-success btn-glow" style="padding: 14px 36px; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">
                 <i data-lucide="save"></i> Salvar e Confirmar Fatura do Combo Família
               </button>
             </div>
@@ -289,7 +275,7 @@
           </section>
         </div>
 
-        <!-- SCRIPT CLIENT-SIDE DE TROCA DE GUIAS MINIMALISTAS E GERENCIADOR COM VALIDAÇÃO DE CPF (3 DÍGITOS) -->
+        <!-- SCRIPT CLIENT-SIDE DE GERENCIAMENTO DO COMBO FAMÍLIA -->
         <script>
           function switchConfigTab(tabName) {
             const tabs = ['cadastrais', 'medicas', 'modalidades', 'fatura'];
@@ -327,8 +313,9 @@
           ];
 
           let slotCount = 0;
+          const MODALITY_OPTIONS = ['Jiu-Jitsu', 'Jiu-Jitsu Kids', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu & Boxe (Combo 2)', 'Passe Livre (Todas as Modalidades)'];
 
-          function getModalityBaseRate(modalityStr, scheduleStr) {
+          function getSingleModalityRate(modalityStr, scheduleStr) {
             if (!modalityStr) modalityStr = 'Jiu-Jitsu';
             const isFreePass = modalityStr.includes('Passe Livre') || modalityStr.includes('Combo') || modalityStr.split(',').length >= 3;
             const isCombo2 = modalityStr.split(',').length === 2;
@@ -348,6 +335,44 @@
             }
           }
 
+          /* --- GERENCIAMENTO DE MODALIDADES DO TITULAR --- */
+          function addModalityRowToTitular(initialMod = 'Jiu-Jitsu', initialSched = 'todos') {
+            const container = document.getElementById('titularModalityContainer');
+            if (!container) return;
+            const rowId = container.children.length + 1;
+
+            const row = document.createElement('div');
+            row.className = 'titular-modality-row';
+            row.style.cssText = 'display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: rgba(15, 23, 42, 0.6); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);';
+
+            let modOptions = '';
+            MODALITY_OPTIONS.forEach(m => {
+              modOptions += `<option value="${m}" ${m === initialMod ? 'selected' : ''}>${m}</option>`;
+            });
+
+            row.innerHTML = `
+              <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Modalidade ${rowId}:</label>
+                <select name="titular_modality" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 8px 12px; font-weight: 700; font-size: 0.86rem;">
+                  ${modOptions}
+                </select>
+              </div>
+              <div style="width: 180px;">
+                <label style="display: block; font-size: 0.72rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Frequência:</label>
+                <select name="titular_schedule" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 8px 12px; font-weight: 700; font-size: 0.86rem;">
+                  <option value="todos" ${initialSched === 'todos' ? 'selected' : ''}>Todos os Dias</option>
+                  <option value="seg-qua-sex" ${initialSched === 'seg-qua-sex' ? 'selected' : ''}>Seg, Qua, Sex</option>
+                  <option value="ter-qui" ${initialSched === 'ter-qui' ? 'selected' : ''}>Ter e Qui</option>
+                </select>
+              </div>
+              ${rowId > 1 ? `<button type="button" onclick="this.parentElement.remove(); recalculateFamilyInvoice();" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 0.76rem; cursor: pointer; margin-top: 18px;"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>` : ''}
+            `;
+            container.appendChild(row);
+            if (window.lucide) window.lucide.createIcons();
+            recalculateFamilyInvoice();
+          }
+
+          /* --- GERENCIAMENTO DE INTEGRANTES FAMILIARES (SLOTS) --- */
           function renderFamilySlot(index, existingDep = null) {
             const container = document.getElementById('familySlotsContainer');
             const slotId = index;
@@ -355,98 +380,127 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'family-slot-card';
             wrapper.id = `familySlot_${slotId}`;
-            wrapper.style.cssText = 'background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative;';
+            wrapper.style.cssText = 'background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; position: relative;';
 
             let optionsHtml = '<option value="">-- Selecione o familiar cadastrado --</option>';
             ALL_STUDENTS.forEach(st => {
               const isSelected = existingDep && existingDep.id === st.id;
-              optionsHtml += `<option value="${st.id}" ${isSelected ? 'selected' : ''}>${st.name} (@${st.username})</option>`;
+              optionsHtml += `<option value="${st.id}" ${isSelected ? 'selected' : ''}>${st.name} (@${st.username}) - CPF: ${st.cpf}</option>`;
             });
 
-            const currentModality = existingDep ? existingDep.modality : 'Jiu-Jitsu';
-            const modalities = ['Jiu-Jitsu', 'Jiu-Jitsu Kids', 'Boxe', 'Muay Thai', 'MMA', 'Jiu-Jitsu & Boxe (Combo 2)', 'Passe Livre (Todas as Modalidades)'];
-            let modOptionsHtml = '';
-            modalities.forEach(m => {
-              modOptionsHtml += `<option value="${m}" ${m === currentModality ? 'selected' : ''}>${m}</option>`;
-            });
-
-            const initialCpf3 = existingDep && existingDep.cpf ? existingDep.cpf.replace(/\D/g, '').substring(0, 3) : '';
+            const initialCpf = existingDep && existingDep.cpf ? existingDep.cpf : '';
 
             wrapper.innerHTML = `
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-                <span style="font-size: 0.88rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="user" style="width: 16px; height: 16px;"></i> Integrante ${index}:
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+                <span style="font-size: 0.95rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="user" style="width: 18px; height: 18px; color: var(--accent-gold);"></i> Integrante ${index}:
                 </span>
-                <button type="button" onclick="removeFamilySlot(${slotId})" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remover</button>
+                <button type="button" onclick="removeFamilySlot(${slotId})" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                  <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remover Integrante
+                </button>
               </div>
 
-              <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
-                <!-- 1. CAMPO DOS 3 PRIMEIROS DÍGITOS DO CPF E VALIDAÇÃO -->
-                <div style="width: 140px;">
-                  <label style="display: block; font-size: 0.74rem; color: #facc15; font-weight: 800; margin-bottom: 4px;">
-                    🔑 3 Dígitos CPF:
+              <!-- BUSCA E VALIDAÇÃO VIA CPF COMPLETO DO FAMILIAR -->
+              <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;">
+                <div style="width: 240px;">
+                  <label style="display: block; font-size: 0.78rem; color: #facc15; font-weight: 800; margin-bottom: 6px;">
+                    🔑 CPF Completo do Familiar:
                   </label>
-                  <input type="text" name="family_member_cpf3_${slotId}" value="${initialCpf3}" maxlength="3" placeholder="000" inputmode="numeric" onkeyup="validateCpf3ForSlot(${slotId})" style="width: 100%; background: #0f172a; border: 1px solid rgba(250, 204, 21, 0.4); color: #ffffff; border-radius: 8px; padding: 9px 10px; font-weight: 800; letter-spacing: 0.12em; text-align: center; font-size: 0.92rem;">
+                  <input type="text" name="family_member_cpf_${slotId}" value="${initialCpf}" maxlength="14" placeholder="000.000.000-00" onkeyup="validateFullCpfForSlot(${slotId})" style="width: 100%; background: #0f172a; border: 1px solid rgba(250, 204, 21, 0.4); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 800; letter-spacing: 0.08em; text-align: center; font-size: 0.95rem;">
                 </div>
 
-                <!-- 2. SELETOR DE ALUNO / RESULTADO DA VALIDAÇÃO -->
-                <div style="flex: 1.2; min-width: 190px;">
-                  <label style="display: block; font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Familiar Validado:</label>
-                  <select name="family_member_id_${slotId}" id="selectStudentSlot_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 9px 10px; font-weight: 700; font-size: 0.86rem;">
+                <div style="flex: 1; min-width: 260px;">
+                  <label style="display: block; font-size: 0.78rem; color: #94a3b8; font-weight: 700; margin-bottom: 6px;">Familiar Validado na Plataforma:</label>
+                  <select name="family_member_id_${slotId}" id="selectStudentSlot_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 0.88rem;">
                     ${optionsHtml}
                   </select>
                 </div>
-
-                <!-- 3. SELETOR DE MODALIDADE -->
-                <div style="flex: 1; min-width: 170px;">
-                  <label style="display: block; font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Modalidade Escolhida:</label>
-                  <select name="family_member_modality_${slotId}" id="selectModalitySlot_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 9px 10px; font-weight: 700; font-size: 0.86rem;">
-                    ${modOptionsHtml}
-                  </select>
-                </div>
-
-                <!-- 4. SELETOR DE FREQUÊNCIA -->
-                <div style="width: 160px;">
-                  <label style="display: block; font-size: 0.74rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Frequência:</label>
-                  <select name="family_member_schedule_${slotId}" id="selectScheduleSlot_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 8px; padding: 9px 10px; font-weight: 700; font-size: 0.86rem;">
-                    <option value="todos" selected>Todos os Dias</option>
-                    <option value="seg-qua-sex">Seg, Qua, Sex</option>
-                    <option value="ter-qui">Ter e Qui</option>
-                  </select>
-                </div>
               </div>
 
-              <div id="cpfStatusNotice_${slotId}" style="font-size: 0.78rem; font-weight: 700; margin-top: 2px;"></div>
+              <div id="cpfStatusNotice_${slotId}" style="font-size: 0.8rem; font-weight: 700; margin-top: -4px;"></div>
+
+              <!-- CONTAINER DE SUB-MODALIDADES DO INTEGRANTE -->
+              <div style="background: rgba(15, 23, 42, 0.5); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                  <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 800;">🥋 Modalidades deste Integrante:</span>
+                </div>
+                <div id="memberModalitiesContainer_${slotId}" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                  <!-- MODALIDADES ADICIONADAS VIA JS -->
+                </div>
+                <button type="button" onclick="addModalityRowToSlot(${slotId})" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                  <i data-lucide="plus" style="width: 14px; height: 14px;"></i> + Adicionar Modalidade para este Familiar
+                </button>
+              </div>
             `;
 
             container.appendChild(wrapper);
+
+            // Adiciona modalidade inicial do integrante
+            const initialMod = existingDep ? existingDep.modality : 'Jiu-Jitsu';
+            addModalityRowToSlot(slotId, initialMod, 'todos');
+
             if (window.lucide) window.lucide.createIcons();
+            if (initialCpf) validateFullCpfForSlot(slotId);
           }
 
-          function validateCpf3ForSlot(slotId) {
-            const input = document.querySelector(`input[name="family_member_cpf3_${slotId}"]`);
+          function addModalityRowToSlot(slotId, initialMod = 'Jiu-Jitsu', initialSched = 'todos') {
+            const container = document.getElementById(`memberModalitiesContainer_${slotId}`);
+            if (!container) return;
+            const rowId = container.children.length + 1;
+
+            const row = document.createElement('div');
+            row.className = 'member-modality-row';
+            row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #0f172a; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);';
+
+            let modOptions = '';
+            MODALITY_OPTIONS.forEach(m => {
+              modOptions += `<option value="${m}" ${m === initialMod ? 'selected' : ''}>${m}</option>`;
+            });
+
+            row.innerHTML = `
+              <div style="flex: 1; min-width: 180px;">
+                <select name="family_member_modality_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 6px; padding: 7px 10px; font-weight: 700; font-size: 0.84rem;">
+                  ${modOptions}
+                </select>
+              </div>
+              <div style="width: 160px;">
+                <select name="family_member_schedule_${slotId}" onchange="recalculateFamilyInvoice()" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #ffffff; border-radius: 6px; padding: 7px 10px; font-weight: 700; font-size: 0.84rem;">
+                  <option value="todos" ${initialSched === 'todos' ? 'selected' : ''}>Todos os Dias</option>
+                  <option value="seg-qua-sex" ${initialSched === 'seg-qua-sex' ? 'selected' : ''}>Seg, Qua, Sex</option>
+                  <option value="ter-qui" ${initialSched === 'ter-qui' ? 'selected' : ''}>Ter e Qui</option>
+                </select>
+              </div>
+              ${rowId > 1 ? `<button type="button" onclick="this.parentElement.remove(); recalculateFamilyInvoice();" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>` : ''}
+            `;
+            container.appendChild(row);
+            if (window.lucide) window.lucide.createIcons();
+            recalculateFamilyInvoice();
+          }
+
+          function validateFullCpfForSlot(slotId) {
+            const input = document.querySelector(`input[name="family_member_cpf_${slotId}"]`);
             const select = document.getElementById(`selectStudentSlot_${slotId}`);
             const notice = document.getElementById(`cpfStatusNotice_${slotId}`);
             if (!input || !select) return;
 
-            const val = input.value.replace(/\D/g, '');
-            if (val.length === 3) {
-              const matched = ALL_STUDENTS.filter(st => {
-                const cleanCpf = st.cpf.replace(/\D/g, '');
-                return cleanCpf.startsWith(val);
+            const cleanVal = input.value.replace(/\D/g, '');
+            if (cleanVal.length >= 11) {
+              const matched = ALL_STUDENTS.find(st => {
+                const cleanStCpf = st.cpf.replace(/\D/g, '');
+                return cleanStCpf === cleanVal || cleanStCpf.startsWith(cleanVal.substring(0, 9));
               });
 
-              if (matched.length === 1) {
-                select.value = matched[0].id;
+              if (matched) {
+                select.value = matched.id;
                 notice.style.color = '#4ade80';
-                notice.innerHTML = `✅ Cadastro validado na plataforma: <strong>${matched[0].name} (@${matched[0].username})</strong>`;
-              } else if (matched.length > 1) {
-                notice.style.color = '#facc15';
-                notice.innerHTML = `⚠️ ${matched.length} cadastros encontrados com esse início de CPF. Escolha na lista ao lado.`;
+                notice.innerHTML = `✅ Cadastro validado na plataforma: <strong>${matched.name} (@${matched.username})</strong>`;
               } else {
                 notice.style.color = '#f87171';
-                notice.innerHTML = `❌ Nenhum aluno cadastrado na plataforma possui CPF iniciado em '${val}'.`;
+                notice.innerHTML = `❌ Nenhum aluno cadastrado na plataforma possui o CPF '${input.value}'. Verifique se o familiar criou a conta.`;
               }
+            } else if (cleanVal.length > 0) {
+              notice.style.color = '#facc15';
+              notice.innerHTML = `⏳ Digite o CPF completo (11 dígitos)...`;
             } else {
               notice.innerHTML = '';
             }
@@ -468,40 +522,46 @@
           }
 
           function recalculateFamilyInvoice() {
-            const titularMod = document.getElementById('titularModalitySelect')?.value || 'Jiu-Jitsu';
-            const titularSched = document.getElementById('titularScheduleSelect')?.value || 'todos';
-            const titularPrice = getModalityBaseRate(titularMod, titularSched);
-
-            let grossTotal = titularPrice;
+            let grossTotal = 0;
             const itemsHtml = [];
 
-            itemsHtml.push(`
-              <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
-                <span>• Titular (${titularMod}):</span>
-                <strong style="color: #ffffff;">R$ ${titularPrice.toFixed(2).replace('.', ',')}</strong>
-              </div>
-            `);
+            // 1. Titular
+            const titularRows = document.querySelectorAll('#titularModalityContainer .titular-modality-row');
+            titularRows.forEach((row, rIdx) => {
+              const modVal = row.querySelector('select[name="titular_modality"]')?.value || 'Jiu-Jitsu';
+              const schedVal = row.querySelector('select[name="titular_schedule"]')?.value || 'todos';
+              const price = getSingleModalityRate(modVal, schedVal);
+              grossTotal += price;
+              itemsHtml.push(`
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+                  <span>• Titular (${modVal} - ${schedVal}):</span>
+                  <strong style="color: #ffffff;">R$ ${price.toFixed(2).replace('.', ',')}</strong>
+                </div>
+              `);
+            });
 
+            // 2. Integrantes Familiares
             const slots = document.querySelectorAll('.family-slot-card');
             slots.forEach((slot, idx) => {
               const selStudent = slot.querySelector('select[name^="family_member_id_"]');
-              const selMod = slot.querySelector('select[name^="family_member_modality_"]');
-              const selSched = slot.querySelector('select[name^="family_member_schedule_"]');
-
               if (selStudent && selStudent.value) {
                 const studentData = ALL_STUDENTS.find(s => s.id == selStudent.value);
                 const studentName = studentData ? studentData.name : `Familiar ${idx + 1}`;
-                const modVal = selMod ? selMod.value : 'Jiu-Jitsu';
-                const schedVal = selSched ? selSched.value : 'todos';
-                const depPrice = getModalityBaseRate(modVal, schedVal);
 
-                grossTotal += depPrice;
-                itemsHtml.push(`
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
-                    <span>• ${studentName} (${modVal}):</span>
-                    <strong style="color: #ffffff;">R$ ${depPrice.toFixed(2).replace('.', ',')}</strong>
-                  </div>
-                `);
+                const modRows = slot.querySelectorAll('.member-modality-row');
+                modRows.forEach((mRow) => {
+                  const modVal = mRow.querySelector('select[name^="family_member_modality_"]')?.value || 'Jiu-Jitsu';
+                  const schedVal = mRow.querySelector('select[name^="family_member_schedule_"]')?.value || 'todos';
+                  const depPrice = getSingleModalityRate(modVal, schedVal);
+                  grossTotal += depPrice;
+
+                  itemsHtml.push(`
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+                      <span>• ${studentName} (${modVal} - ${schedVal}):</span>
+                      <strong style="color: #ffffff;">R$ ${depPrice.toFixed(2).replace('.', ',')}</strong>
+                    </div>
+                  `);
+                });
               }
             });
 
@@ -520,14 +580,24 @@
           }
 
           document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa Titular com pelo menos 1 modalidade
+            addModalityRowToTitular('Jiu-Jitsu', 'todos');
+
+            // Inicializa INTEGRANTE 1 e INTEGRANTE 2 GARANTIDAMENTE
             if (INITIAL_DEPENDENTS.length > 0) {
               INITIAL_DEPENDENTS.forEach((dep, idx) => {
                 slotCount = idx + 1;
                 renderFamilySlot(slotCount, dep);
               });
+              while (slotCount < 2) {
+                slotCount++;
+                renderFamilySlot(slotCount, null);
+              }
             } else {
               slotCount = 1;
               renderFamilySlot(1, null);
+              slotCount = 2;
+              renderFamilySlot(2, null);
             }
             recalculateFamilyInvoice();
           });
