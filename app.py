@@ -247,6 +247,7 @@ class User(db.Model):
     sex = db.Column(db.String(20), nullable=False, default='prefer_not')
     plan = db.Column(db.String(150), nullable=False)
     due_date = db.Column(db.String(10), default='5') # Dia 5, 15 ou 25
+    initial_due_date = db.Column(db.String(10), nullable=True) # Dia de vencimento do cadastro original
     start_month = db.Column(db.Integer, default=5) # Mês de início (ex: 5 para Maio)
     role = db.Column(db.String(30), default='aluno') # 'aluno', 'monitor', 'instrutor'
     payment_status = db.Column(db.String(30), default='Em Dia') # 'Em Dia', 'Pendente'
@@ -282,7 +283,14 @@ class User(db.Model):
     must_change_password = db.Column(db.Boolean, nullable=False, default=False)
     password_reset_by_username = db.Column(db.String(80))
     password_reset_at = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    @property
+    def original_due_day(self):
+        if self.initial_due_date and self.initial_due_date.isdigit():
+            return int(self.initial_due_date)
+        if self.created_at:
+            d = self.created_at.day
+            return d if d <= 28 else 28
+        return 5
 
     def get_selected_modalities_list(self):
         if not self.selected_modalities:
@@ -421,7 +429,12 @@ class User(db.Model):
                 else:
                     status = 'futuro'
 
-            due_day_str = f"{int(self.due_date):02d}" if self.due_date and self.due_date.isdigit() else "15"
+            if m <= current_month:
+                due_day_val = self.original_due_day
+            else:
+                due_day_val = int(self.due_date) if self.due_date and self.due_date.isdigit() else 15
+
+            due_day_str = f"{due_day_val:02d}"
             months.append({
                 'month': m_str,
                 'name': month_names.get(m, ''),
@@ -657,6 +670,8 @@ def change_user_due_date_with_proration(user, new_due_date):
         raise ValueError('Dia de vencimento inválido (deve ser entre 1 e 28).')
 
     old_day = int(user.due_date) if user.due_date and user.due_date.isdigit() else 15
+    if not user.initial_due_date:
+        user.initial_due_date = str(old_day)
     if str(new_day) == str(user.due_date):
         return {'days': 0, 'amount': Decimal('0.00'), 'payment': None}
 
@@ -1293,6 +1308,8 @@ with app.app_context():
     if db.engine.dialect.name == 'postgresql':
         db.session.execute(text('SELECT pg_advisory_xact_lock(42457001)'))
     user_columns = {column['name'] for column in inspect(db.engine).get_columns('user')}
+    if 'initial_due_date' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN initial_due_date VARCHAR(10)'))
     if 'belt_color' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN belt_color VARCHAR(20) NOT NULL DEFAULT \'branca\''))
     if 'belt_degree' not in user_columns:
