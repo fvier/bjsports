@@ -308,6 +308,10 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def has_overdue_payments(self):
+        if self.sponsor_id:
+            sponsor = db.session.get(User, self.sponsor_id)
+            if sponsor and sponsor.has_overdue_payments():
+                return True
         return self.get_overdue_details()['count'] > 0
 
     def get_trial_status(self):
@@ -455,20 +459,34 @@ class User(db.Model):
         return self.get_plan_price()
 
     def get_plan_price(self):
+        if not self.plan:
+            return 100.0
+
         match = re.search(r'R\$\s*([\d\.,]+)', self.plan)
         if match:
             val_str = match.group(1).replace('.', '').replace(',', '.')
             try:
-                base_price = float(val_str)
-                if self.sponsored_dependents:
-                    plan_name = self.plan.split('•')[0].split('—')[0].strip()
-                    plan_record = Plan.query.filter(db.func.lower(Plan.name) == plan_name.casefold()).first()
-                    if plan_record and plan_record.discount_percent:
-                        return round(base_price * (1 - float(plan_record.discount_percent) / 100), 2)
-                return base_price
+                return round(float(val_str), 2)
             except ValueError:
-                return 120.0
-        return 120.0
+                pass
+
+        plan_name = self.plan.split('•')[0].split('—')[0].strip()
+        plan_record = Plan.query.filter(db.func.lower(Plan.name) == plan_name.casefold()).first()
+        if plan_record:
+            schedule = 'todos'
+            if 'ter' in self.plan.lower() or 'qui' in self.plan.lower():
+                schedule = 'ter-qui'
+            elif 'seg' in self.plan.lower() or 'sex' in self.plan.lower():
+                schedule = 'seg-qua-sex'
+            return float(plan_record.get_price_for_schedule(schedule))
+
+        mods = self.get_selected_modalities_list()
+        count = len(mods)
+        if count >= 3 or 'Passe Livre' in self.plan:
+            return 140.0
+        elif count == 2:
+            return 120.0
+        return 100.0
 
     def get_overdue_details(self, current_month=None):
         schedule = self.get_month_schedule(current_month)
@@ -3959,14 +3977,62 @@ def mensalidades_admin():
                     flash('Selecione os dias de treino do novo plano.', 'error')
                     return redirect(url_for('mensalidades_admin'))
                 old_plan = user.plan
+                old_price = Decimal(str(user.get_numeric_price()))
+
                 if is_private_class:
                     user.plan = f'Aula Particular com {private_instructor.name} • {training_day_labels[training_days]}'
                 else:
                     user.plan = f'{plan.name} • {training_day_labels[training_days]} — {plan.get_price_for_schedule(training_days)}'
                 user.selected_modalities = ', '.join(selected_modalities) if selected_modalities else None
                 db.session.commit()
+
+                new_price = Decimal(str(user.get_numeric_price()))
+                
+                # CÁLCULO PROPORCIONAL (PRO-RATA NA TROCA DE PLANO MID-CYCLE)
+                adjustment = Decimal('0.00')
+                if old_price != new_price and not user.monthly_fee_exempt:
+                    now = datetime.now()
+                    import calendar
+                    days_in_month = Decimal(calendar.monthrange(now.year, now.month)[1])
+                    current_day = Decimal(now.day)
+                    remaining_days = max(Decimal('0'), days_in_month - current_day + Decimal('1'))
+
+                    if remaining_days > Decimal('0'):
+                        old_credit = (old_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        new_cost = (new_price * remaining_days / days_in_month).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        adjustment = new_cost - old_credit
+
+                        target_month = now.month + 1
+                        target_year = now.year
+                        if target_month == 13:
+                            target_month = 1
+                            target_year += 1
+
+                        next_payment = MonthlyPayment.query.filter_by(
+                            user_id=user.id, year=target_year, month=target_month
+                        ).first()
+
+                        if not next_payment:
+                            next_payment = MonthlyPayment(
+                                user_id=user.id,
+                                year=target_year,
+                                month=target_month,
+                                status='futuro',
+                                amount=new_price + adjustment
+                            )
+                            db.session.add(next_payment)
+                        else:
+                            if next_payment.status != 'pago':
+                                next_payment.amount = new_price + adjustment
+                        db.session.commit()
+
                 new_plan_name = 'Aula Particular' if is_private_class else plan.name
-                flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{new_plan_name}”.', 'success')
+                if adjustment > 0:
+                    flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{new_plan_name}”. Reajuste pro-rata de +R$ {adjustment:.2f} lançado no próximo ciclo.', 'success')
+                elif adjustment < 0:
+                    flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{new_plan_name}”. Crédito pro-rata de R$ {abs(adjustment):.2f} abatido no próximo ciclo.', 'success')
+                else:
+                    flash(f'Plano de {user.name} alterado de “{old_plan.split("—")[0].strip()}” para “{new_plan_name}”.', 'success')
         elif action == 'update_month':
             user_id = request.form.get('user_id')
             month = request.form.get('month')
