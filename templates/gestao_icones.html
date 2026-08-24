@@ -177,11 +177,11 @@
                          onclick="chooseIconForCard('{{ card_idx }}', '{{ p.icon }}', '{{ custom_images.get(p.icon, '') }}')"
                          style="padding: 12px 10px; border-radius: 12px; background: {% if is_sel %}linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.25)){% else %}rgba(30, 41, 59, 0.5){% endif %}; border: 2px solid {% if is_sel %}#38bdf8{% else %}rgba(255,255,255,0.08){% endif %}; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: all 0.2s ease; box-shadow: {% if is_sel %}0 0 14px rgba(56, 189, 248, 0.3){% else %}none{% endif %};">
                       
-                      <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
                         {% if p.icon in custom_images %}
-                          <img src="{{ custom_images[p.icon] }}" alt="{{ p.label }}" style="width: 32px; height: 32px; object-fit: contain;">
+                          <img src="{{ custom_images[p.icon] }}" alt="{{ p.label }}" style="width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
                         {% else %}
-                          <i data-lucide="{{ p.icon }}" style="width: 28px; height: 28px; color: var(--accent-gold);"></i>
+                          <i data-lucide="{{ p.icon }}" style="width: 32px; height: 32px; color: var(--accent-gold);"></i>
                         {% endif %}
                       </div>
 
