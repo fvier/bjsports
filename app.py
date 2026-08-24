@@ -2278,6 +2278,17 @@ def locais_admin():
 def blog():
     return render_template('blog.html', page_title='Blog do Tatame')
 
+@app.route('/loja')
+@app.route('/loja.html')
+def loja():
+    store_categories = sorted(list({p['category'] for p in STORE_PRODUCTS if p.get('category')}))
+    return render_template(
+        'loja.html',
+        products=STORE_PRODUCTS,
+        store_categories=store_categories,
+        page_title='Loja BJ Sports'
+    )
+
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
     data = request.get_json(silent=True) or {}
