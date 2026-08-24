@@ -3795,8 +3795,8 @@ def mensalidades_admin():
         
         if action == 'reset_student_password':
             user = db.session.get(User, request.form.get('user_id', type=int))
-            if not user or user.role != 'aluno':
-                flash('Aluno não encontrado para redefinição de senha.', 'error')
+            if not user:
+                flash('Usuário não encontrado para redefinição de senha.', 'error')
             else:
                 user.set_password('bemvindo')
                 user.must_change_password = True
