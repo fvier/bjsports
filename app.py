@@ -478,15 +478,28 @@ class User(db.Model):
                 schedule = 'ter-qui'
             elif 'seg' in self.plan.lower() or 'sex' in self.plan.lower():
                 schedule = 'seg-qua-sex'
-            return float(plan_record.get_price_for_schedule(schedule))
+            
+            raw_price = plan_record.get_price_for_schedule(schedule)
+            if raw_price:
+                match_raw = re.search(r'([\d\.,]+)', str(raw_price))
+                if match_raw and 'OFF' not in str(raw_price) and 'Desconto' not in str(raw_price):
+                    try:
+                        return round(float(match_raw.group(1).replace('.', '').replace(',', '.')), 2)
+                    except ValueError:
+                        pass
 
         mods = self.get_selected_modalities_list()
         count = len(mods)
         if count >= 3 or 'Passe Livre' in self.plan:
-            return 140.0
+            base = 140.0
         elif count == 2:
-            return 120.0
-        return 100.0
+            base = 120.0
+        else:
+            base = 100.0
+
+        if self.sponsor_id or (self.plan and 'família' in self.plan.lower()):
+            return round(base * 0.90, 2)
+        return base
 
     def get_overdue_details(self, current_month=None):
         schedule = self.get_month_schedule(current_month)
