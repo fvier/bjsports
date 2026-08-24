@@ -83,14 +83,12 @@
 
       <!-- Ações do Cabeçalho -->
       <div class="header-actions">
+        <!-- 1. Botão Tema (Sol) -->
         <button type="button" class="public-theme-toggle" id="publicThemeToggle" title="Ativar tema claro" aria-label="Ativar tema claro" aria-pressed="false">
           <i data-lucide="sun"></i>
         </button>
 
-        <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
-          <i data-lucide="calendar-check"></i> Check-in
-        </button>
-
+        <!-- 2. Botão Área do Aluno (Ao lado do Sol) -->
         {% if is_logged_in %}
         <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN -->
         <div class="user-avatar-dropdown">
@@ -136,13 +134,19 @@
           </div>
         </div>
 
+        {% else %}
         <!-- Botão Padrão Sem Login -->
         <a href="{{ url_for('login') }}" class="btn btn-header-login {% if request.endpoint == 'login' %}active-link-btn{% endif %}">
           <i data-lucide="user"></i> <span class="btn-text-full">Área do Aluno</span>
         </a>
         {% endif %}
 
-        <!-- Botão Hambúrguer Mobile -->
+        <!-- 3. Botão Check-in (Desktop) -->
+        <button id="openScheduleModal" class="btn btn-header-cta btn-glow">
+          <i data-lucide="calendar-check"></i> Check-in
+        </button>
+
+        <!-- 4. Botão Hambúrguer Mobile -->
         <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Abrir menu de navegação">
           <i data-lucide="menu"></i>
         </button>
