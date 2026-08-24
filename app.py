@@ -4569,10 +4569,30 @@ def configuracoes():
     user = db.session.get(User, session['user_id'])
     sponsored_plan_type = get_sponsored_plan_type_for_user(user)
 
+    def calculate_modality_rate(modality_str, schedule_str='todos'):
+        if not modality_str:
+            modality_str = 'Jiu-Jitsu'
+        is_free_pass = 'Passe Livre' in modality_str or 'Combo' in modality_str or len(modality_str.split(',')) >= 3
+        is_combo2 = len(modality_str.split(',')) == 2
+        
+        if is_free_pass:
+            if schedule_str == 'ter-qui': return Decimal('120.00')
+            if schedule_str == 'seg-qua-sex': return Decimal('130.00')
+            return Decimal('140.00')
+        elif is_combo2:
+            if schedule_str == 'ter-qui': return Decimal('100.00')
+            if schedule_str == 'seg-qua-sex': return Decimal('110.00')
+            return Decimal('120.00')
+        else:
+            if schedule_str == 'ter-qui': return Decimal('80.00')
+            if schedule_str == 'seg-qua-sex': return Decimal('90.00')
+            return Decimal('100.00')
+
     if request.method == 'POST':
         action = request.form.get('action', 'update_profile')
         if action == 'save_family_combo':
             titular_modality = request.form.get('titular_modality', '').strip()
+            titular_schedule = request.form.get('titular_schedule', 'todos').strip()
             if titular_modality:
                 user.selected_modalities = titular_modality
 
@@ -4583,9 +4603,13 @@ def configuracoes():
             member_indices = [k.replace('family_member_id_', '') for k in request.form.keys() if k.startswith('family_member_id_')]
             
             valid_new_dependents = []
+            gross_total = calculate_modality_rate(user.selected_modalities, titular_schedule)
+
             for idx in member_indices:
                 dep_id = request.form.get(f'family_member_id_{idx}', type=int)
                 dep_mod = request.form.get(f'family_member_modality_{idx}', '').strip()
+                dep_sched = request.form.get(f'family_member_schedule_{idx}', 'todos').strip()
+                
                 if dep_id and dep_id != user.id:
                     dep_user = db.session.get(User, dep_id)
                     if dep_user and (dep_user.sponsor_id is None or dep_user.sponsor_id == user.id):
@@ -4596,6 +4620,7 @@ def configuracoes():
                         if dep_mod:
                             dep_user.selected_modalities = dep_mod
                         valid_new_dependents.append(dep_user)
+                        gross_total += calculate_modality_rate(dep_user.selected_modalities, dep_sched)
 
             # Desvincular integrantes removidos
             for old_id, old_dep in existing_dependents.items():
@@ -4608,19 +4633,16 @@ def configuracoes():
                     old_dep.sponsored_previous_plan = None
 
             total_members = 1 + len(submitted_ids)
-            extra_members = max(0, total_members - 3)
-            base_price = Decimal('280.00')
-            extra_price = Decimal('70.00') * extra_members
-            total_combo_price = base_price + extra_price
+            discount_amount = gross_total * Decimal('0.10')
+            total_combo_price = gross_total - discount_amount
 
-            user.plan = f"Plano Família ({total_members} Integrantes) — R$ {total_combo_price:.2f}/mês".replace('.', ',')
+            formatted_price = f"R$ {total_combo_price:.2f}".replace('.', ',')
+            user.plan = f"Plano Família ({total_members} Membros) — {formatted_price}/mês (10% OFF)"
 
             # Atualiza o valor da fatura do mês atual se estiver em aberto
             now = datetime.now()
             open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month, status='atrasado').first()
             if not open_payment:
-                open_payment = MonthlyPayment.query.filter_by(user_id=user.id, year=now.year, month=now.month, status='futuro').first()
-            if open_payment:
                 open_payment.amount = total_combo_price
 
             db.session.commit()
