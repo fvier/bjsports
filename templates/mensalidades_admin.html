@@ -277,7 +277,7 @@
                           </div>
                         {% endif %}
 
-                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-password-reset" onsubmit="return confirm('Redefinir a senha de {{ u.name|e }} para bemvindo?');">
+                        <form action="{{ url_for('mensalidades_admin') }}" method="POST" class="student-password-reset" data-confirm="Redefinir a senha de {{ u.name|e }} para a senha padrão 'bemvindo'?" data-confirm-title="🔑 Redefinir Senha de Aluno" data-confirm-ok-text="Sim, Redefinir Senha">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                           <input type="hidden" name="action" value="reset_student_password">
                           <input type="hidden" name="user_id" value="{{ u.id }}">

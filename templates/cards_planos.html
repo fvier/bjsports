@@ -226,7 +226,7 @@
                         style="flex: 1; font-size: 0.85rem;">
                   <i data-lucide="pencil" style="width: 14px; height: 14px;"></i> Editar
                 </button>
-                <form action="{{ url_for('cards_planos') }}" method="POST" onsubmit="return confirm('Deseja realmente remover o plano {{ plan.name }}?');">
+                <form action="{{ url_for('cards_planos') }}" method="POST" data-confirm="Deseja realmente remover o plano {{ plan.name }}?" data-confirm-danger="true" data-confirm-title="⚠️ Excluir Plano">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <input type="hidden" name="action" value="delete">
                   <input type="hidden" name="plan_id" value="{{ plan.id }}">

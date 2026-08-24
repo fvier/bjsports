@@ -1930,6 +1930,104 @@ function setupContractPage() {
   updateMinorFields();
 }
 
+// UNIVERSAL CUSTOM CONFIRMATION MODAL (SUBSTITUI PROMPT NATIVO DO NAVEGADOR)
+function showCustomConfirm(options = {}) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('customConfirmModal');
+    const titleEl = document.getElementById('customConfirmTitle');
+    const messageEl = document.getElementById('customConfirmMessage');
+    const okBtn = document.getElementById('customConfirmOkBtn');
+    const cancelBtn = document.getElementById('customConfirmCancelBtn');
+    const iconBox = document.getElementById('customConfirmIcon');
+
+    if (!modal || !okBtn || !cancelBtn) {
+      resolve(window.confirm(options.message || 'Confirmar ação?'));
+      return;
+    }
+
+    if (titleEl) titleEl.textContent = options.title || 'Confirmar Ação';
+    if (messageEl) messageEl.textContent = options.message || 'Você tem certeza que deseja realizar esta operação?';
+
+    if (options.isDanger) {
+      okBtn.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+      okBtn.style.color = '#ffffff';
+      okBtn.textContent = options.okText || 'Sim, Excluir';
+      if (iconBox) {
+        iconBox.style.borderColor = '#ef4444';
+        iconBox.style.background = 'rgba(239, 68, 68, 0.15)';
+        iconBox.style.color = '#ef4444';
+        iconBox.innerHTML = '<i data-lucide="alert-triangle" style="width:28px;height:28px;"></i>';
+      }
+    } else if (options.isReset) {
+      okBtn.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      okBtn.style.color = '#ffffff';
+      okBtn.textContent = options.okText || 'Redefinir Senha';
+      if (iconBox) {
+        iconBox.style.borderColor = '#60a5fa';
+        iconBox.style.background = 'rgba(59, 130, 246, 0.15)';
+        iconBox.style.color = '#60a5fa';
+        iconBox.innerHTML = '<i data-lucide="key-round" style="width:28px;height:28px;"></i>';
+      }
+    } else {
+      okBtn.style.background = 'linear-gradient(135deg, var(--accent-gold), #d97706)';
+      okBtn.style.color = '#0f172a';
+      okBtn.textContent = options.okText || 'Confirmar';
+      if (iconBox) {
+        iconBox.style.borderColor = 'var(--accent-gold)';
+        iconBox.style.background = 'rgba(245, 158, 11, 0.15)';
+        iconBox.style.color = 'var(--accent-gold)';
+        iconBox.innerHTML = '<i data-lucide="help-circle" style="width:28px;height:28px;"></i>';
+      }
+    }
+    if (window.lucide) lucide.createIcons();
+
+    modal.classList.remove('hidden');
+
+    const cleanup = () => {
+      modal.classList.add('hidden');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+    };
+
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+function setupCustomConfirmForms() {
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!form || form.dataset.customConfirmBypassed === 'true') return;
+
+    const confirmMsg = form.getAttribute('data-confirm');
+    const isResetForm = form.classList.contains('student-password-reset') || form.dataset.confirmReset === 'true';
+
+    if (confirmMsg || isResetForm) {
+      e.preventDefault();
+      const message = confirmMsg || 'Deseja redefinir a senha deste usuário para "bemvindo"?';
+      const isDanger = form.dataset.confirmDanger === 'true';
+      const title = form.dataset.confirmTitle || (isResetForm ? '🔑 Redefinir Senha' : (isDanger ? '⚠️ Confirmar Exclusão' : 'Confirmar Ação'));
+      const okText = form.dataset.confirmOkText || (isResetForm ? 'Sim, Redefinir Senha' : (isDanger ? 'Sim, Excluir' : 'Confirmar'));
+
+      showCustomConfirm({
+        title: title,
+        message: message,
+        isDanger: isDanger,
+        isReset: isResetForm,
+        okText: okText
+      }).then((confirmed) => {
+        if (confirmed) {
+          form.dataset.customConfirmBypassed = 'true';
+          form.submit();
+        }
+      });
+    }
+  });
+}
+
 // DOM Loaded
 document.addEventListener('DOMContentLoaded', () => {
   const trialCountdowns = [...document.querySelectorAll('[data-trial-countdown]')];
@@ -1974,5 +2072,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupChampionshipWeightTabs();
   setupChampionshipScoreboard();
   setupContractPage();
+  setupCustomConfirmForms();
   initIcons();
 });

@@ -166,7 +166,7 @@
               <i data-lucide="sliders-horizontal"></i> Form Completo
             </button>
 
-            <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display: none;" onsubmit="return confirm('Tem certeza que deseja remover a filial selecionada?');">
+            <form action="{{ url_for('locais_admin') }}" method="POST" id="formDeleteSelectedFilial" style="display: none;" data-confirm="Tem certeza que deseja remover a filial selecionada?" data-confirm-danger="true" data-confirm-title="⚠️ Excluir Filial">
               <input type="hidden" name="action" value="delete_location">
               <input type="hidden" name="location_db_id" id="deleteLocationDbId" value="">
               <button type="submit" class="btn-icon-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 8px 14px; font-size: 0.85rem;" title="Excluir esta Filial">

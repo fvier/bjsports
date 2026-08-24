@@ -279,6 +279,35 @@
     </div>
   </div>
 
+  <!-- MODAL DE CONFIRMAÇÃO CUSTOMIZADO (SUBSTITUI NATIVO DO NAVEGADOR) -->
+  <div class="modal-backdrop hidden" id="customConfirmModal" style="z-index: 10500;">
+    <div class="modal-card glass-panel text-center" style="max-width: 440px; padding: 28px; border-radius: 18px; border: 1px solid var(--accent-gold); background: rgba(18, 18, 28, 0.98); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
+      
+      <div class="modal-confirm-icon" id="customConfirmIcon" style="width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); border: 1.5px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; color: var(--accent-gold);">
+        <i data-lucide="help-circle" style="width: 28px; height: 28px;"></i>
+      </div>
+
+      <h3 id="customConfirmTitle" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 8px;">
+        Confirmar Ação
+      </h3>
+
+      <p id="customConfirmMessage" style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 22px;">
+        Você tem certeza que deseja realizar esta operação?
+      </p>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button type="button" id="customConfirmCancelBtn" class="btn btn-secondary" style="padding: 10px 20px; font-weight: 700; border-radius: 10px; background: rgba(51, 65, 85, 0.8); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); flex: 1; cursor: pointer;">
+          Cancelar
+        </button>
+        
+        <button type="button" id="customConfirmOkBtn" class="btn btn-primary btn-glow" style="padding: 10px 20px; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, var(--accent-gold), #d97706); color: #0f172a; border: none; flex: 1; cursor: pointer;">
+          Confirmar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Lucide Icons Script & App JS -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
