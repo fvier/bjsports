@@ -364,14 +364,37 @@
 
                         </div>
 
-                        <!-- EXPLICAÇÃO TEXTUAL COMPLETA E TRANSPARENTE -->
-                        <div style="background: rgba(56, 189, 248, 0.08); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.5;">
-                          <i data-lucide="info" style="width: 14px; height: 14px; color: #38bdf8; vertical-align: -2px; margin-right: 4px;"></i>
-                          {% if next_extra > 0.01 %}
-                            <strong>Mudança de Vencimento Aplicada no Mês Seguinte ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %}):</strong> A fatura do mês atual permanece inalterada no valor normal (R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}). O ajuste proporcional de <strong>+R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }}</strong> decorrente da mudança de vencimento para o <strong>dia {{ u.due_date }}</strong> foi adicionado ao lançamento do <strong>mês seguinte ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %})</strong>, totalizando <strong>R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong>. Após essa transição, os meses subsequentes retornam ao valor mensal normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
-                          {% else %}
-                            <strong>Explicação do valor:</strong> O aluno possui ciclo mensal regular com vencimento para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e os lançamentos futuros permanecem no valor padrão do plano de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
-                          {% endif %}
+                        <!-- EXPLICAÇÃO TEXTUAL DIVIDIDA EM ESTE MÊS E PRÓXIMO MÊS -->
+                        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 12px 14px; font-size: 0.78rem; line-height: 1.55; display: flex; flex-direction: column; gap: 8px;">
+                          
+                          <!-- MÊS ATUAL -->
+                          <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <span style="background: rgba(96, 165, 250, 0.15); color: #60a5fa; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; white-space: nowrap; border: 1px solid rgba(96, 165, 250, 0.3);">
+                              📅 Este Mês ({% if current_m_obj.item %}{{ current_m_obj.item.name }}{% else %}Atual{% endif %})
+                            </span>
+                            <span style="color: #cbd5e1;">
+                              {% if current_extra > 0.01 %}
+                                Fatura atual de <strong>R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}</strong> (Mensalidade base R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }} + R$ {{ "%.2f"|format(current_extra)|replace('.', ',') }} de proporcional).
+                              {% else %}
+                                Fatura atual no valor padrão de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> (Ciclo normal de 30 dias sem acréscimos).
+                              {% endif %}
+                            </span>
+                          </div>
+
+                          <!-- PRÓXIMO MÊS -->
+                          <div style="display: flex; align-items: flex-start; gap: 8px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.08);">
+                            <span style="background: {% if next_extra > 0.01 %}rgba(245, 158, 11, 0.15){% else %}rgba(168, 85, 247, 0.15){% endif %}; color: {% if next_extra > 0.01 %}#fbbf24{% else %}#c084fc{% endif %}; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; white-space: nowrap; border: 1px solid {% if next_extra > 0.01 %}rgba(245, 158, 11, 0.3){% else %}rgba(168, 85, 247, 0.3){% endif %};">
+                              🔮 Próximo Mês ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% else %}Próx.{% endif %})
+                            </span>
+                            <span style="color: #cbd5e1;">
+                              {% if next_extra > 0.01 %}
+                                Fatura prevista de <strong>R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong> (Contém a mensalidade normal + <strong>R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }} de proporcional</strong> referente à alteração do vencimento para todo <strong>dia {{ u.due_date }}</strong>). A partir dos meses seguintes, o valor retorna ao normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                              {% else %}
+                                Fatura prevista no valor padrão de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> todo dia {{ u.due_date }}. Os meses subsequentes seguem o mesmo valor fixo.
+                              {% endif %}
+                            </span>
+                          </div>
+
                         </div>
 
                       </div>
