@@ -294,16 +294,19 @@
                       {% set current_m_obj = namespace(item=None) %}
                       {% set next_m_obj = namespace(item=None) %}
                       {% for m in u_months %}
-                        {% if m.month == now.month %}
+                        {% if m.month|int == now.month %}
                           {% set current_m_obj.item = m %}
-                        {% elif m.month == (now.month + 1) %}
+                        {% elif m.month|int == (now.month + 1) or (now.month == 12 and m.month|int == 1) %}
                           {% set next_m_obj.item = m %}
                         {% endif %}
                       {% endfor %}
 
                       {% set baseline_price = u.get_numeric_price(now.year, now.month) %}
                       {% set current_amount = current_m_obj.item.amount if current_m_obj.item else baseline_price %}
-                      {% set extra_amount = current_amount - baseline_price %}
+                      {% set current_extra = (current_amount - baseline_price) if (current_amount > baseline_price) else 0.0 %}
+
+                      {% set next_amount = next_m_obj.item.amount if next_m_obj.item else baseline_price %}
+                      {% set next_extra = (next_amount - baseline_price) if (next_amount > baseline_price) else 0.0 %}
 
                       <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);">
                         
@@ -313,13 +316,13 @@
                               <i data-lucide="receipt" style="width: 20px; height: 20px;"></i>
                             </div>
                             <div>
-                              <strong style="color: #ffffff; font-size: 0.9rem; display: block;">Detalhamento da Fatura • Competência {{ '%02d'|format(now.month) }}/{{ now.year }}</strong>
-                              <small style="color: #94a3b8; font-size: 0.75rem;">Entenda o valor cobrado neste mês e o previsto para os próximos meses.</small>
+                              <strong style="color: #ffffff; font-size: 0.9rem; display: block;">Detalhamento Financeiro • Competência {{ '%02d'|format(now.month) }}/{{ now.year }}</strong>
+                              <small style="color: #94a3b8; font-size: 0.75rem;">Entenda como os valores deste mês e do próximo lançamento foram calculados.</small>
                             </div>
                           </div>
 
                           <div style="text-align: right;">
-                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block;">Fatura em Aberto</span>
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block;">Fatura Atual ({% if current_m_obj.item %}{{ current_m_obj.item.name }}{% else %}Atual{% endif %})</span>
                             <strong style="font-size: 1.15rem; color: #38bdf8;">R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}</strong>
                           </div>
                         </div>
@@ -334,34 +337,47 @@
                             <small style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ u.plan }}">{{ u.plan or 'Plano Regular' }}</small>
                           </div>
 
-                          <!-- ITEM 2: AJUSTE PROPORCIONAL (SE HOUVER) -->
-                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid {% if extra_amount > 0.01 %}#f59e0b{% else %}#22c55e{% endif %};">
-                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">⚖️ Ajuste Proporcional</span>
-                            {% if extra_amount > 0.01 %}
-                              <strong style="font-size: 0.95rem; color: #fbbf24; display: block; margin-top: 2px;">+ R$ {{ "%.2f"|format(extra_amount)|replace('.', ',') }}</strong>
-                              <small style="font-size: 0.72rem; color: #fef08a; display: block; margin-top: 2px;">Dias extras do novo vencimento</small>
+                          <!-- ITEM 2: AJUSTE PROPORCIONAL DESTE MÊS -->
+                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid {% if current_extra > 0.01 %}#f59e0b{% else %}#22c55e{% endif %};">
+                            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">⚖️ Proporcional Deste Mês</span>
+                            {% if current_extra > 0.01 %}
+                              <strong style="font-size: 0.95rem; color: #fbbf24; display: block; margin-top: 2px;">+ R$ {{ "%.2f"|format(current_extra)|replace('.', ',') }}</strong>
+                              <small style="font-size: 0.72rem; color: #fef08a; display: block; margin-top: 2px;">Dias extras cobrados neste mês</small>
                             {% else %}
                               <strong style="font-size: 0.95rem; color: #4ade80; display: block; margin-top: 2px;">Sem proporcional (R$ 0,00)</strong>
-                              <small style="font-size: 0.72rem; color: #a7f3d0; display: block; margin-top: 2px;">Ciclo normal de 30 dias</small>
+                              <small style="font-size: 0.72rem; color: #a7f3d0; display: block; margin-top: 2px;">Valor padrão de 30 dias</small>
                             {% endif %}
                           </div>
 
-                          <!-- ITEM 3: PRÓXIMO LANÇAMENTO -->
-                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #a855f7;">
+                          <!-- ITEM 3: PRÓXIMO LANÇAMENTO DA MENSALIDADE -->
+                          <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 12px; border-radius: 8px; border-left: 3px solid {% if next_extra > 0.01 %}#f59e0b{% else %}#a855f7{% endif %};">
                             <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; display: block;">🔮 Próximo Mês ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% else %}Próx. Mês{% endif %})</span>
-                            <strong style="font-size: 0.95rem; color: #e9d5ff; display: block; margin-top: 2px;">R$ {{ "%.2f"|format(next_m_obj.item.amount if next_m_obj.item else baseline_price)|replace('.', ',') }}</strong>
-                            <small style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-top: 2px;">Vencimento normal todo dia {{ u.due_date }}</small>
+                            <strong style="font-size: 0.95rem; color: {% if next_extra > 0.01 %}#fbbf24{% else %}#e9d5ff{% endif %}; display: block; margin-top: 2px;">R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong>
+                            <small style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-top: 2px;">
+                              {% if next_extra > 0.01 %}
+                                Inclui +R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }} de proporcional
+                              {% else %}
+                                Vencimento normal todo dia {{ u.due_date }}
+                              {% endif %}
+                            </small>
                           </div>
 
                         </div>
 
-                        <!-- EXPLICAÇÃO TEXTUAL DAS OCORRÊNCIAS -->
-                        <div style="background: rgba(56, 189, 248, 0.08); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.45;">
+                        <!-- EXPLICAÇÃO TEXTUAL COMPLETA E TRANSPARENTE -->
+                        <div style="background: rgba(56, 189, 248, 0.08); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.5;">
                           <i data-lucide="info" style="width: 14px; height: 14px; color: #38bdf8; vertical-align: -2px; margin-right: 4px;"></i>
-                          {% if extra_amount > 0.01 %}
-                            <strong>Explicação do valor:</strong> O dia de vencimento foi ajustado para todo <strong>dia {{ u.due_date }}</strong>. Por isso, a fatura deste mês inclui a mensalidade base de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> mais o acréscimo proporcional de <strong>+R$ {{ "%.2f"|format(extra_amount)|replace('.', ',') }}</strong> referente aos dias estendidos. Nos próximos meses, a cobrança se estabiliza no valor normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong> todo dia {{ u.due_date }}.
-                          {% else %}
-                            <strong>Explicação do valor:</strong> O aluno está com ciclo regular com vencimento fixado para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e o próximo lançamento permanecem fixados no valor padrão de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                          {% if current_extra > 0.01 %}
+                            <strong>Explicação da Fatura Atual ({% if current_m_obj.item %}{{ current_m_obj.item.name }}{% endif %}):</strong> A fatura deste mês é de <strong>R$ {{ "%.2f"|format(current_amount)|replace('.', ',') }}</strong> porque contém o plano base (R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}) somado a <strong>+R$ {{ "%.2f"|format(current_extra)|replace('.', ',') }}</strong> de dias adicionais decorrentes do ajuste de vencimento para o <strong>dia {{ u.due_date }}</strong>.
+                          {% endif %}
+
+                          {% if next_extra > 0.01 %}
+                            <br style="margin-bottom: 4px;">
+                            <strong>Explicação da Próxima Fatura ({% if next_m_obj.item %}{{ next_m_obj.item.name }}{% endif %}):</strong> Como o mês atual já estava pago ao alterar o vencimento, o ajuste proporcional de <strong>+R$ {{ "%.2f"|format(next_extra)|replace('.', ',') }}</strong> foi adicionado ao lançamento do próximo mês, totalizando <strong>R$ {{ "%.2f"|format(next_amount)|replace('.', ',') }}</strong>. Após isso, os meses seguintes retornam ao valor fixo normal de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
+                          {% endif %}
+
+                          {% if current_extra <= 0.01 and next_extra <= 0.01 %}
+                            <strong>Explicação do valor:</strong> O aluno possui ciclo mensal fixo com vencimento para todo <strong>dia {{ u.due_date }}</strong>. A mensalidade do mês atual e o próximo lançamento permanecem fixados no valor padrão do plano de <strong>R$ {{ "%.2f"|format(baseline_price)|replace('.', ',') }}</strong>.
                           {% endif %}
                         </div>
 
