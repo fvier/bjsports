@@ -108,9 +108,10 @@
               <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Dia de Vencimento:</label>
               <select name="day" style="padding: 8px 12px; font-size: 0.85rem;">
                 <option value="todos" {% if filter_day == 'todos' %}selected{% endif %}>📅 Todos os Dias</option>
-                <option value="5" {% if filter_day == '5' %}selected{% endif %}>📅 Dia 5 ({{ day5_count }})</option>
-                <option value="15" {% if filter_day == '15' %}selected{% endif %}>📅 Dia 15 ({{ day15_count }})</option>
-                <option value="25" {% if filter_day == '25' %}selected{% endif %}>📅 Dia 25 ({{ day25_count }})</option>
+                <option value="proximos_5_dias" {% if filter_day == 'proximos_5_dias' %}selected{% endif %}>🔥 Vencendo nos Próximos 5 Dias ({{ due_soon_count }})</option>
+                {% for d in range(1, 29) %}
+                <option value="{{ d }}" {% if filter_day == d|string %}selected{% endif %}>📅 Dia {{ d }}</option>
+                {% endfor %}
               </select>
             </div>
 
@@ -196,9 +197,23 @@
                   </td>
 
                   <td style="text-align: center;">
+                    {% set can_manage = u.can_be_managed_by(current_user) %}
+                    {% if can_manage %}
+                    <form action="{{ url_for('mensalidades_admin') }}" method="POST" style="display: inline-block;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="user_id" value="{{ u.id }}">
+                      <input type="hidden" name="payment_status" value="{{ u.payment_status }}">
+                      <select name="due_date" onchange="this.form.submit()" title="Clique para alterar o dia de vencimento deste aluno" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-weight: 700; cursor: pointer; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem;">
+                        {% for d in range(1, 29) %}
+                        <option value="{{ d }}" {% if u.due_date == d|string %}selected{% endif %} style="background: #0f172a; color: #fff;">Dia {{ d }}</option>
+                        {% endfor %}
+                      </select>
+                    </form>
+                    {% else %}
                     <span class="badge-pill-mini" style="background: rgba(96, 165, 250, 0.12); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3);">
                       Dia {{ u.due_date }}
                     </span>
+                    {% endif %}
                   </td>
 
                   <!-- CÁLCULO DE MENSALIDADES EM ABERTO E VALOR TOTAL DEVIDO -->

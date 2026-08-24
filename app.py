@@ -648,14 +648,19 @@ class MonthlyPayment(db.Model):
 
 def change_user_due_date_with_proration(user, new_due_date):
     """Altera o vencimento e acrescenta à fatura aberta os dias extras do ciclo."""
-    if new_due_date not in {'5', '15', '25'}:
-        raise ValueError('Vencimento inválido.')
-    old_due_date = user.due_date if user.due_date in {'5', '15', '25'} else '5'
-    if new_due_date == old_due_date:
+    try:
+        new_day = int(new_due_date)
+        if not (1 <= new_day <= 28):
+            raise ValueError
+    except (ValueError, TypeError):
+        raise ValueError('Dia de vencimento inválido (deve ser entre 1 e 28).')
+
+    old_day = int(user.due_date) if user.due_date and user.due_date.isdigit() else 15
+    if str(new_day) == str(user.due_date):
         return {'days': 0, 'amount': Decimal('0.00'), 'payment': None}
 
-    extra_days = (int(new_due_date) - int(old_due_date)) % 30
-    user.due_date = new_due_date
+    extra_days = (new_day - old_day) % 30
+    user.due_date = str(new_day)
     if not extra_days or user.is_fee_exempt_for():
         return {'days': extra_days, 'amount': Decimal('0.00'), 'payment': None}
 
@@ -2338,7 +2343,10 @@ def login():
             combo_modalities = [value.strip() for value in request.form.getlist('comboModalities') if value.strip()]
             private_instructor_username = request.form.get('privateInstructor', '').strip()
             plan = selected_plan
-            due_date = request.form.get('regDueDate', '5').strip()
+            today_reg_day = str(min(datetime.now().day, 28))
+            due_date = request.form.get('regDueDate', '').strip()
+            if not due_date or not due_date.isdigit() or not (1 <= int(due_date) <= 28):
+                due_date = today_reg_day
             password = request.form.get('regPass', '')
             accepted_membership_terms = request.form.get('acceptMembershipTerms') == 'on'
             acknowledged_privacy = request.form.get('acknowledgePrivacy') == 'on'
@@ -2374,7 +2382,6 @@ def login():
             if not re.fullmatch(r'\d{2}', ddd) or not re.fullmatch(r'\d{9}', phone): errors.append('Telefone inválido.')
             if len(email) > 254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email): errors.append('Informe um e-mail válido.')
             if sex not in {'masculino', 'feminino', 'prefer_not'}: errors.append('Escolha uma opção válida para sexo.')
-            if due_date not in {'5', '15', '25'}: errors.append('Vencimento inválido.')
             if (len(password) < 8 or not re.search(r'\d', password)
                     or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password)):
                 errors.append('A senha deve ter pelo menos 8 caracteres, com número, letra maiúscula e letra minúscula.')
@@ -3900,7 +3907,8 @@ def mensalidades_admin():
             user = db.session.get(User, user_id)
             if user:
                 if new_status in {'Em Dia', 'Pendente'}: user.payment_status = new_status
-                if new_due_date in {'5', '15', '25'}: user.due_date = new_due_date
+                if new_due_date and new_due_date.isdigit() and 1 <= int(new_due_date) <= 28:
+                    user.due_date = str(int(new_due_date))
                 db.session.commit()
                 flash(f'Mensalidade de {user.name} atualizada! Vencimento: Dia {user.due_date} | Status: {user.payment_status}', 'success')
         
@@ -3917,7 +3925,11 @@ def mensalidades_admin():
 
     query = User.query
 
-    if filter_day in ['5', '15', '25']:
+    if filter_day == 'proximos_5_dias':
+        today_day = datetime.now().day
+        next_5_days = [str((today_day + i - 1) % 28 + 1) for i in range(5)]
+        query = query.filter(User.due_date.in_(next_5_days))
+    elif filter_day and filter_day.isdigit() and 1 <= int(filter_day) <= 28:
         query = query.filter(User.due_date == filter_day)
 
     if modality_filter != 'todos':
@@ -3941,9 +3953,9 @@ def mensalidades_admin():
     users_list = query.order_by(User.id.asc()).all()
 
     total_count = User.query.count()
-    day5_count = User.query.filter_by(due_date='5').count()
-    day15_count = User.query.filter_by(due_date='15').count()
-    day25_count = User.query.filter_by(due_date='25').count()
+    today_day = datetime.now().day
+    next_5_days = [str((today_day + i - 1) % 28 + 1) for i in range(5)]
+    due_soon_count = User.query.filter(User.due_date.in_(next_5_days), User.monthly_fee_exempt.is_(False)).count()
     paid_count = User.query.filter_by(payment_status='Em Dia', monthly_fee_exempt=False).count()
     pending_count = User.query.filter_by(payment_status='Pendente', monthly_fee_exempt=False).count()
     exempt_count = User.query.filter_by(monthly_fee_exempt=True).count()
@@ -3986,9 +3998,7 @@ def mensalidades_admin():
         status_filter=status_filter,
         modality_filter=modality_filter,
         total_count=total_count,
-        day5_count=day5_count,
-        day15_count=day15_count,
-        day25_count=day25_count,
+        due_soon_count=due_soon_count,
         paid_count=paid_count,
         pending_count=pending_count,
         exempt_count=exempt_count,
