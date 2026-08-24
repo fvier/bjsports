@@ -2982,13 +2982,19 @@ def planos_admin():
             errors.append('Informe um nome de plano com 3 a 120 caracteres.')
         if category not in allowed_categories:
             errors.append('Selecione uma categoria válida.')
-        for label, schedule_price in (
-            ('Ter - Qui', schedule_prices['ter-qui']),
-            ('Seg - Qua - Sex', schedule_prices['seg-qua-sex']),
-            ('Todos os dias', schedule_prices['todos']),
-        ):
-            if not re.fullmatch(r'R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}(?:/mês)?', schedule_price):
-                errors.append(f'Informe o valor de {label} no formato R$ 120,00/mês.')
+        if shared_type in {'couple', 'family'}:
+            schedule_prices['ter-qui'] = 'Calculado via Desconto'
+            schedule_prices['seg-qua-sex'] = 'Calculado via Desconto'
+            schedule_prices['todos'] = 'Calculado via Desconto'
+            price = 'Calculado via Desconto'
+        else:
+            for label, schedule_price in (
+                ('Ter - Qui', schedule_prices['ter-qui']),
+                ('Seg - Qua - Sex', schedule_prices['seg-qua-sex']),
+                ('Todos os dias', schedule_prices['todos']),
+            ):
+                if not re.fullmatch(r'R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}(?:/mês)?', schedule_price):
+                    errors.append(f'Informe o valor de {label} no formato R$ 120,00/mês.')
         if category == 'Planos Individuais' and len(modalities) != 1:
             errors.append('Plano individual deve possuir exatamente uma modalidade.')
         if category == 'Combos & Planos Especiais' and not modalities:
