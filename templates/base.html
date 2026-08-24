@@ -136,10 +136,9 @@
           </div>
         </div>
 
-        {% else %}
         <!-- Botão Padrão Sem Login -->
         <a href="{{ url_for('login') }}" class="btn btn-header-login {% if request.endpoint == 'login' %}active-link-btn{% endif %}">
-          <i data-lucide="user-check"></i> Área do Aluno
+          <i data-lucide="user"></i> <span class="btn-text-full">Área do Aluno</span>
         </a>
         {% endif %}
 

@@ -1974,7 +1974,29 @@ body.public-light-theme {
 
 @media (max-width: 991px) {
   .mobile-nav-toggle { display: flex; }
-  .btn-header-login { display: none; }
+  .btn-header-cta { display: none; }
+  .btn-header-login {
+    display: inline-flex !important;
+    padding: 7px 11px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    gap: 5px !important;
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, var(--accent-gold), #d97706) !important;
+    color: #0f172a !important;
+    border: none !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    text-decoration: none !important;
+  }
+  .btn-header-login svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+@media (max-width: 480px) {
+  .btn-header-login .btn-text-full { display: none; }
+  .btn-header-login::after { content: "Área Aluno"; }
 }
 
 .mobile-nav-overlay {
