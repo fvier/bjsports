@@ -3471,6 +3471,10 @@ def gestao_icones():
     preset_icons = [
         {'name': 'jiujitsu_kimono', 'label': '🥋 Kimono Jiu-Jitsu', 'icon': 'jiujitsu_kimono'},
         {'name': 'female_fighter', 'label': '🥋 Atleta Feminina / Jiu-Jitsu Feminino', 'icon': 'female_fighter'},
+        {'name': 'male_fighter', 'label': '🎽 Atleta Masculino / Boxe & Muay Thai', 'icon': 'male_fighter'},
+        {'name': 'headgear_full', 'label': '⛑️ Capacete de Proteção / Headgear Full', 'icon': 'headgear_full'},
+        {'name': 'headgear_padding', 'label': '🥊 Capacete Sparring / Protetor Almofadado', 'icon': 'headgear_padding'},
+        {'name': 'groin_guard', 'label': '🛡️ Protetor / Coquilha / Shield', 'icon': 'groin_guard'},
         {'name': 'mma_glove', 'label': '🥊 Luva MMA (Dedo Aberto)', 'icon': 'mma_glove'},
         {'name': 'boxing_gloves', 'label': '🥊 Luvas de Boxe Penduradas', 'icon': 'boxing_gloves'},
         {'name': 'boxing_upright', 'label': '🥊 Luvas de Boxe Par Frontal', 'icon': 'boxing_upright'},
