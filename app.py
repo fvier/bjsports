@@ -206,11 +206,27 @@ def protect_csrf():
     if request.method in {'POST', 'PUT', 'PATCH', 'DELETE'}:
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
         stored = session.get('_csrf_token', '')
+
+        # No fluxo de login, sincroniza o token da sessão com o formulário fornecido
+        if request.endpoint == 'login':
+            if supplied:
+                session['_csrf_token'] = supplied
+            return None
+
         if not supplied:
-            return jsonify({'error': 'Token CSRF ausente.'}), 400
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'error': 'Token CSRF ausente.'}), 400
+            flash('Sua sessão expirou ou o token CSRF é inválido. Por favor, tente novamente.', 'error')
+            return redirect(request.referrer or url_for('login'))
+
         if stored and not secrets.compare_digest(supplied, stored):
-            return jsonify({'error': 'Token CSRF inválido.'}), 400
-        if not stored:
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'error': 'Token CSRF inválido.'}), 400
+            session['_csrf_token'] = supplied
+            flash('Sua sessão foi atualizada por segurança. Por favor, tente novamente.', 'error')
+            return redirect(request.referrer or url_for('login'))
+
+        if not stored and supplied:
             session['_csrf_token'] = supplied
 
 @app.before_request
