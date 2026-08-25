@@ -28,6 +28,7 @@
     </div>
     <div class="erp-nav-group">
       <span class="erp-group-title">MINHA CONTA</span>
+      <a href="{{ url_for('loja') }}" class="erp-nav-item {% if request.endpoint == 'loja' %}active{% endif %}"><i data-lucide="shopping-bag" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Loja BJ Sports</span></a>
       <a href="{{ url_for('configuracoes') }}" class="erp-nav-item {% if request.endpoint == 'configuracoes' %}active{% endif %}"><i data-lucide="settings" class="erp-item-icon"></i><span class="erp-item-label">Configurações & Perfil</span></a>
       <a href="{{ url_for('contrato') }}" class="erp-nav-item {% if request.endpoint == 'contrato' %}active{% endif %}"><i data-lucide="file-signature" class="erp-item-icon"></i><span class="erp-item-label">Contrato</span>{% if contract_pending %}<span class="erp-nav-pending-count" title="Atualização aguardando aceite">!</span>{% endif %}</a>
       <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item"><i data-lucide="log-out" class="erp-item-icon icon-red"></i><span class="erp-item-label text-red">Sair da Conta</span></a>
@@ -45,6 +46,7 @@
     {% endif %}
     <div class="erp-nav-group">
       <span class="erp-group-title">MINHA CONTA</span>
+      <a href="{{ url_for('loja') }}" class="erp-nav-item {% if request.endpoint == 'loja' %}active{% endif %}"><i data-lucide="shopping-bag" class="erp-item-icon icon-gold"></i><span class="erp-item-label">Loja BJ Sports</span></a>
       <a href="{{ url_for('configuracoes') }}" class="erp-nav-item {% if request.endpoint == 'configuracoes' %}active{% endif %}"><i data-lucide="settings" class="erp-item-icon"></i><span class="erp-item-label">Configurações & Perfil</span></a>
       <a href="{{ url_for('contrato') }}" class="erp-nav-item {% if request.endpoint == 'contrato' %}active{% endif %}"><i data-lucide="file-signature" class="erp-item-icon"></i><span class="erp-item-label">Contrato</span>{% if contract_pending %}<span class="erp-nav-pending-count" title="Atualização aguardando aceite">!</span>{% endif %}</a>
       <a href="{{ url_for('logout') }}" class="erp-nav-item erp-logout-item"><i data-lucide="log-out" class="erp-item-icon icon-red"></i><span class="erp-item-label text-red">Sair da Conta</span></a>
