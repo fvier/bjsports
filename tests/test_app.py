@@ -1,6 +1,8 @@
 import os
+import json
 import unittest
 from io import BytesIO
+from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from unittest.mock import patch
 from openpyxl import load_workbook
@@ -1087,6 +1089,36 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             assigned = ClassGroup.query.filter_by(responsible_monitor_id=monitor_id).filter(ClassGroup.id.in_(class_ids)).count()
             self.assertEqual(assigned, 2)
+
+    def test_class_editor_breaks_responsibles_and_saves_existing_icon(self):
+        self.login('instrutor')
+        self.client.get('/gestao/turmas')
+        with app.app_context():
+            class_group = ClassGroup.query.order_by(ClassGroup.id).first()
+            monitor = User.query.filter_by(role='monitor').first()
+            class_id = class_group.id
+            payload = {
+                'action': 'update', 'class_id': class_id, 'class_name': class_group.name,
+                'class_modality': class_group.modality, 'class_audience': class_group.audience,
+                'class_schedule': ' / '.join(class_group.schedules),
+                'class_instructor': 'Mestre Bolivar', 'class_capacity': str(class_group.capacity),
+                'class_duration': str(class_group.duration_minutes), 'class_status': class_group.status,
+                'responsible_monitor_id': str(monitor.id), 'class_icon': 'glove_touch',
+                'csrf_token': self.csrf(),
+            }
+
+        with TemporaryDirectory() as temp_dir, patch(
+            'app.get_class_group_icons_path', return_value=os.path.join(temp_dir, 'class_group_icons.json')
+        ):
+            response = self.client.post('/gestao/turmas', data=payload, follow_redirects=True)
+            page = response.get_data(as_text=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('class-management-responsibles', page)
+            self.assertIn('Mestre Bolivar</strong><small>Monitor: Monitor', page)
+            self.assertIn('name="class_icon" value="glove_touch"', page)
+            self.assertIn('data-class-icon="glove_touch"', page)
+            with open(os.path.join(temp_dir, 'class_group_icons.json'), encoding='utf-8') as icon_file:
+                self.assertEqual(json.load(icon_file)[str(class_id)], 'glove_touch')
 
     def test_csrf_is_required(self):
         self.assertEqual(self.client.post('/login', data={'action': 'login'}).status_code, 400)

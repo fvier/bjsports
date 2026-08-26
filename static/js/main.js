@@ -1210,6 +1210,9 @@ function setupClassManagementPreview() {
       if (capacityInput) capacityInput.value = button.dataset.classCapacity || '20';
       if (durationInput) durationInput.value = button.dataset.classDuration || '60';
       if (statusInput) statusInput.value = button.dataset.classStatus || 'ativa';
+      const selectedIcon = button.dataset.classIcon || 'jiujitsu_kimono';
+      const iconInput = form?.querySelector(`[name="class_icon"][value="${selectedIcon}"]`);
+      if (iconInput) iconInput.checked = true;
       const locationInput = form ? form.querySelector('[name="class_location_slug"]') : null;
       if (locationInput) locationInput.value = button.dataset.classLocationSlug || 'cajazeiras-sede';
       if (publishedInput) publishedInput.checked = button.dataset.classPublished !== '0';

@@ -3277,6 +3277,11 @@ def gestao_turmas():
         capacity = request.form.get('class_capacity', type=int)
         duration = request.form.get('class_duration', type=int)
         status = request.form.get('class_status', 'ativa')
+        submitted_class_icon = request.form.get('class_icon', '').strip()
+        class_icon = submitted_class_icon or (
+            get_icon_for_class_group(class_group) if action == 'update'
+            else get_icon_for_modality(modality)
+        )
         location_slug = request.form.get('class_location_slug', 'cajazeiras-sede').strip()
 
         duplicate = ClassGroup.query.filter(db.func.lower(ClassGroup.name) == name.casefold())
@@ -3286,7 +3291,8 @@ def gestao_turmas():
                 or audience not in {'Adulto', 'Kids', 'Todos'} or not schedules
                 or not instructor or not capacity or not 1 <= capacity <= 100
                 or duration not in {45, 60, 75, 90, 120}
-                or status not in {'ativa', 'lotada', 'rascunho', 'suspensa'}):
+                or status not in {'ativa', 'lotada', 'rascunho', 'suspensa'}
+                or (submitted_class_icon and class_icon not in CLASS_ICON_NAMES)):
             flash('Revise os campos obrigatórios da turma.', 'error')
             return redirect(url_for('gestao_turmas'))
         if any(set(item.schedules) == set(schedules) for item in duplicate.all()):
@@ -3308,6 +3314,11 @@ def gestao_turmas():
         class_group.publish_public = request.form.get('publish_public') == '1'
         if action == 'create':
             db.session.add(class_group)
+        db.session.flush()
+        if submitted_class_icon:
+            class_group_icons = get_class_group_icons()
+            class_group_icons[str(class_group.id)] = class_icon
+            save_class_group_icons(class_group_icons)
         db.session.commit()
         flash(f'Turma {class_group.name} salva com sucesso!', 'success')
         return redirect(url_for('gestao_turmas'))
@@ -3360,6 +3371,7 @@ def gestao_turmas():
     for item in all_classes:
         item.checkin_people = len(checkin_metrics[item.id]['people'])
         item.checkin_records = checkin_metrics[item.id]['records']
+        item.icon_name = get_icon_for_class_group(item)
 
     total_capacity = sum(item.capacity for item in all_classes)
     total_enrolled = sum(item.enrolled for item in all_classes)
@@ -3430,6 +3442,8 @@ def gestao_turmas():
         modality_filter=modality_filter, status_filter=status_filter, location_filter=location_filter,
         locations_dict=get_locations_dict(),
         monitors=User.query.filter_by(role='monitor').order_by(User.name).all(),
+        preset_icons=CLASS_ICON_PRESETS,
+        custom_icon_names=CLASS_ICON_NAMES,
     )
 
 DEFAULT_MODALITY_ICONS = {
@@ -3438,6 +3452,29 @@ DEFAULT_MODALITY_ICONS = {
     'Muay Thai': 'hand_wrap',
     'MMA': 'mma_glove'
 }
+
+CLASS_ICON_PRESETS = [
+    {'label': 'Kimono Jiu-Jitsu', 'icon': 'jiujitsu_kimono'},
+    {'label': 'Atleta feminina', 'icon': 'female_fighter'},
+    {'label': 'Atleta masculino', 'icon': 'male_fighter'},
+    {'label': 'Capacete de proteção', 'icon': 'headgear_full'},
+    {'label': 'Capacete de sparring', 'icon': 'headgear_padding'},
+    {'label': 'Protetor', 'icon': 'groin_guard'},
+    {'label': 'Luva de MMA', 'icon': 'mma_glove'},
+    {'label': 'Luvas de boxe', 'icon': 'boxing_gloves'},
+    {'label': 'Luvas frontais', 'icon': 'boxing_upright'},
+    {'label': 'Mão enfaixada', 'icon': 'hand_wrap'},
+    {'label': 'Toque de luvas', 'icon': 'glove_touch'},
+    {'label': 'Respeito e união', 'icon': 'handshake_clasp'},
+    {'label': 'Tênis de corrida', 'icon': 'running_shoe'},
+    {'label': 'Turma Kids', 'icon': 'kids_running'},
+    {'label': 'Turma Baby', 'icon': 'baby_blocks'},
+    {'label': 'Contrato', 'icon': 'signed_contract'},
+    {'label': 'Ficha do aluno', 'icon': 'student_file'},
+    {'label': 'Parceria', 'icon': 'partnership_agreement'},
+    {'label': 'Mensalidade', 'icon': 'hand_payment'},
+]
+CLASS_ICON_NAMES = {item['icon'] for item in CLASS_ICON_PRESETS}
 
 def get_modality_icons_path():
     return os.path.join(app.instance_path, 'modality_icons.json')
@@ -3586,6 +3623,7 @@ def gestao_icones():
         {'name': 'hand_payment', 'label': '💵 Pagamento / Mensalidade', 'icon': 'hand_payment'}
     ]
 
+    preset_icons = CLASS_ICON_PRESETS
     overview = {
         'total_modalities': len(modality_items),
         'active_classes': len(all_class_groups),
