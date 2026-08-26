@@ -829,6 +829,7 @@ class ClassGroup(db.Model):
     status = db.Column(db.String(20), nullable=False, default='ativa')
     publish_public = db.Column(db.Boolean, nullable=False, default=True)
     location_slug = db.Column(db.String(80), nullable=False, default='cajazeiras-sede')
+    class_value = db.Column(db.Numeric(10, 2), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     responsible_monitor = db.relationship('User', foreign_keys=[responsible_monitor_id])
@@ -861,6 +862,13 @@ class ClassGroup(db.Model):
     @property
     def enrolled(self):
         return sum(1 for enrollment in self.enrollments if enrollment.active)
+
+    @property
+    def formatted_class_value(self):
+        if self.class_value is None:
+            return 'Não definido'
+        number = f'{self.class_value:,.2f}'.replace(',', '_').replace('.', ',').replace('_', '.')
+        return f'R$ {number}'
 
 class ClassEnrollment(db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'class_group_id', name='uq_user_class_group'),)
@@ -1018,6 +1026,19 @@ def parse_class_schedules(raw_value):
     parts = re.split(r'\s*(?:/|\n|;)\s*', (raw_value or '').strip())
     return [part.strip() for part in parts if part.strip()]
 
+def parse_optional_brl_amount(raw_value):
+    value = (raw_value or '').strip().replace('R$', '').replace(' ', '')
+    if not value:
+        return None
+    normalized = value.replace('.', '').replace(',', '.') if ',' in value else value
+    try:
+        amount = Decimal(normalized).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    except (ValueError, ArithmeticError):
+        raise ValueError('Valor da turma inválido.')
+    if amount < 0 or amount > Decimal('99999999.99'):
+        raise ValueError('Valor da turma fora do limite permitido.')
+    return amount
+
 CLASS_WEEKDAY_LOOKUP = {'Seg': 0, 'Ter': 1, 'Qua': 2, 'Qui': 3, 'Sex': 4, 'Sáb': 5, 'Dom': 6}
 CHAMPIONSHIP_MATCH_DURATIONS = (2, 3, 4, 5, 6, 10)
 
@@ -1128,10 +1149,15 @@ def ensure_db_schema_columns():
         with db.engine.connect() as conn:
             if db.engine.name == 'postgresql':
                 conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+                conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS class_value NUMERIC(10, 2);"))
                 conn.execute(db.text("ALTER TABLE class_group DROP CONSTRAINT IF EXISTS class_group_name_key;"))
             else:
                 try:
                     conn.execute(db.text("ALTER TABLE class_group ADD COLUMN location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+                except Exception:
+                    pass
+                try:
+                    conn.execute(db.text("ALTER TABLE class_group ADD COLUMN class_value NUMERIC(10, 2);"))
                 except Exception:
                     pass
             conn.commit()
@@ -1165,7 +1191,7 @@ def split_combined_muay_thai_class():
     evening = ClassGroup(
         name=combined.name, modality=combined.modality, audience=combined.audience,
         instructor=combined.instructor, responsible_monitor=combined.responsible_monitor,
-        capacity=combined.capacity, waiting=combined.waiting,
+        capacity=combined.capacity, waiting=combined.waiting, class_value=combined.class_value,
         duration_minutes=combined.duration_minutes, status=combined.status,
         publish_public=combined.publish_public, location_slug=combined.location_slug,
     )
@@ -3325,6 +3351,11 @@ def gestao_turmas():
         responsible_monitor_id = request.form.get('responsible_monitor_id', type=int)
         responsible_monitor = db.session.get(User, responsible_monitor_id) if responsible_monitor_id else None
         capacity = request.form.get('class_capacity', type=int)
+        try:
+            class_value = parse_optional_brl_amount(request.form.get('class_value'))
+        except ValueError:
+            flash('Informe um valor válido para a turma.', 'error')
+            return redirect(url_for('gestao_turmas'))
         duration = request.form.get('class_duration', type=int)
         status = request.form.get('class_status', 'ativa')
         submitted_class_icon = request.form.get('class_icon', '').strip()
@@ -3358,6 +3389,7 @@ def gestao_turmas():
         class_group.instructor = instructor
         class_group.responsible_monitor = responsible_monitor
         class_group.capacity = capacity
+        class_group.class_value = class_value
         class_group.duration_minutes = duration
         class_group.status = status
         class_group.location_slug = location_slug

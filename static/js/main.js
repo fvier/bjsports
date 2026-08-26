@@ -1185,6 +1185,7 @@ function setupClassManagementPreview() {
   const instructorInput = form?.elements.class_instructor;
   const responsibleMonitorInput = form?.elements.responsible_monitor_id;
   const capacityInput = form?.elements.class_capacity;
+  const valueInput = form?.elements.class_value;
   const durationInput = form?.elements.class_duration;
   const statusInput = form?.elements.class_status;
   const publishedInput = form?.elements.publish_public;
@@ -1208,6 +1209,7 @@ function setupClassManagementPreview() {
       if (instructorInput) instructorInput.value = button.dataset.classInstructor || 'Mestre Bolivar';
       if (responsibleMonitorInput) responsibleMonitorInput.value = button.dataset.responsibleMonitorId || '';
       if (capacityInput) capacityInput.value = button.dataset.classCapacity || '20';
+      if (valueInput) valueInput.value = (button.dataset.classValue || '').replace('.', ',');
       if (durationInput) durationInput.value = button.dataset.classDuration || '60';
       if (statusInput) statusInput.value = button.dataset.classStatus || 'ativa';
       const selectedIcon = button.dataset.classIcon || 'jiujitsu_kimono';

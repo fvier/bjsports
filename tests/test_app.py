@@ -3,6 +3,7 @@ import json
 import unittest
 from io import BytesIO
 from tempfile import TemporaryDirectory
+from decimal import Decimal
 from datetime import datetime, timedelta
 from unittest.mock import patch
 from openpyxl import load_workbook
@@ -1142,6 +1143,7 @@ class BJSportsTestCase(unittest.TestCase):
                 'class_instructor': 'Mestre Bolivar', 'class_capacity': str(class_group.capacity),
                 'class_duration': str(class_group.duration_minutes), 'class_status': class_group.status,
                 'responsible_monitor_id': str(monitor.id), 'class_icon': 'glove_touch',
+                'class_value': 'R$ 189,90',
                 'csrf_token': self.csrf(),
             }
 
@@ -1155,6 +1157,11 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertIn('Mestre Bolivar</strong><small>Monitor: Monitor', page)
             self.assertIn('name="class_icon" value="glove_touch"', page)
             self.assertIn('data-class-icon="glove_touch"', page)
+            self.assertIn('<th>Valor da turma</th>', page)
+            self.assertIn('R$ 189,90', page)
+            self.assertIn('data-class-value="189.90"', page)
+            with app.app_context():
+                self.assertEqual(db.session.get(ClassGroup, class_id).class_value, Decimal('189.90'))
             with open(os.path.join(temp_dir, 'class_group_icons.json'), encoding='utf-8') as icon_file:
                 self.assertEqual(json.load(icon_file)[str(class_id)], 'glove_touch')
 
