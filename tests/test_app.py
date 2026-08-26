@@ -988,11 +988,49 @@ class BJSportsTestCase(unittest.TestCase):
             muay_groups = ClassGroup.query.filter_by(name='Muay Thai').all()
             self.assertEqual(night_group.schedules, ['Seg, Qua, Sex • 19:00'])
             self.assertEqual(nogi_group.schedules, ['Ter, Qui • 19:00'])
-            self.assertEqual(len(muay_groups), 2)
+            self.assertEqual(len(muay_groups), 3)
             self.assertEqual(
                 {tuple(item.schedules) for item in muay_groups},
-                {('Seg, Qua, Sex • 07:30 e 18:00',), ('Ter, Qui • 20:00',)},
+                {
+                    ('Seg, Qua, Sex • 07:30',),
+                    ('Seg, Qua, Sex • 18:00',),
+                    ('Ter, Qui • 20:00',),
+                },
             )
+
+    def test_legacy_muay_thai_times_are_split_without_losing_relationships(self):
+        self.login('instrutor')
+        with app.app_context():
+            student = User.query.filter_by(username='aluno').one()
+            combined = ClassGroup(
+                name='Muay Thai', modality='Muay Thai', audience='Adulto',
+                instructor='Mestre Bolivar', capacity=20, status='ativa', publish_public=True,
+            )
+            combined.schedules = ['Seg, Qua, Sex • 07:30 e 18:00']
+            db.session.add(combined)
+            db.session.flush()
+            db.session.add(ClassEnrollment(user_id=student.id, class_group_id=combined.id, active=True))
+            db.session.add(Booking(
+                login_or_name=student.username, modality='Muay Thai', shift_time='18:00',
+                class_group_id=combined.id, class_time='18:00', class_date=datetime.now().date(),
+            ))
+            db.session.add(Attendance(
+                user_id=student.id, class_group_id=combined.id,
+                modality='Muay Thai', status='confirmado',
+            ))
+            db.session.commit()
+            morning_id = combined.id
+
+        response = self.client.get('/gestao_turmas.html')
+        self.assertEqual(response.status_code, 200)
+        with app.app_context():
+            morning = db.session.get(ClassGroup, morning_id)
+            evening = ClassGroup.query.filter_by(schedules_json='["Seg, Qua, Sex • 18:00"]').one()
+            self.assertEqual(morning.schedules, ['Seg, Qua, Sex • 07:30'])
+            self.assertEqual(morning.enrolled, 1)
+            self.assertEqual(evening.enrolled, 1)
+            self.assertEqual(Booking.query.one().class_group_id, evening.id)
+            self.assertEqual(Attendance.query.one().class_group_id, morning.id)
 
     def test_class_management_counts_real_checkins_without_double_counting_people(self):
         self.login('instrutor')

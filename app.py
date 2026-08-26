@@ -92,10 +92,13 @@ DEFAULT_CLASS_GROUPS = [
      'schedules': ['Ter, Qui • 18:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
      'capacity': 16, 'waiting': 0, 'status': 'ativa'},
     {'id': 9, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
-     'schedules': ['Seg, Qua, Sex • 07:30 e 18:00'], 'weekly_sessions': 6,
+     'schedules': ['Seg, Qua, Sex • 07:30'], 'weekly_sessions': 3,
      'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 13, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
      'schedules': ['Ter, Qui • 20:00'], 'weekly_sessions': 2,
+     'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
+    {'id': 14, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
+     'schedules': ['Seg, Qua, Sex • 18:00'], 'weekly_sessions': 3,
      'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 10, 'name': 'MMA Profissional', 'modality': 'MMA', 'audience': 'Profissional',
      'schedules': ['Seg, Qua, Sex • 11:30'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
@@ -1147,6 +1150,46 @@ def ensure_class_groups():
             class_group.schedules = item['schedules']
             db.session.add(class_group)
         db.session.commit()
+    split_combined_muay_thai_class()
+
+def split_combined_muay_thai_class():
+    combined_schedule = 'Seg, Qua, Sex • 07:30 e 18:00'
+    morning_schedule = 'Seg, Qua, Sex • 07:30'
+    evening_schedule = 'Seg, Qua, Sex • 18:00'
+    combined = ClassGroup.query.filter_by(name='Muay Thai', modality='Muay Thai').filter(
+        ClassGroup.schedules_json.contains(combined_schedule)
+    ).first()
+    if not combined:
+        return
+
+    evening = ClassGroup(
+        name=combined.name, modality=combined.modality, audience=combined.audience,
+        instructor=combined.instructor, responsible_monitor=combined.responsible_monitor,
+        capacity=combined.capacity, waiting=combined.waiting,
+        duration_minutes=combined.duration_minutes, status=combined.status,
+        publish_public=combined.publish_public, location_slug=combined.location_slug,
+    )
+    evening.schedules = [evening_schedule]
+    combined.schedules = [morning_schedule]
+    db.session.add(evening)
+    db.session.flush()
+
+    for enrollment in list(combined.enrollments):
+        db.session.add(ClassEnrollment(
+            user_id=enrollment.user_id, class_group_id=evening.id,
+            active=enrollment.active, is_demo=enrollment.is_demo,
+            joined_at=enrollment.joined_at,
+        ))
+    for booking in list(combined.bookings):
+        if booking.class_time == '18:00':
+            booking.class_group_id = evening.id
+    db.session.commit()
+
+    class_icons = get_class_group_icons()
+    combined_icon = class_icons.get(str(combined.id)) or class_icons.get(combined.name)
+    if combined_icon:
+        class_icons[str(evening.id)] = combined_icon
+        save_class_group_icons(class_icons)
 
 def migrate_sqlite_to_postgres():
     if not app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql'):
