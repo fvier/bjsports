@@ -1144,7 +1144,12 @@ def deliver_push(subscription, payload):
         vapid_claims={'sub': subject},
     )
 
+_schema_columns_checked = False
+
 def ensure_db_schema_columns():
+    global _schema_columns_checked
+    if _schema_columns_checked:
+        return
     try:
         with db.engine.connect() as conn:
             if db.engine.name == 'postgresql':
@@ -1161,6 +1166,7 @@ def ensure_db_schema_columns():
                 except Exception:
                     pass
             conn.commit()
+        _schema_columns_checked = True
     except Exception as exc:
         print(f"Column migration check note: {exc}")
 
