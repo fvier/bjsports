@@ -3337,12 +3337,27 @@ def planos_admin():
 @role_required('instrutor')
 def gestao_turmas():
     ensure_class_groups()
+    class_form_state = session.pop('class_form_state', None)
+
+    def return_to_class_form(message):
+        preserved_fields = {
+            key: value for key, value in request.form.items()
+            if key != 'csrf_token' and key in {
+                'action', 'class_id', 'class_name', 'class_location_slug', 'class_modality',
+                'class_audience', 'class_icon', 'class_schedule', 'class_instructor',
+                'responsible_monitor_id', 'class_capacity', 'class_value', 'class_duration',
+                'class_status', 'publish_public',
+            }
+        }
+        session['class_form_state'] = {'data': preserved_fields, 'error': message}
+        flash(message, 'error')
+        return redirect(url_for('gestao_turmas'))
+
     if request.method == 'POST':
         action = request.form.get('action', 'create')
         class_group = db.session.get(ClassGroup, request.form.get('class_id', type=int)) if action == 'update' else ClassGroup()
         if action == 'update' and not class_group:
-            flash('Turma não encontrada para edição.', 'error')
-            return redirect(url_for('gestao_turmas'))
+            return return_to_class_form('A turma selecionada não existe mais. Atualize a página e tente novamente.')
         name = request.form.get('class_name', '').strip()
         modality = request.form.get('class_modality', '').strip()
         audience = request.form.get('class_audience', '').strip()
@@ -3354,8 +3369,7 @@ def gestao_turmas():
         try:
             class_value = parse_optional_brl_amount(request.form.get('class_value'))
         except ValueError:
-            flash('Informe um valor válido para a turma.', 'error')
-            return redirect(url_for('gestao_turmas'))
+            return return_to_class_form('O valor da turma é inválido. Use, por exemplo, 150,00 ou deixe o campo vazio.')
         duration = request.form.get('class_duration', type=int)
         status = request.form.get('class_status', 'ativa')
         submitted_class_icon = request.form.get('class_icon', '').strip()
@@ -3368,20 +3382,33 @@ def gestao_turmas():
         duplicate = ClassGroup.query.filter(db.func.lower(ClassGroup.name) == name.casefold())
         if action == 'update':
             duplicate = duplicate.filter(ClassGroup.id != class_group.id)
-        if (not name or modality not in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
-                or audience not in {'Adulto', 'Kids', 'Todos'} or not schedules
-                or not instructor or not capacity or not 1 <= capacity <= 100
-                or duration not in {45, 60, 75, 90, 120}
-                or status not in {'ativa', 'lotada', 'rascunho', 'suspensa'}
-                or (submitted_class_icon and class_icon not in CLASS_ICON_NAMES)):
-            flash('Revise os campos obrigatórios da turma.', 'error')
-            return redirect(url_for('gestao_turmas'))
+        validation_error = None
+        if not name:
+            validation_error = 'Informe o nome da turma.'
+        elif modality not in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}:
+            validation_error = 'Selecione uma modalidade válida.'
+        elif audience not in {'Adulto', 'Kids', 'Todos'}:
+            validation_error = 'Selecione um público válido.'
+        elif not schedules:
+            validation_error = 'Informe pelo menos um dia e horário para a turma.'
+        elif not instructor:
+            validation_error = 'Informe o instrutor responsável.'
+        elif not capacity or not 1 <= capacity <= 100:
+            validation_error = 'A capacidade máxima deve ser um número entre 1 e 100.'
+        elif duration not in {45, 60, 75, 90, 120}:
+            validation_error = 'Selecione uma duração de aula válida.'
+        elif status not in {'ativa', 'lotada', 'rascunho', 'suspensa'}:
+            validation_error = 'Selecione uma situação válida para a turma.'
+        elif location_slug not in get_locations_dict():
+            validation_error = 'Selecione uma filial ou unidade válida.'
+        elif submitted_class_icon and class_icon not in CLASS_ICON_NAMES:
+            validation_error = 'Selecione um ícone válido para a turma.'
+        if validation_error:
+            return return_to_class_form(validation_error)
         if any(set(item.schedules) == set(schedules) for item in duplicate.all()):
-            flash('Já existe uma turma com esse nome e os mesmos horários.', 'error')
-            return redirect(url_for('gestao_turmas'))
+            return return_to_class_form('Já existe uma turma com esse nome e os mesmos horários.')
         if responsible_monitor_id and (not responsible_monitor or responsible_monitor.role != 'monitor'):
-            flash('Selecione um monitor responsável válido.', 'error')
-            return redirect(url_for('gestao_turmas'))
+            return return_to_class_form('Selecione um monitor responsável válido.')
         class_group.name = name
         class_group.modality = modality
         class_group.audience = audience
@@ -3396,12 +3423,17 @@ def gestao_turmas():
         class_group.publish_public = request.form.get('publish_public') == '1'
         if action == 'create':
             db.session.add(class_group)
-        db.session.flush()
-        if submitted_class_icon:
-            class_group_icons = get_class_group_icons()
-            class_group_icons[str(class_group.id)] = class_icon
-            save_class_group_icons(class_group_icons)
-        db.session.commit()
+        try:
+            db.session.flush()
+            if submitted_class_icon:
+                class_group_icons = get_class_group_icons()
+                class_group_icons[str(class_group.id)] = class_icon
+                save_class_group_icons(class_group_icons)
+            db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.exception('Erro ao salvar turma: %s', exc)
+            return return_to_class_form('Não foi possível gravar a turma. Nenhum dado foi salvo; revise os campos e tente novamente.')
         flash(f'Turma {class_group.name} salva com sucesso!', 'success')
         return redirect(url_for('gestao_turmas'))
 
@@ -3526,6 +3558,7 @@ def gestao_turmas():
         monitors=User.query.filter_by(role='monitor').order_by(User.name).all(),
         preset_icons=CLASS_ICON_PRESETS,
         custom_icon_names=CLASS_ICON_NAMES,
+        class_form_state=class_form_state,
     )
 
 DEFAULT_MODALITY_ICONS = {

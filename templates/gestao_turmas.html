@@ -153,13 +153,14 @@
   </div>
 </div>
 
-<div class="class-editor-backdrop hidden" data-class-modal>
+<div class="class-editor-backdrop {% if not class_form_state %}hidden{% endif %}" data-class-modal>
   <section class="class-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="classEditorTitle">
     <header><div><span>CADASTRO DE TURMA</span><h2 id="classEditorTitle" data-class-modal-title>Nova turma</h2><p>Preencha os dados que serão utilizados na gestão e no calendário.</p></div><button type="button" data-class-modal-close aria-label="Fechar"><i data-lucide="x"></i></button></header>
     <form class="class-editor-form" method="post" action="{{ url_for('gestao_turmas') }}">
+      {% if class_form_state %}<div class="class-editor-error" role="alert"><i data-lucide="circle-alert"></i><span><strong>Não foi possível salvar</strong>{{ class_form_state.error }}</span></div>{% endif %}
       <input type="hidden" name="action" value="create">
       <input type="hidden" name="class_id" value="">
-      <label class="is-wide"><span>Nome da turma</span><input type="text" name="class_name" placeholder="Ex.: Jiu-Jitsu Iniciante"></label>
+      <label class="is-wide"><span>Nome da turma</span><input type="text" name="class_name" placeholder="Ex.: Jiu-Jitsu Iniciante" required></label>
       <label class="is-wide"><span>Filial / Unidade *</span><select name="class_location_slug" id="classLocationSlug">{% for slug, loc in (locations_dict or {}).items() %}<option value="{{ slug }}">{{ loc.name }} ({{ loc.city }}-{{ loc.state }})</option>{% endfor %}</select></label>
       <label><span>Modalidade</span><select name="class_modality"><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option><option>MMA</option></select></label>
       <label><span>Público</span><select name="class_audience"><option>Adulto</option><option>Kids</option><option>Todos</option></select></label>
@@ -167,8 +168,8 @@
         <legend>Ícone da turma</legend>
         <div>{% for preset in preset_icons %}<label><input type="radio" name="class_icon" value="{{ preset.icon }}" {% if loop.first %}checked{% endif %}><span><img src="{{ url_for('static', filename='img/icons/' ~ preset.icon ~ '_light.png') }}" alt=""><small>{{ preset.label }}</small></span></label>{% endfor %}</div>
       </fieldset>
-      <label class="is-wide"><span>Dias e horários</span><input type="text" name="class_schedule" placeholder="Ex.: Seg, Qua, Sex • 19:00"></label>
-      <label><span>Instrutor responsável</span><input type="text" name="class_instructor" value="Mestre Bolivar"></label>
+      <label class="is-wide"><span>Dias e horários</span><input type="text" name="class_schedule" placeholder="Ex.: Seg, Qua, Sex • 19:00" required></label>
+      <label><span>Instrutor responsável</span><input type="text" name="class_instructor" value="Mestre Bolivar" required></label>
       <label><span>Monitor responsável</span><select name="responsible_monitor_id"><option value="">Nenhum monitor</option>{% for monitor in monitors %}<option value="{{ monitor.id }}">{{ monitor.name }}</option>{% endfor %}</select><small>O mesmo monitor pode responder por várias turmas.</small></label>
       <label><span>Capacidade máxima</span><input type="number" name="class_capacity" min="1" max="100" value="20"></label>
       <label><span>Valor da turma</span><input type="text" name="class_value" inputmode="decimal" placeholder="Ex.: 150,00"><small>Deixe em branco enquanto o valor não estiver definido.</small></label>
@@ -179,4 +180,5 @@
     </form>
   </section>
 </div>
+{% if class_form_state %}<script type="application/json" id="classFormRestore">{{ class_form_state|tojson }}</script>{% endif %}
 {% endblock %}

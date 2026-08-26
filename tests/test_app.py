@@ -1166,6 +1166,36 @@ class BJSportsTestCase(unittest.TestCase):
             with open(os.path.join(temp_dir, 'class_group_icons.json'), encoding='utf-8') as icon_file:
                 self.assertEqual(json.load(icon_file)[str(class_id)], 'glove_touch')
 
+    def test_invalid_new_class_explains_error_and_keeps_modal_data(self):
+        self.login('instrutor')
+        invalid = self.client.post('/gestao_turmas.html', data={
+            'action': 'create', 'class_name': 'Nova Turma Preservada',
+            'class_location_slug': 'cajazeiras-sede', 'class_modality': 'Jiu-Jitsu',
+            'class_audience': 'Adulto',
+            'class_schedule': '', 'class_instructor': 'Mestre Bolivar',
+            'class_capacity': '20', 'class_value': '175,00', 'class_duration': '60',
+            'class_status': 'ativa', 'publish_public': '1', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        page = invalid.get_data(as_text=True)
+        self.assertEqual(invalid.status_code, 200)
+        self.assertIn('Informe pelo menos um dia e horário para a turma.', page)
+        self.assertIn('class-editor-backdrop " data-class-modal', page)
+        self.assertIn('id="classFormRestore"', page)
+        self.assertIn('Nova Turma Preservada', page)
+        self.assertIn('175,00', page)
+        with app.app_context():
+            self.assertIsNone(ClassGroup.query.filter_by(name='Nova Turma Preservada').first())
+
+        valid = self.client.post('/gestao_turmas.html', data={
+            'action': 'create', 'class_name': 'Nova Turma Preservada',
+            'class_location_slug': 'cajazeiras-sede', 'class_modality': 'Jiu-Jitsu',
+            'class_audience': 'Adulto',
+            'class_schedule': 'Sáb • 09:00', 'class_instructor': 'Mestre Bolivar',
+            'class_capacity': '20', 'class_value': '175,00', 'class_duration': '60',
+            'class_status': 'ativa', 'publish_public': '1', 'csrf_token': self.csrf(),
+        }, follow_redirects=True)
+        self.assertIn('Turma Nova Turma Preservada salva com sucesso!', valid.get_data(as_text=True))
+
     def test_csrf_is_required(self):
         self.assertEqual(self.client.post('/login', data={'action': 'login'}).status_code, 400)
 

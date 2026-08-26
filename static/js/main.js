@@ -1233,6 +1233,34 @@ function setupClassManagementPreview() {
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
   });
+
+  const restoreElement = document.querySelector('#classFormRestore');
+  if (restoreElement && form) {
+    try {
+      const restored = JSON.parse(restoreElement.textContent || '{}');
+      const values = restored.data || {};
+      form.reset();
+      Object.entries(values).forEach(([name, value]) => {
+        form.querySelectorAll(`[name="${name}"]`).forEach(control => {
+          if (control.type === 'radio' || control.type === 'checkbox') {
+            control.checked = control.value === value;
+          } else {
+            control.value = value;
+          }
+        });
+      });
+      if (publishedInput && !Object.prototype.hasOwnProperty.call(values, 'publish_public')) {
+        publishedInput.checked = false;
+      }
+      if (title) title.textContent = values.action === 'update' && values.class_name
+        ? `Editar ${values.class_name}` : 'Nova turma';
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      window.setTimeout(() => form.querySelector(':invalid')?.focus(), 30);
+    } catch (error) {
+      console.error('Não foi possível restaurar o formulário da turma.', error);
+    }
+  }
 }
 
 function setupSpecialClassEventModal() {
