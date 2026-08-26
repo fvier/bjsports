@@ -87,7 +87,7 @@ const scheduleData = {
     { name: 'Jiu-Jitsu Kids 1', freq: 'Terça e Quinta', time: '17:00h', price: 'Consulte-nos', tag: 'tag-kids', tagLabel: 'Kids' },
     { name: 'MMA Amador / Iniciantes', freq: '2x / semana (Ter, Qui)', time: '18:00h', price: 'R$ 130,00 /mês', tag: 'tag-mma', tagLabel: 'MMA' },
     { name: 'Muay Thai Kids', freq: 'Terça e Quinta', time: '18:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' },
-    { name: 'Jiu-Jitsu Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu' },
+    { name: 'Jiu-Jitsu NoGi', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-bjj', tagLabel: 'Jiu-Jitsu NoGi' },
     { name: 'Boxe Noturno', freq: '2x / semana (Ter, Qui)', time: '19:00h', price: 'R$ 90,00 /mês', tag: 'tag-boxe', tagLabel: 'Boxe' },
     { name: 'Muay Thai', freq: 'Terça e Quinta', time: '20:00h', price: 'Consulte-nos', tag: 'tag-muay', tagLabel: 'Muay Thai' }
   ],

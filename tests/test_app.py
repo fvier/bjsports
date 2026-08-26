@@ -976,6 +976,22 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Boxe Matinal', filtered_classes)
         self.assertNotIn('Jiu-Jitsu Kids 1', filtered_classes)
 
+    def test_default_mixed_schedules_are_split_into_independent_classes(self):
+        self.login('instrutor')
+        response = self.client.get('/gestao_turmas.html')
+        self.assertEqual(response.status_code, 200)
+        with app.app_context():
+            night_group = ClassGroup.query.filter_by(name='Jiu-Jitsu Noturno').one()
+            nogi_group = ClassGroup.query.filter_by(name='Jiu-Jitsu NoGi').one()
+            muay_groups = ClassGroup.query.filter_by(name='Muay Thai').all()
+            self.assertEqual(night_group.schedules, ['Seg, Qua, Sex • 19:00'])
+            self.assertEqual(nogi_group.schedules, ['Ter, Qui • 19:00'])
+            self.assertEqual(len(muay_groups), 2)
+            self.assertEqual(
+                {tuple(item.schedules) for item in muay_groups},
+                {('Seg, Qua, Sex • 07:30 e 18:00',), ('Ter, Qui • 20:00',)},
+            )
+
     def test_class_management_counts_real_checkins_without_double_counting_people(self):
         self.login('instrutor')
         self.client.get('/gestao/turmas')

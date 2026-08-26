@@ -77,7 +77,10 @@ DEFAULT_CLASS_GROUPS = [
      'schedules': ['Seg, Qua, Sex • 17:00'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
      'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 5, 'name': 'Jiu-Jitsu Noturno', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
-     'schedules': ['Seg, Qua, Sex • 19:00', 'Ter, Qui • 19:00'], 'weekly_sessions': 5,
+     'schedules': ['Seg, Qua, Sex • 19:00'], 'weekly_sessions': 3,
+     'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
+    {'id': 12, 'name': 'Jiu-Jitsu NoGi', 'modality': 'Jiu-Jitsu', 'audience': 'Adulto',
+     'schedules': ['Ter, Qui • 19:00'], 'weekly_sessions': 2,
      'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 6, 'name': 'Boxe Matinal', 'modality': 'Boxe', 'audience': 'Adulto',
      'schedules': ['Seg, Qua, Sex • 06:00'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
@@ -89,7 +92,10 @@ DEFAULT_CLASS_GROUPS = [
      'schedules': ['Ter, Qui • 18:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
      'capacity': 16, 'waiting': 0, 'status': 'ativa'},
     {'id': 9, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
-     'schedules': ['Seg, Qua, Sex • 07:30 e 18:00', 'Ter, Qui • 20:00'], 'weekly_sessions': 8,
+     'schedules': ['Seg, Qua, Sex • 07:30 e 18:00'], 'weekly_sessions': 6,
+     'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
+    {'id': 13, 'name': 'Muay Thai', 'modality': 'Muay Thai', 'audience': 'Adulto',
+     'schedules': ['Ter, Qui • 20:00'], 'weekly_sessions': 2,
      'instructor': 'Mestre Bolivar', 'capacity': 20, 'waiting': 0, 'status': 'ativa'},
     {'id': 10, 'name': 'MMA Profissional', 'modality': 'MMA', 'audience': 'Profissional',
      'schedules': ['Seg, Qua, Sex • 11:30'], 'weekly_sessions': 3, 'instructor': 'Mestre Bolivar',
@@ -808,7 +814,7 @@ class MonthlyFeeExemption(db.Model):
 
 class ClassGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(120), nullable=False)
     modality = db.Column(db.String(40), nullable=False)
     audience = db.Column(db.String(30), nullable=False, default='Adulto')
     schedules_json = db.Column(db.Text, nullable=False, default='[]')
@@ -1119,6 +1125,7 @@ def ensure_db_schema_columns():
         with db.engine.connect() as conn:
             if db.engine.name == 'postgresql':
                 conn.execute(db.text("ALTER TABLE class_group ADD COLUMN IF NOT EXISTS location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
+                conn.execute(db.text("ALTER TABLE class_group DROP CONSTRAINT IF EXISTS class_group_name_key;"))
             else:
                 try:
                     conn.execute(db.text("ALTER TABLE class_group ADD COLUMN location_slug VARCHAR(80) DEFAULT 'cajazeiras-sede';"))
@@ -3272,7 +3279,7 @@ def gestao_turmas():
         status = request.form.get('class_status', 'ativa')
         location_slug = request.form.get('class_location_slug', 'cajazeiras-sede').strip()
 
-        duplicate = ClassGroup.query.filter(ClassGroup.name == name)
+        duplicate = ClassGroup.query.filter(db.func.lower(ClassGroup.name) == name.casefold())
         if action == 'update':
             duplicate = duplicate.filter(ClassGroup.id != class_group.id)
         if (not name or modality not in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
@@ -3282,8 +3289,8 @@ def gestao_turmas():
                 or status not in {'ativa', 'lotada', 'rascunho', 'suspensa'}):
             flash('Revise os campos obrigatórios da turma.', 'error')
             return redirect(url_for('gestao_turmas'))
-        if duplicate.first():
-            flash('Já existe uma turma cadastrada com esse nome.', 'error')
+        if any(set(item.schedules) == set(schedules) for item in duplicate.all()):
+            flash('Já existe uma turma com esse nome e os mesmos horários.', 'error')
             return redirect(url_for('gestao_turmas'))
         if responsible_monitor_id and (not responsible_monitor or responsible_monitor.role != 'monitor'):
             flash('Selecione um monitor responsável válido.', 'error')
