@@ -1158,6 +1158,7 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertIn('name="class_icon" value="glove_touch"', page)
             self.assertIn('data-class-icon="glove_touch"', page)
             self.assertIn('<th>Valor da turma</th>', page)
+            self.assertNotIn('<th>Filial / Unidade</th>', page)
             self.assertIn('R$ 189,90', page)
             self.assertIn('data-class-value="189.90"', page)
             with app.app_context():
