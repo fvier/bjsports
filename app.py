@@ -1185,11 +1185,18 @@ def split_combined_muay_thai_class():
             booking.class_group_id = evening.id
     db.session.commit()
 
-    class_icons = get_class_group_icons()
-    combined_icon = class_icons.get(str(combined.id)) or class_icons.get(combined.name)
-    if combined_icon:
-        class_icons[str(evening.id)] = combined_icon
-        save_class_group_icons(class_icons)
+    icon_path = os.path.join(app.instance_path, 'class_group_icons.json')
+    if os.path.exists(icon_path):
+        try:
+            with open(icon_path, 'r', encoding='utf-8') as icon_file:
+                class_icons = json.load(icon_file)
+            combined_icon = class_icons.get(str(combined.id)) or class_icons.get(combined.name)
+            if combined_icon:
+                class_icons[str(evening.id)] = combined_icon
+                with open(icon_path, 'w', encoding='utf-8') as icon_file:
+                    json.dump(class_icons, icon_file, ensure_ascii=False, indent=2)
+        except (OSError, ValueError, TypeError) as exc:
+            app.logger.warning('Não foi possível copiar o ícone da turma Muay Thai: %s', exc)
 
 def migrate_sqlite_to_postgres():
     if not app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql'):
