@@ -216,27 +216,15 @@ def protect_csrf():
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
         stored = session.get('_csrf_token', '')
 
-        # No fluxo de login, sincroniza o token da sessão com o formulário fornecido
-        if request.endpoint == 'login':
-            if supplied:
-                session['_csrf_token'] = supplied
-            return None
-
         if not supplied:
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'error': 'Token CSRF ausente.'}), 400
-            flash('Sua sessão expirou ou o token CSRF é inválido. Por favor, tente novamente.', 'error')
-            return redirect(request.referrer or url_for('login'))
+            return ('Token CSRF ausente.', 400)
 
-        if stored and not secrets.compare_digest(supplied, stored):
+        if not stored or not secrets.compare_digest(supplied, stored):
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'error': 'Token CSRF inválido.'}), 400
-            session['_csrf_token'] = supplied
-            flash('Sua sessão foi atualizada por segurança. Por favor, tente novamente.', 'error')
-            return redirect(request.referrer or url_for('login'))
-
-        if not stored and supplied:
-            session['_csrf_token'] = supplied
+            return ('Token CSRF inválido.', 400)
 
 @app.before_request
 def require_password_change():
@@ -307,6 +295,7 @@ class User(db.Model):
     birth_date = db.Column(db.Date)
     must_change_password = db.Column(db.Boolean, nullable=False, default=False)
     password_reset_by_username = db.Column(db.String(80))
+    password_reset_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property
@@ -447,13 +436,18 @@ class User(db.Model):
             payment_obj = persisted_payments.get(m)
             if payment_obj:
                 status = payment_obj.status
+                if status != 'pago' and self.is_fee_exempt_for(year, m):
+                    status = 'isento'
+                    amount = 0.0
                 # Sincroniza o valor da fatura do mês atual se ainda não tiver sido paga
-                if status != 'pago' and m == current_month and not self.is_fee_exempt_for(year, m):
+                elif status != 'pago' and m == current_month:
                     curr_p = float(self.get_numeric_price(year, m))
                     if float(payment_obj.amount) != curr_p and float(payment_obj.amount) > 0:
                         payment_obj.amount = Decimal(str(curr_p))
                         db.session.commit()
-                amount = float(payment_obj.amount)
+                    amount = float(payment_obj.amount)
+                else:
+                    amount = float(payment_obj.amount)
             elif self.is_fee_exempt_for(year, m):
                 status = 'isento'
                 amount = 0.0
@@ -574,14 +568,14 @@ class User(db.Model):
         if overdue_count > 1:
             msg = (
                 f"Olá, {first_name}!\n\n"
-                f"Segue o resumo do seu débito no BJ Sports Centro de Treinamento:\n\n"
+                f"Segue o lembrete da sua mensalidade no BJ Sports Centro de Treinamento:\n\n"
                 f"*Plano:* {plan_simple}\n"
                 f"*Vencimento:* Todo Dia {self.due_date}\n"
                 f"*Mensalidades Pendentes:* {overdue_count} meses ({months_str})\n"
                 f"*Valor Total Devido:* R$ {total_debt:.2f}\n\n"
-                f"Chave PIX para quitação:\n"
+                f"Chave PIX para pagamento:\n"
                 f"*PIX:* (83) 99652-7997 (Mestre Bolivar)\n\n"
-                f"Caso já tenha efetuado o pagamento, favor enviar o comprovante. OSS!"
+                f"Favor enviar o comprovante assim que realizar o pagamento. OSS!"
             )
         else:
             msg = (
@@ -1080,6 +1074,41 @@ def active_groups_for_user(user_id):
     return [enrollment.class_group for enrollment in ClassEnrollment.query.filter_by(
         user_id=user_id, active=True,
     ).all() if enrollment.class_group and enrollment.class_group.publish_public]
+
+def public_class_schedule_rows():
+    """Flatten the public class registry into the rows consumed by the landing page."""
+    tag_by_modality = {
+        'Jiu-Jitsu': 'tag-bjj', 'Boxe': 'tag-boxe',
+        'Muay Thai': 'tag-muay', 'MMA': 'tag-mma',
+    }
+    rows = []
+    groups = ClassGroup.query.filter(
+        ClassGroup.publish_public.is_(True),
+        ClassGroup.status.in_({'ativa', 'lotada'}),
+    ).order_by(ClassGroup.modality, ClassGroup.name, ClassGroup.id).all()
+    for class_group in groups:
+        for schedule in class_group.schedules:
+            days_text, separator, times_text = schedule.partition('•')
+            if not separator:
+                continue
+            days = []
+            for day_label in days_text.split(','):
+                weekday = CLASS_WEEKDAY_LOOKUP.get(day_label.strip())
+                if weekday is not None:
+                    days.append((weekday + 1) % 7)  # Python Monday=0; JavaScript Sunday=0.
+            for class_time in re.findall(r'\d{2}:\d{2}', times_text):
+                rows.append({
+                    'classGroupId': class_group.id,
+                    'name': class_group.name,
+                    'freq': days_text.strip(),
+                    'days': days,
+                    'time': f'{class_time}h',
+                    'price': class_group.formatted_class_value,
+                    'tag': 'tag-kids' if class_group.audience == 'Kids' else tag_by_modality.get(class_group.modality, 'tag-bjj'),
+                    'tagLabel': class_group.modality,
+                    'audience': class_group.audience,
+                })
+    return rows
 
 def escape_ics(value):
     return str(value or '').replace('\\', '\\\\').replace(';', '\\;').replace(',', '\\,').replace('\n', '\\n')
@@ -1718,8 +1747,12 @@ def inject_user_context():
 @app.route('/index')
 @app.route('/index.html')
 def index():
+    ensure_class_groups()
     plans_list = Plan.query.order_by(Plan.is_featured.desc(), Plan.id.asc()).all()
-    return render_template('index.html', page_title='Início', plans=plans_list)
+    return render_template(
+        'index.html', page_title='Início', plans=plans_list,
+        public_class_rows=public_class_schedule_rows(),
+    )
 
 @app.route('/turmas.html')
 @app.route('/turmas')
@@ -4925,6 +4958,9 @@ def configuracoes():
                     dep_user = db.session.get(User, dep_id)
                     if dep_user and (dep_user.sponsor_id is None or dep_user.sponsor_id == user.id):
                         submitted_ids.add(dep_user.id)
+                        if dep_user.sponsor_id is None:
+                            dep_user.sponsored_previous_plan = dep_user.plan
+                            dep_user.sponsored_previous_modalities = dep_user.selected_modalities
                         dep_user.sponsor_id = user.id
                         dep_user.sponsor_started_at = dep_user.sponsor_started_at or datetime.utcnow()
                         dep_user.plan = user.plan
@@ -4959,8 +4995,10 @@ def configuracoes():
                 open_payment.amount = total_combo_price
 
             db.session.commit()
-            flash(f'✨ Combo Família salvo com sucesso! {total_members} integrantes vinculados. Fatura do grupo: R$ {total_combo_price:.2f}/mês'.replace('.', ','), 'success')
+            flash(f'✨ Combo Família salvo com sucesso! {total_members} integrantes vinculados, sem cobrança individual para os dependentes. Fatura do grupo: R$ {total_combo_price:.2f}/mês'.replace('.', ','), 'success')
             return redirect(url_for('configuracoes'))
+
+        if action == 'add_plan_dependent':
             dependent_user_id = request.form.get('dependent_user_id', type=int)
             search_query = request.form.get('dependent_search', '').strip() or request.form.get('dependent_cpf3', '').strip()
             

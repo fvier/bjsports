@@ -67,7 +67,7 @@
         <button class="day-btn day-btn-today" data-day="hoje"><i data-lucide="calendar-days"></i> Hoje</button>
         <button class="day-btn active" data-day="seg">Seg, Qua, Sex</button>
         <button class="day-btn" data-day="ter">Ter, Qui</button>
-        <button class="day-btn" data-day="todos">Planos Especiais & Família</button>
+        <button class="day-btn" data-day="todos">Todas as turmas</button>
         <a class="day-btn day-btn-classes" href="{{ url_for('turmas') }}"><i data-lucide="layout-grid"></i> Turmas</a>
       </div>
 
@@ -185,4 +185,5 @@
       </div>
     </div>
   </footer>
+  <script type="application/json" id="publicClassScheduleData">{{ public_class_rows|tojson }}</script>
 {% endblock %}

@@ -101,8 +101,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('name="regEmail"', page)
         self.assertIn('placeholder="Ex: 83"', page)
         self.assertIn('placeholder="9 9999 9999"', page)
-        self.assertIn('<option value="" selected disabled>Selecione o dia de vencimento</option>', page)
-        self.assertNotIn('<option value="15" selected>', page)
+        self.assertIn('type="hidden" name="regDueDate"', page)
         self.assertIn("const storageKey = 'bjSportsRegistrationDraft';", page)
         self.assertIn("['csrf_token', 'action', 'regPass'].includes(name)", page)
         self.assertIn('placeholder="Crie um apelido"', page)
@@ -307,6 +306,29 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('<strong>Aula Experimental Grátis</strong>', page)
         self.assertIn('experimental-checkbox-action', page)
 
+    def test_landing_schedule_comes_from_public_class_management_records(self):
+        with app.app_context():
+            visible = ClassGroup(name='Turma Nova da Gestão', modality='Boxe', audience='Adulto',
+                                 instructor='Instrutor', status='ativa', publish_public=True,
+                                 class_value=Decimal('149.90'))
+            visible.schedules = ['Sáb • 08:15']
+            hidden = ClassGroup(name='Turma Interna', modality='MMA', audience='Adulto',
+                                instructor='Instrutor', status='ativa', publish_public=False)
+            hidden.schedules = ['Seg • 09:00']
+            db.session.add_all([visible, hidden])
+            db.session.commit()
+
+        page = self.client.get('/').get_data(as_text=True)
+        self.assertIn('id="publicClassScheduleData"', page)
+        payload = page.split('id="publicClassScheduleData">', 1)[1].split('</script>', 1)[0]
+        rows = json.loads(payload)
+        visible_row = next(row for row in rows if row['name'] == 'Turma Nova da Gestão')
+        self.assertEqual(visible_row['time'], '08:15h')
+        self.assertEqual(visible_row['price'], 'R$ 149,90')
+        self.assertEqual(visible_row['days'], [6])
+        self.assertNotIn('Turma Interna', page)
+        self.assertIn('Todas as turmas', page)
+
     def test_weekly_calendar_is_available_to_logged_users_and_supports_filters(self):
         self.assertEqual(self.client.get('/calendario').status_code, 302)
         self.login('aluno')
@@ -383,6 +405,9 @@ class BJSportsTestCase(unittest.TestCase):
 
         with app.app_context():
             user = User.query.filter_by(username='aluno').first()
+            class_group = ClassGroup.query.order_by(ClassGroup.id).first()
+            db.session.add(ClassEnrollment(user_id=user.id, class_group_id=class_group.id, active=True))
+            db.session.commit()
             enrolled_names = [item.class_group.name for item in user.class_enrollments if item.active]
             self.assertEqual(len(enrolled_names), 1)
             token = calendar_token_serializer.dumps({'user_id': user.id})
@@ -502,7 +527,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('instrutor')
         resp = self.client.get('/gestao/icones')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('Associação de Ícones e Modalidades', resp.get_data(as_text=True))
+        self.assertIn('Associação de Ícones por Modalidade e Turma', resp.get_data(as_text=True))
         
         post_resp = self.client.post('/gestao/icones', data={
             'action': 'save_modality_icons',
@@ -513,7 +538,7 @@ class BJSportsTestCase(unittest.TestCase):
             'csrf_token': self.csrf()
         }, follow_redirects=True)
         self.assertEqual(post_resp.status_code, 200)
-        self.assertIn('Ícones das modalidades atualizados', post_resp.get_data(as_text=True))
+        self.assertIn('Ícones das modalidades e turmas atualizados', post_resp.get_data(as_text=True))
 
     def test_monitor_controls_scoreboard_while_student_has_read_only_access(self):
         with app.app_context():
@@ -930,7 +955,7 @@ class BJSportsTestCase(unittest.TestCase):
         instructor_menu = self.client.get('/dashboard').get_data(as_text=True)
         self.assertIn('FINANCEIRO E ADMINISTRAÇÃO', instructor_menu)
         self.assertIn('Visão Financeira', instructor_menu)
-        self.assertIn('Gestão de Turmas', instructor_menu)
+        self.assertIn('Turmas e Filiais', instructor_menu)
         self.assertIn('Planos', instructor_menu)
         self.assertIn('Mensalidades', instructor_menu)
         self.assertIn('Usuários e Permissões', instructor_menu)
@@ -965,9 +990,9 @@ class BJSportsTestCase(unittest.TestCase):
         classes_page = self.client.get('/gestao/turmas').get_data(as_text=True)
         self.assertIn('GESTÃO OPERACIONAL', classes_page)
         self.assertIn('Turmas e capacidade', classes_page)
-        self.assertIn('Dados reais por modalidade', classes_page)
+        self.assertIn('Panorama por modalidade', classes_page)
         self.assertIn('Pessoas com check-in', classes_page)
-        self.assertIn('Sem check-ins', classes_page)
+        self.assertIn('0 check-in(s)', classes_page)
         self.assertNotIn('Vínculos iniciais de demonstração', classes_page)
         self.assertNotIn('METODOLOGIA S.M.A.R.T.', classes_page)
         self.assertIn('data-class-modal', classes_page)
@@ -1199,9 +1224,9 @@ class BJSportsTestCase(unittest.TestCase):
     def test_csrf_is_required(self):
         self.assertEqual(self.client.post('/login', data={'action': 'login'}).status_code, 400)
 
-    def test_store_routes_are_removed(self):
-        self.assertEqual(self.client.get('/loja').status_code, 404)
-        self.assertEqual(self.client.get('/loja.html').status_code, 404)
+    def test_store_routes_are_public(self):
+        self.assertEqual(self.client.get('/loja').status_code, 200)
+        self.assertEqual(self.client.get('/loja.html').status_code, 200)
 
     def test_plan_admin_is_central_source_for_modalities_and_enrollments(self):
         self.login('instrutor')
@@ -1279,7 +1304,12 @@ class BJSportsTestCase(unittest.TestCase):
 
         self.login('aluno')
         response = self.client.post('/configuracoes', data={
-            'action': 'add_plan_dependent', 'dependent_cpf3': '321', 'csrf_token': self.csrf(),
+            'action': 'save_family_combo',
+            'titular_modality': ['Jiu-Jitsu'], 'titular_schedule': ['todos'],
+            'family_member_id_0': str(dependent_id),
+            'family_member_modality_0': ['Boxe'],
+            'family_member_schedule_0': ['todos'],
+            'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('sem cobrança individual', response.get_data(as_text=True))
         with app.app_context():
@@ -1370,14 +1400,17 @@ class BJSportsTestCase(unittest.TestCase):
         }, follow_redirects=True)
         self.assertIn('10 dia(s) proporcionais (R$ 33.33)', response.get_data(as_text=True))
         self.assertIn('R$ 133,33', response.get_data(as_text=True))
+        now = datetime.now()
+        expected_month = 1 if now.month == 12 else now.month + 1
+        expected_year = now.year + 1 if now.month == 12 else now.year
         with app.app_context():
             student = db.session.get(User, student_id)
             payment = MonthlyPayment.query.filter_by(
-                user_id=student_id, year=datetime.now().year, month=datetime.now().month,
+                user_id=student_id, year=expected_year, month=expected_month,
             ).one()
             self.assertEqual(student.due_date, '15')
             self.assertEqual(float(payment.amount), 133.33)
-            self.assertEqual(payment.status, 'atrasado')
+            self.assertEqual(payment.status, 'futuro')
 
     def test_due_date_proration_uses_next_invoice_when_current_month_is_paid(self):
         self.login('aluno')
@@ -1405,7 +1438,7 @@ class BJSportsTestCase(unittest.TestCase):
         with app.app_context():
             student_id = User.query.filter_by(username='aluno').one().id
         page = self.client.get('/mensalidades_admin').get_data(as_text=True)
-        self.assertIn('Resetar senha', page)
+        self.assertIn("Resetar para 'bemvindo'", page)
         reset = self.client.post('/mensalidades_admin', data={
             'action': 'reset_student_password', 'user_id': student_id,
             'csrf_token': self.csrf(),
@@ -1617,9 +1650,16 @@ class BJSportsTestCase(unittest.TestCase):
 
     def test_new_student_has_no_metrics_and_teacher_confirms_checkin(self):
         self.login('aluno')
+        weekday_label = ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')[datetime.now().weekday()]
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
             student.plan = 'Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês'
+            group = ClassGroup(name='Turma de Hoje', modality='Jiu-Jitsu', audience='Adulto',
+                               instructor='Instrutor', status='ativa', publish_public=True)
+            group.schedules = [f'{weekday_label} • 19:00']
+            db.session.add(group)
+            db.session.flush()
+            db.session.add(ClassEnrollment(user_id=student.id, class_group_id=group.id, active=True))
             db.session.commit()
         initial_page = self.client.get('/presencas').get_data(as_text=True)
         self.assertIn('Frequência em formação', initial_page)
@@ -1641,9 +1681,9 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('monitor')
         monitor_page = self.client.get('/presencas').get_data(as_text=True)
         self.assertIn('Check-ins pendentes', monitor_page)
-        self.assertIn('Confirmar Presenças', monitor_page)
+        self.assertIn('VALIDAÇÃO DE PRESENÇA', monitor_page)
         self.assertIn('data-pending-attendance-count="1"', monitor_page)
-        self.assertIn('erp-nav-pending-count">1', monitor_page)
+        self.assertIn('title="Presenças aguardando confirmação">1', monitor_page)
         self.assertIn('attendance-approval-group', monitor_page)
         self.assertIn('Jiu-Jitsu', monitor_page)
         self.assertIn('Aluno', monitor_page)
