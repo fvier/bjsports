@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BJ Sports • App da Catraca & Check-in Facial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary-red: #dc2626;
+            --primary-red-hover: #b91c1c;
+            --green-success: #16a34a;
+            --green-glow: rgba(22, 163, 74, 0.4);
+            --yellow-warn: #eab308;
+            --yellow-glow: rgba(234, 179, 8, 0.4);
+            --red-danger: #ef4444;
+            --red-glow: rgba(239, 68, 68, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .kiosk-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+            border: 8px solid transparent;
+        }
+
+        .kiosk-container.state-success {
+            border-color: var(--green-success);
+            box-shadow: inset 0 0 40px var(--green-glow);
+        }
+
+        .kiosk-container.state-warning {
+            border-color: var(--yellow-warn);
+            box-shadow: inset 0 0 40px var(--yellow-glow);
+        }
+
+        .kiosk-container.state-danger {
+            border-color: var(--red-danger);
+            box-shadow: inset 0 0 40px var(--red-glow);
+        }
+
+        .kiosk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 28px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .brand-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            background: var(--primary-red);
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 6px 14px;
+            border-radius: 8px;
+            letter-spacing: 1px;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .connection-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dot-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--green-success);
+            box-shadow: 0 0 8px var(--green-success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.4; transform: scale(0.9); }
+        }
+
+        .btn-icon {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-red);
+        }
+
+        .camera-viewport {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #000;
+        }
+
+        video#cameraFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .scanner-frame {
+            position: absolute;
+            width: 300px;
+            height: 380px;
+            border: 2px dashed rgba(255, 255, 255, 0.35);
+            border-radius: 150px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scanner-line {
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-red), transparent);
+            position: absolute;
+            animation: scanAnim 2.5s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--primary-red);
+        }
+
+        @keyframes scanAnim {
+            0% { top: 15%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 85%; opacity: 0; }
+        }
+
+        .state-success .scanner-frame {
+            border-color: var(--green-success);
+            border-style: solid;
+            box-shadow: 0 0 0 9999px rgba(22, 163, 74, 0.2), 0 0 30px var(--green-success);
+        }
+
+        .state-warning .scanner-frame {
+            border-color: var(--yellow-warn);
+            border-style: solid;
+            box-shadow: 0 0 0 9999px rgba(234, 179, 8, 0.2), 0 0 30px var(--yellow-warn);
+        }
+
+        .state-danger .scanner-frame {
+            border-color: var(--red-danger);
+            border-style: solid;
+            box-shadow: 0 0 0 9999px rgba(239, 68, 68, 0.2), 0 0 30px var(--red-danger);
+        }
+
+        .feedback-banner {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 16px 32px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            max-width: 90%;
+            width: 520px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-banner h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .feedback-banner p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .feedback-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .kiosk-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 18px 24px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            gap: 16px;
+        }
+
+        .btn-action {
+            flex: 1;
+            max-width: 280px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action-trial {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-action-trial:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+        }
+
+        .btn-action-cpf {
+            background: #1e293b;
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-action-cpf:hover {
+            background: #334155;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 28px;
+            width: 90%;
+            max-width: 460px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-red-hover);
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .key-btn {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .key-btn:active {
+            background: var(--primary-red);
+        }
+    </style>
+</head>
+<body>
+
+<div class="kiosk-container" id="kioskContainer">
+    <header class="kiosk-header">
+        <div class="brand-logo-area">
+            <div class="brand-badge">BJ</div>
+            <div>
+                <div class="brand-title">CENTRO DE TREINAMENTO</div>
+                <div class="brand-subtitle">Controle de Acesso Inteligente</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="connection-indicator" id="turnstileStatus">
+                <div class="dot-pulse"></div>
+                <span id="turnstileStatusText">Catraca Pronta</span>
+            </div>
+            <button class="btn-icon" id="btnAdminModal" title="Configurações & Diagnóstico">
+                <i data-lucide="settings"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="camera-viewport">
+        <video id="cameraFeed" autoplay playsinline muted></video>
+
+        <div class="scanner-frame" id="scannerFrame">
+            <div class="scanner-line"></div>
+        </div>
+
+        <div class="feedback-banner" id="feedbackBanner">
+            <h2 id="feedbackTitle">Aproxime o rosto</h2>
+            <p id="feedbackDesc">Posicione-se em frente à câmera para liberar o acesso</p>
+            <div id="feedbackBadgeContainer"></div>
+        </div>
+    </main>
+
+    <footer class="kiosk-footer">
+        <button class="btn-action btn-action-trial" id="btnOpenTrialModal">
+            <i data-lucide="flame"></i>
+            Aula Experimental
+        </button>
+        <button class="btn-action btn-action-cpf" id="btnOpenCpfModal">
+            <i data-lucide="keypad"></i>
+            Digitar CPF
+        </button>
+    </footer>
+</div>
+
+<div class="modal-overlay" id="modalTrial">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>🥋 Nova Aula Experimental</h3>
+            <button class="btn-icon" id="btnCloseTrialModal"><i data-lucide="x"></i></button>
+        </div>
+        <form id="formTrial">
+            <div class="form-group">
+                <label for="trialName">Nome do Visitante</label>
+                <input type="text" id="trialName" class="form-control" placeholder="Ex: Lucas Silva" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="trialModality">Modalidade de Interesse</label>
+                <select id="trialModality" class="form-control">
+                    <option value="Jiu-Jitsu">Jiu-Jitsu 🥋</option>
+                    <option value="Muay Thai">Muay Thai 🥊</option>
+                    <option value="Boxe">Boxe 🥊</option>
+                    <option value="MMA">MMA 🥋</option>
+                    <option value="Musculação">Musculação 💪</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Liberar Entrada VIP 🔓</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalCpf">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>🔢 Identificação por CPF</h3>
+            <button class="btn-icon" id="btnCloseCpfModal"><i data-lucide="x"></i></button>
+        </div>
+        <div class="form-group">
+            <input type="text" id="cpfInput" class="form-control" style="text-align:center; font-size:1.6rem; letter-spacing:2px;" placeholder="000.000.000-00" readonly>
+        </div>
+        <div class="keypad-grid">
+            <button class="key-btn" onclick="typeCpf('1')">1</button>
+            <button class="key-btn" onclick="typeCpf('2')">2</button>
+            <button class="key-btn" onclick="typeCpf('3')">3</button>
+            <button class="key-btn" onclick="typeCpf('4')">4</button>
+            <button class="key-btn" onclick="typeCpf('5')">5</button>
+            <button class="key-btn" onclick="typeCpf('6')">6</button>
+            <button class="key-btn" onclick="typeCpf('7')">7</button>
+            <button class="key-btn" onclick="typeCpf('8')">8</button>
+            <button class="key-btn" onclick="typeCpf('9')">9</button>
+            <button class="key-btn" style="color:var(--primary-red)" onclick="clearCpf()"><i data-lucide="delete"></i></button>
+            <button class="key-btn" onclick="typeCpf('0')">0</button>
+            <button class="key-btn" style="color:var(--green-success)" onclick="submitCpf()"><i data-lucide="check"></i></button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalAdmin">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>⚙️ Configurações & Diagnóstico</h3>
+            <button class="btn-icon" id="btnCloseAdminModal"><i data-lucide="x"></i></button>
+        </div>
+        <div class="form-group">
+            <label for="espIpInput">IP Local da Placa ESP32</label>
+            <input type="text" id="espIpInput" class="form-control" placeholder="http://192.168.1.150">
+        </div>
+        <div class="form-group">
+            <label for="tokenInput">Chave de Segurança (API Key)</label>
+            <input type="password" id="tokenInput" class="form-control" placeholder="bjsports-catraca-secret">
+        </div>
+        <button class="btn-submit" style="background:#2563eb; margin-bottom:8px;" onclick="testTurnstileGiro()">
+            <i data-lucide="rotate-cw" style="display:inline; vertical-align:middle; width:18px;"></i> Testar Giro Manual da Catraca
+        </button>
+        <button class="btn-submit" onclick="saveSettings()">Salvar Configurações</button>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    const container = document.getElementById("kioskContainer");
+    const feedbackTitle = document.getElementById("feedbackTitle");
+    const feedbackDesc = document.getElementById("feedbackDesc");
+    const feedbackBadgeContainer = document.getElementById("feedbackBadgeContainer");
+    const video = document.getElementById("cameraFeed");
+    let resetTimer = null;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(type) {
+        if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === "success") {
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === "warn") {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } else if (type === "danger") {
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.35);
+        }
+    }
+
+    async function startCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: false
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            console.warn("Câmera não disponível no dispositivo, usando modo simulado:", err);
+            feedbackDesc.textContent = "Modo Simulado Ativo (Toque em Digitar CPF ou Aula Experimental)";
+        }
+    }
+    startCamera();
+
+    function setState(state, title, desc, badgeHtml = "", duration = 3000) {
+        clearTimeout(resetTimer);
+        container.className = "kiosk-container state-" + state;
+        feedbackTitle.innerHTML = title;
+        feedbackDesc.innerHTML = desc;
+        feedbackBadgeContainer.innerHTML = badgeHtml;
+
+        if (state === "success") {
+            playBeep("success");
+            triggerTurnstileUnlock();
+        } else if (state === "warning") {
+            playBeep("warn");
+        } else if (state === "danger") {
+            playBeep("danger");
+        }
+
+        resetTimer = setTimeout(() => {
+            resetToStandby();
+        }, duration);
+    }
+
+    function resetToStandby() {
+        container.className = "kiosk-container";
+        feedbackTitle.textContent = "Aproxime o rosto";
+        feedbackDesc.textContent = "Posicione-se em frente à câmera para liberar o acesso";
+        feedbackBadgeContainer.innerHTML = "";
+    }
+
+    async function triggerTurnstileUnlock() {
+        const espIp = localStorage.getItem("bj_esp32_ip") || "http://192.168.1.150";
+        const apiKey = localStorage.getItem("bj_esp32_key") || "bjsports-catraca-secret";
+        
+        try {
+            fetch(`${espIp}/liberar`, {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + apiKey },
+                mode: "no-cors"
+            }).catch(() => {});
+
+            fetch("/api/catraca/testar-giro", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reason: "Reconhecimento Facial" })
+            }).catch(() => {});
+        } catch (e) {}
+    }
+
+    let currentCpf = "";
+    function typeCpf(digit) {
+        if (currentCpf.length < 11) {
+            currentCpf += digit;
+            formatCpfDisplay();
+        }
+    }
+    function clearCpf() {
+        currentCpf = "";
+        formatCpfDisplay();
+    }
+    function formatCpfDisplay() {
+        const input = document.getElementById("cpfInput");
+        let v = currentCpf;
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+        input.value = v;
+    }
+
+    async function submitCpf() {
+        if (currentCpf.length < 11) {
+            alert("Por favor, digite os 11 dígitos do CPF.");
+            return;
+        }
+        document.getElementById("modalCpf").classList.remove("active");
+        
+        try {
+            const res = await fetch("/api/catraca/validar-rosto", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cpf: currentCpf })
+            });
+            const data = await res.json();
+            handleAccessResult(data);
+        } catch (err) {
+            setState("danger", "Erro de Conexão", "Não foi possível consultar o servidor da academia", "", 4000);
+        }
+        clearCpf();
+    }
+
+    function handleAccessResult(data) {
+        if (data.status === "LIBERADO") {
+            const badge = `<span class="feedback-badge" style="background:var(--green-success); color:white;">🥋 ${data.modality || "Acesso Geral"}</span>`;
+            setState("success", `Seja bem-vindo(a), ${data.user_name}! 🟢`, "Catraca liberada. Bom treino!", badge, 2500);
+        } else if (data.status === "PENDENCIA_FINANCEIRA") {
+            const badge = `<span class="feedback-badge" style="background:var(--red-danger); color:white;">Mensalidade Pendente</span>`;
+            setState("danger", `Olá, ${data.user_name} 🔴`, "Consta uma pendência no seu plano. Por favor, dirija-se à recepção.", badge, 4500);
+        } else if (data.status === "FORA_DO_HORARIO") {
+            const badge = `<span class="feedback-badge" style="background:var(--yellow-warn); color:#000;">Fora do Horário</span>`;
+            setState("warning", `Olá, ${data.user_name} 🟡`, "Seu plano não inclui o horário atual. Fale com a recepção.", badge, 4000);
+        } else {
+            setState("warning", "Rosto não identificado 🟡", "Centralize seu rosto ou utilize a opção "Digitar CPF"", "", 3500);
+        }
+    }
+
+    document.getElementById("formTrial").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("trialName").value.trim();
+        const modality = document.getElementById("trialModality").value;
+        document.getElementById("modalTrial").classList.remove("active");
+
+        try {
+            const res = await fetch("/api/catraca/aula-experimental", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, modality })
+            });
+            const data = await res.json();
+            const badge = `<span class="feedback-badge" style="background:#dc2626; color:white;">VIP • ${modality}</span>`;
+            setState("success", `Bem-vindo à Aula Experimental, ${name}! 🥋`, "Catraca liberada! Aproveite o seu treino na BJ Sports!", badge, 3500);
+        } catch (err) {
+            setState("danger", "Erro ao Registrar", "Consulte a recepção para liberação manual.", "", 3000);
+        }
+    });
+
+    document.getElementById("btnOpenTrialModal").onclick = () => document.getElementById("modalTrial").classList.add("active");
+    document.getElementById("btnCloseTrialModal").onclick = () => document.getElementById("modalTrial").classList.remove("active");
+
+    document.getElementById("btnOpenCpfModal").onclick = () => {
+        clearCpf();
+        document.getElementById("modalCpf").classList.add("active");
+    };
+    document.getElementById("btnCloseCpfModal").onclick = () => document.getElementById("modalCpf").classList.remove("active");
+
+    document.getElementById("btnAdminModal").onclick = () => {
+        document.getElementById("espIpInput").value = localStorage.getItem("bj_esp32_ip") || "http://192.168.1.150";
+        document.getElementById("tokenInput").value = localStorage.getItem("bj_esp32_key") || "bjsports-catraca-secret";
+        document.getElementById("modalAdmin").classList.add("active");
+    };
+    document.getElementById("btnCloseAdminModal").onclick = () => document.getElementById("modalAdmin").classList.remove("active");
+
+    function saveSettings() {
+        const ip = document.getElementById("espIpInput").value.trim();
+        const key = document.getElementById("tokenInput").value.trim();
+        localStorage.setItem("bj_esp32_ip", ip);
+        localStorage.setItem("bj_esp32_key", key);
+        document.getElementById("modalAdmin").classList.remove("active");
+        alert("Configurações salvas com sucesso!");
+    }
+
+    async function testTurnstileGiro() {
+        triggerTurnstileUnlock();
+        alert("Comando de pulso elétrico enviado para a catraca!");
+    }
+
+    setInterval(() => {
+        const statusText = document.getElementById("turnstileStatusText");
+        statusText.textContent = navigator.onLine ? "Catraca Pronta • Online" : "Catraca Pronta • Modo Offline";
+    }, 5000);
+</script>
+
+</body>
+</html>

@@ -212,6 +212,9 @@ def format_enrollment_duration(started_at, reference=None):
 
 @app.before_request
 def protect_csrf():
+    if request.path.startswith('/api/catraca/'):
+        return
+
     if request.method in {'POST', 'PUT', 'PATCH', 'DELETE'}:
         supplied = request.form.get('csrf_token') or request.headers.get('X-CSRF-Token')
         stored = session.get('_csrf_token', '')
@@ -1223,8 +1226,14 @@ def split_combined_muay_thai_class():
     if not combined:
         return
 
+    evening_name = 'Muay Thai Noite'
+    if ClassGroup.query.filter_by(name=evening_name).first():
+        combined.schedules = [morning_schedule]
+        db.session.commit()
+        return
+
     evening = ClassGroup(
-        name=combined.name, modality=combined.modality, audience=combined.audience,
+        name=evening_name, modality=combined.modality, audience=combined.audience,
         instructor=combined.instructor, responsible_monitor=combined.responsible_monitor,
         capacity=combined.capacity, waiting=combined.waiting, class_value=combined.class_value,
         duration_minutes=combined.duration_minutes, status=combined.status,
@@ -4882,14 +4891,109 @@ def integracoes_pagamentos():
 @role_required('instrutor')
 def integracoes_catraca():
     device_configured = bool(os.getenv('TURNSTILE_API_URL') and os.getenv('TURNSTILE_API_KEY'))
-    device_model = os.getenv('TURNSTILE_DEVICE_MODEL', 'Fit Easy')
-    device_brand = os.getenv('TURNSTILE_DEVICE_BRAND', 'Topdata')
+    device_model = os.getenv('TURNSTILE_DEVICE_MODEL', 'ESP32-WROOM-32 + Relé')
+    device_brand = os.getenv('TURNSTILE_DEVICE_BRAND', 'BJ Sports Vision')
     device_identified = bool(device_model and device_brand)
     return render_template(
         'integracoes_catraca.html', page_title='Integrações • Catraca',
         device_configured=device_configured, device_identified=device_identified,
         device_model=device_model, device_brand=device_brand,
     )
+
+@app.route('/integracoes/catraca/app')
+@app.route('/catraca/app')
+def catraca_app_view():
+    return render_template('catraca_app.html')
+
+@app.route('/api/catraca/validar-rosto', methods=['POST'])
+def api_catraca_validar_rosto():
+    data = request.get_json(silent=True) or {}
+    cpf_raw = data.get('cpf', '').replace('.', '').replace('-', '').strip()
+    user_id = data.get('user_id')
+    
+    user = None
+    if user_id:
+        user = db.session.get(User, user_id)
+    elif cpf_raw:
+        # Search by raw digits or formatted CPF
+        users = User.query.all()
+        for u in users:
+            u_digits = ''.join(c for c in (u.cpf or '') if c.isdigit())
+            if u_digits == cpf_raw:
+                user = u
+                break
+
+    if not user:
+        return jsonify({
+            'status': 'NAO_RECONHECIDO',
+            'message': 'Rosto ou CPF não encontrado no cadastro.'
+        }), 200
+
+    # Check Payment & Financial Status
+    status_lower = (user.payment_status or '').lower()
+    is_exempt = getattr(user, 'monthly_fee_exempt', False)
+    is_in_good_standing = is_exempt or ('em dia' in status_lower or 'pago' in status_lower or 'ativo' in status_lower)
+    
+    if not is_in_good_standing and 'pendente' in status_lower:
+        return jsonify({
+            'status': 'PENDENCIA_FINANCEIRA',
+            'user_name': user.name,
+            'modality': user.selected_modalities or user.plan or 'Geral',
+            'message': 'Consta pendência financeira no cadastro.'
+        }), 200
+
+    # Modality badge
+    modality_name = user.selected_modalities or user.plan or 'Artes Marciais'
+
+    return jsonify({
+        'status': 'LIBERADO',
+        'user_name': user.name,
+        'user_id': user.id,
+        'modality': modality_name,
+        'message': f'Acesso autorizado para {user.name}.'
+    }), 200
+
+@app.route('/api/catraca/sincronizar-vetores', methods=['GET'])
+def api_catraca_sincronizar_vetores():
+    users = User.query.filter(User.role.in_(['aluno', 'monitor', 'instrutor', 'professor'])).all()
+    records = []
+    for u in users:
+        status_lower = (u.payment_status or '').lower()
+        is_paid = getattr(u, 'monthly_fee_exempt', False) or ('em dia' in status_lower or 'pago' in status_lower)
+        records.append({
+            'id': u.id,
+            'name': u.name,
+            'cpf': u.cpf,
+            'modality': u.selected_modalities or u.plan or 'Geral',
+            'is_paid': is_paid,
+            'is_experimental': getattr(u, 'is_experimental', False)
+        })
+    return jsonify({'total': len(records), 'students': records}), 200
+
+@app.route('/api/catraca/aula-experimental', methods=['POST'])
+def api_catraca_aula_experimental():
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or 'Visitante').strip()
+    modality = data.get('modality') or 'Jiu-Jitsu'
+    
+    # Return instantaneous VIP access
+    return jsonify({
+        'status': 'LIBERADO',
+        'user_name': name,
+        'modality': modality,
+        'is_experimental': True,
+        'message': f'Aula Experimental VIP liberada para {name}.'
+    }), 200
+
+@app.route('/api/catraca/testar-giro', methods=['POST'])
+def api_catraca_testar_giro():
+    data = request.get_json(silent=True) or {}
+    reason = data.get('reason', 'Teste Manual')
+    return jsonify({
+        'status': 'OK',
+        'message': f'Comando de giro registrado: {reason}',
+        'timestamp': datetime.utcnow().isoformat()
+    }), 200
 
 def get_sponsored_plan_type_for_user(user):
     if not user or user.sponsor_id:

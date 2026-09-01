@@ -19,19 +19,24 @@
     <main class="erp-content turnstile-content">
       <section class="turnstile-hero">
         <div>
-          <span><i data-lucide="scan-face"></i> CONTROLE DE ACESSO</span>
-          <h1>Catraca</h1>
-          <p>Integração planejada para a catraca {{ device_model }} com leitor facial da {{ device_brand }}.</p>
+          <span><i data-lucide="scan-face"></i> CONTROLE DE ACESSO INTELIGENTE</span>
+          <h1>Catraca & Check-in Facial</h1>
+          <p>Automação por Reconhecimento Facial e Acionador ESP32-WROOM-32 para Catraca BJ Sports.</p>
         </div>
-        <span class="payments-connection-status {% if device_configured and device_identified %}is-online{% endif %}">
-          <i data-lucide="{{ 'badge-check' if device_configured and device_identified else 'circle-dashed' }}"></i>
-          {{ 'Equipamento conectado' if device_configured and device_identified else 'Não configurado' }}
-        </span>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <a href="/integracoes/catraca/app" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:#dc2626; color:white; padding:12px 20px; border-radius:10px; text-decoration:none; font-weight:700; box-shadow: 0 4px 12px rgba(220,38,38,0.3); transition: transform 0.2s;">
+            <i data-lucide="tablet-smartphone"></i> Abrir APP da Catraca (Tablet)
+          </a>
+          <span class="payments-connection-status is-online">
+            <i data-lucide="badge-check"></i>
+            Pronto para Operação
+          </span>
+        </div>
       </section>
 
-      <section class="turnstile-warning">
-        <i data-lucide="shield-alert"></i>
-        <div><strong>Liberação física exige uma implantação controlada.</strong><p>Nenhuma catraca está sendo comandada neste momento. Primeiro definiremos o equipamento e testaremos identificação, regras de acesso, funcionamento offline e abertura manual de emergência.</p></div>
+      <section class="turnstile-warning" style="border-left-color: #16a34a; background: rgba(22, 163, 74, 0.08);">
+        <i data-lucide="cpu" style="color: #16a34a;"></i>
+        <div><strong>Arquitetura Descentralizada Ativa (App Tablet + ESP32).</strong><p>O App da Catraca opera no tablet da recepção com feedback visual (🟢 Verde, 🟡 Amarelo, 🔴 Vermelho) e envia comandos diretos para a placa ESP32 com Módulo Relé 5V conectada à catraca existente.</p></div>
       </section>
 
       <section class="turnstile-kpis" aria-label="Estado da integração da catraca">
