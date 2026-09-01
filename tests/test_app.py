@@ -328,6 +328,8 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(visible_row['days'], [6])
         self.assertNotIn('Turma Interna', page)
         self.assertIn('Todas as turmas', page)
+        self.assertIn('class="day-btn active" data-day="todos"', page)
+        self.assertNotIn('class="day-btn active" data-day="seg"', page)
 
     def test_weekly_calendar_is_available_to_logged_users_and_supports_filters(self):
         self.assertEqual(self.client.get('/calendario').status_code, 302)

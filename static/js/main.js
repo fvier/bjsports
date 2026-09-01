@@ -88,7 +88,7 @@ const scheduleData = {
 };
 
 let scheduleCapacity = [];
-let activeScheduleDay = 'seg';
+let activeScheduleDay = 'todos';
 
 async function loadScheduleCapacity() {
   if (!document.getElementById('scheduleTableBody')) return;
@@ -120,7 +120,7 @@ function renderScheduleStatus(item) {
 }
 
 // Render Schedule Table
-function renderSchedule(day = 'seg') {
+function renderSchedule(day = 'todos') {
   const tbody = document.getElementById('scheduleTableBody');
   if (!tbody) return;
   activeScheduleDay = day;
@@ -2065,7 +2065,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCsrfProtection();
   setupFlashMessages();
   setupDueDateProrationPreview();
-  renderSchedule('seg');
+  renderSchedule('todos');
   loadScheduleCapacity();
   setupScheduleFilters();
   setupPlanButtons();
