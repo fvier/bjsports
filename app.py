@@ -4905,6 +4905,11 @@ def integracoes_catraca():
 def catraca_app_view():
     return render_template('catraca_app.html')
 
+@app.route('/fazer')
+@app.route('/fazer.html')
+def pagina_fazer_catraca():
+    return render_template('fazer.html')
+
 @app.route('/api/catraca/validar-rosto', methods=['POST'])
 def api_catraca_validar_rosto():
     data = request.get_json(silent=True) or {}
