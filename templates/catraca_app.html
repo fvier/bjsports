@@ -594,9 +594,13 @@
                 audio: false
             });
             video.srcObject = stream;
+            feedbackDesc.textContent = "Posicione-se em frente à câmera para liberar o acesso";
+            const btnCam = document.getElementById("btnEnableCam");
+            if (btnCam) btnCam.remove();
         } catch (err) {
-            console.warn("Câmera não disponível no dispositivo, usando modo simulado:", err);
-            feedbackDesc.textContent = "Modo Simulado Ativo (Toque em Digitar CPF ou Aula Experimental)";
+            console.warn("Câmera aguardando permissão ou indisponível:", err);
+            feedbackTitle.textContent = "Permissão da Câmera";
+            feedbackDesc.innerHTML = 'Clique no botão abaixo ou no <strong>ícone de cadeado</strong> na barra do navegador para permitir o uso da câmera:<br><button id="btnEnableCam" onclick="startCamera()" style="margin-top:12px; padding:10px 20px; background:var(--primary-red); color:white; font-weight:700; border:none; border-radius:8px; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(220,38,38,0.4);">📷 Permitir Câmera Agora</button>';
         }
     }
     startCamera();
