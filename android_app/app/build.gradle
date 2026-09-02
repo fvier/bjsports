@@ -1,0 +1,27 @@
+plugins {
+    id \x27com.android.application\x27
+}
+
+android {
+    namespace \x27com.bjsports.catraca\x27
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.bjsports.catraca"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile(\x27proguard-android-optimize.txt\x27), \x27proguard-rules.pro\x27
+        }
+    }
+}
+
+dependencies {
+    implementation \x27androidx.appcompat:appcompat:1.6.1\x27
+}

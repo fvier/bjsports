@@ -1,0 +1,18 @@
+{
+  "name": "BJ Sports Catraca & Check-in",
+  "short_name": "BJ Catraca",
+  "description": "Aplicativo de Controle de Acesso e Check-in Facial da BJ Sports",
+  "start_url": "/catraca/app",
+  "display": "fullscreen",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/static/img/logo_original.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

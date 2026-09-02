@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BJ Sports • App da Catraca & Check-in Facial</title>
+    <link rel="manifest" href="/static/catraca_manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -756,6 +761,32 @@
     async function testTurnstileGiro() {
         triggerTurnstileUnlock();
         alert("Comando de pulso elétrico enviado para a catraca!");
+    }
+
+    // Service Worker e Instalação PWA
+    let deferredPrompt;
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/static/catraca_sw.js').catch(() => {});
+        });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btnInstall = document.getElementById('btnInstallPwa');
+        if (btnInstall) btnInstall.style.display = 'flex';
+    });
+
+    async function installPwaApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('btnInstallPwa').style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
     }
 
     setInterval(() => {
