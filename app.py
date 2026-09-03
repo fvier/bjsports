@@ -7,7 +7,7 @@ import click
 import tempfile
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text, or_, func
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -4908,7 +4908,11 @@ def catraca_app_view():
 @app.route('/fazer')
 @app.route('/fazer.html')
 def pagina_fazer_catraca():
-    return render_template('fazer.html')
+    resp = make_response(render_template('fazer.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/api/catraca/validar-rosto', methods=['POST'])
 def api_catraca_validar_rosto():
