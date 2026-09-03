@@ -1879,41 +1879,210 @@
       </div>
     </article>
 
-    <!-- PASSO 2: MECÂNICA & SOLENÓIDE -->
+    <!-- PASSO 2: GUIA COMPLETO DO SOLENÓIDE / BOBINA DE TRAVA 12V -->
     <article class="topic-section" id="passo-2-mecanica">
-      <div class="topic-header">
+      <div class="topic-header" style="background: rgba(245, 158, 11, 0.08); border-bottom-color: rgba(245, 158, 11, 0.25);">
         <div class="topic-title-group">
-          <div class="topic-number">2</div>
+          <div class="topic-number" style="background: var(--accent-gold);"><i data-lucide="lock" style="width: 20px; height: 20px;"></i></div>
           <div>
-            <h2 class="topic-title">Passo 2: Limpeza Mecânica & Teste Direto 12V</h2>
-            <p class="topic-subtitle">Testar a bobina e o travamento mecânico antes da eletrônica</p>
+            <h2 class="topic-title" style="color: #fbbf24;">Passo 2: Solenóide / Bobina de Trava 12V (Mecânica, Elétrica e Regulagem)</h2>
+            <p class="topic-subtitle">Tudo sobre a peça mais importante da catraca: como funciona, como medir, como regular e como testar</p>
           </div>
         </div>
       </div>
       <div class="topic-body">
+        
+        <!-- INTRODUÇÃO VISUAL DO SOLENÓIDE -->
+        <div class="alert warning" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); color: #fef08a;">
+          <i data-lucide="zap" style="flex-shrink:0; color: #facc15; width: 24px; height: 24px;"></i>
+          <div>
+            <strong>O Coração do Travamento:</strong> O solenóide é um <strong>eletroímã de tração de 12V DC</strong> montado sobre um suporte metálico em "L". Quando a corrente de 12V passa por ele, cria um campo magnético potente que retrai o pino de aço (êmbolo) para dentro do cilindro por 1 segundo, permitindo que o disco da catraca gire.
+          </div>
+        </div>
+
+        <!-- DIAGRAMA VISUAL EM CORTE DO SOLENÓIDE -->
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 20px; margin: 18px 0; text-align: center;">
+          <h4 style="color: #fff; font-size: 1.05rem; margin-bottom: 6px;">Anatomia em Corte do Solenóide Henry 12V</h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 16px;">Como as partes internas interagem com o disco dentado da catraca</p>
+          
+          <svg viewBox="0 0 800 260" width="100%" height="100%" style="max-height: 260px; font-family: 'Plus Jakarta Sans', sans-serif;">
+            <!-- FUNDO -->
+            <rect width="800" height="260" fill="#0b1120" rx="10"/>
+
+            <!-- DISCO DENTADO (DIREITA) -->
+            <g transform="translate(620, 20)">
+              <circle cx="90" cy="110" r="85" fill="#1e293b" stroke="#64748b" stroke-width="3"/>
+              <circle cx="90" cy="110" r="25" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+              <!-- Dentes / Cavas -->
+              <path d="M 15 110 L 45 95 L 45 125 Z" fill="#0b1120" stroke="#94a3b8" stroke-width="2"/>
+              <path d="M 90 35 L 75 65 L 105 65 Z" fill="#0b1120" stroke="#94a3b8" stroke-width="2"/>
+              <path d="M 165 110 L 135 125 L 135 95 Z" fill="#0b1120" stroke="#94a3b8" stroke-width="2"/>
+              <text x="90" y="115" fill="#38bdf8" font-size="10" font-weight="800" text-anchor="middle">EIXO</text>
+              <text x="90" y="215" fill="#cbd5e1" font-size="11" font-weight="700" text-anchor="middle">Disco de Retenção</text>
+            </g>
+
+            <!-- SUPORTE EM "L" METÁLICO -->
+            <path d="M 60 210 L 60 60 L 120 60 L 120 90 L 90 90 L 90 210 Z" fill="#475569" stroke="#64748b" stroke-width="2"/>
+            <text x="75" y="235" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">Suporte em "L"</text>
+
+            <!-- CARCAÇA CILÍNDRICA DA BOBINA -->
+            <rect x="120" y="80" width="280" height="100" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+            <text x="260" y="70" fill="#f59e0b" font-size="11" font-weight="800" text-anchor="middle">CARCAÇA METÁLICA (BOBINA 12V)</text>
+
+            <!-- ENROLAMENTO DE COBRE (ESPIRAS) -->
+            <rect x="140" y="92" width="240" height="22" fill="#b45309" stroke="#d97706" stroke-width="1.5" rx="3"/>
+            <rect x="140" y="146" width="240" height="22" fill="#b45309" stroke="#d97706" stroke-width="1.5" rx="3"/>
+            <text x="260" y="107" fill="#fef3c7" font-size="10" font-weight="700" text-anchor="middle">Fio de Cobre Esmaltado (~10 Ohms)</text>
+            <text x="260" y="161" fill="#fef3c7" font-size="10" font-weight="700" text-anchor="middle">Fio de Cobre Esmaltado</text>
+
+            <!-- MOLA DE RETORNO (COMPRESSÃO) -->
+            <g transform="translate(370, 116)">
+              <path d="M 0 14 L 8 4 L 16 24 L 24 4 L 32 24 L 40 4 L 48 24 L 56 14" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+              <text x="28" y="-4" fill="#38bdf8" font-size="10" font-weight="800" text-anchor="middle">Mola</text>
+            </g>
+
+            <!-- ÊMBOLO MÓVEL DE AÇO (O PINO TRAVA) -->
+            <rect x="220" y="118" width="260" height="24" rx="4" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/>
+            <path d="M 480 118 L 515 130 L 480 142 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="2"/>
+            <text x="340" y="134" fill="#0f172a" font-size="10" font-weight="900" text-anchor="middle">ÊMBOLO DE AÇO (TRAVA)</text>
+
+            <!-- SETA DE MOVIMENTO DO ÊMBOLO -->
+            <path d="M 460 98 L 410 98" fill="none" stroke="#22c55e" stroke-width="3" marker-end="url(#arrow)"/>
+            <text x="435" y="90" fill="#4ade80" font-size="10" font-weight="800" text-anchor="middle">Recuo ao acionar ➔</text>
+
+            <!-- FIOS ELÉTRICOS DE SAÍDA -->
+            <path d="M 170 180 L 170 230 L 220 230" fill="none" stroke="#ef4444" stroke-width="3"/>
+            <circle cx="225" cy="230" r="4" fill="#ef4444"/>
+            <text x="235" y="234" fill="#fca5a5" font-size="10" font-weight="800">Fio 1 (Para o Relé NO)</text>
+
+            <path d="M 330 180 L 330 230 L 380 230" fill="none" stroke="#0f172a" stroke-width="3" stroke="#fff"/>
+            <circle cx="385" cy="230" r="4" fill="#64748b"/>
+            <text x="395" y="234" fill="#cbd5e1" font-size="10" font-weight="800">Fio 2 (Para Fonte 0V/GND)</text>
+          </svg>
+        </div>
+
+        <!-- 4 PILARES DO SOLENÓIDE -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px;">
+          
+          <div style="background: #151d2c; border: 1px solid #28374d; border-radius: 12px; padding: 16px;">
+            <div style="color: #f59e0b; font-size: 1.3rem; margin-bottom: 6px;">⚡ <strong>Elétrica & Polaridade</strong></div>
+            <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5;">
+              A bobina do solenóide <strong>não tem polaridade obrigatória</strong> para puxar o êmbolo (funciona com o positivo em qualquer um dos dois fios). Pode ligar qualquer ponta no borne <strong>NO</strong> do relé e a outra no <strong>GND (0V)</strong> da fonte.
+            </p>
+          </div>
+
+          <div style="background: #151d2c; border: 1px solid #28374d; border-radius: 12px; padding: 16px;">
+            <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 6px;">📏 <strong>Medição no Multímetro</strong></div>
+            <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5;">
+              Na escala de <strong>Ohms (Ω)</strong>, a bobina saudável mede entre <strong>8Ω e 16Ω</strong>. Com 12V da fonte, consome cerca de <strong>1,2 Amperes</strong> de pico no momento exato do disparo.
+            </p>
+          </div>
+
+          <div style="background: #151d2c; border: 1px solid #28374d; border-radius: 12px; padding: 16px;">
+            <div style="color: #4ade80; font-size: 1.3rem; margin-bottom: 6px;">🎯 <strong>Regulagem do Suporte</strong></div>
+            <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5;">
+              O suporte em "L" possui furos rasgados para ajuste. O pino deve entrar <strong>cerca de 6mm a 8mm</strong> dentro da fenda do disco. Quando atracar, deve recuar totalmente sem raspar nas laterais.
+            </p>
+          </div>
+
+          <div style="background: #151d2c; border: 1px solid #28374d; border-radius: 12px; padding: 16px;">
+            <div style="color: #ef4444; font-size: 1.3rem; margin-bottom: 6px;">🚫 <strong>Regra do Grafite Seco</strong></div>
+            <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5;">
+              <strong>NUNCA use óleo (WD-40, Singer) ou graxa no êmbolo!</strong> O óleo acumula pó da academia e vira uma cola preta que trava o êmbolo. Use <strong>apenas Grafite em Pó seco</strong>.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- GUIA PASSO A PASSO PARA TESTE DE BANCADA DO SOLENÓIDE -->
+        <h3 style="font-size: 1.05rem; color: #fff; margin: 20px 0 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="check-square" style="color: #4ade80; width: 18px; height: 18px;"></i>
+          Passo a Passo Prático do Eletricista no Solenóide:
+        </h3>
+
         <ul class="checklist" id="list-topico-2">
           <li class="check-item" onclick="toggleTask(this, 't2_1')">
             <input type="checkbox" id="t2_1">
             <div>
-              <span class="title">Limpeza do Mecanismo Dentado e Mancal</span>
-              <span class="desc">Remover teias, graxa endurecida e poeira acumulada na parte superior do cabeçote Henry.</span>
+              <span class="title">1. Teste de Resistência com Multímetro (Antes de Ligar)</span>
+              <span class="desc">Colocar o multímetro na escala de resistência 200Ω. Encostar as pontas de prova nos 2 fios soltos do solenóide. O valor esperado é entre <strong>8,0Ω e 16,0Ω</strong>. Se der zero (curto) ou OL/infinito (queimada), a bobina precisa ser rebobinada ou trocada.</span>
             </div>
           </li>
           <li class="check-item" onclick="toggleTask(this, 't2_2')">
             <input type="checkbox" id="t2_2">
             <div>
-              <span class="title">Lubrificação com Grafite Seco</span>
-              <span class="desc">Aplicar pó de grafite no pino de retenção e trava. Não usar óleo denso que grude sujeira.</span>
+              <span class="title">2. Teste Direto na Fonte AcBel 12V 2A (Ouvir o "Clac!")</span>
+              <span class="desc">Plugue a fonte 12V na tomada. Encoste os dois fios do solenóide na saída 12V por apenas 1 segundo. Você deve ouvir um estalo metálico forte ("CLAC!") e ver o êmbolo puxando para trás com firmeza. Ao afastar o fio, a mola deve cuspir o êmbolo para frente instantaneamente.</span>
             </div>
           </li>
           <li class="check-item" onclick="toggleTask(this, 't2_3')">
             <input type="checkbox" id="t2_3">
             <div>
-              <span class="title">Teste Direto na Fonte 12V (Disparo Manual)</span>
-              <span class="desc">Encostar os 2 fios do solenóide diretamente na saída da fonte AcBel. O pino DEVE retrair com um "clac" forte e permitir o giro com a mão. Ao soltar, a mola deve travar imediatamente.</span>
+              <span class="title">3. Limpeza do Êmbolo e Aplicação de Grafite em Pó</span>
+              <span class="desc">Retire o êmbolo e passe um pano limpo seco (pode umedecer levemente com álcool isopropílico para tirar resíduos pretos antigos). Coloque o êmbolo de volta e jogue uma pitada de pó de grafite no corpo do solenóide para deslizamento ultrarrápido.</span>
+            </div>
+          </li>
+          <li class="check-item" onclick="toggleTask(this, 't2_4')">
+            <input type="checkbox" id="t2_4">
+            <div>
+              <span class="title">4. Ajuste de Altura e Alinhamento no Suporte em "L"</span>
+              <span class="desc">Com a catraca parada, verifique se a ponta cônica do êmbolo entra centralizada na fenda do disco dentado sem raspar torto nas bordas. Aperte os dois parafusos do suporte com arruela de pressão para a vibração dos giros não soltar a peça com o tempo.</span>
+            </div>
+          </li>
+          <li class="check-item" onclick="toggleTask(this, 't2_5')">
+            <input type="checkbox" id="t2_5">
+            <div>
+              <span class="title">5. Instalação do Diodo de Proteção Flyback 1N4007 (Recomendado)</span>
+              <span class="desc">Soldar ou parafusar um diodo 1N4007 em paralelo com os 2 fios do solenóide, com a <strong>faixinha prateada (cátodo) virada para o fio positivo (+12V)</strong>. Este diodo mata a faísca elétrica reversa e evita que o contato do relé se desgaste com o passar dos meses.</span>
             </div>
           </li>
         </ul>
+
+        <!-- TABELA DE DEFEITOS COMUNS DO SOLENÓIDE & SOLUÇÃO -->
+        <h3 style="font-size: 1.05rem; color: #fff; margin: 24px 0 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="help-circle" style="color: #60a5fa; width: 18px; height: 18px;"></i>
+          Diagnóstico de Sintomas do Solenóide (Guia Rápido de Bancada):
+        </h3>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Sintoma Observado</th>
+                <th>Causa Mais Provável</th>
+                <th>O que o Eletricista deve fazer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A bobina não dá sinal de vida (mudo total)</strong></td>
+                <td>Fio rompido, fusível aberto ou borne COM/NO do relé frouxo.</td>
+                <td>Medir tensão com multímetro na escala DC 20V nos fios da bobina durante o comando. Se não chegar 12V, conferir parafusos do relé.</td>
+              </tr>
+              <tr>
+                <td><strong>Dá o estalo "clac", mas a catraca continua travada</strong></td>
+                <td>O êmbolo puxou, mas está encostando torto na borda da fenda ou o aluno está empurrando o braço antes de bater o relé.</td>
+                <td>Afrouxar o suporte em "L" e recuar 1 milímetro para dar folga de saída; orientar que a pessoa só empurre o braço após a liberação.</td>
+              </tr>
+              <tr>
+                <td><strong>O solenóide puxa fraco e não vence a mola</strong></td>
+                <td>Fonte fraca (menos de 1.5A) ou fio 12V muito fino causando queda de tensão.</td>
+                <td>Garantir o uso da Fonte AcBel 12V 2A e cabos de pelo menos 0.75mm² entre a fonte, relé e bobina.</td>
+              </tr>
+              <tr>
+                <td><strong>A bobina esquenta muito a ponto de não conseguir colocar a mão</strong></td>
+                <td>O relé foi ligado no borne <strong>NC (Fechado)</strong> em vez do <strong>NO (Aberto)</strong>, ficando ligada 100% do tempo.</td>
+                <td><strong>URGENTE:</strong> Mudar o fio para o borne <strong>NO</strong>. Bobina de catraca foi projetada para pulsos de 1 segundo, não para ficar energizada continuamente!</td>
+              </tr>
+              <tr>
+                <td><strong>A catraca destrava mas não trava de volta</strong></td>
+                <td>Mola quebrada, caída ou êmbolo engripado por graxa velha ressecada.</td>
+                <td>Limpar o canal com álcool, colocar grafite em pó e verificar se a mola de retorno está empurrando o pino com pressão adequada.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </article>
 
