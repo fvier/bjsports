@@ -878,7 +878,6 @@
         <a href="#passo-2-mecanica" class="nav-link-btn">2. Mecânica & Solenóide</a>
         <a href="#passo-3-ligacoes" class="nav-link-btn">3. Fiação & Pinagem</a>
         <a href="#botoeira-manual" class="nav-link-btn">🔴 Botoeira Balcão</a>
-        <a href="#passo-4-firmware" class="nav-link-btn">4. Firmware</a>
         <a href="#checklist-geral" class="nav-link-btn">✅ Checklist</a>
       </div>
       <div class="nav-actions">
@@ -2063,121 +2062,24 @@
       </div>
     </article>
 
-    <!-- PASSO 4: FIRMWARE ESP32 -->
-    <article class="topic-section" id="passo-4-firmware">
+    <!-- PROGRAMAÇÃO DO ESP32 (JÁ VAI PRONTA) -->
+    <article class="topic-section" id="programacao-esp32">
       <div class="topic-header">
         <div class="topic-title-group">
-          <div class="topic-number">4</div>
+          <div class="topic-number" style="background: #2563eb;"><i data-lucide="check-circle-2" style="width: 20px; height: 20px;"></i></div>
           <div>
-            <h2 class="topic-title">Passo 4: Firmware C++ & Gravação no ESP32</h2>
-            <p class="topic-subtitle">Código completo para carregar via Arduino IDE</p>
+            <h2 class="topic-title">Programação do ESP32 (Gravado de Fábrica)</h2>
+            <p class="topic-subtitle">A placa já vai configurada e pronta — o eletricista não precisa mexer em nada de código ou computador</p>
           </div>
         </div>
       </div>
       <div class="topic-body">
-        
-        <div class="code-container">
-          <div class="code-header">
-            <span>firmware/esp32_catraca/esp32_catraca.ino</span>
-            <button class="btn-copy" onclick="copyFirmwareCode()">
-              <i data-lucide="copy" style="width:13px; height:13px;"></i> Copiar Código
-            </button>
+        <div class="alert success">
+          <i data-lucide="check-check" style="flex-shrink:0;"></i>
+          <div>
+            <strong>Instalação 100% Plug & Play:</strong> O microcontrolador ESP32 já vai previamente gravado e configurado com o sistema da academia BJ Sports na memória. O instalador técnico <strong>não precisa de computador, nem gravar códigos ou programas</strong>. Basta plugar o cabo USB na fonte e ligar os 3 cabinhos no relé!
           </div>
-          <pre><code id="firmwareCode">/*
- * =========================================================================
- * BJ SPORTS - FIRMWARE DE CONTROLE DE CATRACA INTELIGENTE
- * Placa: ESP32-WROOM-32 DevKit
- * =========================================================================
- */
-#include &lt;WiFi.h&gt;
-#include &lt;WebServer.h&gt;
-
-// >>> CONFIGURE O WI-FI DA RECEPÇÃO AQUI <<<
-const char* ssid = "BJ_SPORTS_RECEPCAO";
-const char* password = "senha_wifi_aqui";
-
-const int PIN_RELE = 4;        // GPIO 4 -> Pino IN do Módulo Relé
-const int PIN_LED = 2;         // LED indicador azul embutido no ESP32
-const int TEMPO_PULSO_MS = 1000; // 1 Segundo de destravamento mecânico
-
-WebServer server(80);
-
-void acionarCatraca() {
-  Serial.println("[CATRACA] -> Pulso elétrico disparado! Destravando...");
-  digitalWrite(PIN_RELE, LOW);   // Módulo relé ativa em nível LOW (0V)
-  digitalWrite(PIN_LED, HIGH);   // Acende LED azul de confirmação
-  delay(TEMPO_PULSO_MS);
-  digitalWrite(PIN_RELE, HIGH);  // Trava novamente
-  digitalWrite(PIN_LED, LOW);
-  Serial.println("[CATRACA] -> Trava rearmada com sucesso.");
-}
-
-void handleStatus() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "application/json", "{\"status\":\"ONLINE\",\"device\":\"ESP32-WROOM-32\",\"gym\":\"BJ Sports\"}");
-}
-
-void handleLiberar() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  acionarCatraca();
-  server.send(200, "application/json", "{\"success\":true,\"message\":\"Catraca liberada com sucesso!\"}");
-}
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(PIN_RELE, OUTPUT);
-  pinMode(PIN_LED, OUTPUT);
-  
-  // Inicia com a trava armada (relé desligado)
-  digitalWrite(PIN_RELE, HIGH);
-  digitalWrite(PIN_LED, LOW);
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Conectando ao Wi-Fi BJ Sports");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\n[WIFI] Conectado! Endereco IP: http://" + WiFi.localIP().toString());
-
-  server.on("/", HTTP_GET, handleStatus);
-  server.on("/status", HTTP_GET, handleStatus);
-  server.on("/liberar", HTTP_GET, handleLiberar);
-  server.on("/liberar", HTTP_POST, handleLiberar);
-  server.begin();
-  Serial.println("[HTTP] Servidor Web da Catraca operando na porta 80.");
-}
-
-void loop() {
-  server.handleClient();
-}</code></pre>
         </div>
-
-        <ul class="checklist" id="list-topico-4">
-          <li class="check-item" onclick="toggleTask(this, 't4_1')">
-            <input type="checkbox" id="t4_1">
-            <div>
-              <span class="title">Configurar Nome e Senha do Wi-Fi</span>
-              <span class="desc">Ajustar as constantes <code>ssid</code> e <code>password</code> no código antes de gravar.</span>
-            </div>
-          </li>
-          <li class="check-item" onclick="toggleTask(this, 't4_2')">
-            <input type="checkbox" id="t4_2">
-            <div>
-              <span class="title">Gravar no ESP32 via Arduino IDE</span>
-              <span class="desc">Placa: "ESP32 Dev Module", Porta COM correspondente, Velocidade 115200.</span>
-            </div>
-          </li>
-          <li class="check-item" onclick="toggleTask(this, 't4_3')">
-            <input type="checkbox" id="t4_3">
-            <div>
-              <span class="title">Teste de Pulso via Celular/Navegador</span>
-              <span class="desc">Abrir <code>http://&lt;IP_DO_ESP32&gt;/liberar</code> no navegador do celular conectado no mesmo Wi-Fi.</span>
-            </div>
-          </li>
-        </ul>
       </div>
     </article>
 
