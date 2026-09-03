@@ -869,7 +869,8 @@
         <span>BJ SPORTS</span> • MANUAL CATRACA
       </div>
       <div class="nav-links">
-        <a href="#glossario-pecas" class="nav-link-btn highlight">🖼️ Glossário de Peças</a>
+        <a href="#resumo-eletricista" class="nav-link-btn highlight" style="background: rgba(37, 99, 235, 0.25); color: #93c5fd; border-color: rgba(59, 130, 246, 0.5);">👷 Guia do Eletricista</a>
+        <a href="#glossario-pecas" class="nav-link-btn">🖼️ Glossário de Peças</a>
         <a href="#esquema-ilustrado" class="nav-link-btn">⚡ Esquema Geral</a>
         <a href="#chave-on-off" class="nav-link-btn">🔘 Chave ON/OFF</a>
         <a href="#visao-explodida" class="nav-link-btn">📐 Vista Explodida</a>
@@ -929,7 +930,151 @@
     </section>
 
     <!-- ======================================================= -->
-    <!-- NOVO: GLOSSÁRIO FOTOGRÁFICO DE PEÇAS & COMPONENTES -->
+    <!-- GUIA MASTIGADO DIRETO PARA O ELETRICISTA (SEM ENROLIS) -->
+    <!-- ======================================================= -->
+    <section class="topic-section" id="resumo-eletricista" style="border: 2px solid #3b82f6; background: linear-gradient(180deg, #131c2e 0%, #0d131f 100%);">
+      <div class="topic-header" style="background: rgba(59, 130, 246, 0.1); border-bottom-color: rgba(59, 130, 246, 0.3);">
+        <div class="topic-title-group">
+          <div class="topic-number" style="background: #2563eb; width:42px; height:42px;"><i data-lucide="hard-hat" style="width: 24px; height: 24px;"></i></div>
+          <div>
+            <h2 class="topic-title" style="color: #60a5fa; font-size: 1.25rem;">Guia Mastigado para o Eletricista: O Caminho da Energia</h2>
+            <p class="topic-subtitle">A explicação direta e sem termos difíceis: o que entra, o que alimenta o quê e quais ferramentas usar</p>
+          </div>
+        </div>
+      </div>
+      <div class="topic-body">
+        
+        <!-- RESUMO EM 1 FRASE (ANALOGIA DA LÂMPADA) -->
+        <div class="alert info" style="background: rgba(37, 99, 235, 0.12); border-color: rgba(59, 130, 246, 0.4); color: #bfdbfe; font-size: 0.98rem; line-height: 1.6;">
+          <i data-lucide="lightbulb" style="width: 26px; height: 26px; flex-shrink: 0; color: #60a5fa; margin-top: 2px;"></i>
+          <div>
+            <strong style="color: #fff; font-size: 1.05rem; display: block; margin-bottom: 4px;">Como funciona a catraca (Pense como uma lâmpada comum):</strong>
+            A trava da catraca (bobina) é como uma <strong>lâmpada de 12V</strong>. A fonte de 12V é a <strong>energia</strong>. E o relé azul é apenas o <strong>interruptor</strong>! Quando a placa inteligente (ESP32) recebe autorização, ela dá um toque no interruptor (relé) por 1 segundo. A energia passa, a trava puxa com um "clac" e a pessoa empurra o braço da catraca. Só isso!
+          </div>
+        </div>
+
+        <!-- O CAMINHO DA ENERGIA EM 5 PASSOS DIRETOS -->
+        <h3 style="font-size: 1.1rem; color: #fff; margin: 24px 0 14px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="route" style="color: #4ade80; width: 20px; height: 20px;"></i>
+          O que você vai ligar em quê (Passo a Passo Fio a Fio):
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+          
+          <!-- PASSO 1 -->
+          <div style="background: #172033; border: 1px solid #293854; border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #2563eb; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">1</div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Chegada de Energia (110V/220V) ➔ Chave Liga/Desliga ➔ Régua de 3 Tomadas</strong>
+              <p style="font-size: 0.88rem; color: #94a3b8; margin-top: 3px;">
+                Você vai descer um ponto de tomada (Fase, Neutro e Terra) até a base da catraca. A <strong>Fase</strong> passa pela chave redonda liga/desliga (para desligar a catraca à noite) e entra na régua de <strong>3 tomadas</strong> fixada dentro da coluna. O Neutro e Terra vão direto na régua.
+              </p>
+            </div>
+          </div>
+
+          <!-- PASSO 2 -->
+          <div style="background: #172033; border: 1px solid #293854; border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #2563eb; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">2</div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">As 3 Fontes plugadas na Régua interna:</strong>
+              <p style="font-size: 0.88rem; color: #94a3b8; margin-top: 3px;">
+                Basta plugar 3 coisas normais nas 3 tomadas:<br>
+                • <strong>Tomada 1:</strong> Fonte AcBel de 12V (alimenta a trava/bobina).<br>
+                • <strong>Tomada 2:</strong> Carregador USB 5V (liga o cabo Micro-USB direto na placa ESP32).<br>
+                • <strong>Tomada 3:</strong> Carregador do Celular/Tablet (o cabo USB sobe pelo tubo para manter o celular do reconhecimento facial sempre carregando).
+              </p>
+            </div>
+          </div>
+
+          <!-- PASSO 3 -->
+          <div style="background: #172033; border: 1px solid #293854; border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #2563eb; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">3</div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Ligar a Placa ESP32 no Módulo Relé (São apenas 3 fiozinhos coloridos):</strong>
+              <p style="font-size: 0.88rem; color: #94a3b8; margin-top: 3px;">
+                Use os cabinhos finos (jumpers) que já estão comprados:<br>
+                • Pino <span class="pin-badge pwr">VIN</span> do ESP32 ➔ Pino <span class="pin-badge pwr">VCC</span> do Relé (leva 5V para o relé ligar).<br>
+                • Pino <span class="pin-badge gnd">GND</span> do ESP32 ➔ Pino <span class="pin-badge gnd">GND</span> do Relé (terra comum).<br>
+                • Pino <span class="pin-badge">GPIO 4 (D4)</span> do ESP32 ➔ Pino <span class="pin-badge">IN</span> do Relé (sinal que faz o relé dar o estalo).
+              </p>
+            </div>
+          </div>
+
+          <!-- PASSO 4 -->
+          <div style="background: #172033; border: 1px solid #293854; border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #2563eb; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;">4</div>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Ligar a Fonte 12V na Trava através do Relé:</strong>
+              <p style="font-size: 0.88rem; color: #94a3b8; margin-top: 3px;">
+                • O fio <strong>Positivo (+12V)</strong> da fonte vai para o borne do meio do relé: <span class="pin-badge pwr">COM</span>.<br>
+                • Do borne <span class="pin-badge relay">NO (NA)</span> do relé, sai um fio e vai para um dos fios da <strong>Trava/Bobina</strong>.<br>
+                • O fio <strong>Negativo (0V/GND)</strong> da fonte vai direto para o outro fio da <strong>Trava/Bobina</strong>.<br>
+                <em>(Pronto! Quando o relé atracar, ele fecha o circuito dos 12V e puxa a trava).</em>
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TABELA DE FERRAMENTAS NECESSÁRIAS -->
+        <h3 style="font-size: 1.05rem; color: #fff; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="wrench" style="color: #facc15; width: 18px; height: 18px;"></i>
+          Ferramentas que você vai precisar levar:
+        </h3>
+
+        <div class="table-container" style="margin-bottom: 20px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Ferramenta</th>
+                <th>Para que serve nesta instalação</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chave de Fenda Fina (Borneira)</strong></td>
+                <td>Apertar os parafusos dos bornes azuis do relé (COM, NO).</td>
+                <td>Ponta fina comum de 2mm ou 3mm.</td>
+              </tr>
+              <tr>
+                <td><strong>Alicate de Corte e Decapador</strong></td>
+                <td>Desencapar as pontas dos fios 12V e cortar sobras.</td>
+                <td>Alicate universal comum de eletricista.</td>
+              </tr>
+              <tr>
+                <td><strong>Fita Isolante ou Termo-retrátil</strong></td>
+                <td>Isolar as emendas dos fios da bobina do solenóide.</td>
+                <td>Evitar deixar qualquer cobre exposto na carcaça de ferro.</td>
+              </tr>
+              <tr>
+                <td><strong>Broca Escalonada / Serra-copo 20mm</strong></td>
+                <td>Fazer o furo redondo na chapa de ferro para a chave liga/desliga.</td>
+                <td>Apenas se o gabinete ainda não tiver furo para a chave.</td>
+              </tr>
+              <tr>
+                <td><strong>Multímetro Comum</strong></td>
+                <td>Conferir se a fonte está dando os 12V e testar continuidade.</td>
+                <td>Escala DCV 20V e escala de continuidade (bip).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CHAMADA DE VÍDEO / SUPORTE AO VIVO -->
+        <div class="alert success" style="margin-bottom: 0;">
+          <i data-lucide="video" style="width: 24px; height: 24px; flex-shrink: 0; color: #4ade80;"></i>
+          <div>
+            <strong style="color: #fff; font-size: 0.98rem; display: block; margin-bottom: 2px;">Suporte em Chamada de Vídeo ao Vivo na Montagem:</strong>
+            Fique 100% tranquilo! Quando você estiver no local da catraca com as ferramentas, faremos uma <strong>chamada de vídeo pelo WhatsApp</strong>. Você apoia o celular na catraca e nós vamos orientando pino a pino em tempo real até você ouvir o primeiro "clac" de destravamento com sucesso!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- GLOSSÁRIO FOTOGRÁFICO DE PEÇAS & COMPONENTES -->
     <!-- ======================================================= -->
     <section class="topic-section" id="glossario-pecas">
       <div class="topic-header">
