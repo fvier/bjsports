@@ -45,7 +45,7 @@
     }
 
     .container {
-      max-width: 1140px;
+      max-width: 1160px;
       margin: 0 auto;
       padding: 20px 16px;
     }
@@ -116,6 +116,12 @@
       color: #fff;
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .nav-link-btn.highlight {
+      background: rgba(220, 38, 38, 0.15);
+      color: #fca5a5;
+      border-color: rgba(220, 38, 38, 0.3);
     }
 
     .nav-actions {
@@ -292,6 +298,128 @@
 
     .topic-body {
       padding: 24px;
+    }
+
+    /* ========================================= */
+    /* GLOSSÁRIO VISUAL DAS PEÇAS (CARDS & IMAGENS) */
+    /* ========================================= */
+    .glossary-category-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 24px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 6px;
+    }
+
+    .glossary-category-title:first-child {
+      margin-top: 0;
+    }
+
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .glossary-card {
+      background: #0d121e;
+      border: 1px solid #202b3f;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .glossary-card:hover {
+      transform: translateY(-3px);
+      border-color: #3b82f6;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .glossary-img-wrapper {
+      width: 100%;
+      height: 200px;
+      background: #070a10;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #1a2335;
+      cursor: pointer;
+    }
+
+    .glossary-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .glossary-card:hover .glossary-img-wrapper img {
+      transform: scale(1.05);
+    }
+
+    .glossary-badge-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-install { background: rgba(16, 185, 129, 0.9); color: #fff; }
+    .badge-keep { background: rgba(245, 158, 11, 0.9); color: #fff; }
+    .badge-remove { background: rgba(239, 68, 68, 0.9); color: #fff; }
+
+    .glossary-card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .glossary-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .glossary-card-spec {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #60a5fa;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .glossary-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      flex-grow: 1;
+    }
+
+    .glossary-card-footer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #cbd5e1;
     }
 
     /* ESQUEMA ELÉTRICO ILUSTRADO ESTILO SJ401 (BRANCO / TÉCNICO) */
@@ -673,6 +801,30 @@
       color: #94a3b8;
     }
 
+    /* MODAL DE ZOOM DE FOTO */
+    .img-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: pointer;
+    }
+
+    .img-modal img {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 12px;
+      border: 2px solid #3b82f6;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
     /* FOOTER */
     .footer-actions {
       text-align: center;
@@ -690,6 +842,7 @@
       .topic-header { background: #f0f0f0; }
       .check-item { border: 1px solid #ddd; }
       .check-item span.title { color: #000; }
+      .glossary-card { border: 1px solid #ccc; break-inside: avoid; }
       pre code { background: #f9f9f9; color: #000; border: 1px solid #ccc; }
     }
 
@@ -716,8 +869,9 @@
         <span>BJ SPORTS</span> • MANUAL CATRACA
       </div>
       <div class="nav-links">
+        <a href="#glossario-pecas" class="nav-link-btn highlight">🖼️ Glossário de Peças</a>
         <a href="#esquema-ilustrado" class="nav-link-btn">⚡ Esquema Geral</a>
-        <a href="#chave-on-off" class="nav-link-btn">🔘 Chave Geral ON/OFF</a>
+        <a href="#chave-on-off" class="nav-link-btn">🔘 Chave ON/OFF</a>
         <a href="#visao-explodida" class="nav-link-btn">📐 Vista Explodida</a>
         <a href="#passo-1-energia" class="nav-link-btn">1. Energia AC</a>
         <a href="#passo-2-mecanica" class="nav-link-btn">2. Mecânica & Solenóide</a>
@@ -739,7 +893,7 @@
         <i data-lucide="wrench" style="width: 14px; height: 14px;"></i> Manual de Instalação & Engenharia de Acesso
       </div>
       <h1>Manual de Ligação Elétrica & Mecânica da Catraca</h1>
-      <p>Esquema visual completo e passo a passo de bancada para o eletricista e instalador técnico deixar a catraca Henry totalmente funcional, com chave geral liga/desliga, botoeira de balcão e integração com o sistema BJ Sports.</p>
+      <p>Esquema visual completo, glossário fotográfico de todas as peças e passo a passo de bancada para o eletricista e instalador técnico deixar a catraca Henry totalmente funcional e integrada ao sistema BJ Sports.</p>
     </header>
 
     <!-- QUICK INFO STATS -->
@@ -771,6 +925,263 @@
           <strong>Fonte 12V ⎓ 2A</strong>
           <span>Bobina Eletromagnética</span>
         </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- NOVO: GLOSSÁRIO FOTOGRÁFICO DE PEÇAS & COMPONENTES -->
+    <!-- ======================================================= -->
+    <section class="topic-section" id="glossario-pecas">
+      <div class="topic-header">
+        <div class="topic-title-group">
+          <div class="topic-number" style="background: var(--accent-blue);"><i data-lucide="images" style="width: 20px; height: 20px;"></i></div>
+          <div>
+            <h2 class="topic-title">Glossário Visual das Peças & Componentes</h2>
+            <p class="topic-subtitle">Fotos reais de todos os itens para identificação imediata na bancada pelo técnico</p>
+          </div>
+        </div>
+      </div>
+      <div class="topic-body">
+        
+        <!-- GRUPO 1: NOVOS COMPONENTES -->
+        <h3 class="glossary-category-title">
+          <i data-lucide="sparkles" style="color: #4ade80; width: 18px; height: 18px;"></i>
+          1. Novos Componentes Eletrônicos (A Instalar)
+        </h3>
+        
+        <div class="glossary-grid">
+          
+          <!-- ITEM 1: ESP32 -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/esp32.png')">
+              <img src="/static/img/catraca/esp32.png" alt="ESP32-WROOM-32 DevKit">
+              <span class="glossary-badge-status badge-install">Novo • Instalar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Placa Microcontroladora ESP32</h4>
+              <span class="glossary-card-spec">ESP32-WROOM-32 • 5V USB / VIN</span>
+              <p class="glossary-card-desc">
+                Cérebro inteligente da catraca. Conecta no Wi-Fi da academia e recebe os comandos de liberação do Tablet Facial. Envia o pulso de 5V pelo <strong>GPIO 4</strong> para armar o relé.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Pinos: <strong>VIN, GND, GPIO 4</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 2: MÓDULO RELÉ 5V -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/rele_5v.png')">
+              <img src="/static/img/catraca/rele_5v.png" alt="Módulo Relé 5V Songle">
+              <span class="glossary-badge-status badge-install">Novo • Instalar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Módulo Relé 5V (1 Canal)</h4>
+              <span class="glossary-card-spec">Songle SRD-05VDC • 10A 250VAC</span>
+              <p class="glossary-card-desc">
+                Interruptor eletrônico de potência. Isola eletricamente o ESP32 e fecha o contato seco de 12V nos bornes <strong>COM</strong> e <strong>NO (NA)</strong> para acionar a bobina da trava.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Entrada: <strong>VCC, GND, IN</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 3: JUMPERS DUPONT -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/jumpers.png')">
+              <img src="/static/img/catraca/jumpers.png" alt="Jumpers Dupont Fêmea-Fêmea">
+              <span class="glossary-badge-status badge-install">Novo • Instalar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Cabos Jumper Dupont (F-F)</h4>
+              <span class="glossary-card-spec">Conectores Fêmea-Fêmea 20cm</span>
+              <p class="glossary-card-desc">
+                Cabos flexíveis para ligar diretamente os pinos do ESP32 aos pinos de entrada do módulo relé (Vermelho=VIN, Preto=GND, Azul=GPIO 4).
+              </p>
+              <div class="glossary-card-footer">
+                <span>Quantidade: <strong>3 vias</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 4: CHAVE GANGORRA ON/OFF -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/chave_on_off.png')">
+              <img src="/static/img/catraca/chave_on_off.png" alt="Chave Gangorra Redonda Liga/Desliga">
+              <span class="glossary-badge-status badge-install">Novo • Instalar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Chave Gangorra Redonda (I/O)</h4>
+              <span class="glossary-card-spec">Rocker Switch 2 Pinos • Furo 20mm</span>
+              <p class="glossary-card-desc">
+                Chave geral liga/desliga instalada na carcaça da catraca. Secciona a Fase AC para desligar 100% da eletrônica à noite, economizando energia e protegendo contra raios.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Encaixe: <strong>Snap-in 20mm</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GRUPO 2: COMPONENTES EXISTENTES DA CATRACA -->
+        <h3 class="glossary-category-title">
+          <i data-lucide="wrench" style="color: #facc15; width: 18px; height: 18px;"></i>
+          2. Componentes Existentes da Catraca (A Manter & Ligar)
+        </h3>
+
+        <div class="glossary-grid">
+          
+          <!-- ITEM 5: FONTE 12V -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/fonte_12v.png')">
+              <img src="/static/img/catraca/fonte_12v.png" alt="Fonte AcBel 12V 2A">
+              <span class="glossary-badge-status badge-keep">Original • Manter</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Fonte Chaveada 12V 2A</h4>
+              <span class="glossary-card-spec">AcBel Technicolor • Saída 12V ⎓ 2A</span>
+              <p class="glossary-card-desc">
+                Fonte de alimentação de potência. Fornece corrente de até 2A para a bobina do solenóide puxar a trava de aço com força total.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Tensão: <strong>12V DC (Positivo/GND)</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 6: SOLENÓIDE -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/solenoide_trava.png')">
+              <img src="/static/img/catraca/solenoide_trava.png" alt="Solenóide de Trava 12V Henry">
+              <span class="glossary-badge-status badge-keep">Original • Manter</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Solenóide / Bobina de Trava</h4>
+              <span class="glossary-card-spec">Eletroímã Henry 12V • Resistência ~10Ω</span>
+              <p class="glossary-card-desc">
+                Bobina eletromagnética com êmbolo de aço montada no suporte em "L". Quando recebe o pulso de 12V do relé, retrai o pino liberando o disco de giro.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Conexão: <strong>2 Fios (Borne NO / GND)</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 7: MANCAL MECÂNICO -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/mecanismo_mancal.png')">
+              <img src="/static/img/catraca/mecanismo_mancal.png" alt="Mancal e Eixo Central da Catraca Henry">
+              <span class="glossary-badge-status badge-keep">Original • Manter</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Mancal Mecânico & Eixo Central</h4>
+              <span class="glossary-card-spec">Cabeçote Giratório 3 Braços Henry</span>
+              <p class="glossary-card-desc">
+                Conjunto mecânico do eixo de giro, rolamento e disco dentado. Deve ser limpo com pano e lubrificado com grafite em pó para giro suave.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Ação: <strong>Limpeza + Grafite</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 8: PLAQUETA HENRY -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/plaqueta_henry.png')">
+              <img src="/static/img/catraca/plaqueta_henry.png" alt="Plaqueta de Identificação Henry">
+              <span class="glossary-badge-status badge-keep">Identificação</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Plaqueta do Equipamento</h4>
+              <span class="glossary-card-spec">Henry Sistemas • Nº 184172</span>
+              <p class="glossary-card-desc">
+                Etiqueta oficial do fabricante com o modelo <em>"Informatizados"</em> e número de série da carcaça mecânica.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Série: <strong>184172</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GRUPO 3: PEÇAS DESATIVADAS / SUBSTITUÍDAS -->
+        <h3 class="glossary-category-title">
+          <i data-lucide="ban" style="color: #ef4444; width: 18px; height: 18px;"></i>
+          3. Peças Desativadas (Substituídas pela Nova Eletrônica)
+        </h3>
+
+        <div class="glossary-grid">
+          
+          <!-- ITEM 9: PLACA DATAFIT ANTIGA -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/placa_antiga_datafit.png')">
+              <img src="/static/img/catraca/placa_antiga_datafit.png" alt="Placa Antiga Datafit">
+              <span class="glossary-badge-status badge-remove">Desativar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Placa Antiga Datafit</h4>
+              <span class="glossary-card-spec" style="color:#ef4444;">Substituída pelo ESP32 + Relé</span>
+              <p class="glossary-card-desc">
+                Placa intermediária antiga ligada ao PC via cabo de rede/serial. Foi completamente substituída pelo novo módulo ESP32 com Wi-Fi.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Status: <strong>Remover / Isolar</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 10: SENSOR BIOMÉTRICO ANTIGO -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/leitor_biometrico.png')">
+              <img src="/static/img/catraca/leitor_biometrico.png" alt="Leitor Biométrico Óptico Antigo">
+              <span class="glossary-badge-status badge-remove">Desativar</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Leitor Biométrico Óptico Antigo</h4>
+              <span class="glossary-card-spec" style="color:#ef4444;">Substituído pelo Facial</span>
+              <p class="glossary-card-desc">
+                Sensor óptico antigo colado com massa cinza. O acesso agora é feito pelo Tablet de Reconhecimento Facial BJ Sports (muito mais rápido e sem toque).
+              </p>
+              <div class="glossary-card-footer">
+                <span>Status: <strong>Desconectado</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 11: INTERIOR E RÉGUA LEDS ANTIGA -->
+          <div class="glossary-card">
+            <div class="glossary-img-wrapper" onclick="openImageModal('/static/img/catraca/interior_catraca.png')">
+              <img src="/static/img/catraca/interior_catraca.png" alt="Interior e Régua de LEDs Antiga">
+              <span class="glossary-badge-status badge-remove">Opcional</span>
+            </div>
+            <div class="glossary-card-body">
+              <h4 class="glossary-card-title">Painel Interno em X & LEDs</h4>
+              <span class="glossary-card-spec" style="color:#94a3b8;">Estrutura Interna</span>
+              <p class="glossary-card-desc">
+                Suporte metálico em X com réguas de LEDs e fiações antigas. O espaço interno será aproveitado para acomodar a nova fonte e a caixa protetora do ESP32.
+              </p>
+              <div class="glossary-card-footer">
+                <span>Status: <strong>Organizar Chicotes</strong></span>
+                <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
@@ -806,16 +1217,13 @@
             <!-- 0. CHAVE GANGORRA GERAL ON/OFF (CANTO INFERIOR ESQUERDO) -->
             <!-- ========================================== -->
             <g transform="translate(30, 490)">
-              <!-- Corpo da Chave Redonda Gangorra -->
               <circle cx="55" cy="55" r="48" fill="#1e293b" stroke="#0f172a" stroke-width="3"/>
               <circle cx="55" cy="55" r="38" fill="#334155" stroke="#64748b" stroke-width="2"/>
               
-              <!-- Botão Basculante (I / O) -->
               <path d="M 25 35 Q 55 20 85 35 L 85 75 Q 55 90 25 75 Z" fill="#0f172a" stroke="#cbd5e1" stroke-width="1.5"/>
               <line x1="55" y1="35" x2="55" y2="48" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
               <circle cx="55" cy="68" r="5" fill="none" stroke="#ffffff" stroke-width="2.5"/>
 
-              <!-- Terminais Traseiros Faston -->
               <rect x="25" y="110" width="18" height="14" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
               <text x="34" y="136" fill="#0f172a" font-size="9" font-weight="800" text-anchor="middle">Pino 1</text>
 
@@ -976,15 +1384,12 @@
             <!-- ========================================== -->
             
             <!-- 0. FASE ENTRA NA CHAVE ON/OFF E SAI PARA A TOMADA -->
-            <!-- Entrada da Rede AC (Fase Vermelha / Neutro Azul) -->
             <line x1="10" y1="600" x2="64" y2="600" stroke="#dc2626" stroke-width="3.5"/>
             <text x="10" y="590" fill="#dc2626" font-size="10" font-weight="800">Fase AC (110V/220V)</text>
 
-            <!-- Retorno da Chave ON/OFF para a Tomada (Pino 2 -> Tomada) -->
             <path d="M 104 600 L 180 600" fill="none" stroke="#7c3aed" stroke-width="3.5"/>
-            <text x="135" y="590" fill="#7c3aed" font-size="9" font-weight="800" text-anchor="middle">Fase Chaveada</text>
+            <text x="142" y="590" fill="#7c3aed" font-size="9" font-weight="800" text-anchor="middle">Fase Chaveada</text>
 
-            <!-- Neutro AC Direto para a Tomada -->
             <line x1="10" y1="630" x2="180" y2="630" stroke="#0284c7" stroke-width="3.5"/>
             <text x="10" y="645" fill="#0284c7" font-size="10" font-weight="800">Neutro AC</text>
 
@@ -1637,12 +2042,17 @@ void loop() {
 
   </div>
 
+  <!-- MODAL DE ZOOM DE FOTOS -->
+  <div id="imageModal" class="img-modal" onclick="closeImageModal()">
+    <img id="modalImg" src="" alt="Zoom da Peça">
+  </div>
+
   <script>
     // Inicia ícones Lucide
     lucide.createIcons();
 
     // LocalStorage Checklist Persistence
-    const STORAGE_KEY = 'bjsports_catraca_fazer_tasks_v4';
+    const STORAGE_KEY = 'bjsports_catraca_fazer_tasks_v5';
 
     function loadTasks() {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -1690,6 +2100,18 @@ void loop() {
           lucide.createIcons();
         }, 2000);
       });
+    }
+
+    // Funções do Modal de Zoom
+    function openImageModal(src) {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('modalImg');
+      img.src = src;
+      modal.style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').style.display = 'none';
     }
 
     document.addEventListener('DOMContentLoaded', loadTasks);
