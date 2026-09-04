@@ -30,6 +30,28 @@
 
             <span class="portal-intro-support"><i data-lucide="message-circle"></i> Precisa de ajuda? Fale com o Mestre Bolivar.</span>
           </div>
+
+          <!-- PAINEL LATERAL DE NOVO CADASTRO -->
+          <div class="hidden" data-portal-register-intro>
+            <div class="portal-intro-copy">
+              <span class="portal-intro-eyebrow">NOVA MATRÍCULA</span>
+              <h1>Faça parte do BJ Sports.</h1>
+              <p>Cadastre-se para garantir sua vaga e ter acesso ao sistema completo da academia.</p>
+            </div>
+
+            <ul class="portal-intro-benefits">
+              <li><i data-lucide="zap"></i><span><strong>Cadastro rápido</strong><small>Leve menos de 1 minuto para se registrar</small></span></li>
+              <li><i data-lucide="award"></i><span><strong>Todas as modalidades</strong><small>Jiu-Jitsu, Muay Thai, Boxe e Musculação</small></span></li>
+              <li><i data-lucide="file-text"></i><span><strong>Contrato 100% Digital</strong><small>Disponível no seu painel após o primeiro acesso</small></span></li>
+            </ul>
+
+            <div style="margin-top: 20px; padding: 14px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+              <small style="color: #cbd5e1; display: block; margin-bottom: 8px;">Deseja ler os termos do contrato antes de se cadastrar?</small>
+              <button type="button" id="btnOpenContractModal" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i data-lucide="file-text" style="width: 16px; height: 16px;"></i> Ler Contrato Completo
+              </button>
+            </div>
+          </div>
         </aside>
 
         <!-- CARTÃO DO FORMULÁRIO DE LOGIN E CADASTRO (LADO DIREITO) -->
@@ -136,55 +158,47 @@
               <label>WhatsApp / Celular *</label>
               <div class="phone-split-group">
                 <div style="width: 85px;">
-                  <input type="text" name="regDDD" id="regDDD" class="ddd-input" placeholder="Ex: 83" maxlength="2" inputmode="numeric" required title="DDD (2 dígitos)">
+                  <select name="regDdd" id="regDdd" required style="width: 100%;">
+                    <option value="83" selected>(83)</option>
+                    <option value="84">(84)</option>
+                    <option value="88">(88)</option>
+                    <option value="81">(81)</option>
+                    <option value="11">(11)</option>
+                    <option value="21">(21)</option>
+                  </select>
                 </div>
                 <div style="flex: 1;">
-                  <input type="tel" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 9999 9999" maxlength="11" pattern="[0-9] [0-9]{4} [0-9]{4}" inputmode="numeric" required title="Digite os 9 números do celular">
+                  <input type="text" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 0000 0000" inputmode="numeric" maxlength="11" required>
                 </div>
               </div>
+              <span class="field-hint">📱 Telefone para contato e notificações.</span>
             </div>
 
-            <!-- 7. Endereço de E-mail Ajustado -->
+            <!-- 7. E-mail -->
             <div class="form-group">
-              <label for="regEmail">Endereço de E-mail *</label>
+              <label for="regEmail">E-mail de Contato *</label>
               <div class="input-with-icon">
-                <i data-lucide="mail" class="input-icon" style="color: var(--accent-gold);"></i>
-                <input type="email" name="regEmail" id="regEmail" placeholder="seu.email@exemplo.com" maxlength="254" autocomplete="email" required>
+                <i data-lucide="mail" class="input-icon"></i>
+                <input type="email" name="regEmail" id="regEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
               </div>
-              <span class="field-hint">✉️ E-mail para confirmação de matrícula, recibos e avisos da academia.</span>
             </div>
 
-            <!-- 8. Gênero (Anteriormente Sexo) -->
+            <!-- 8. Sexo / Gênero -->
             <div class="form-group">
-              <label for="regSex">Gênero *</label>
-              <div class="input-with-icon">
-                <i data-lucide="user-check" class="input-icon" style="color: var(--accent-gold);"></i>
-                <select name="regSex" id="regSex" required>
-                  <option value="">Selecione o Gênero</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="feminino">Feminino</option>
-                  <option value="prefer_not">Prefiro não informar / Outro</option>
-                </select>
-              </div>
-              <span class="field-hint">👤 Identificação de gênero do aluno.</span>
+              <label for="regSex">Sexo *</label>
+              <select name="regSex" id="regSex" required>
+                <option value="" disabled selected>Selecione seu sexo</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="prefer_not">Prefiro não informar</option>
+              </select>
             </div>
 
-            <!-- 9. Seleção de Tipo de Plano: Modalidades Individuais vs Combos & Planos Especiais -->
-            <div class="form-group" style="margin-bottom: 20px;">
-              <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px;">Escolha o Tipo de Matrícula *</label>
-              <div class="plan-type-toggle-buttons" style="display: flex; gap: 10px; margin-bottom: 12px;">
-                <button type="button" id="btnTypeModalidades" class="btn btn-type-toggle" onclick="switchPlanType('modalidade')" style="flex: 1; padding: 10px 12px; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border: none; cursor: pointer; transition: all 0.2s ease;">
-                  🥋 Modalidades Individuais
-                </button>
-                <button type="button" id="btnTypeCombos" class="btn btn-type-toggle" onclick="switchPlanType('combo')" style="flex: 1; padding: 10px 12px; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: rgba(30, 41, 59, 0.8); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; transition: all 0.2s ease;">
-                  ⚡ Combos & Planos Especiais
-                </button>
-              </div>
-
-              <label for="regPlan" style="font-size: 0.84rem; color: var(--text-muted);">Selecione o Plano / Modalidades Desejado *</label>
-              <select name="regPlan" id="regPlan" required style="width: 100%; padding: 10px 14px; border-radius: 8px; background: rgba(15, 23, 42, 0.9); color: #fff; border: 1px solid var(--border-light); font-size: 0.92rem; font-weight: 600;">
-                <option value="" selected disabled>Selecione uma modalidade</option>
-                {% for plan in registration_modalities %}<option value="{{ plan.value }}">{{ plan.label }}</option>{% endfor %}
+            <!-- 9. Escolha do Plano e Dias de Treino -->
+            <div class="form-group">
+              <label for="regPlan">Escolha o Plano de Aulas *</label>
+              <select name="regPlan" id="regPlan" required>
+                <option value="" disabled selected>Carregando planos disponíveis...</option>
               </select>
               <fieldset class="registration-schedule-filter" aria-label="Filtrar modalidades pelos dias de treino">
                 <legend>Escolha os dias de treino</legend>
@@ -252,7 +266,13 @@
                   <i data-lucide="shield-check" class="input-icon"></i>
                   <input type="password" id="regPassConfirm" placeholder="••••••••" required>
                   <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
-               <!-- MARCAÇÃO DE RESTRIÇÃO MÉDICA -->
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 12. Restrição Médica -->
             <div class="portal-medical-box" style="margin: 14px 0; padding: 12px 14px; background: rgba(239, 68, 68, 0.08); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
               <label class="portal-consent-check" style="margin-bottom: 0;">
                 <input type="checkbox" name="hasMedicalRestriction" id="chkMedicalRestriction" onchange="document.getElementById('medicalDetailsWrapper').classList.toggle('hidden', !this.checked)">
@@ -266,16 +286,7 @@
               <small style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">💡 Informação essencial para a segurança nos treinos e acompanhamento do Professor e dos Monitores.</small>
             </div>
 
-            <div style="margin: 14px 0; padding: 14px; background: rgba(59, 130, 246, 0.08); border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.25); font-size: 0.82rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 8px;">
-              <div>
-                📄 <strong>Termo de Adesão & Contrato:</strong> O aceite formal será solicitado no seu painel. Se desejar consultar os termos agora, clique no botão abaixo:
-              </div>
-              <button type="button" id="btnOpenContractModal" class="btn btn-secondary btn-sm" style="align-self: flex-start; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <i data-lucide="file-text" style="width: 16px; height: 16px;"></i> Ler Contrato Completo
-              </button>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit">
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit" style="margin-top: 14px;">
               <i data-lucide="user-plus"></i> Finalizar Cadastro
             </button>
           </form>

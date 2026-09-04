@@ -972,6 +972,7 @@ function setupPortalPage() {
   const formLogin = document.getElementById('portalLoginForm');
   const formRegister = document.getElementById('portalRegisterForm');
   const loginIntro = document.querySelector('[data-portal-login-intro]');
+  const registerIntro = document.querySelector('[data-portal-register-intro]');
   const membershipContract = document.querySelector('[data-portal-membership-contract]');
   const planSelect = document.getElementById('regPlan');
   const dueDateSelect = document.getElementById('regDueDate');
@@ -1005,6 +1006,7 @@ function setupPortalPage() {
     if (formLogin) formLogin.classList.remove('hidden');
     if (formRegister) formRegister.classList.add('hidden');
     if (loginIntro) loginIntro.classList.remove('hidden');
+    if (registerIntro) registerIntro.classList.add('hidden');
     if (membershipContract) membershipContract.classList.add('hidden');
   };
 
@@ -1014,6 +1016,7 @@ function setupPortalPage() {
     if (formRegister) formRegister.classList.remove('hidden');
     if (formLogin) formLogin.classList.add('hidden');
     if (loginIntro) loginIntro.classList.add('hidden');
+    if (registerIntro) registerIntro.classList.remove('hidden');
     if (membershipContract) membershipContract.classList.remove('hidden');
     updateContractSummary();
   };
