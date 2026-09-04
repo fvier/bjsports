@@ -30,18 +30,6 @@
 
             <span class="portal-intro-support"><i data-lucide="message-circle"></i> Precisa de ajuda? Fale com o Mestre Bolivar.</span>
           </div>
-
-          <div class="portal-membership-contract hidden" data-portal-membership-contract>
-            <header>
-              <span><i data-lucide="file-check-2"></i> TERMO DE ADESÃO</span>
-              <h2>Seu contrato, sem letras miúdas</h2>
-              <p>Leia com calma antes de concluir. Versão {{ membership_terms_version }}.</p>
-            </header>
-            <div class="portal-contract-scroll" tabindex="0" role="region" aria-label="Texto completo do termo de adesão">
-              {% include "_membership_contract_content.html" %}
-            </div>
-            <footer><i data-lucide="shield-check"></i><span>Os aceites ficam registrados com versão, data e horário.</span></footer>
-          </div>
         </aside>
 
         <!-- CARTÃO DO FORMULÁRIO DE LOGIN E CADASTRO (LADO DIREITO) -->
@@ -264,49 +252,26 @@
                   <i data-lucide="shield-check" class="input-icon"></i>
                   <input type="password" id="regPassConfirm" placeholder="••••••••" required>
                   <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
-                    <i data-lucide="eye"></i>
-                  </button>
-                </div>
+               <!-- MARCAÇÃO DE RESTRIÇÃO MÉDICA -->
+            <div class="portal-medical-box" style="margin: 14px 0; padding: 12px 14px; background: rgba(239, 68, 68, 0.08); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+              <label class="portal-consent-check" style="margin-bottom: 0;">
+                <input type="checkbox" name="hasMedicalRestriction" id="chkMedicalRestriction" onchange="document.getElementById('medicalDetailsWrapper').classList.toggle('hidden', !this.checked)">
+                <span><i data-lucide="activity"></i></span>
+                <p style="color: #ffffff; font-weight: 600;">Possui alguma <strong>restrição médica, lesão ou condição especial de saúde</strong>?</p>
+              </label>
+              <div id="medicalDetailsWrapper" class="hidden" style="margin-top: 10px;">
+                <label for="medicalRestrictionDetails" style="font-size: 0.82rem; color: #f87171; font-weight: 600; display: block; margin-bottom: 4px;">Descreva a restrição médica ou condição de saúde:</label>
+                <input type="text" name="medicalRestrictionDetails" id="medicalRestrictionDetails" placeholder="Ex: Hipertensão, lesão no joelho direito, asma, problema cardíaco..." maxlength="250" style="width: 100%; padding: 8px 12px; border-radius: 6px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; font-size: 0.88rem;">
               </div>
+              <small style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">💡 Informação essencial para a segurança nos treinos e acompanhamento do Professor e dos Monitores.</small>
             </div>
 
-            <div class="portal-acceptance-box">
-              <div class="portal-acceptance-heading"><i data-lucide="list-checks"></i><div><strong>Revise e confirme suas escolhas</strong><small>Todos os aceites abaixo são necessários para concluir o cadastro.</small></div></div>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="acceptMembershipTerms" required><span><i data-lucide="check"></i></span><p>Li e aceito o <strong>Termo de Adesão</strong>, inclusive o compromisso de pagamento das mensalidades e as regras de acesso. <em>Obrigatório</em></p></label>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="acknowledgePrivacy" required><span><i data-lucide="check"></i></span><p>Estou ciente do tratamento dos meus dados para cadastro, pagamentos, presenças, segurança e execução do serviço, conforme o aviso de privacidade versão {{ privacy_notice_version }}. <em>Obrigatório</em></p></label>
-              <label class="portal-consent-check is-required"><input type="checkbox" name="confirmLegalCapacity" required><span><i data-lucide="check"></i></span><p>Declaro que sou maior de 18 anos ou responsável legal pelo aluno cadastrado. <em>Obrigatório</em></p></label>
-
-              <!-- MARCAÇÃO DE RESTRIÇÃO MÉDICA -->
-              <div class="portal-medical-box" style="margin: 14px 0; padding: 12px 14px; background: rgba(239, 68, 68, 0.08); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
-                <label class="portal-consent-check" style="margin-bottom: 0;">
-                  <input type="checkbox" name="hasMedicalRestriction" id="chkMedicalRestriction" onchange="document.getElementById('medicalDetailsWrapper').classList.toggle('hidden', !this.checked)">
-                  <span><i data-lucide="activity"></i></span>
-                  <p style="color: #ffffff; font-weight: 600;">Possui alguma <strong>restrição médica, lesão ou condição especial de saúde</strong>?</p>
-                </label>
-                <div id="medicalDetailsWrapper" class="hidden" style="margin-top: 10px;">
-                  <label for="medicalRestrictionDetails" style="font-size: 0.82rem; color: #f87171; font-weight: 600; display: block; margin-bottom: 4px;">Descreva a restrição médica ou condição de saúde:</label>
-                  <input type="text" name="medicalRestrictionDetails" id="medicalRestrictionDetails" placeholder="Ex: Hipertensão, lesão no joelho direito, asma, problema cardíaco..." maxlength="250" style="width: 100%; padding: 8px 12px; border-radius: 6px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; font-size: 0.88rem;">
-                </div>
-                <small style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">💡 Informação essencial para a segurança nos treinos e acompanhamento do Professor e dos Monitores.</small>
-              </div>
-
-              <fieldset class="portal-image-consent">
-                <legend><i data-lucide="shield-check"></i><span><strong>Autorização de imagem obrigatória para o cadastro</strong><small>Escolha quem está concedendo a autorização descrita nos itens 12 a 14 do contrato.</small></span></legend>
-                <div class="portal-image-consent-note is-required"><i data-lucide="info"></i><span><strong>Nenhuma foto será enviada agora.</strong> Esta confirmação autoriza somente os usos e finalidades descritos no contrato. <strong>Sem a autorização, o cadastro não será concluído.</strong></span></div>
-                <label class="is-approved"><input type="radio" id="radioAdultConsent" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><b>Autorizo como aluno adulto</b><small>Sou o aluno, tenho 18 anos ou mais e autorizo o uso descrito.</small></span></label>
-                <label class="is-minor-approved"><input type="radio" id="radioMinorConsent" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><b>Autorizo pelo aluno menor</b><small>Sou responsável legal e autorizo o uso descrito pelo menor.</small></span></label>
-                <div class="portal-minor-consent-fields hidden" data-minor-consent-fields id="minorConsentFields">
-                  <p><i data-lucide="shield-check"></i><span><strong>Identificação do responsável pelo menor</strong><small>Necessária somente para esta modalidade de autorização.</small></span></p>
-                  <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" id="imageGuardianName" maxlength="120" autocomplete="name"></label>
-                  <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" id="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
-                  <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship" id="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
-                  <small>Ao escolher esta opção, declaro que possuo autoridade legal para decidir sobre a imagem do menor e aceito as finalidades e limites descritos nos itens 12 a 14.</small>
-                </div>
-              </fieldset>
+            <div style="margin: 14px 0; padding: 12px 14px; background: rgba(59, 130, 246, 0.08); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.25); font-size: 0.8rem; color: #cbd5e1;">
+              📄 <strong>Termo de Adesão & Contrato:</strong> Após o cadastro, você poderá ler e assinar o contrato digitalmente dentro do seu painel do aluno a qualquer momento.
             </div>
 
             <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit">
-              <i data-lucide="user-plus"></i> Aceitar e Finalizar Cadastro
+              <i data-lucide="user-plus"></i> Finalizar Cadastro
             </button>
           </form>
         </div>

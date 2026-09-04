@@ -2610,8 +2610,6 @@ def login():
                 today = datetime.now().date()
                 if birth_date > today:
                     raise ValueError
-                age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-                is_minor_by_birth_date = age < 18
             except (TypeError, ValueError):
                 errors.append('Informe uma data de nascimento válida.')
             if not re.fullmatch(r'[A-Za-z0-9_.-]{3,80}', username): errors.append('Usuário deve ter de 3 a 80 caracteres válidos.')
@@ -2623,19 +2621,6 @@ def login():
             if (len(password) < 8 or not re.search(r'\d', password)
                     or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password)):
                 errors.append('A senha deve ter pelo menos 8 caracteres, com número, letra maiúscula e letra minúscula.')
-            if not accepted_membership_terms: errors.append('Leia e aceite o termo de adesão para concluir a matrícula.')
-            if not acknowledged_privacy: errors.append('Confirme a ciência do aviso de privacidade.')
-            if not accepted_legal_capacity: errors.append('Confirme que você é maior de 18 anos ou responsável legal pelo aluno.')
-            if image_consent_scope not in {'adult', 'minor_guardian'}:
-                errors.append('Para concluir o cadastro, autorize o uso de imagem como aluno adulto ou responsável legal pelo menor.')
-            if birth_date and is_minor_by_birth_date and image_consent_scope != 'minor_guardian':
-                errors.append('Aluno menor de idade exige autorização do responsável legal.')
-            if image_consent_scope == 'minor_guardian':
-                guardian_cpf_digits = ''.join(character for character in guardian_cpf if character.isdigit())
-                if len(guardian_name) < 3: errors.append('Informe o nome completo do responsável pela autorização de imagem do menor.')
-                if not is_valid_cpf(guardian_cpf_digits): errors.append('Informe um CPF válido para o responsável pela autorização de imagem.')
-                if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
-                    errors.append('Informe o vínculo do responsável legal pelo menor.')
             valid_plans = {
                 f'{p.name} — {p.price}': p for p in Plan.query.all()
                 if 'passe livre' not in p.name.casefold()
@@ -2709,16 +2694,16 @@ def login():
                     start_month=datetime.now().month,
                     role='aluno',
                     payment_status='Pendente',
-                    membership_terms_version=MEMBERSHIP_TERMS_VERSION,
-                    membership_terms_accepted_at=datetime.utcnow(),
-                    privacy_notice_version=PRIVACY_NOTICE_VERSION,
-                    privacy_notice_accepted_at=datetime.utcnow(),
-                    image_use_consent=image_use_consent,
-                    image_use_consent_at=datetime.utcnow(),
-                    image_consent_scope=image_consent_scope,
-                    image_consent_guardian_name=guardian_name if image_consent_scope == 'minor_guardian' else None,
-                    image_consent_guardian_cpf=guardian_cpf if image_consent_scope == 'minor_guardian' else None,
-                    image_consent_guardian_relationship=guardian_relationship if image_consent_scope == 'minor_guardian' else None,
+                    membership_terms_version=None,
+                    membership_terms_accepted_at=None,
+                    privacy_notice_version=None,
+                    privacy_notice_accepted_at=None,
+                    image_use_consent=False,
+                    image_use_consent_at=None,
+                    image_consent_scope=None,
+                    image_consent_guardian_name=None,
+                    image_consent_guardian_cpf=None,
+                    image_consent_guardian_relationship=None,
                     medical_restriction=medical_restriction_val,
                     is_experimental=is_experimental,
                     birth_date=birth_date,
