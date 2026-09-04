@@ -2026,6 +2026,29 @@ function setupMobileNavDrawer() {
   }
 }
 
+function setupRegistrationContractModal() {
+  const openBtn = document.getElementById('btnOpenContractModal');
+  const closeBtn = document.getElementById('btnCloseContractModal');
+  const dismissBtn = document.getElementById('btnDismissContractModal');
+  const modal = document.getElementById('contractViewModal');
+
+  function openModal() {
+    if (modal) modal.classList.remove('hidden');
+  }
+  function closeModal() {
+    if (modal) modal.classList.add('hidden');
+  }
+
+  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (dismissBtn) dismissBtn.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+}
+
 // DOM Loaded
 document.addEventListener('DOMContentLoaded', () => {
   const trialCountdowns = [...document.querySelectorAll('[data-trial-countdown]')];
@@ -2072,5 +2095,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupContractPage();
   setupCustomConfirmForms();
   setupMobileNavDrawer();
+  setupRegistrationContractModal();
   initIcons();
 });
