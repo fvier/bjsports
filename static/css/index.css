@@ -2198,6 +2198,44 @@ body.public-light-theme {
   transform: translateY(-2px);
 }
 
+.welcome-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.welcome-streak-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+.streak-fire {
+  font-size: 1.5rem;
+  animation: pulseFire 1.5s infinite ease-in-out;
+}
+@keyframes pulseFire {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.welcome-streak-card strong {
+  display: block;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.welcome-streak-card small {
+  color: var(--accent-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .dock-cta {
   position: relative;
 }

@@ -13,13 +13,64 @@
       {% if is_first_reg %}<div class="welcome-banner"><div class="welcome-icon">🎉</div><div><h4>Bem-vindo ao BJ Sports!</h4><p>Seu cadastro foi concluído. Este é o resumo inicial da sua conta.</p></div></div>{% endif %}
 
       <section class="welcome-account-hero">
-        <div><span class="welcome-account-kicker">ÁREA DO ALUNO</span><h1>Bem-vindo, {{ first_name }}.</h1><p>Aqui está um resumo atualizado da sua conta na BJ Sports.</p></div>
-        <a href="{{ url_for('presencas') }}" class="welcome-checkin-cta"><i data-lucide="calendar-check"></i><span><strong>Fazer Check-in</strong><small>Registrar treino de hoje</small></span></a>
+        <div>
+          <span class="welcome-account-kicker">ÁREA DO ALUNO</span>
+          <h1>Bem-vindo, {{ first_name }}.</h1>
+          <p>Aqui está um resumo atualizado da sua conta na BJ Sports.</p>
+        </div>
+        <div class="welcome-hero-actions">
+          <div class="welcome-streak-card" title="Sua frequência neste mês">
+            <span class="streak-fire">🔥</span>
+            <div>
+              <strong>{{ attendance_month }} treinos</strong>
+              <small>Sequência do mês</small>
+            </div>
+          </div>
+          <a href="{{ url_for('presencas') }}" class="welcome-checkin-cta">
+            <i data-lucide="calendar-check"></i>
+            <span><strong>Fazer Check-in</strong><small>Registrar treino de hoje</small></span>
+          </a>
+        </div>
       </section>
 
-      {% if overdue.count %}<div class="welcome-finance-alert"><i data-lucide="circle-alert"></i><div><strong>Você possui {{ overdue.count }} mensalidade(s) pendente(s).</strong><span>Regularize o financeiro para liberar novos check-ins.</span></div><a href="{{ url_for('mensalidades_aluno') }}">Consultar</a></div>{% endif %}
+      {% if overdue.count %}
+      <div class="welcome-finance-alert">
+        <i data-lucide="circle-alert"></i>
+        <div>
+          <strong>Você possui {{ overdue.count }} mensalidade(s) pendente(s).</strong>
+          <span>Regularize o financeiro via Pix para manter seu acesso em dia.</span>
+        </div>
+        <a href="{{ url_for('mensalidades_aluno') }}">Pagar via Pix</a>
+      </div>
+      {% endif %}
 
-      <div class="welcome-section-heading"><div><span>VISÃO GERAL</span><h2>Resumo da sua conta</h2></div><small>Dados atualizados automaticamente</small></div>
+      <div class="welcome-section-heading">
+        <div><span>VISÃO GERAL</span><h2>Resumo da sua conta</h2></div>
+        <small>Dados atualizados automaticamente</small>
+      </div>
+
+      <!-- Barra de Progresso de Graduação / Frequência -->
+      <section class="welcome-graduation-card glass-panel" style="margin-bottom: 22px; padding: 18px 22px; border-radius: 16px; border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(15, 23, 42, 0.9);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.4rem;">🥋</span>
+            <div>
+              <strong style="color: #fff; font-size: 1rem; display: block;">Evolução de Graduação & Treinos</strong>
+              <small style="color: #94a3b8; font-size: 0.78rem;">Frequência acumulada para o próximo grau</small>
+            </div>
+          </div>
+          <span class="badge-pill bg-gold" style="font-size: 0.75rem; padding: 4px 12px;">{{ attendance_total }} Treinos Totais</span>
+        </div>
+        <div class="graduation-progress-track" style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 999px; overflow: hidden; position: relative;">
+          {% set grad_pct = [(attendance_month * 10), 100]|min %}
+          <div class="graduation-progress-fill" style="width: {{ grad_pct }}%; height: 100%; background: linear-gradient(90deg, #f59e0b, #22c55e); border-radius: 999px; transition: width 0.6s ease;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.72rem; color: #94a3b8;">
+          <span>Meta mensal: 10 treinos</span>
+          <span><strong>{{ grad_pct }}% concluído</strong></span>
+        </div>
+      </section>
+
       <section class="welcome-summary-grid welcome-summary-grid-three">
         <article class="welcome-summary-card"><i data-lucide="wallet-cards"></i><span>Plano atual</span><strong>{{ plan_name }}</strong><small>{{ plan_price or 'Valor conforme cadastro' }}</small></article>
         <article class="welcome-summary-card {% if overdue.count %}is-warning{% else %}is-success{% endif %}"><i data-lucide="badge-dollar-sign"></i><span>Situação financeira</span><strong>{% if overdue.count %}Pendente{% elif profile_user.sponsor_id %}Sem cobrança{% elif profile_user.monthly_fee_exempt %}Isento{% else %}Em dia{% endif %}</strong><small>{% if overdue.count and billing_exempt %}Isenção atual; existem débitos anteriores{% elif profile_user.sponsor_id %}Cobrança concentrada no titular do plano{% elif profile_user.monthly_fee_exempt %}Sem novas cobranças mensais{% else %}Vencimento todo dia {{ profile_user.due_date }}{% endif %}</small></article>
@@ -33,7 +84,11 @@
         </article>
         <article class="welcome-panel">
           <div class="welcome-panel-title"><span><i data-lucide="zap"></i>Acessos rápidos</span></div>
-          <div class="welcome-quick-links"><a href="{{ url_for('presencas') }}"><i data-lucide="calendar-check"></i><span><strong>Presenças e treinos</strong><small>Acompanhar frequência</small></span><i data-lucide="chevron-right"></i></a><a href="{{ url_for('mensalidades_aluno') }}"><i data-lucide="dollar-sign"></i><span><strong>Minhas mensalidades</strong><small>Pagamentos e vencimentos</small></span><i data-lucide="chevron-right"></i></a></div>
+          <div class="welcome-quick-links">
+            <a href="{{ url_for('presencas') }}"><i data-lucide="calendar-check"></i><span><strong>Presenças e treinos</strong><small>Acompanhar frequência</small></span><i data-lucide="chevron-right"></i></a>
+            <a href="{{ url_for('loja') }}"><i data-lucide="shopping-bag" class="icon-gold"></i><span><strong>Loja BJ Sports</strong><small>Equipamentos e produtos</small></span><i data-lucide="chevron-right"></i></a>
+            <a href="{{ url_for('mensalidades_aluno') }}"><i data-lucide="dollar-sign"></i><span><strong>Minhas mensalidades</strong><small>Pagamentos e vencimentos</small></span><i data-lucide="chevron-right"></i></a>
+          </div>
           <div class="welcome-checkin-count"><span>Solicitações de check-in</span><strong>{{ checkin_requests }}</strong></div>
         </article>
       </section>
