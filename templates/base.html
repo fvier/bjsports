@@ -399,6 +399,53 @@
     </div>
   </div>
 
+  <!-- Barra de Navegação Rápida Inferior Mobile (Bottom Dock Bar) -->
+  <nav class="mobile-bottom-dock" aria-label="Navegação rápida mobile">
+    {% if is_logged_in %}
+      <a href="{{ url_for('dashboard') }}" class="dock-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i data-lucide="home"></i>
+        <span>Resumo</span>
+      </a>
+      <a href="{{ url_for('presencas') }}" class="dock-item {% if request.endpoint == 'presencas' %}active{% endif %}">
+        <i data-lucide="calendar"></i>
+        <span>Presenças</span>
+      </a>
+      <a href="{{ url_for('loja') }}" class="dock-item {% if request.endpoint == 'loja' %}active{% endif %}">
+        <i data-lucide="shopping-bag"></i>
+        <span>Loja</span>
+      </a>
+      <a href="{{ url_for('mensalidades_aluno') if user_role == 'aluno' else url_for('mensalidades_admin') }}" class="dock-item {% if request.endpoint in ['mensalidades_aluno', 'mensalidades_admin'] %}active{% endif %}">
+        <i data-lucide="credit-card"></i>
+        <span>Faturas</span>
+      </a>
+      <a href="{{ url_for('configuracoes') }}" class="dock-item {% if request.endpoint == 'configuracoes' %}active{% endif %}">
+        <i data-lucide="user"></i>
+        <span>Perfil</span>
+      </a>
+    {% else %}
+      <a href="{{ url_for('index') }}" class="dock-item {% if request.endpoint == 'index' %}active{% endif %}">
+        <i data-lucide="home"></i>
+        <span>Início</span>
+      </a>
+      <a href="{{ url_for('loja') }}" class="dock-item {% if request.endpoint == 'loja' %}active{% endif %}">
+        <i data-lucide="shopping-bag"></i>
+        <span>Loja</span>
+      </a>
+      <button type="button" class="dock-item dock-cta" id="dockCheckinBtn">
+        <div class="dock-cta-icon"><i data-lucide="calendar-check"></i></div>
+        <span>Check-in</span>
+      </button>
+      <a href="{{ url_for('blog') }}" class="dock-item {% if request.endpoint == 'blog' %}active{% endif %}">
+        <i data-lucide="newspaper"></i>
+        <span>Blog</span>
+      </a>
+      <a href="{{ url_for('login') }}" class="dock-item {% if request.endpoint == 'login' %}active{% endif %}">
+        <i data-lucide="user"></i>
+        <span>Entrar</span>
+      </a>
+    {% endif %}
+  </nav>
+
   <!-- Lucide Icons Script & App JS -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>

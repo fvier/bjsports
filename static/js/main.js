@@ -2040,6 +2040,12 @@ function setupMobileNavDrawer() {
       mobileLocaisSubitems.classList.toggle('hidden');
     });
   }
+
+  const dockCheckinBtn = document.getElementById('dockCheckinBtn');
+  const openScheduleModal = document.getElementById('openScheduleModal');
+  if (dockCheckinBtn && openScheduleModal) {
+    dockCheckinBtn.addEventListener('click', () => openScheduleModal.click());
+  }
 }
 
 // DOM Loaded
