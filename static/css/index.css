@@ -2205,32 +2205,23 @@ body.public-light-theme {
   flex-wrap: wrap;
 }
 
-.welcome-streak-card {
+.welcome-attendance-pill {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
   border-radius: 12px;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
-.streak-fire {
-  font-size: 1.5rem;
-  animation: pulseFire 1.5s infinite ease-in-out;
-}
-@keyframes pulseFire {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-.welcome-streak-card strong {
+.welcome-attendance-pill strong {
   display: block;
   color: #fff;
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.2;
 }
-.welcome-streak-card small {
+.welcome-attendance-pill small {
   color: var(--accent-gold);
   font-size: 0.72rem;
   font-weight: 700;
