@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v=20260911_v2">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body class="{% if erp_page %}erp-page{% endif %}" data-user-role="{{ user_role }}" data-belt-color="{{ user_belt_color }}" data-pending-attendance-count="{{ pending_attendance_count }}" data-pending-payments-count="{{ pending_payments_count }}" data-contract-pending="{{ 'true' if contract_pending else 'false' }}" data-registration-complete="{{ 'true' if is_first_reg else 'false' }}">
@@ -309,7 +309,7 @@
       <div class="modal-header text-center">
         <img src="{{ url_for('static', filename='img/logo_inverted.png') }}" alt="BJ Sports Logo" class="modal-logo">
         <h3 id="modalTitleText">FAZER CHECK-IN NA AULA • BJ SPORTS</h3>
-        <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma (Máx 20 Alunos)</p>
+        <p class="modal-subtitle">📍 Cajazeiras-PB • Vagas limitadas por turma</p>
       </div>
 
       <form id="bookingForm" class="modal-form">

@@ -1758,12 +1758,13 @@ body.erp-page.erp-light-theme {
 @media (max-width:540px) { .experimental-checkbox-label { grid-template-columns:42px minmax(0,1fr); }.experimental-checkbox-icon { width:42px; height:42px; } }
 
 .experimental-risk-box { margin:10px 0 14px 0; padding:12px 14px; background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(229,9,20,.08)); border:1.5px solid rgba(251,191,36,.4); border-radius:12px; transition:all .25s ease; }
-.experimental-risk-box label { display:flex; align-items:flex-start; gap:10px; cursor:pointer; color:#fde68a; font-size:.8rem; line-height:1.45; margin:0; }
-.experimental-risk-box label strong { color:#fff7d6; display:block; margin-bottom:2px; }
-.experimental-risk-box input[type="checkbox"] { margin-top:2px; width:18px; height:18px; accent-color:#22c55e; flex-shrink:0; cursor:pointer; }
-.experimental-risk-box:has(input:checked), .experimental-risk-box.is-checked { background:linear-gradient(135deg,rgba(34,197,94,.22),rgba(21,128,61,.15)); border-color:#4ade80; box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 18px rgba(34,197,94,.16); }
-.experimental-risk-box:has(input:checked) label, .experimental-risk-box.is-checked label { color:#bbf7d0; }
-.experimental-risk-box:has(input:checked) label strong, .experimental-risk-box.is-checked label strong { color:#dcfce7; }
+.experimental-risk-box label { display:flex !important; align-items:flex-start !important; gap:10px !important; cursor:pointer !important; color:#fde68a !important; font-size:.8rem !important; line-height:1.45 !important; margin:0 !important; }
+.experimental-risk-box label strong { color:#fff7d6 !important; display:block !important; margin-bottom:2px !important; }
+.experimental-risk-box label span { color:inherit !important; }
+.experimental-risk-box input[type="checkbox"] { margin-top:2px !important; width:18px !important; height:18px !important; accent-color:#22c55e !important; flex-shrink:0 !important; cursor:pointer !important; }
+.experimental-risk-box:has(input:checked), .experimental-risk-box.is-checked { background:linear-gradient(135deg,rgba(34,197,94,.28),rgba(21,128,61,.18)) !important; border-color:#4ade80 !important; box-shadow:0 10px 28px rgba(0,0,0,.25),0 0 20px rgba(34,197,94,.22) !important; }
+.experimental-risk-box:has(input:checked) label, .experimental-risk-box.is-checked label { color:#bbf7d0 !important; }
+.experimental-risk-box:has(input:checked) label strong, .experimental-risk-box.is-checked label strong { color:#dcfce7 !important; }
 
 .modal-form label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
 .field-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
