@@ -14,7 +14,7 @@
         </h1>
 
         <p class="hero-desc">
-          O <strong>BJ Sports Centro de Treinamento</strong> oferece aulas de Jiu-Jitsu, Boxe e Preparação Física em Cajazeiras-PB com turmas limitadas a no máximo 20 alunos para atenção total do Mestre Bolivar.
+          No <strong>BJ Sports Centro de Treinamento</strong>, você encontra aulas de Jiu-Jitsu, Boxe, Muay Thai e MMA em Cajazeiras-PB, com turmas para crianças e adultos e treinos do nível iniciante ao profissional. Desenvolva sua técnica, fortaleça sua confiança e supere seus limites a cada treino.
         </p>
 
         <div class="hero-buttons">
@@ -24,23 +24,6 @@
           <a href="#horarios" class="btn btn-secondary btn-lg">
             <i data-lucide="clock"></i> Ver Horários & Planos
           </a>
-        </div>
-
-        <div class="hero-stats">
-          <div class="stat-card">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Foco em Alta Performance</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-card">
-            <span class="stat-number">20</span>
-            <span class="stat-label">Vagas Máx por Turma</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-card">
-            <span class="stat-number">5.0</span>
-            <span class="stat-label">Avaliação dos Alunos</span>
-          </div>
         </div>
       </div>
 
@@ -133,7 +116,9 @@
               {% endif %}
             {% else %}
               <span class="main-price">{{ plan.price }}</span>
-              <span class="price-detail">Invista na sua evolução no tatame</span>
+              {% if plan.category == 'Planos Individuais' and plan.get_modalities()|length == 1 and plan.get_modalities()[0] in ['Jiu-Jitsu', 'Boxe', 'Muay Thai'] %}
+              <span class="price-detail">2 aulas/semana: {{ plan.get_price_for_schedule('ter-qui') }}<br>3 aulas/semana: {{ plan.get_price_for_schedule('seg-qua-sex') }}<br>Ilimitado: {{ plan.get_price_for_schedule('todos') }}<br>Mensalidade por modalidade</span>
+              {% else %}<span class="price-detail">Invista na sua evolução no tatame</span>{% endif %}
             {% endif %}
           </div>
 
