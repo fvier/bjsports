@@ -1246,9 +1246,9 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Planos totalmente personalizados', page)
         self.assertIn('<th>Plano personalizado</th><th>Modalidades incluídas</th>', page)
         self.assertNotIn('name="modalities" required aria-label="Modalidade"', page)
-        self.assertIn('<th>Ter - Qui</th>', page)
-        self.assertIn('<th>Seg - Qua - Sex</th>', page)
-        self.assertIn('<th>Todos os dias</th>', page)
+        self.assertIn('<th>2 aulas/semana*</th>', page)
+        self.assertIn('<th>3 aulas/semana*</th>', page)
+        self.assertIn('<th>Ilimitado*</th>', page)
         self.assertIn('data-plan-benefits-toggle=', page)
         created = self.client.post('/planos_admin', data={
             'action': 'create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',

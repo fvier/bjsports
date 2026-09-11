@@ -45,7 +45,7 @@
               <header><span><i data-lucide="calendar-days"></i>{{ group.date.strftime('%d/%m/%Y') }}</span><strong><i data-lucide="activity"></i>{{ group.modality }}</strong><small>{{ group['items']|length }} pendente(s)</small></header>
               {% for attendance in group['items'] %}
               <div class="attendance-approval-item">
-                <div><strong>{{ attendance.user.name }}</strong><small>@{{ attendance.user.username }}</small></div>
+                <div><strong>{{ attendance.user.name }}</strong><small>@{{ attendance.user.username }}{% if attendance.class_group %} • {{ attendance.class_group.name }}{% endif %}{% if attendance.class_time %} • {{ attendance.class_time }}{% endif %}</small></div>
                 <div class="attendance-approval-actions">
                   <form action="{{ url_for('presencas') }}" method="POST"><input type="hidden" name="action" value="confirm_attendance"><input type="hidden" name="attendance_id" value="{{ attendance.id }}"><button type="submit" class="btn btn-secondary btn-sm"><i data-lucide="user-check"></i> Confirmar</button></form>
                   <form action="{{ url_for('presencas') }}" method="POST" data-confirm-rejection data-student-name="{{ attendance.user.name }}"><input type="hidden" name="action" value="reject_attendance"><input type="hidden" name="attendance_id" value="{{ attendance.id }}"><button type="submit" class="btn btn-sm btn-deny-attendance"><i data-lucide="user-x"></i> Negar</button></form>
@@ -91,6 +91,15 @@
         </div>
         {% endif %}
 
+        {% if credit_balance %}
+        <div class="glass-panel" style="margin-bottom: 20px; padding: 20px;">
+          <h3>{{ credit_balance.modality }} • {% if credit_balance.weekly %}{{ credit_balance.remaining }} crédito(s) disponível(is){% else %}Plano ilimitado{% endif %}</h3>
+          <p>{% if credit_balance.weekly %}{{ credit_balance.weekly }} créditos a cada sete dias. Cada aula consome um crédito, inclusive no mesmo dia.
+          Os créditos acumulados vencem em {{ credit_balance.expires.strftime('%d/%m/%Y') }}.
+          Check-ins pendentes reservam créditos; presenças negadas liberam o saldo.{% else %}Escolha uma aula da modalidade contratada nos horários disponíveis.{% endif %}</p>
+        </div>
+        {% endif %}
+
         <!-- Confirmar Presença de Hoje -->
         <div class="glass-panel checkin-status-panel {% if has_overdue %}is-blocked{% elif today_attendance and today_attendance.status == 'pendente' %}is-pending{% elif today_attendance and today_attendance.status == 'confirmado' %}is-confirmed{% elif today_attendance and today_attendance.status == 'negado' %}is-rejected{% else %}is-available{% endif %}">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
@@ -113,11 +122,18 @@
             </div>
             {% if has_overdue %}
             <a href="{{ url_for('mensalidades_aluno') }}" class="btn btn-secondary btn-lg"><i data-lucide="wallet-cards"></i> Ver mensalidades</a>
-            {% elif not today_attendance %}
+            {% elif credit_balance or not today_attendance %}
             <form action="{{ url_for('presencas') }}" method="POST" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 480px; margin-top: 12px;">
               <input type="hidden" name="action" value="request_checkin">
 
-              {% if not has_active_enrollment %}
+              {% if credit_balance %}
+              <label for="classSlot">Aula de hoje — {{ credit_balance.modality }}</label>
+              <select name="class_slot" id="classSlot" required>
+                <option value="">Selecione a turma e o horário</option>
+                {% for slot in credit_slots %}<option value="{{ slot.value }}">{{ slot.label }}</option>{% endfor %}
+              </select>
+              {% if not credit_slots %}<p>Nenhuma outra aula disponível hoje.</p>{% endif %}
+              {% elif not has_active_enrollment %}
               <!-- Aula experimental disponível somente antes da matrícula em turma -->
               <div class="experimental-class-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.35);">
                 <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px; font-size: 0.95rem;">Deseja agendar uma Aula Experimental Gratuita?</label>
@@ -139,7 +155,7 @@
               </div>
               {% endif %}
 
-              <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;">
+              <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;" {% if credit_balance and (not credit_slots or credit_balance.remaining == 0) %}disabled{% endif %}>
                 <i data-lucide="check"></i> Enviar Check-in
               </button>
             </form>
@@ -158,7 +174,7 @@
             <div class="class-item-card attendance-history-item">
               <div>
                 <strong>{{ attendance.class_group.name if attendance.class_group else attendance.modality }}</strong>
-                <small>{{ attendance.training_date.strftime('%d/%m/%Y') }} • Check-in realizado</small>
+                <small>{{ attendance.training_date.strftime('%d/%m/%Y') }}{% if attendance.class_time %} • {{ attendance.class_time }}{% endif %} • Check-in realizado</small>
               </div>
               <span class="badge-pill attendance-status-{{ attendance.status }}">{% if attendance.status == 'confirmado' %}CONFIRMADO{% elif attendance.status == 'negado' %}NÃO CONFIRMADO{% else %}AGUARDANDO CONFIRMAÇÃO{% endif %}</span>
             </div>

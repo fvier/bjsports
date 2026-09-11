@@ -201,7 +201,7 @@
                 <option value="" disabled selected>Carregando planos disponíveis...</option>
               </select>
               <fieldset class="registration-schedule-filter" aria-label="Filtrar modalidades pelos dias de treino">
-                <legend>Escolha os dias de treino</legend>
+                <legend>Escolha a frequência de treino</legend>
                 <input type="hidden" name="regTrainingDays" id="regTrainingDays" value="">
                 <div>
                   <button type="button" data-plan-schedule="seg-qua-sex" aria-pressed="false"><span>Seg - Qua - Sex</span><strong data-schedule-price>—</strong></button>
@@ -355,6 +355,8 @@
       const selectedPrices = selectedPlan?.prices || {};
       document.querySelectorAll('[data-plan-schedule]').forEach(button => {
         const price = button.querySelector('[data-schedule-price]');
+        const labels = selectedPlan?.credit_rules ? {'ter-qui': '2 aulas por semana', 'seg-qua-sex': '3 aulas por semana', 'todos': 'Ilimitado'} : {'ter-qui': 'Ter & Qui', 'seg-qua-sex': 'Seg - Qua - Sex', 'todos': 'Todos dias'};
+        button.querySelector('span').textContent = labels[button.dataset.planSchedule];
         if (price) price.textContent = isPrivateClass ? 'A combinar' : (selectedPrices[button.dataset.planSchedule] || '—');
       });
       const comboCount = Number(selectedPlan?.selection_count || 0);
