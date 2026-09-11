@@ -507,7 +507,10 @@ function setupBookingModal() {
       if (bookLoginInput) bookLoginInput.placeholder = 'Bolivar';
       if (groupCpf3) groupCpf3.classList.remove('hidden');
       if (bookCpf3Input) bookCpf3Input.setAttribute('required', 'true');
-      if (groupRiskConsent) groupRiskConsent.classList.add('hidden');
+      if (groupRiskConsent) {
+        groupRiskConsent.classList.add('hidden');
+        groupRiskConsent.classList.remove('is-checked');
+      }
       if (chkRiskConsent) {
         chkRiskConsent.removeAttribute('required');
         chkRiskConsent.checked = false;
@@ -517,6 +520,11 @@ function setupBookingModal() {
 
   if (chkExperimental) {
     chkExperimental.addEventListener('change', toggleExperimentalMode);
+  }
+  if (chkRiskConsent) {
+    chkRiskConsent.addEventListener('change', () => {
+      if (groupRiskConsent) groupRiskConsent.classList.toggle('is-checked', chkRiskConsent.checked);
+    });
   }
 
   if (openBtn) openBtn.addEventListener('click', openModal);
