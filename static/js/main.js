@@ -446,6 +446,8 @@ function setupBookingModal() {
   const heroCTA = document.getElementById('heroCTA');
   const bookingForm = document.getElementById('bookingForm');
   const chkExperimental = document.getElementById('chkExperimental');
+  const chkRiskConsent = document.getElementById('chkRiskConsent');
+  const groupRiskConsent = document.getElementById('groupRiskConsent');
   const lblBookLogin = document.getElementById('lblBookLogin');
   const bookLoginInput = document.getElementById('bookLogin');
   const groupCpf3 = document.getElementById('groupCpf3');
@@ -491,18 +493,25 @@ function setupBookingModal() {
 
   function toggleExperimentalMode() {
     if (chkExperimental && chkExperimental.checked) {
-      if (lblBookLogin) lblBookLogin.textContent = 'Nome:';
-      if (bookLoginInput) bookLoginInput.placeholder = 'Seu Nome Completo';
+      if (lblBookLogin) lblBookLogin.textContent = 'Seu Nome Completo *';
+      if (bookLoginInput) bookLoginInput.placeholder = 'Ex: João Silva';
       if (groupCpf3) groupCpf3.classList.add('hidden');
       if (bookCpf3Input) {
         bookCpf3Input.removeAttribute('required');
         bookCpf3Input.value = '';
       }
+      if (groupRiskConsent) groupRiskConsent.classList.remove('hidden');
+      if (chkRiskConsent) chkRiskConsent.setAttribute('required', 'true');
     } else {
       if (lblBookLogin) lblBookLogin.textContent = 'Login:';
       if (bookLoginInput) bookLoginInput.placeholder = 'Bolivar';
       if (groupCpf3) groupCpf3.classList.remove('hidden');
       if (bookCpf3Input) bookCpf3Input.setAttribute('required', 'true');
+      if (groupRiskConsent) groupRiskConsent.classList.add('hidden');
+      if (chkRiskConsent) {
+        chkRiskConsent.removeAttribute('required');
+        chkRiskConsent.checked = false;
+      }
     }
   }
 
@@ -524,6 +533,10 @@ function setupBookingModal() {
     bookingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const isExperimental = chkExperimental ? chkExperimental.checked : false;
+      if (isExperimental && chkRiskConsent && !chkRiskConsent.checked) {
+        showBookingFeedback('Por favor, marque a opção confirmando que está ciente do termo de responsabilidade para agendar a aula experimental.');
+        return;
+      }
       const loginOrName = document.getElementById('bookLogin').value;
       const cpf3 = bookCpf3Input ? bookCpf3Input.value : '';
       const modality = document.getElementById('bookModality').value;
@@ -539,7 +552,8 @@ function setupBookingModal() {
           class_group_id: selectedClass?.dataset.classGroupId,
           class_date: selectedClass?.dataset.classDate,
           class_time: selectedClass?.dataset.classTime,
-          is_experimental: isExperimental
+          is_experimental: isExperimental,
+          risk_consent: chkRiskConsent ? chkRiskConsent.checked : false
         })
       });
       if (!response.ok) {

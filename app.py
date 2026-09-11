@@ -13,6 +13,7 @@ from sqlalchemy import inspect, text, or_, func
 from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, datetime, timedelta
+from training_credits import MODALITIES as CREDIT_MODALITIES, SCHEDULE_LABELS, billing_period, weekly_allowance, released_credits, contract_plan_name
 from store_catalog import STORE_PRODUCTS
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
 
@@ -59,7 +60,7 @@ db = SQLAlchemy(app)
 calendar_token_serializer = URLSafeSerializer(app.config['SECRET_KEY'], salt='personal-calendar-feed')
 
 ROLE_LEVEL = {'aluno': 0, 'monitor': 1, 'instrutor': 2, 'professor': 2}
-MEMBERSHIP_TERMS_VERSION = '2026-08-17.4'
+MEMBERSHIP_TERMS_VERSION = '2026-09-11.1'
 PRIVACY_NOTICE_VERSION = '2026-08-17'
 BELT_COLORS = {'branca', 'azul', 'roxa', 'marrom', 'preta'}
 BELT_LABELS = {'branca': 'Branca', 'azul': 'Azul', 'roxa': 'Roxa', 'marrom': 'Marrom', 'preta': 'Preta'}
@@ -1005,8 +1006,20 @@ class ChampionshipScoreEvent(db.Model):
     undone_by_username = db.Column(db.String(80))
     match = db.relationship('ChampionshipMatch', backref=db.backref('score_events', lazy=True, cascade='all, delete-orphan'))
 
+class TrainingCreditPeriod(db.Model):
+    __table_args__ = (db.UniqueConstraint('user_id', 'modality', 'starts_on', name='uq_credit_period'),)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    modality = db.Column(db.String(60), nullable=False)
+    starts_on = db.Column(db.Date, nullable=False)
+    expires_on = db.Column(db.Date, nullable=False)
+    weekly = db.Column(db.Integer, nullable=False)
+    user = db.relationship('User', backref=db.backref('credit_periods', cascade='all, delete-orphan'))
+
+
 class Attendance(db.Model):
-    __table_args__ = (db.UniqueConstraint('user_id', 'training_date', name='uq_attendance_day'),)
+    __table_args__ = (db.UniqueConstraint('user_id', 'training_date', 'class_group_id', 'class_time', name='uq_attendance_class'),)
+    class_time = db.Column(db.String(5))
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     class_group_id = db.Column(db.Integer, db.ForeignKey('class_group.id'), index=True)
@@ -1018,6 +1031,147 @@ class Attendance(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('attendances', lazy=True, cascade='all, delete-orphan'))
     class_group = db.relationship('ClassGroup', backref=db.backref('attendances', lazy=True))
+
+
+def credit_contract(user):
+    """Only individual contracts participate; combos and MMA retain their contract."""
+    name = contract_plan_name(user.plan)
+    plan = next((item for item in Plan.query.filter_by(category='Planos Individuais').all()
+                 if contract_plan_name(item.name) == name), None)
+    if not plan or len(plan.get_modalities()) != 1 or plan.get_modalities()[0] not in CREDIT_MODALITIES:
+        return None
+    allowance = weekly_allowance(user.plan)
+    if allowance is None:
+        return None
+    return {'modality': plan.get_modalities()[0], 'weekly': allowance}
+
+
+def training_credit_balance(user, reference=None, persist=False):
+    contract = credit_contract(user)
+    if not contract:
+        return None
+    reference = reference or datetime.now().date()
+    start, end = billing_period(reference, int(user.due_date or 5))
+    period = TrainingCreditPeriod.query.filter(
+        TrainingCreditPeriod.user_id == user.id, TrainingCreditPeriod.modality == contract['modality'],
+        TrainingCreditPeriod.starts_on <= reference, TrainingCreditPeriod.expires_on > reference,
+    ).first()
+    if period:
+        start, end = period.starts_on, period.expires_on
+        contract['weekly'] = period.weekly
+    else:
+        previous = TrainingCreditPeriod.query.filter(
+            TrainingCreditPeriod.user_id == user.id, TrainingCreditPeriod.modality == contract['modality'],
+            TrainingCreditPeriod.expires_on <= reference,
+        ).order_by(TrainingCreditPeriod.expires_on.desc()).first()
+        start = max(start, user.created_at.date() if user.created_at else start,
+                    previous.expires_on if previous else start)
+        if persist:
+            db.session.add(TrainingCreditPeriod(user_id=user.id, modality=contract['modality'],
+                starts_on=start, expires_on=end, weekly=contract['weekly']))
+            db.session.flush()
+    used = Attendance.query.filter(
+        Attendance.user_id == user.id, Attendance.modality == contract['modality'],
+        Attendance.training_date >= start, Attendance.training_date < end,
+        Attendance.training_date <= reference,
+        Attendance.status.in_(['pendente', 'confirmado']),
+    ).count()
+    released = released_credits(start, reference, contract['weekly']) if contract['weekly'] else None
+    return dict(contract, start=start, expires=end, used=used, released=released,
+                remaining=max(0, released - used) if released is not None else None)
+
+
+
+def credit_class_has_space(user, group, training_date, class_time):
+    enrolled_ids = {item.user_id for item in group.enrollments if item.active}
+    if user.id in enrolled_ids:
+        return True
+    if group.status == 'lotada':
+        return False
+    extra = Attendance.query.filter(
+        Attendance.class_group_id == group.id, Attendance.training_date == training_date,
+        Attendance.class_time == class_time, Attendance.status.in_(['pendente', 'confirmado']),
+        ~Attendance.user_id.in_(enrolled_ids),
+    ).count()
+    reservations = Booking.query.filter_by(class_group_id=group.id, class_date=training_date,
+                                           class_time=class_time).count()
+    return len(enrolled_ids) + extra + reservations < group.capacity
+
+
+def migrate_attendance_occurrences():
+    """Preserve legacy IDs/history while replacing the one-check-in-per-day key."""
+    db.session.commit()
+    with db.engine.begin() as conn:
+        if db.engine.dialect.name == 'postgresql':
+            conn.execute(text('SELECT pg_advisory_xact_lock(42457002)'))
+        if db.engine.dialect.name == 'sqlite':
+            conn.execute(text('BEGIN IMMEDIATE'))
+        inspector = inspect(conn)
+        columns = {column['name'] for column in inspector.get_columns('attendance')}
+        if 'class_time' not in columns:
+            conn.execute(text('ALTER TABLE attendance ADD COLUMN class_time VARCHAR(5)'))
+        constraints = inspector.get_unique_constraints('attendance')
+        old = any(set(item['column_names']) == {'user_id', 'training_date'} for item in constraints)
+        if old and db.engine.dialect.name == 'sqlite':
+            conn.execute(text('CREATE TABLE attendance_credit_migration AS SELECT * FROM attendance'))
+            count = conn.execute(text('SELECT COUNT(*) FROM attendance')).scalar_one()
+            conn.execute(text('DROP TABLE attendance'))
+            Attendance.__table__.create(conn)
+            names = ', '.join(column.name for column in Attendance.__table__.columns)
+            conn.execute(text(f'INSERT INTO attendance ({names}) SELECT {names} FROM attendance_credit_migration'))
+            if conn.execute(text('SELECT COUNT(*) FROM attendance')).scalar_one() != count:
+                raise RuntimeError('Attendance migration count mismatch')
+            conn.execute(text('DROP TABLE attendance_credit_migration'))
+        elif old:
+            for constraint in constraints:
+                if set(constraint['column_names']) == {'user_id', 'training_date'}:
+                    quoted = conn.dialect.identifier_preparer.quote(constraint['name'])
+                    conn.execute(text(f'ALTER TABLE attendance DROP CONSTRAINT {quoted}'))
+        conn.execute(text('CREATE UNIQUE INDEX IF NOT EXISTS uq_attendance_occurrence ON attendance (user_id, training_date, class_group_id, class_time)'))
+
+
+def apply_individual_credit_prices():
+    """One-time catalogue migration, without rewriting existing invoices/contracts."""
+    with db.engine.begin() as conn:
+        if db.engine.dialect.name == 'postgresql':
+            conn.execute(text('SELECT pg_advisory_xact_lock(42457003)'))
+        conn.execute(text('CREATE TABLE IF NOT EXISTS business_rule_migration (version VARCHAR(80) PRIMARY KEY)'))
+        version = 'individual-credits-2026-09-11'
+        if conn.execute(text('SELECT version FROM business_rule_migration WHERE version = :version'), {'version': version}).first():
+            return
+        rows = conn.execute(db.select(Plan.__table__)).mappings().all()
+        for row in rows:
+            plan = Plan(**dict(row))
+            if plan.category != 'Planos Individuais' or len(plan.get_modalities()) != 1 or plan.get_modalities()[0] not in CREDIT_MODALITIES:
+                continue
+            conn.execute(Plan.__table__.update().where(Plan.id == plan.id).values(
+                price='R$ 90,00/mês', price_ter_qui='R$ 90,00/mês',
+                price_seg_qua_sex='R$ 100,00/mês', price_all_days='R$ 120,00/mês',
+                sub='2 aulas, 3 aulas por semana ou ilimitado. Horários flexíveis.',
+                features='Mensalidade por modalidade;Cada aula utiliza um crédito;Créditos semanais acumulam até o próximo vencimento;Reposição conforme saldo disponível',
+                force_all_days=False,
+            ))
+        conn.execute(text('INSERT INTO business_rule_migration (version) VALUES (:version)'), {'version': version})
+
+
+
+def migrate_legacy_boxe_frequency():
+    """Approved legacy Boxe contracts: three weekly classes at R$100."""
+    with db.engine.begin() as conn:
+        if db.engine.dialect.name == 'postgresql':
+            conn.execute(text('SELECT pg_advisory_xact_lock(42457003)'))
+        version = 'legacy-boxe-three-weekly-2026-09-11'
+        if conn.execute(text('SELECT version FROM business_rule_migration WHERE version = :version'), {'version': version}).first():
+            return
+        plans = [Plan(**dict(row)) for row in conn.execute(db.select(Plan.__table__)).mappings()]
+        names = {contract_plan_name(plan.name): plan.name for plan in plans
+                 if plan.category == 'Planos Individuais' and plan.get_modalities() == ['Boxe']}
+        for row in conn.execute(text('SELECT id, plan FROM "user" WHERE role = :role'), {'role': 'aluno'}).mappings().all():
+            if contract_plan_name(row['plan']) in names and weekly_allowance(row['plan']) is None:
+                conn.execute(text('UPDATE "user" SET plan = :plan WHERE id = :id'), {
+                    'id': row['id'], 'plan': f"{names[contract_plan_name(row['plan'])]} • 3 aulas por semana — R$ 100,00/mês"})
+        conn.execute(text('INSERT INTO business_rule_migration (version) VALUES (:version)'), {'version': version})
+
 
 def parse_class_schedules(raw_value):
     parts = re.split(r'\s*(?:/|\n|;)\s*', (raw_value or '').strip())
@@ -1587,6 +1741,7 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE class_group ADD COLUMN responsible_monitor_id INTEGER REFERENCES "user"(id)'))
         db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_class_group_responsible_monitor_id ON class_group (responsible_monitor_id)'))
     db.session.commit()
+    migrate_attendance_occurrences()
     migrate_sqlite_to_postgres()
 
     # Converte isenções legadas sem período em uma vigência iniciada na competência atual.
@@ -1630,6 +1785,8 @@ with app.app_context():
 
     ensure_class_groups()
     ensure_mma_classes_and_plans()
+    apply_individual_credit_prices()
+    migrate_legacy_boxe_frequency()
     ensure_default_accounts()
 
 
@@ -2437,6 +2594,8 @@ def create_booking():
         return jsonify({'error': 'Selecione uma aula disponível.'}), 400
     if len(login_or_name) < 3 or not modality or not shift_time:
         return jsonify({'error': 'Dados obrigatórios inválidos.'}), 400
+    if is_experimental and not bool(data.get('risk_consent')):
+        return jsonify({'error': 'Você precisa confirmar que está ciente do termo de responsabilidade para agendar a aula experimental.'}), 400
     if not is_experimental and len(cpf3) != 3:
         return jsonify({'error': 'Informe os três primeiros dígitos do CPF.'}), 400
 
@@ -2652,7 +2811,7 @@ def login():
                 else:
                     training_days = 'todos'
 
-            training_day_labels = {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
+            training_day_labels = SCHEDULE_LABELS if selected_plan_record and selected_plan_record.category == 'Planos Individuais' and set(selected_plan_record.get_modalities()) <= CREDIT_MODALITIES else {'ter-qui': 'Ter, Qui', 'seg-qua-sex': 'Seg, Qua, Sex', 'todos': 'Todos os dias'}
             if training_days not in training_day_labels:
                 errors.append('Escolha os dias de treino.')
             elif is_private_class and private_instructor:
@@ -2763,6 +2922,7 @@ def login():
                 'seg-qua-sex': available_plan.get_price_for_schedule('seg-qua-sex'),
                 'todos': available_plan.get_price_for_schedule('todos'),
             },
+            'credit_rules': available_plan.category == 'Planos Individuais' and len(available_plan.get_modalities()) == 1 and set(available_plan.get_modalities()) <= CREDIT_MODALITIES,
             'modalities': available_plan.get_modalities(),
             'selection_count': available_plan.get_selection_count(),
             'shared_type': available_plan.get_shared_type(),
@@ -2860,6 +3020,40 @@ def presencas():
             flash('Check-in bloqueado: existem mensalidades pendentes. Regularize o financeiro para registrar novas aulas.', 'error')
             return redirect(url_for('presencas'))
 
+        contract = credit_contract(user)
+        if contract:
+            # Serialize requests for this student before checking/consuming balance.
+            db.session.execute(User.__table__.update().where(User.id == user.id).values(payment_status=User.payment_status))
+            balance = training_credit_balance(user, persist=True)
+            today_date = datetime.now().date()
+            slot = request.form.get('class_slot', '')
+            group_id, separator, class_time = slot.partition('|')
+            target = db.session.get(ClassGroup, int(group_id)) if group_id.isdigit() else None
+            if target and db.engine.dialect.name == 'postgresql':
+                db.session.execute(text('SELECT id FROM class_group WHERE id = :id FOR UPDATE'), {'id': target.id})
+            occurrence = next((item for item in class_occurrences_for_weekday(target, today_date.weekday())
+                               if item['start_time'] == class_time), None) if target else None
+            if not separator or not target or target.status not in {'ativa', 'lotada'} or not occurrence:
+                flash('Selecione uma aula disponível para hoje.', 'error')
+            elif target.modality != contract['modality']:
+                flash('Os créditos valem somente para a modalidade contratada.', 'error')
+            elif Attendance.query.filter_by(user_id=user.id, training_date=today_date,
+                                            class_group_id=target.id, class_time=class_time).first():
+                flash('Esta aula já possui um check-in registrado.', 'info')
+            elif not credit_class_has_space(user, target, today_date, class_time):
+                flash('Esta aula está lotada. Escolha outro horário disponível.', 'error')
+            elif balance['remaining'] is not None and balance['remaining'] <= 0:
+                flash('Sem créditos disponíveis. Aguarde a próxima liberação semanal.', 'error')
+            else:
+                db.session.add(Attendance(user_id=user.id, training_date=today_date,
+                    class_group_id=target.id, class_time=class_time, modality=target.modality,
+                    status='pendente'))
+                db.session.commit()
+                flash('Check-in enviado! Aguarde a confirmação do instrutor.' if not contract['weekly'] else 'Check-in enviado! Um crédito fica reservado até a confirmação do instrutor.', 'success')
+                return redirect(url_for('presencas'))
+            db.session.rollback()
+            return redirect(url_for('presencas'))
+
         # VALIDAÇÃO DE TURMA E DIA AUTORIZADO DO ALUNO
         today_date = datetime.now().date()
         today_weekday = today_date.weekday()
@@ -2953,6 +3147,8 @@ def presencas():
         training_weekdays = {0, 1, 2, 3, 4}
     else:
         training_weekdays = set()
+    if credit_contract(user):
+        training_weekdays = set()
     attendance_expected = {
         days: sum(
             1 for offset in range(days)
@@ -2973,6 +3169,19 @@ def presencas():
         Attendance.training_date.desc(), Attendance.created_at.desc()
     ).limit(12).all()
     today_attendance = Attendance.query.filter_by(user_id=user.id, training_date=today).first()
+    credit_balance = training_credit_balance(user)
+    credit_slots = []
+    if credit_balance:
+        registered = {(item.class_group_id, item.class_time) for item in Attendance.query.filter_by(
+            user_id=user.id, training_date=today).all()}
+        for group in ClassGroup.query.filter(ClassGroup.modality == credit_balance['modality'],
+                                             ClassGroup.status.in_(['ativa', 'lotada'])).order_by(ClassGroup.name).all():
+            for occurrence in class_occurrences_for_weekday(group, today.weekday()):
+                if ((group.id, occurrence['start_time']) not in registered
+                        and credit_class_has_space(user, group, today, occurrence['start_time'])):
+                    credit_slots.append({'value': f"{group.id}|{occurrence['start_time']}",
+                                         'label': f"{group.name} • {occurrence['start_time']}"})
+
     pending_confirmations = []
     pending_confirmation_groups = []
     if session.get('user_role') in {'monitor', 'instrutor'}:
@@ -2989,6 +3198,7 @@ def presencas():
             group_map[key]['items'].append(attendance)
     return render_template('presencas.html', page_title='Presenças & Treinos',
                            has_overdue=has_overdue,
+                           credit_balance=credit_balance, credit_slots=credit_slots,
                            attendance_windows=attendance_windows,
                            attendance_expected=attendance_expected,
                            attendance_percentages=attendance_percentages,
@@ -4233,6 +4443,8 @@ def mensalidades_admin():
                 training_day_labels = {
                     'seg-qua-sex': 'Seg, Qua, Sex', 'ter-qui': 'Ter, Qui', 'todos': 'Todos os dias'
                 }
+                if plan and plan.category == 'Planos Individuais' and set(plan.get_modalities()) <= CREDIT_MODALITIES:
+                    training_day_labels = SCHEDULE_LABELS
                 if training_days not in training_day_labels:
                     flash('Selecione os dias de treino do novo plano.', 'error')
                     return redirect(url_for('mensalidades_admin'))
@@ -4379,6 +4591,7 @@ def mensalidades_admin():
     student_plan_catalog = {
         'individual': [
             {'id': plan.id, 'name': plan.name, 'label': plan.get_modalities()[0], 'price': plan.price, 'category': plan.category,
+             'credit_rules': plan.category == 'Planos Individuais' and len(plan.get_modalities()) == 1 and set(plan.get_modalities()) <= CREDIT_MODALITIES,
              'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
              'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
              'force_all_days': plan.requires_all_days()}
@@ -4387,6 +4600,7 @@ def mensalidades_admin():
         ],
         'special': [
             {'id': plan.id, 'name': plan.name, 'label': plan.name, 'price': plan.price, 'category': plan.category,
+             'credit_rules': plan.category == 'Planos Individuais' and len(plan.get_modalities()) == 1 and set(plan.get_modalities()) <= CREDIT_MODALITIES,
              'prices': {key: plan.get_price_for_schedule(key) for key in ('ter-qui', 'seg-qua-sex', 'todos')},
              'modalities': plan.get_modalities(), 'selection_count': plan.get_selection_count(),
              'force_all_days': plan.requires_all_days(), 'combo_count': plan.get_selection_count()}
