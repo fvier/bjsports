@@ -1,167 +1,231 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container" style="max-width: 960px; margin: 30px auto 60px; padding: 0 16px;">
+<div class="container" style="max-width: 1000px; margin: 30px auto 60px; padding: 0 16px;">
   
   <!-- Cabeçalho Principal -->
-  <div style="text-align: center; margin-bottom: 32px;">
-    <span class="badge-pill" style="background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); padding: 6px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+  <div style="text-align: center; margin-bottom: 36px;">
+    <span class="badge-pill" style="background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); padding: 6px 18px; border-radius: 999px; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
       ⚡ PROJETO CATRACA BJ SPORTS
     </span>
-    <h1 style="font-size: 2.1rem; font-weight: 800; margin-top: 12px; color: #ffffff;">
-      Lista de Compras & Materiais de Instalação
+    <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 12px; color: #ffffff;">
+      Lista Visual de Compras & Instalação
     </h1>
-    <p style="color: #94a3b8; font-size: 1rem; max-width: 680px; margin: 8px auto 0;">
-      Guia técnico completo de materiais elétricos, cabos, fontes e botoeira de liberação para o eletricista e equipe da academia.
+    <p style="color: #94a3b8; font-size: 1rem; max-width: 720px; margin: 8px auto 0;">
+      Guia ilustrado de referência técnica com imagens de cada item para o eletricista, gestor e equipe realizarem as compras sem dúvidas.
     </p>
   </div>
 
   <!-- DESTAQUE DA BOTOEIRA SELECIONADA (INTELBRAS INOX SLIM) -->
-  <div class="glass-panel" style="margin-bottom: 32px; padding: 24px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3); background: linear-gradient(135deg, rgba(19, 26, 41, 0.95), rgba(15, 23, 42, 0.98)); box-shadow: 0 12px 32px rgba(0,0,0,0.3);">
-    <div style="display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; align-items: center;">
-      <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
-        <img src="{{ url_for('static', filename='img/catraca/intelbras_bt3001.png') }}" alt="Botoeira de Inox Intelbras BT 3001" style="max-width: 100%; height: auto; border-radius: 8px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));">
+  <div class="glass-panel" style="margin-bottom: 36px; padding: 28px; border-radius: 20px; border: 1.5px solid rgba(250, 204, 21, 0.4); background: linear-gradient(135deg, rgba(19, 26, 41, 0.95), rgba(15, 23, 42, 0.98)); box-shadow: 0 12px 32px rgba(0,0,0,0.35);">
+    <div style="display: grid; grid-template-columns: minmax(0, 240px) minmax(0, 1fr); gap: 28px; align-items: center;">
+      <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+        <img src="{{ url_for('static', filename='img/catraca/intelbras_bt3001.png') }}" alt="Botoeira de Inox Intelbras BT 3001" style="max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));">
       </div>
       <div>
-        <span style="display: inline-block; background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">
-          ★ MODELO RECOMENDADO
+        <span style="display: inline-block; background: rgba(34, 197, 94, 0.18); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); padding: 4px 12px; border-radius: 6px; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">
+          ★ MODELO ESCOLHIDO DE ACIONAMENTO
         </span>
-        <h3 style="font-size: 1.35rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">
+        <h3 style="font-size: 1.45rem; font-weight: 800; color: #ffffff; margin-bottom: 8px;">
           Botoeira de Inox Slim (Intelbras BT 3001 / BT 5001)
         </h3>
-        <p style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 14px;">
-          Acionador de pulso em <strong>Aço Inox Escovado</strong> de embutir. Super discreto, elegante e durável, perfeito para a bancada da recepção sem poluír o ambiente.
+        <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.55; margin-bottom: 16px;">
+          Acionador de pulso em <strong>Aço Inox Escovado</strong> de embutir na bancada da recepção. Design ultra moderno, discreto, resistente e profissional.
         </p>
-        <ul style="color: #94a3b8; font-size: 0.84rem; list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px;">
-          <li style="display: flex; align-items: center; gap: 6px;"><i data-lucide="check" style="color: #4ade80; width: 14px; height: 14px;"></i> Contato NA (Normalmente Aberto)</li>
-          <li style="display: flex; align-items: center; gap: 6px;"><i data-lucide="check" style="color: #4ade80; width: 14px; height: 14px;"></i> Placa em Aço Inox Nobre</li>
-          <li style="display: flex; align-items: center; gap: 6px;"><i data-lucide="check" style="color: #4ade80; width: 14px; height: 14px;"></i> Alta durabilidade (aço escovado)</li>
-          <li style="display: flex; align-items: center; gap: 6px;"><i data-lucide="check" style="color: #4ade80; width: 14px; height: 14px;"></i> Faixa de preço: R$ 25 a R$ 45</li>
-        </ul>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 0.84rem;"><i data-lucide="check-circle-2" style="color: #4ade80; width: 16px; height: 16px;"></i> Contato NA (Normalmente Aberto)</div>
+          <div style="display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 0.84rem;"><i data-lucide="check-circle-2" style="color: #4ade80; width: 16px; height: 16px;"></i> Placa Aço Inox Escovado</div>
+          <div style="display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 0.84rem;"><i data-lucide="check-circle-2" style="color: #4ade80; width: 16px; height: 16px;"></i> Fixação de embutir slim</div>
+          <div style="display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 0.84rem;"><i data-lucide="tag" style="color: var(--accent-gold); width: 16px; height: 16px;"></i> Valor: R$ 25,00 a R$ 45,00</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- TABELA CHECKLIST DE MATERIAIS PARA COMPRA -->
-  <div class="glass-panel" style="padding: 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15, 23, 42, 0.95); margin-bottom: 28px;">
+  <!-- PAINEL ILUSTRADO DE COMPRAS (CARDS COM IMAGENS) -->
+  <div class="glass-panel" style="padding: 28px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15, 23, 42, 0.95); margin-bottom: 32px;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-      <h2 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
-        <i data-lucide="shopping-cart" style="color: var(--accent-gold);"></i> Lista Completa de Compras
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+        <i data-lucide="shopping-bag" style="color: var(--accent-gold);"></i> Guia Ilustrado de Materiais
       </h2>
-      <span style="font-size: 0.8rem; color: #94a3b8;">Marque os itens à medida que for comprando</span>
+      <span style="font-size: 0.82rem; color: #94a3b8;">Clique na caixinha para marcar os itens já comprados</span>
     </div>
 
-    <!-- Categoria 1: Acionamento da Recepção -->
-    <div style="margin-bottom: 24px;">
-      <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-        <i data-lucide="touchpad" style="width: 16px; height: 16px;"></i> 1. ACIONAMENTO & CABEAMENTO
+    <!-- SEÇÃO 1: ACIONAMENTO & CABEAMENTO -->
+    <div style="margin-bottom: 36px;">
+      <h4 style="font-size: 1rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em;">
+        <i data-lucide="touchpad" style="width: 18px; height: 18px;"></i> 1. Acionamento & Cabeamento da Recepção
       </h4>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Botoeira de Inox Slim (Intelbras BT 3001 / BT 5001)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Botão de acionamento por pulso (Contato NA) em inox de embutir na bancada da recepção.</small>
-          </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 unidade</span>
-        </label>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">15 Metros de Cabo PP Flexível 2x0.75mm² (ou Cabo UTP Cat5e de Rede)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Cabo para conectar a botoeira da recepção até o relé da catraca (com margem de folga).</small>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+        
+        <!-- Item 1: Botoeira Intelbras -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+            <img src="{{ url_for('static', filename='img/catraca/intelbras_bt3001.png') }}" alt="Botoeira Intelbras" style="max-height: 84px; object-fit: contain;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">15 metros</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Botoeira de Inox Slim (Intelbras BT 3001 / BT 5001)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Botão de liberação rápida (Contato NA) para embutir na mesa da recepção.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 UNIDADE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Item 2: Cabo PP -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/cabo_pp.svg') }}" alt="Cabo PP" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">15 Metros de Cabo PP Flexível 2x0.75mm²</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Cabo de 2 vias revestido para ligar a botoeira da recepção até o relé da catraca (ou cabo UTP Cat5e).</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">15 METROS</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Categoria 2: Alimentação Elétrica -->
-    <div style="margin-bottom: 24px;">
-      <h4 style="font-size: 0.95rem; font-weight: 700; color: #ef4444; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-        <i data-lucide="zap" style="width: 16px; height: 16px;"></i> 2. ALIMENTAÇÃO ELÉTRICA & ENERGIA
+    <!-- SEÇÃO 2: ALIMENTAÇÃO ELÉTRICA & ENERGIA -->
+    <div style="margin-bottom: 36px;">
+      <h4 style="font-size: 1rem; font-weight: 800; color: #ef4444; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em;">
+        <i data-lucide="zap" style="width: 18px; height: 18px;"></i> 2. Alimentação Elétrica & Fontes de Energia
       </h4>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Extensão Elétrica de 3 a 5 Metros (3 Pinos NBR)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Pedido pelo eletricista para levar energia da tomada principal até a base da catraca.</small>
-          </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 unidade</span>
-        </label>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Filtro de Linha / Régua com 4 a 6 Tomadas (Bivolt)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Para alimentar a fonte da solenoide 12V, o ESP32 5V e o carregador do reconhecimento facial.</small>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+        
+        <!-- Item 3: Extensão -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/extensao_eletrica.svg') }}" alt="Extensão Elétrica" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 unidade</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Extensão Elétrica de 3 a 5 Metros (3 Pinos NBR)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Extensão reforçada para puxar energia da tomada principal até a base da catraca.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 UNIDADE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Fonte de Alimentação 12V 2A Bivolt (Plug P2/P8)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Alimentação dedicada da trava eletroímã / solenoide de liberação.</small>
+        <!-- Item 4: Filtro de Linha -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/filtro_linha.svg') }}" alt="Filtro de Linha" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 unidade</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Filtro de Linha / Régua com 4 a 6 Tomadas Bivolt</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Régua de tomadas para alimentar a fonte 12V da solenoide, a fonte 5V do ESP32 e o carregador do tablet/celular.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 UNIDADE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Fonte 5V 2A USB (com cabo microUSB ou Type-C)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Alimentação direta da placa do microcontrolador ESP32.</small>
+        <!-- Item 5: Fonte 12V -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/fonte_12v.svg') }}" alt="Fonte 12V 2A" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 unidade</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Fonte de Alimentação 12V 2A Bivolt (Plug P2/P8)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Fonte de alimentação para a trava eletroímã / solenoide mecânica da catraca.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 UNIDADE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Item 6: Fonte 5V -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/fonte_5v.svg') }}" alt="Fonte 5V 2A USB" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Fonte 5V 2A USB (com cabo microUSB ou Type-C)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Fonte de carregador USB padrão para ligar e manter aceso o microcontrolador ESP32.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 UNIDADE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Categoria 3: Fixação & Acabamento -->
+    <!-- SEÇÃO 3: FIXAÇÃO, ACABAMENTO & PROTEÇÃO -->
     <div>
-      <h4 style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-        <i data-lucide="wrench" style="width: 16px; height: 16px;"></i> 3. FIXAÇÃO, ACABAMENTO & PROTEÇÃO
+      <h4 style="font-size: 1rem; font-weight: 800; color: #38bdf8; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em;">
+        <i data-lucide="wrench" style="width: 18px; height: 18px;"></i> 3. Fixação, Proteção & Acabamento
       </h4>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Rolo de Fita Dupla Face 3M VHB (Verde / Transparente de Alta Aderência)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Solicitada pelo eletricista para fixar caixas e suportes sem furar a estrutura metálica.</small>
-          </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 rolo</span>
-        </label>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">4x Barras de Canaleta Plástica com Fita Adesiva (20x10mm, 2m cada)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Para organizar e esconder a fiação da botoeira ao longo de paredes/balcão.</small>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+        
+        <!-- Item 7: Fita 3M VHB -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/fita_3m_vhb.svg') }}" alt="Fita 3M VHB" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">4 barras (8m)</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Rolo de Fita Dupla Face 3M VHB (Fita Verde / Transparente de Alta Aderência)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Para colar e fixar suportes e placas com segurança máxima sem precisar furar o inox da catraca.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 ROLO</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
 
-        <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer;">
-          <input type="checkbox" class="shop-chk" style="width: 18px; height: 18px; accent-color: #22c55e;">
-          <div style="flex: 1;">
-            <strong style="color: #fff; font-size: 0.9rem;">1x Pacote de Abraçadeiras de Nylon (Enforca-gato 15cm - 100 unidades)</strong>
-            <small style="display: block; color: #94a3b8; font-size: 0.78rem;">Para amarração e organização limpa dos cabos no interior da catraca.</small>
+        <!-- Item 8: Canaletas Plásticas -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/canaleta_adesiva.svg') }}" alt="Canaleta Adesiva" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-          <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 6px;">1 pacote</span>
-        </label>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">4x Barras de Canaleta Plástica com Fita Adesiva (20x10mm, 2m cada)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Para guiar, proteger e esconder os cabos do botão ao longo de paredes e rodapés.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">4 BARRAS (8m)</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Item 9: Abraçadeiras Nylon -->
+        <div class="shop-item-card" style="display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; transition: all 0.2s ease;">
+          <div style="height: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+            <img src="{{ url_for('static', filename='img/catraca/abracadeiras_nylon.svg') }}" alt="Abraçadeiras de Nylon" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div>
+            <strong style="color: #ffffff; font-size: 0.96rem; display: block; margin-bottom: 4px;">1x Pacote de Abraçadeiras de Nylon (Enforca-gato 15cm - 100 unidades)</strong>
+            <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin: 0;">Para organização e amarração limpa de cabos no interior da catraca e mesa.</p>
+          </div>
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4ade80; background: rgba(34, 197, 94, 0.15); padding: 4px 12px; border-radius: 6px;">1 PACOTE</span>
+            <input type="checkbox" class="shop-chk" style="width: 22px; height: 22px; accent-color: #22c55e; cursor: pointer;">
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 
   <!-- BOTÃO PARA COMPARTILHAR NO WHATSAPP DO ELETRICISTA -->
   <div style="text-align: center;">
-    <a href="https://wa.me/?text=Fala!%20Aqui%20est%C3%A1%20a%20lista%20de%20compras%20para%20a%20instala%C3%A7%C3%A3o%20da%20Catraca%20do%20BJ%20Sports:%20https://bjsports.com.br/oquecomprar" target="_blank" class="btn btn-primary btn-lg btn-glow" style="display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #ffffff; border: none; font-weight: 800; padding: 14px 28px; border-radius: 14px;">
-      <i data-lucide="message-square"></i> Compartilhar Lista no WhatsApp do Eletricista
+    <a href="https://wa.me/?text=Fala!%20Aqui%20est%C3%A1%20a%20lista%20de%20compras%20ilustrada%20para%20a%20instala%C3%A7%C3%A3o%20da%20Catraca%20do%20BJ%20Sports:%20https://bjsports.com.br/oquecomprar" target="_blank" class="btn btn-primary btn-lg btn-glow" style="display: inline-flex; align-items: center; gap: 10px; background: #25d366; color: #ffffff; border: none; font-weight: 800; padding: 16px 32px; border-radius: 14px; font-size: 1rem;">
+      <i data-lucide="message-square"></i> Compartilhar Lista Ilustrada no WhatsApp do Eletricista
     </a>
   </div>
 
@@ -170,13 +234,15 @@
 <script>
   document.querySelectorAll('.shop-chk').forEach(chk => {
     chk.addEventListener('change', (e) => {
-      const parent = e.target.closest('label');
+      const card = e.target.closest('.shop-item-card');
       if (e.target.checked) {
-        parent.style.opacity = '0.5';
-        parent.style.textDecoration = 'line-through';
+        card.style.opacity = '0.45';
+        card.style.filter = 'grayscale(0.7)';
+        card.style.borderColor = 'rgba(74, 222, 128, 0.4)';
       } else {
-        parent.style.opacity = '1';
-        parent.style.textDecoration = 'none';
+        card.style.opacity = '1';
+        card.style.filter = 'none';
+        card.style.borderColor = 'rgba(255, 255, 255, 0.08)';
       }
     });
   });

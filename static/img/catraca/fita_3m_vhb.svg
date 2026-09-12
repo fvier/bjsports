@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgVHB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="200" rx="16" fill="url(#bgVHB)"/>
+  <!-- Tape Roll Structure -->
+  <circle cx="150" cy="110" r="55" fill="#dc2626" stroke="#b91c1c" stroke-width="3"/>
+  <circle cx="150" cy="110" r="40" fill="#16a34a" stroke="#15803d" stroke-width="2"/>
+  <circle cx="150" cy="110" r="24" fill="#0f172a"/>
+  <!-- 3M Brand Text -->
+  <text x="150" y="115" fill="#ffffff" font-family="sans-serif" font-weight="900" font-size="14" text-anchor="middle">3M VHB</text>
+  <!-- Unrolled Tape Strip -->
+  <path d="M 195 125 L 260 145 L 260 160 L 190 140 Z" fill="rgba(34, 197, 94, 0.7)" stroke="#4ade80" stroke-width="1.5"/>
+  <!-- Label Badge -->
+  <rect x="20" y="20" width="140" height="30" rx="8" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1"/>
+  <text x="90" y="40" fill="#7dd3fc" font-family="sans-serif" font-weight="bold" font-size="12" text-anchor="middle">FITA DUPLA FACE 3M VHB</text>
+</svg>

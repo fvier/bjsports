@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="200" rx="16" fill="url(#bg)"/>
+  <!-- Black Cable Jacket -->
+  <path d="M 30 100 Q 100 60 170 100 T 250 100" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"/>
+  <path d="M 30 100 Q 100 60 170 100 T 250 100" fill="none" stroke="#334155" stroke-width="24" stroke-linecap="round"/>
+  <!-- Exposed Inner Wires (Red & Black) -->
+  <path d="M 230 100 L 265 88" stroke="#ef4444" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 230 100 L 265 112" stroke="#1e293b" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 230 100 L 265 112" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+  <!-- Copper Tips -->
+  <circle cx="268" cy="87" r="3.5" fill="url(#copper)"/>
+  <circle cx="268" cy="113" r="3.5" fill="url(#copper)"/>
+  <!-- Label Badge -->
+  <rect x="20" y="20" width="130" height="30" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1"/>
+  <text x="85" y="40" fill="#fef08a" font-family="sans-serif" font-weight="bold" font-size="12" text-anchor="middle">CABO PP 2x0,75mm²</text>
+</svg>
