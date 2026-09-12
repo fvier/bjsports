@@ -5160,6 +5160,14 @@ def api_firmware_check():
         'mandatory': False
     }), 200
 
+@app.route('/oquecomprar')
+@app.route('/oquecomprar.html')
+def pagina_oque_comprar():
+    return render_template(
+        'oquecomprar.html',
+        page_title='BJ Sports • Lista de Compras da Catraca'
+    )
+
 
 @app.route('/fazer')
 @app.route('/fazer.html')
