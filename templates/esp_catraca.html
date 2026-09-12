@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131a29;
+            --bg-card-hover: #182235;
+            --border: #243049;
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --accent-cyan: #38bdf8;
+            --accent-green: #22c55e;
+            --accent-gold: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 24px 16px 48px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(220, 38, 38, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #ffffff;
+        }
+
+        h1 span {
+            color: var(--primary);
+        }
+
+        .sub-header {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .actions-top {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: rgba(30, 41, 59, 0.6);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-cyan);
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .badge-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .badge-cyan {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .pinout-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .pinout-table th, .pinout-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pinout-table th {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .pinout-table code {
+            background: #090d16;
+            color: #facc15;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.88rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .code-box {
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.82rem;
+            color: #38bdf8;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-bar">
+            <div>
+                <span class="brand-badge"><i data-lucide="cpu"></i> HARDWARE IOT & FIRMWARE</span>
+                <h1>BJ <span>SPORTS</span> • Central ESP32 Catraca</h1>
+                <p class="sub-header">Gestão de firmware, pinagem e instruções de comunicação da catraca inteligente.</p>
+            </div>
+            <div class="actions-top">
+                <a href="/catraca/app" target="_blank" class="btn btn-primary">
+                    <i data-lucide="tablet-smartphone"></i> Abrir App Kiosk (Tablet)
+                </a>
+                <a href="/configuracoes.html" class="btn btn-outline">
+                    <i data-lucide="user"></i> Ir para Cadastros
+                </a>
+            </div>
+        </header>
+
+        <div class="grid-cards">
+            <!-- CARD 1: FIRMWARE & DOWNLOADS -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220,38,38,0.3);">
+                            <i data-lucide="file-code"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Firmware da Catraca</h2>
+                            <span class="badge-status badge-green"><i data-lucide="check-circle-2" style="width:14px;"></i> {{ firmware_version }}</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Código-fonte oficial em C++/Arduino com mDNS (<code>catraca.local</code>), Watchdog de Hardware, captive portal e suporte a atualização remota (OTA).</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="/api/firmware/download/esp32_catraca.ino" class="btn btn-outline" style="justify-content: center;">
+                        <i data-lucide="download"></i> Baixar Código (.ino)
+                    </a>
+                    {% if bin_exists %}
+                    <a href="/api/firmware/download/firmware.bin" class="btn btn-primary" style="justify-content: center;">
+                        <i data-lucide="binary"></i> Baixar Binário Compilado (.bin)
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CARD 2: PINOUT & ELETRICA -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">
+                            <i data-lucide="circuit-board"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Pinagem & Ligação</h2>
+                            <span class="badge-status badge-cyan">ESP32-WROOM-32</span>
+                        </div>
+                    </div>
+                    <table class="pinout-table">
+                        <thead>
+                            <tr><th>Pino ESP32</th><th>Módulo</th><th>Função</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>GPIO 4</code></td><td>Relé 5V (IN)</td><td>Pulso Solenóide (LOW)</td></tr>
+                            <tr><td><code>GPIO 2</code></td><td>LED Azul</td><td>Status e Heartbeat</td></tr>
+                            <tr><td><code>GPIO 14</code></td><td>Sensor (Opcional)</td><td>Confirmação de Giro</td></tr>
+                            <tr><td><code>5V / VIN</code></td><td>VCC Relé</td><td>Alimentação 5V 2A</td></tr>
+                            <tr><td><code>GND</code></td><td>GND Relé</td><td>Terra Compartilhado</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CARD 3: COMUNICACAO & ENDPOINTS -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3);">
+                            <i data-lucide="network"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Comunicação Local & API</h2>
+                            <span class="badge-status badge-cyan">Latência &lt; 50ms</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">O tablet envia requisições locais diretamente para o ESP32 conectado no Wi-Fi da academia:</p>
+                    <div class="code-box">
+                        POST http://catraca.local/liberar<br>
+                        Header: Authorization: Bearer bjsports-catraca-secret
+                    </div>
+                    <p class="card-desc" style="font-size: 0.78rem;">Endpoint de Telemetria: <code>GET http://catraca.local/status</code></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASSO A PASSO DE CONFIGURACAO INICIAL -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);">
+                    <i data-lucide="wifi"></i>
+                </div>
+                <div>
+                    <h2 class="card-title">Como Configurar o ESP32 pela Primeira Vez (Pelo Celular)</h2>
+                    <p class="sub-header">Procedimento sem necessidade de abrir o chip ou conectar cabos na recepção.</p>
+                </div>
+            </div>
+            <div class="step-list">
+                <div class="step-item">
+                    <span class="step-num">1</span>
+                    <div><strong>Ligue o ESP32 na tomada da catraca:</strong> Ele ligará e criará automaticamente a rede Wi-Fi <code>BJ-SPORTS-CATRACA</code> (Senha: <code>bjsports123</code>).</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">2</span>
+                    <div><strong>Conecte seu celular nessa rede:</strong> Abra o navegador e acesse <code>http://catraca.local</code> ou <code>http://192.168.4.1</code>.</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">3</span>
+                    <div><strong>Configure a rede da academia:</strong> Digite o nome do Wi-Fi oficial da BJ Sports, a senha e clique em <strong>Salvar e Conectar</strong>.</div>
+                </div>
+                <div class="step-item">
+                    <span class="step-num">4</span>
+                    <div><strong>Pronto!</strong> O ESP32 reinicia conectado no Wi-Fi da academia. O tablet com o aplicativo da catraca já conseguirá enviar comandos de liberação imediatamente.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

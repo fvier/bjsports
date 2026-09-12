@@ -27,10 +27,12 @@
 #include <ESPmDNS.h>
 #include <Preferences.h>
 #include <Update.h>
+#include <esp_task_wdt.h>
 
 // =========================================================================
 // DEFINIÇÃO DE PINOS E CONSTANTES
 // =========================================================================
+const char* FIRMWARE_VERSION = "v2.1.0-OTA";
 const int PIN_RELE = 4;        // GPIO 4 aciona o relé da solenóide
 const int PIN_LED = 2;         // LED azul indicador no ESP32
 const byte DNS_PORT = 53;      // Porta para o Captive Portal DNS
@@ -52,22 +54,32 @@ int pulso_ms = 1000;
 unsigned long total_giros = 0;
 bool modo_ap = false;
 
+// Controle de Pulso Não-Bloqueante (millis)
+bool pulso_ativo = false;
+unsigned long tempo_inicio_pulso = 0;
+
 // =========================================================================
-// AÇÃO DO SOLENÓIDE: Pulso de 1 Segundo
+// AÇÃO DO SOLENÓIDE: Pulso Não-Bloqueante (Seguro contra travamentos)
 // =========================================================================
 void dispararPulsoCatraca() {
   Serial.println("[CATRACA] -> Pulso elétrico acionado! Destravando solenóide...");
   digitalWrite(PIN_RELE, LOW);    // Ativa relé (nível LOW ativo)
   digitalWrite(PIN_LED, HIGH);    // Acende LED azul
-  
-  delay(pulso_ms);                // Mantém destravado pelo tempo configurado
-  
-  digitalWrite(PIN_RELE, HIGH);   // Trava novamente
-  digitalWrite(PIN_LED, LOW);
+  pulso_ativo = true;
+  tempo_inicio_pulso = millis();
   
   total_giros++;
   prefs.putULong("giros", total_giros);
-  Serial.printf("[CATRACA] -> Trava rearmada. Total de liberações: %lu\n", total_giros);
+  Serial.printf("[CATRACA] -> Solenóide aberto. Total de liberações: %lu\n", total_giros);
+}
+
+void atualizarEstadoPulso() {
+  if (pulso_ativo && (millis() - tempo_inicio_pulso >= (unsigned long)pulso_ms)) {
+    digitalWrite(PIN_RELE, HIGH);   // Trava novamente
+    digitalWrite(PIN_LED, LOW);
+    pulso_ativo = false;
+    Serial.println("[CATRACA] -> Trava rearmada com segurança (non-blocking).");
+  }
 }
 
 // =========================================================================
@@ -238,11 +250,13 @@ void handleApiStatus() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   String json = "{";
   json += "\"status\":\"ONLINE\",";
+  json += "\"version\":\"" + String(FIRMWARE_VERSION) + "\",";
   json += "\"device\":\"ESP32-WROOM-32\",";
-  json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
+  json += "\"ip\":\"" + (modo_ap ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\",";
   json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
   json += "\"total_giros\":" + String(total_giros) + ",";
   json += "\"pulso_ms\":" + String(pulso_ms) + ",";
+  json += "\"pulso_ativo\":" + String(pulso_ativo ? "true" : "false") + ",";
   json += "\"free_heap\":" + String(ESP.getFreeHeap());
   json += "}";
   server.send(200, "application/json", json);
@@ -256,7 +270,7 @@ void setup() {
   delay(500);
 
   Serial.println("\n==========================================");
-  Serial.println("  BJ SPORTS • FIRMWARE CATRACA ESP32 v2.0 ");
+  Serial.printf("  BJ SPORTS • FIRMWARE CATRACA ESP32 %s \n", FIRMWARE_VERSION);
   Serial.println("==========================================");
 
   // Inicializa Pinos
@@ -264,6 +278,10 @@ void setup() {
   pinMode(PIN_LED, OUTPUT);
   digitalWrite(PIN_RELE, HIGH); // Relé inicia desligado (travado)
   digitalWrite(PIN_LED, LOW);
+
+  // Inicializa Watchdog de Hardware (8s contra interferências eletromagnéticas)
+  esp_task_wdt_init(8, true);
+  esp_task_wdt_add(NULL);
 
   // Carrega configurações da memória flash NVS
   prefs.begin("bjsports", false);
@@ -363,11 +381,14 @@ void setup() {
 }
 
 // =========================================================================
-// LOOP PRINCIPAL
+// LOOP PRINCIPAL (Não-bloqueante com Watchdog Reset)
 // =========================================================================
 void loop() {
+  esp_task_wdt_reset(); // Alimenta o Watchdog de Hardware
   if (modo_ap) {
     dnsServer.processNextRequest();
   }
   server.handleClient();
+  atualizarEstadoPulso();
 }
+

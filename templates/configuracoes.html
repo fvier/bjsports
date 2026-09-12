@@ -207,9 +207,52 @@
               <i data-lucide="user" class="icon-gold" style="width: 22px; height: 22px;"></i> Dados Cadastrais
             </h3>
 
-            <form action="{{ url_for('configuracoes') }}" method="POST" class="modal-form">
+            <form action="{{ url_for('configuracoes') }}" method="POST" enctype="multipart/form-data" class="modal-form">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               
+              <!-- CARD DE BIOMETRIA FACIAL (CATRACA) -->
+              <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 18px; margin-bottom: 22px;">
+                <div style="display: flex; gap: 18px; align-items: center; flex-wrap: wrap;">
+                  <div style="position: relative; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #38bdf8; overflow: hidden; background: #0b0f19; flex-shrink: 0; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);">
+                    {% if profile_user.facial_photo %}
+                    <img id="facePreviewImg" src="{{ url_for('static', filename=profile_user.facial_photo) }}" alt="Foto Facial do Aluno" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <img id="facePreviewImg" src="" alt="Foto Facial" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <div id="facePlaceholderIcon" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                      <i data-lucide="user-round" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    {% endif %}
+                  </div>
+
+                  <div style="flex: 1; min-width: 240px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <h4 style="font-size: 1rem; font-weight: 800; color: #fff;">Foto para Reconhecimento Facial na Catraca</h4>
+                      {% if profile_user.facial_photo %}
+                      <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">ATIVO</span>
+                      {% else %}
+                      <span style="background: rgba(250, 204, 21, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.4); padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">PENDENTE</span>
+                      {% endif %}
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">
+                      Envie uma foto clara do seu rosto de frente (selfie com boa iluminação, sem óculos escuros ou boné) para liberação automática na catraca.
+                    </p>
+
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                      <input type="file" id="facialPhotoInput" name="facial_photo" accept="image/*" capture="user" onchange="previewFacialPhoto(this)" style="display: none;">
+                      <button type="button" onclick="document.getElementById('facialPhotoInput').click()" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: 1px solid #38bdf8; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 10px rgba(2, 132, 199, 0.3);">
+                        <i data-lucide="camera" style="width: 16px; height: 16px;"></i> Tirar Selfie / Escolher Foto
+                      </button>
+                      <span id="selectedFileName" style="font-size: 0.8rem; color: #38bdf8; font-weight: 700;"></span>
+                    </div>
+
+                    <div style="margin-top: 10px; font-size: 0.76rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                      <i data-lucide="shield-check" style="width: 15px; height: 15px; color: #4ade80; flex-shrink: 0;"></i>
+                      <span>Uso biométrico autorizado no Termo de Adesão ao Contrato (Aceito em {{ profile_user.membership_terms_accepted_at.strftime('%d/%m/%Y') if profile_user.membership_terms_accepted_at else 'Cadastro' }}).</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
                   <label style="display: block; font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-bottom: 6px;">Nome Completo</label>
@@ -297,8 +340,6 @@
           </div>
         </div>
 
-        {% if sponsored_plan_type %}
-        <!-- SCRIPT CLIENT-SIDE DE GERENCIAMENTO DO COMBO FAMÍLIA -->
         <script>
           function switchConfigTab(tabName) {
             const tabs = ['modalidades', 'fatura', 'cadastrais', 'medicas'];
@@ -323,6 +364,33 @@
             });
           }
 
+          function previewFacialPhoto(input) {
+            if (input.files && input.files[0]) {
+              const file = input.files[0];
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const img = document.getElementById('facePreviewImg');
+                const placeholder = document.getElementById('facePlaceholderIcon');
+                const fileNameLabel = document.getElementById('selectedFileName');
+                if (img) {
+                  img.src = e.target.result;
+                  img.style.display = 'block';
+                }
+                if (placeholder) {
+                  placeholder.style.display = 'none';
+                }
+                if (fileNameLabel) {
+                  fileNameLabel.innerHTML = '✨ Foto selecionada! Clique no botão <strong>Salvar Alterações Cadastrais</strong> abaixo.';
+                }
+              };
+              reader.readAsDataURL(file);
+            }
+          }
+        </script>
+
+        {% if sponsored_plan_type %}
+        <!-- SCRIPT CLIENT-SIDE DE GERENCIAMENTO DO COMBO FAMÍLIA -->
+        <script>
           const ALL_STUDENTS = [
             {% for student in available_students %}
             { id: {{ student.id }}, name: "{{ student.name|e }}", username: "{{ student.username|e }}", cpf: "{{ student.cpf|e }}", modalities: "{{ student.selected_modalities or 'Jiu-Jitsu' }}" },

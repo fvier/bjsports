@@ -7,7 +7,7 @@ import click
 import tempfile
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g, make_response, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text, or_, func
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -285,6 +285,8 @@ class User(db.Model):
     image_consent_guardian_name = db.Column(db.String(120))
     image_consent_guardian_cpf = db.Column(db.String(14))
     image_consent_guardian_relationship = db.Column(db.String(30))
+    facial_photo = db.Column(db.String(255), nullable=True)
+    facial_photo_updated_at = db.Column(db.DateTime, nullable=True)
     medical_restriction = db.Column(db.String(250))
     is_experimental = db.Column(db.Boolean, nullable=False, default=False)
     selected_modalities = db.Column(db.String(250)) # ex: "Jiu-Jitsu, Boxe"
@@ -1713,6 +1715,10 @@ with app.app_context():
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN password_reset_by_username VARCHAR(80)'))
     if 'password_reset_at' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN password_reset_at TIMESTAMP'))
+    if 'facial_photo' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN facial_photo VARCHAR(255)'))
+    if 'facial_photo_updated_at' not in user_columns:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN facial_photo_updated_at TIMESTAMP'))
     match_columns = {column['name'] for column in inspect(db.engine).get_columns('championship_match')}
     if 'penalty_limit' not in match_columns:
         db.session.execute(text('ALTER TABLE championship_match ADD COLUMN penalty_limit INTEGER NOT NULL DEFAULT 4'))
@@ -2370,6 +2376,25 @@ def save_uploaded_location_image(file_storage, prefix):
     save_path = os.path.join(upload_dir, filename)
     file_storage.save(save_path)
     return f"img/uploads/{filename}"
+
+def save_uploaded_face_image(file_storage, user_id):
+    if not file_storage or not getattr(file_storage, 'filename', None):
+        return None
+    import os, time
+    from werkzeug.utils import secure_filename
+    sec_name = secure_filename(file_storage.filename)
+    if not sec_name:
+        return None
+    ext = os.path.splitext(sec_name)[1].lower()
+    if ext not in {'.png', '.jpg', '.jpeg', '.webp'}:
+        ext = '.jpg'
+    filename = f"face_user_{user_id}_{int(time.time())}{ext}"
+    upload_dir = os.path.join(app.static_folder, 'uploads', 'faces')
+    os.makedirs(upload_dir, exist_ok=True)
+    save_path = os.path.join(upload_dir, filename)
+    file_storage.save(save_path)
+    return f"uploads/faces/{filename}"
+
 
 @app.route('/gestao/filiais', methods=['GET', 'POST'])
 @app.route('/gestao/filiais.html', methods=['GET', 'POST'])
@@ -5104,6 +5129,38 @@ def integracoes_catraca():
 def catraca_app_view():
     return render_template('catraca_app.html')
 
+@app.route('/esp')
+@app.route('/esp.html')
+def pagina_esp_hub():
+    ino_path = os.path.join(app.root_path, 'firmware', 'esp32_catraca', 'esp32_catraca.ino')
+    ino_exists = os.path.exists(ino_path)
+    bin_path = os.path.join(app.root_path, 'firmware', 'esp32_catraca', 'firmware.bin')
+    bin_exists = os.path.exists(bin_path)
+    return render_template(
+        'esp_catraca.html',
+        page_title='BJ Sports • Central ESP32 Catraca',
+        ino_exists=ino_exists,
+        bin_exists=bin_exists,
+        firmware_version='v2.1.0-OTA'
+    )
+
+@app.route('/api/firmware/download/<filename>')
+def api_firmware_download(filename):
+    if filename not in {'esp32_catraca.ino', 'firmware.bin'}:
+        abort(404)
+    fw_dir = os.path.join(app.root_path, 'firmware', 'esp32_catraca')
+    return send_from_directory(fw_dir, filename, as_attachment=True)
+
+@app.route('/api/firmware/check', methods=['GET'])
+def api_firmware_check():
+    return jsonify({
+        'device': 'ESP32-WROOM-32',
+        'latest_version': 'v2.1.0-OTA',
+        'download_url': f"{request.host_url.rstrip('/')}/api/firmware/download/firmware.bin",
+        'mandatory': False
+    }), 200
+
+
 @app.route('/fazer')
 @app.route('/fazer.html')
 def pagina_fazer_catraca():
@@ -5174,7 +5231,9 @@ def api_catraca_sincronizar_vetores():
             'cpf': u.cpf,
             'modality': u.selected_modalities or u.plan or 'Geral',
             'is_paid': is_paid,
-            'is_experimental': getattr(u, 'is_experimental', False)
+            'is_experimental': getattr(u, 'is_experimental', False),
+            'facial_photo': u.facial_photo or '',
+            'facial_photo_updated_at': u.facial_photo_updated_at.isoformat() if u.facial_photo_updated_at else None
         })
     return jsonify({'total': len(records), 'students': records}), 200
 
@@ -5371,6 +5430,17 @@ def configuracoes():
         new_belt_color = request.form.get('belt_color', '').strip().lower()
         new_belt_degree = request.form.get('belt_degree', type=int)
         new_medical_restriction = request.form.get('medical_restriction', '').strip()
+        
+        # Upload de Foto para Biometria Facial na Catraca
+        facial_file = request.files.get('facial_photo')
+        photo_updated = False
+        if facial_file and getattr(facial_file, 'filename', None):
+            saved_face = save_uploaded_face_image(facial_file, user.id)
+            if saved_face:
+                user.facial_photo = saved_face
+                user.facial_photo_updated_at = datetime.utcnow()
+                photo_updated = True
+
         phone_digits = ''.join(c for c in new_phone if c.isdigit())
         if new_name and len(phone_digits) in {11, 13}:
             local = phone_digits[-11:]
@@ -5382,7 +5452,13 @@ def configuracoes():
             user.medical_restriction = new_medical_restriction if new_medical_restriction else None
             db.session.commit()
             session['user_name'] = new_name
-            flash('Configurações e informações do perfil salvas com sucesso!', 'success')
+            msg = 'Configurações e informações do perfil salvas com sucesso!'
+            if photo_updated:
+                msg += ' Foto facial atualizada para a catraca.'
+            flash(msg, 'success')
+        elif photo_updated:
+            db.session.commit()
+            flash('Foto facial atualizada com sucesso para a catraca!', 'success')
         else:
             flash('Nome ou telefone inválido.', 'error')
         return redirect(url_for('configuracoes'))
