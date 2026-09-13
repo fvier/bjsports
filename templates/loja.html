@@ -92,7 +92,11 @@
           <div class="store-product-media store-media-{{ product.sport }}">
             {% if product.badge %}<span class="store-product-badge">{{ product.badge }}</span>{% endif %}
             <span class="store-product-code">{{ product.id }}</span>
-            <span class="store-product-icon" aria-hidden="true">{{ product.icon }}</span>
+            {% if product.image %}
+              <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="store-product-img" loading="lazy">
+            {% else %}
+              <span class="store-product-icon" aria-hidden="true">{{ product.icon }}</span>
+            {% endif %}
             <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
           </div>
           <div class="store-product-body">
