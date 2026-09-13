@@ -12,10 +12,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v=20260911_v2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v=20260912_v3">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}?v=20260912_mobile1" media="screen">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body class="{% if erp_page %}erp-page{% endif %}" data-user-role="{{ user_role }}" data-belt-color="{{ user_belt_color }}" data-pending-attendance-count="{{ pending_attendance_count }}" data-pending-payments-count="{{ pending_payments_count }}" data-contract-pending="{{ 'true' if contract_pending else 'false' }}" data-registration-complete="{{ 'true' if is_first_reg else 'false' }}">
+
+  {% if is_logged_in and user_role == 'aluno' and contract_pending and contract_deadline_status.deadline %}
+  <aside class="contract-deadline-banner" role="status">
+    {% if contract_deadline_status.expired %}<strong>Prazo do contrato encerrado.</strong> Confirme o aceite para continuar usando o portal.
+    {% else %}<strong>Contrato pendente:</strong> restam {{ contract_deadline_status.remaining_seconds // 3600 }}h {{ (contract_deadline_status.remaining_seconds % 3600) // 60 }}min para confirmar o aceite.
+    {% endif %} <a href="{{ url_for('contrato') }}">Ler e confirmar contrato</a>
+  </aside>
+  {% endif %}
 
   <!-- Header Navigation -->
   {% if not erp_page %}
@@ -31,12 +40,17 @@
 
       <!-- Menu Principal Minimalista -->
       <nav class="nav-menu">
-        <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">Início</a>
+        <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+          <i data-lucide="home" class="nav-item-icon"></i>
+          <span>Início</span>
+        </a>
         
         <!-- Locais Dropdown -->
         <div class="nav-dropdown">
           <button class="nav-item nav-dropdown-trigger">
-            Locais <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+            <i data-lucide="map-pin" class="nav-item-icon"></i>
+            <span>Locais</span>
+            <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
           <div class="dropdown-menu dropdown-megamenu glass-panel">
             <div class="megamenu-grid">
@@ -44,7 +58,7 @@
               <!-- COLUNA PARAÍBA (PB) -->
               <div class="megamenu-col">
                 <div class="megamenu-header state-pb">
-                  <span>🌵</span> PARAÍBA (PB)
+                  <i data-lucide="map-pin" class="megamenu-header-icon"></i> PARAÍBA (PB)
                 </div>
                 
                 {% for loc_slug, loc in (locations_dict or {}).items() %}
@@ -60,7 +74,7 @@
               <!-- COLUNA CEARÁ (CE) E OUTROS -->
               <div class="megamenu-col">
                 <div class="megamenu-header state-ce">
-                  <span>☀️</span> OUTROS ESTADOS (CE/RN/PE)
+                  <i data-lucide="compass" class="megamenu-header-icon"></i> OUTROS ESTADOS (CE/RN/PE)
                 </div>
 
                 {% for loc_slug, loc in (locations_dict or {}).items() %}
@@ -77,8 +91,14 @@
           </div>
         </div>
 
-        <a href="{{ url_for('loja') }}" class="nav-item {% if request.endpoint == 'loja' %}active{% endif %}">Loja</a>
-        <a href="{{ url_for('blog') }}" class="nav-item {% if request.endpoint == 'blog' %}active{% endif %}">Blog</a>
+        <a href="{{ url_for('loja') }}" class="nav-item {% if request.endpoint == 'loja' %}active{% endif %}">
+          <i data-lucide="shopping-bag" class="nav-item-icon"></i>
+          <span>Loja</span>
+        </a>
+        <a href="{{ url_for('blog') }}" class="nav-item {% if request.endpoint == 'blog' %}active{% endif %}">
+          <i data-lucide="newspaper" class="nav-item-icon"></i>
+          <span>Blog</span>
+        </a>
       </nav>
 
       <!-- Ações do Cabeçalho -->
@@ -93,51 +113,61 @@
         <!-- ÍCONE COM FOTO/AVATAR DO MEMBRO NO TOP BAR E DROPDOWN -->
         <div class="user-avatar-dropdown">
           <button class="avatar-trigger-btn" id="userAvatarBtn" title="Minha Conta">
-            <span class="user-avatar-photo">🥋</span>
+            <span class="user-avatar-photo">
+              <i data-lucide="user" class="avatar-photo-icon"></i>
+            </span>
             <span class="user-header-name">{{ user_name.split(' ')[0] }}</span>
             <i data-lucide="chevron-down" class="dropdown-chevron"></i>
           </button>
 
-          <!-- Dropdown da Foto de Perfil -->
+          <!-- Dropdown da Foto de Perfil (Minimalista) -->
           <div class="avatar-menu glass-panel" id="userAvatarMenu">
             <div class="menu-user-info">
-              <strong>{{ user_name }}</strong>
-              <small>@{{ username }}</small>
-              <span class="badge-pill bg-green" style="font-size: 0.65rem; margin-top: 4px;">ALUNO ATIVO</span>
+              <div class="user-info-meta">
+                <strong class="user-name-title">{{ user_name }}</strong>
+                <span class="user-handle-sub">@{{ username }}</span>
+              </div>
+              <span class="status-chip active" title="Aluno Ativo">
+                <span class="status-dot"></span> Ativo
+              </span>
             </div>
 
-            <a href="{{ url_for('login') }}" class="dropdown-item">
-              <i data-lucide="target" class="icon-gold"></i>
-              <div>
-                <strong>Área do Aluno / Membros</strong>
-                <small>Ver dashboard e treinos</small>
-              </div>
-            </a>
+            <div class="avatar-menu-nav">
+              <a href="{{ url_for('dashboard') if is_logged_in else url_for('login') }}" class="dropdown-item avatar-nav-item">
+                <i data-lucide="layout-dashboard" class="avatar-nav-icon icon-gold"></i>
+                <div class="avatar-item-text">
+                  <span class="avatar-item-title">Área do Aluno / Membros</span>
+                  <span class="avatar-item-sub">Ver dashboard e treinos</span>
+                </div>
+              </a>
 
-            <a href="{{ url_for('loja') }}" class="dropdown-item">
-              <i data-lucide="shopping-bag" class="icon-gold"></i>
-              <div>
-                <strong>Loja BJ Sports</strong>
-                <small>Equipamentos e produtos</small>
-              </div>
-            </a>
+              <a href="{{ url_for('loja') }}" class="dropdown-item avatar-nav-item">
+                <i data-lucide="shopping-bag" class="avatar-nav-icon icon-gold"></i>
+                <div class="avatar-item-text">
+                  <span class="avatar-item-title">Loja BJ Sports</span>
+                  <span class="avatar-item-sub">Equipamentos e produtos</span>
+                </div>
+              </a>
 
-            <a href="{{ url_for('configuracoes') }}" class="dropdown-item">
-              <i data-lucide="user-check" class="icon-gold"></i>
-              <div>
-                <strong>Editar Informações</strong>
-                <small>Atualizar dados cadastrais</small>
-              </div>
-            </a>
+              <a href="{{ url_for('configuracoes') }}" class="dropdown-item avatar-nav-item">
+                <i data-lucide="user-cog" class="avatar-nav-icon icon-gold"></i>
+                <div class="avatar-item-text">
+                  <span class="avatar-item-title">Editar Informações</span>
+                  <span class="avatar-item-sub">Atualizar dados cadastrais</span>
+                </div>
+              </a>
+            </div>
 
-            <form action="{{ url_for('logout') }}" method="POST">
-            <button type="submit" class="dropdown-item logout-dropdown-item" style="width:100%; border:0; text-align:left; cursor:pointer;">
-              <i data-lucide="log-out" class="icon-red"></i>
-              <div>
-                <strong style="color: #ef4444;">Sair da Conta</strong>
-                <small>Encerrar sessão ativa</small>
-              </div>
-            </button>
+            <div class="avatar-menu-separator"></div>
+
+            <form action="{{ url_for('logout') }}" method="POST" class="avatar-logout-form">
+              <button type="submit" class="dropdown-item avatar-nav-item logout-action logout-dropdown-item">
+                <i data-lucide="log-out" class="avatar-nav-icon icon-danger"></i>
+                <div class="avatar-item-text">
+                  <span class="avatar-item-title text-danger">Sair da Conta</span>
+                  <span class="avatar-item-sub">Encerrar sessão ativa</span>
+                </div>
+              </button>
             </form>
           </div>
         </div>
@@ -190,7 +220,7 @@
             <i data-lucide="chevron-down" class="group-chevron"></i>
           </button>
           <div class="mobile-nav-subitems hidden" id="mobileLocaisSubitems">
-            <span class="sub-header">🌵 Paraíba (PB)</span>
+            <span class="sub-header"><i data-lucide="map-pin" class="icon-gold" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Paraíba (PB)</span>
             {% for loc_slug, loc in (locations_dict or {}).items() %}
             {% if loc.state == 'PB' %}
             <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="mobile-subnav-link">
@@ -199,7 +229,7 @@
             {% endif %}
             {% endfor %}
 
-            <span class="sub-header" style="margin-top: 10px;">☀️ Outros Estados</span>
+            <span class="sub-header" style="margin-top: 10px;"><i data-lucide="compass" class="icon-blue" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Outros Estados</span>
             {% for loc_slug, loc in (locations_dict or {}).items() %}
             {% if loc.state != 'PB' %}
             <a href="{{ url_for('ver_local', slug=loc.slug) }}" class="mobile-subnav-link">
@@ -408,7 +438,8 @@
   </div>
 
   <!-- Barra de Navegação Rápida Inferior Mobile (Bottom Dock Bar) -->
-  <nav class="mobile-bottom-dock" aria-label="Navegação rápida mobile">
+  {% if erp_page %}<div class="erp-sidebar-backdrop" id="erpSidebarBackdrop" aria-hidden="true"></div>{% endif %}
+  <nav class="mobile-bottom-dock" aria-label="Navegação rápida">
     {% if is_logged_in %}
       <a href="{{ url_for('dashboard') }}" class="dock-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
         <i data-lucide="home"></i>
@@ -422,7 +453,7 @@
         <i data-lucide="shopping-bag"></i>
         <span>Loja</span>
       </a>
-      <a href="{{ url_for('mensalidades_aluno') if user_role == 'aluno' else url_for('mensalidades_admin') }}" class="dock-item {% if request.endpoint in ['mensalidades_aluno', 'mensalidades_admin'] %}active{% endif %}">
+      <a href="{{ url_for('mensalidades_admin') if user_role == 'instrutor' else url_for('mensalidades_aluno') }}" class="dock-item {% if request.endpoint in ['mensalidades_aluno', 'mensalidades_admin'] %}active{% endif %}">
         <i data-lucide="credit-card"></i>
         <span>Faturas</span>
       </a>
@@ -456,6 +487,6 @@
 
   <!-- Lucide Icons Script & App JS -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=20260912_mobile1"></script>
 </body>
 </html>
