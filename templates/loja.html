@@ -88,29 +88,77 @@
 
       <div class="store-product-grid" id="storeProductGrid">
         {% for product in products %}
-        <article class="store-product-card" data-id="{{ product.id }}" data-sport="{{ product.sport }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-name="{{ product.name|lower }}">
-          <div class="store-product-media store-media-{{ product.sport }}">
-            {% if product.badge %}<span class="store-product-badge">{{ product.badge }}</span>{% endif %}
+        <article class="store-product-card" 
+                 data-id="{{ product.id }}" 
+                 data-sport="{{ product.sport }}" 
+                 data-category="{{ product.category }}" 
+                 data-price="{{ product.price }}" 
+                 data-name="{{ product.name|lower }}"
+                 data-json='{{ product|tojson|forceescape }}'>
+          <div class="store-product-media store-media-{{ product.sport }}" data-open-modal="{{ product.id }}">
+            {% if product.badge %}<span class="store-product-badge card-badge-element">{{ product.badge }}</span>{% endif %}
             <span class="store-product-code">{{ product.id }}</span>
             {% if product.image %}
-              <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="store-product-img" loading="lazy">
+              <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="store-product-img card-img-element" loading="lazy">
             {% else %}
               <span class="store-product-icon" aria-hidden="true">{{ product.icon }}</span>
             {% endif %}
             <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
           </div>
+
           <div class="store-product-body">
             <div class="store-product-meta"><span>{{ 'Jiu-Jitsu' if product.sport == 'jiu-jitsu' else 'Boxe' }}</span><span>{{ product.category }}</span></div>
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.description }}</p>
-            <div class="store-product-size"><i data-lucide="ruler"></i> {{ product.sizes }}</div>
+            <h3 class="card-title-clickable" data-open-modal="{{ product.id }}">{{ product.name }}</h3>
+
+            {# Color Swatches #}
+            {% if product.colors and product.colors|length > 0 %}
+            <div class="store-card-colors">
+              <span class="store-colors-title">Cores:</span>
+              <div class="store-swatches-row">
+                {% for col in product.colors %}
+                <button type="button" 
+                        class="store-swatch-dot {% if loop.first %}active{% endif %}"
+                        style="background-color: {{ col.hex }};"
+                        title="{{ col.name }} - R$ {{ '%.2f'|format(col.price)|replace('.', ',') }}"
+                        data-color-id="{{ col.id }}"
+                        data-color-name="{{ col.name }}"
+                        data-color-img="{{ url_for('static', filename=col.image) }}"
+                        data-color-price="R$ {{ '%.2f'|format(col.price)|replace('.', ',') }}"
+                        data-color-old-price="{% if col.old_price %}R$ {{ '%.2f'|format(col.old_price)|replace('.', ',') }}{% endif %}"
+                        data-color-badge="{{ col.badge }}">
+                </button>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {# Sizes Bar #}
+            <div class="store-card-sizes">
+              {% if product.sizes is iterable and product.sizes is not string %}
+                <div class="store-size-pills-row">
+                  {% for sz in product.sizes %}
+                  <span class="store-size-pill">{{ sz }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="store-product-size"><i data-lucide="ruler"></i> {{ product.sizes }}</div>
+              {% endif %}
+            </div>
+
             <div class="store-product-footer">
               <div class="store-price">
-                {% if product.old_price %}<del>R$ {{ '%.2f'|format(product.old_price)|replace('.', ',') }}</del>{% endif %}
-                <strong>R$ {{ '%.2f'|format(product.price)|replace('.', ',') }}</strong>
+                <del class="card-old-price">{% if product.old_price %}R$ {{ '%.2f'|format(product.old_price)|replace('.', ',') }}{% endif %}</del>
+                <strong class="card-price">R$ {{ '%.2f'|format(product.price)|replace('.', ',') }}</strong>
                 <small>preço hipotético</small>
               </div>
-              <button class="store-add-btn" type="button" data-interest="{{ product.id }}" title="Adicionar à lista de interesse"><i data-lucide="plus"></i></button>
+              <div class="store-card-actions">
+                <button class="store-quickview-btn" type="button" data-open-modal="{{ product.id }}" title="Ver detalhes do produto">
+                  <i data-lucide="eye"></i>
+                </button>
+                <button class="store-add-btn" type="button" data-interest="{{ product.id }}" title="Adicionar à lista de interesse">
+                  <i data-lucide="plus"></i>
+                </button>
+              </div>
             </div>
           </div>
         </article>
@@ -131,6 +179,75 @@
     <div><span>03</span><strong>Definir compra</strong><p>Decidir entre WhatsApp, retirada local ou checkout completo.</p></div>
   </section>
 </main>
+
+{# PRODUCT DETAIL QUICK-VIEW MODAL #}
+<div class="store-modal-backdrop hidden" id="storeProductModal" role="dialog" aria-modal="true">
+  <div class="store-modal-container">
+    <button class="store-modal-close" id="closeProductModal" type="button" aria-label="Fechar modal">&times;</button>
+    <div class="store-modal-grid">
+      
+      {# Left Column: Product Image & Gallery #}
+      <div class="store-modal-media-col">
+        <div class="store-modal-main-view">
+          <span class="store-product-badge" id="modalProductBadge">Destaque</span>
+          <img id="modalMainImg" src="" alt="Produto" class="store-modal-main-img">
+        </div>
+        <div class="store-modal-thumbs-row" id="modalThumbsRow"></div>
+      </div>
+
+      {# Right Column: Details & Options #}
+      <div class="store-modal-info-col">
+        <div class="store-product-meta">
+          <span id="modalSportTag">Jiu-Jitsu</span>
+          <span id="modalCategoryTag">Kimonos</span>
+        </div>
+        
+        <h2 id="modalTitle">Kimono BJ Sports Competition</h2>
+
+        <div class="store-modal-price-card">
+          <div class="modal-price-row">
+            <del id="modalOldPrice"></del>
+            <strong id="modalPrice">R$ 439,90</strong>
+          </div>
+          <p class="modal-payment-note">⚡ Dividimos em até 12x no cartão de crédito ou Pix com envio imediato</p>
+        </div>
+
+        <div class="store-availability-badge">
+          <span class="dot-online"></span> Disponível para Envio Imediato
+        </div>
+
+        {# Color Options #}
+        <div class="modal-option-block" id="modalColorBlock">
+          <label class="modal-option-label">Cor Selecionada: <strong id="modalSelectedColorText">Preto</strong></label>
+          <div class="modal-pills-row" id="modalColorPills"></div>
+        </div>
+
+        {# Size Options #}
+        <div class="modal-option-block" id="modalSizeBlock">
+          <label class="modal-option-label">Tamanho Disponível: <strong id="modalSelectedSizeText">A2</strong></label>
+          <div class="modal-pills-row" id="modalSizePills"></div>
+        </div>
+
+        {# Description #}
+        <div class="modal-desc-block">
+          <h4>Descrição do Produto:</h4>
+          <p id="modalDescription"></p>
+        </div>
+
+        {# Action Buttons #}
+        <div class="modal-actions-row">
+          <button class="store-primary-btn modal-interest-btn" id="modalInterestBtn" type="button">
+            <i data-lucide="heart"></i> <span id="modalInterestLabel">Salvar no Interesse</span>
+          </button>
+          <a class="store-zap-btn" id="modalZapLink" href="#" target="_blank" rel="noopener">
+            <i data-lucide="message-circle"></i> Pedir no WhatsApp
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script src="{{ url_for('static', filename='js/store.js') }}"></script>
 {% endblock %}

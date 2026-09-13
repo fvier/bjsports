@@ -12,6 +12,9 @@
   const storageKey = 'bj-sports-store-interest';
   let interests = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
 
+  // -------------------------------------------------------------
+  // 1. FILTERING & SORTING LOGIC
+  // -------------------------------------------------------------
   function selectedValue(name) {
     return document.querySelector(`input[name="${name}"]:checked`)?.value || 'all';
   }
@@ -66,35 +69,277 @@
     localStorage.setItem(storageKey, JSON.stringify([...interests]));
   }
 
+  // -------------------------------------------------------------
+  // 2. CARD SWATCH COLOR SWITCHING
+  // -------------------------------------------------------------
+  cards.forEach(card => {
+    const swatches = card.querySelectorAll('.store-swatch-dot');
+    if (!swatches.length) return;
+
+    const imgEl = card.querySelector('.card-img-element');
+    const badgeEl = card.querySelector('.card-badge-element');
+    const priceEl = card.querySelector('.card-price');
+    const oldPriceEl = card.querySelector('.card-old-price');
+
+    swatches.forEach(swatch => {
+      const activateSwatch = () => {
+        swatches.forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+
+        if (imgEl && swatch.dataset.colorImg) imgEl.src = swatch.dataset.colorImg;
+        if (priceEl && swatch.dataset.colorPrice) priceEl.textContent = swatch.dataset.colorPrice;
+        if (oldPriceEl) oldPriceEl.textContent = swatch.dataset.colorOldPrice || '';
+        if (badgeEl && swatch.dataset.colorBadge) badgeEl.textContent = swatch.dataset.colorBadge;
+      };
+
+      swatch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activateSwatch();
+      });
+
+      swatch.addEventListener('mouseenter', () => {
+        activateSwatch();
+      });
+    });
+  });
+
+  // -------------------------------------------------------------
+  // 3. PRODUCT QUICK-VIEW MODAL LOGIC
+  // -------------------------------------------------------------
+  const modal = document.getElementById('storeProductModal');
+  const closeModalBtn = document.getElementById('closeProductModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSportTag = document.getElementById('modalSportTag');
+  const modalCategoryTag = document.getElementById('modalCategoryTag');
+  const modalMainImg = document.getElementById('modalMainImg');
+  const modalBadge = document.getElementById('modalProductBadge');
+  const modalPrice = document.getElementById('modalPrice');
+  const modalOldPrice = document.getElementById('modalOldPrice');
+  const modalDescription = document.getElementById('modalDescription');
+  const modalColorBlock = document.getElementById('modalColorBlock');
+  const modalColorPills = document.getElementById('modalColorPills');
+  const modalSelectedColorText = document.getElementById('modalSelectedColorText');
+  const modalSizeBlock = document.getElementById('modalSizeBlock');
+  const modalSizePills = document.getElementById('modalSizePills');
+  const modalSelectedSizeText = document.getElementById('modalSelectedSizeText');
+  const modalThumbsRow = document.getElementById('modalThumbsRow');
+  const modalZapLink = document.getElementById('modalZapLink');
+  const modalInterestBtn = document.getElementById('modalInterestBtn');
+  const modalInterestLabel = document.getElementById('modalInterestLabel');
+
+  let currentProduct = null;
+  let selectedColor = null;
+  let selectedSize = null;
+
+  function updateZapLink() {
+    if (!currentProduct || !modalZapLink) return;
+    const phone = '5554999999999'; // BJ Sports WhatsApp support
+    const colorStr = selectedColor ? ` (Cor: ${selectedColor.name})` : '';
+    const sizeStr = selectedSize ? ` (Tamanho: ${selectedSize})` : '';
+    const text = encodeURIComponent(`Olá! Gostaria de consultar a disponibilidade do item *${currentProduct.name}*${colorStr}${sizeStr} na loja BJ Sports.`);
+    modalZapLink.href = `https://wa.me/${phone}?text=${text}`;
+  }
+
+  function openModalForProduct(card) {
+    if (!card.dataset.json || !modal) return;
+    try {
+      currentProduct = JSON.parse(card.dataset.json);
+    } catch (e) {
+      return;
+    }
+
+    modalSportTag.textContent = currentProduct.sport === 'jiu-jitsu' ? 'Jiu-Jitsu' : 'Boxe';
+    modalCategoryTag.textContent = currentProduct.category || '';
+    modalTitle.textContent = currentProduct.name || '';
+    modalDescription.textContent = currentProduct.description || '';
+    modalBadge.textContent = currentProduct.badge || 'Oficial';
+
+    // Formatted Price
+    const initialPriceStr = `R$ ${Number(currentProduct.price).toFixed(2).replace('.', ',')}`;
+    modalPrice.textContent = initialPriceStr;
+    if (currentProduct.old_price) {
+      modalOldPrice.textContent = `R$ ${Number(currentProduct.old_price).toFixed(2).replace('.', ',')}`;
+    } else {
+      modalOldPrice.textContent = '';
+    }
+
+    // Set Initial Image
+    const initialImgSrc = currentProduct.image ? `/static/${currentProduct.image}` : '';
+    modalMainImg.src = initialImgSrc;
+    modalMainImg.alt = currentProduct.name;
+
+    // Reset Gallery / Thumbs
+    modalThumbsRow.innerHTML = '';
+    modalColorPills.innerHTML = '';
+    modalSizePills.innerHTML = '';
+
+    // Color Swatches / Gallery Setup
+    if (currentProduct.colors && currentProduct.colors.length > 0) {
+      modalColorBlock.classList.remove('hidden');
+      selectedColor = currentProduct.colors[0];
+      modalSelectedColorText.textContent = selectedColor.name;
+
+      currentProduct.colors.forEach((col, idx) => {
+        // Color pill button
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = `modal-pill-btn ${idx === 0 ? 'active' : ''}`;
+        pill.innerHTML = `<span class="modal-pill-color-dot" style="background-color:${col.hex}"></span> ${col.name}`;
+        
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('.modal-pill-btn').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          selectedColor = col;
+          modalSelectedColorText.textContent = col.name;
+          
+          if (col.image) modalMainImg.src = `/static/${col.image}`;
+          if (col.price) modalPrice.textContent = `R$ ${Number(col.price).toFixed(2).replace('.', ',')}`;
+          if (col.old_price) modalOldPrice.textContent = `R$ ${Number(col.old_price).toFixed(2).replace('.', ',')}`;
+          if (col.badge) modalBadge.textContent = col.badge;
+          
+          updateZapLink();
+        });
+        modalColorPills.appendChild(pill);
+
+        // Thumbnail button
+        if (col.image) {
+          const thumb = document.createElement('button');
+          thumb.type = 'button';
+          thumb.className = `modal-thumb-btn ${idx === 0 ? 'active' : ''}`;
+          thumb.innerHTML = `<img src="/static/${col.image}" alt="${col.name}">`;
+          thumb.addEventListener('click', () => {
+            document.querySelectorAll('.modal-thumb-btn').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            pill.click();
+          });
+          modalThumbsRow.appendChild(thumb);
+        }
+      });
+    } else {
+      modalColorBlock.classList.add('hidden');
+      selectedColor = null;
+    }
+
+    // Size Pills Setup
+    if (currentProduct.sizes) {
+      modalSizeBlock.classList.remove('hidden');
+      const sizeList = Array.isArray(currentProduct.sizes) ? currentProduct.sizes : [currentProduct.sizes];
+      selectedSize = sizeList[0];
+      modalSelectedSizeText.textContent = selectedSize;
+
+      sizeList.forEach((sz, idx) => {
+        const szPill = document.createElement('button');
+        szPill.type = 'button';
+        szPill.className = `modal-pill-btn ${idx === 0 ? 'active' : ''}`;
+        szPill.textContent = sz;
+        szPill.addEventListener('click', () => {
+          modalSizePills.querySelectorAll('.modal-pill-btn').forEach(p => p.classList.remove('active'));
+          szPill.classList.add('active');
+          selectedSize = sz;
+          modalSelectedSizeText.textContent = sz;
+          updateZapLink();
+        });
+        modalSizePills.appendChild(szPill);
+      });
+    } else {
+      modalSizeBlock.classList.add('hidden');
+      selectedSize = null;
+    }
+
+    // Update Interest State in Modal
+    if (modalInterestBtn) {
+      modalInterestBtn.dataset.interest = currentProduct.id;
+      const isInterested = interests.has(currentProduct.id);
+      modalInterestLabel.textContent = isInterested ? 'Remover dos Interesses' : 'Salvar nos Interesses';
+    }
+
+    updateZapLink();
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  // Event delegation for opening quick-view modal
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-open-modal]');
+    if (trigger) {
+      const card = trigger.closest('.store-product-card');
+      if (card) openModalForProduct(card);
+    }
+  });
+
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+  }
+
+  if (modalInterestBtn) {
+    modalInterestBtn.addEventListener('click', () => {
+      if (!currentProduct) return;
+      const id = currentProduct.id;
+      interests.has(id) ? interests.delete(id) : interests.add(id);
+      updateInterestButtons();
+      const isInterested = interests.has(id);
+      modalInterestLabel.textContent = isInterested ? 'Remover dos Interesses' : 'Salvar nos Interesses';
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 4. EVENT LISTENERS SETUP
+  // -------------------------------------------------------------
   document.querySelectorAll('input[name="sport"], input[name="price"], .category-filter').forEach(input => input.addEventListener('change', applyFilters));
-  search.addEventListener('input', applyFilters);
-  sort.addEventListener('change', applyFilters);
+  if (search) search.addEventListener('input', applyFilters);
+  if (sort) sort.addEventListener('change', applyFilters);
+
   document.querySelectorAll('[data-quick-filter]').forEach(button => button.addEventListener('click', () => {
     const input = document.querySelector(`input[name="sport"][value="${button.dataset.quickFilter}"]`);
-    input.checked = true;
-    document.querySelector('.store-layout').scrollIntoView({behavior: 'smooth'});
-    applyFilters();
+    if (input) {
+      input.checked = true;
+      document.querySelector('.store-layout')?.scrollIntoView({behavior: 'smooth'});
+      applyFilters();
+    }
   }));
-  document.querySelectorAll('[data-interest]').forEach(button => button.addEventListener('click', () => {
+
+  document.querySelectorAll('[data-interest]').forEach(button => button.addEventListener('click', (e) => {
+    e.stopPropagation();
     const id = button.dataset.interest;
     interests.has(id) ? interests.delete(id) : interests.add(id);
     updateInterestButtons();
   }));
-  document.getElementById('clearStoreFilters').addEventListener('click', () => {
-    document.querySelector('input[name="sport"][value="all"]').checked = true;
-    document.querySelector('input[name="price"][value="all"]').checked = true;
-    document.querySelectorAll('.category-filter').forEach(input => { input.checked = false; });
-    search.value = '';
-    sort.value = 'featured';
-    applyFilters();
-  });
+
+  const clearBtn = document.getElementById('clearStoreFilters');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      const sportAll = document.querySelector('input[name="sport"][value="all"]');
+      const priceAll = document.querySelector('input[name="price"][value="all"]');
+      if (sportAll) sportAll.checked = true;
+      if (priceAll) priceAll.checked = true;
+      document.querySelectorAll('.category-filter').forEach(input => { input.checked = false; });
+      if (search) search.value = '';
+      if (sort) sort.value = 'featured';
+      applyFilters();
+    });
+  }
+
   const filterPanel = document.querySelector('.store-filter-panel');
   const mobileFilterToggle = document.getElementById('storeMobileFilterToggle');
-  if (window.matchMedia('(max-width: 800px)').matches) filterPanel.classList.add('filters-collapsed');
-  mobileFilterToggle.addEventListener('click', () => {
-    const collapsed = filterPanel.classList.toggle('filters-collapsed');
-    mobileFilterToggle.textContent = collapsed ? 'Abrir' : 'Fechar';
-  });
+  if (filterPanel && mobileFilterToggle) {
+    if (window.matchMedia('(max-width: 800px)').matches) filterPanel.classList.add('filters-collapsed');
+    mobileFilterToggle.addEventListener('click', () => {
+      const collapsed = filterPanel.classList.toggle('filters-collapsed');
+      mobileFilterToggle.textContent = collapsed ? 'Abrir' : 'Fechar';
+    });
+  }
 
   updateInterestButtons();
   applyFilters();

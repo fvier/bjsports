@@ -5,40 +5,43 @@ STORE_PRODUCTS = [
         'id': 'BJJ-001',
         'sport': 'jiu-jitsu',
         'category': 'Kimonos',
-        'name': 'Kimono BJ Sports Competition (Preto)',
-        'price': 459.90,
-        'old_price': 499.90,
-        'icon': '🥋',
-        'image': 'img/store/kimono_preto.jpg',
-        'badge': 'Destaque',
-        'sizes': 'A0 ao A4',
-        'description': 'Kimono de Jiu-Jitsu oficial BJ Sports na cor preta. Trama leve 450g/m², reforço nas áreas de maior atrito e patches oficiais do CT Bolivar-JR.'
-    },
-    {
-        'id': 'BJJ-002',
-        'sport': 'jiu-jitsu',
-        'category': 'Kimonos',
-        'name': 'Kimono BJ Sports Competition (Branco)',
+        'name': 'Kimono BJ Sports Competition',
         'price': 439.90,
         'old_price': 479.90,
         'icon': '🥋',
-        'image': 'img/store/kimono_branco.jpg',
+        'image': 'img/store/kimono_preto.jpg',
         'badge': 'Oficial',
-        'sizes': 'A0 ao A4',
-        'description': 'Kimono de Jiu-Jitsu oficial BJ Sports branco. Modelagem anatômica para competição com lapela reforçada em EVA.'
-    },
-    {
-        'id': 'BJJ-003',
-        'sport': 'jiu-jitsu',
-        'category': 'Kimonos',
-        'name': 'Kimono BJ Sports Competition (Azul Royal)',
-        'price': 449.90,
-        'old_price': 489.90,
-        'icon': '🥋',
-        'image': 'img/store/kimono_azul.jpg',
-        'badge': 'Oficial',
-        'sizes': 'A0 ao A4',
-        'description': 'Kimono de Jiu-Jitsu oficial BJ Sports azul royal. Tecido trançado de alta durabilidade com bordados oficiais.'
+        'sizes': ['A0', 'A1', 'A2', 'A3', 'A4'],
+        'description': 'Kimono de Jiu-Jitsu oficial BJ Sports. Modelagem anatômica para competição em trama leve trançada de alta durabilidade, lapela em EVA e bordados oficiais do CT Bolivar-JR.',
+        'colors': [
+            {
+                'id': 'preto',
+                'name': 'Preto',
+                'hex': '#141416',
+                'image': 'img/store/kimono_preto.jpg',
+                'price': 459.90,
+                'old_price': 499.90,
+                'badge': 'Destaque'
+            },
+            {
+                'id': 'branco',
+                'name': 'Branco',
+                'hex': '#ffffff',
+                'image': 'img/store/kimono_branco.jpg',
+                'price': 439.90,
+                'old_price': 479.90,
+                'badge': 'Oficial'
+            },
+            {
+                'id': 'azul',
+                'name': 'Azul Royal',
+                'hex': '#0f34a2',
+                'image': 'img/store/kimono_azul.jpg',
+                'price': 449.90,
+                'old_price': 489.90,
+                'badge': 'Oficial'
+            }
+        ]
     },
     {
         'id': 'BJJ-004',
@@ -46,11 +49,23 @@ STORE_PRODUCTS = [
         'category': 'No-Gi',
         'name': 'Rashguard Ranked Eagle (Manga Longa)',
         'price': 139.90,
+        'old_price': 159.90,
         'icon': '👕',
         'image': 'img/store/rashguard_manga_longa.jpg',
         'badge': 'Lançamento',
-        'sizes': 'P ao XG',
-        'description': 'Rashguard de alta compressão em vermelho e preto. Estampa exclusiva da águia no abdômen, marca BJ Sports e triângulo Bolivar-JR.'
+        'sizes': ['P', 'M', 'G', 'GG', 'XG'],
+        'description': 'Rashguard de alta compressão em vermelho e preto. Estampa exclusiva da águia no abdômen, marca BJ Sports e triângulo Bolivar-JR.',
+        'colors': [
+            {
+                'id': 'preto-vermelho',
+                'name': 'Preto / Vermelho',
+                'hex': '#e50914',
+                'image': 'img/store/rashguard_manga_longa.jpg',
+                'price': 139.90,
+                'old_price': 159.90,
+                'badge': 'Lançamento'
+            }
+        ]
     },
     {
         'id': 'BJJ-005',
@@ -58,10 +73,11 @@ STORE_PRODUCTS = [
         'category': 'No-Gi',
         'name': 'Fight Shorts Grappling (Preto/Vermelho)',
         'price': 129.90,
+        'old_price': 149.90,
         'icon': '🩳',
         'image': 'img/store/fight_shorts_grappling.jpg',
         'badge': 'Destaque',
-        'sizes': '36 ao 46',
+        'sizes': ['36', '38', '40', '42', '44', '46'],
         'description': 'Bermuda de luta sem bolsos, com logo soco no cós, grafismo lateral BJ Sports e fenda reforçada para mobilidade no No-Gi.'
     },
     {
@@ -70,10 +86,11 @@ STORE_PRODUCTS = [
         'category': 'No-Gi',
         'name': 'Fight Shorts Pro Brasil BJ Sports',
         'price': 139.90,
+        'old_price': 159.90,
         'icon': '🩳',
         'image': 'img/store/fight_shorts_pro.jpg',
         'badge': 'Edição Especial',
-        'sizes': '36 ao 46',
+        'sizes': ['36', '38', '40', '42', '44', '46'],
         'description': 'Bermuda pro com faixas laterais em vermelho, inscrição JIU-JITSU, bandeira do Brasil e ajuste com cordão duplo.'
     },
     {
@@ -82,10 +99,11 @@ STORE_PRODUCTS = [
         'category': 'Vestuário',
         'name': 'Camiseta de Treino Camuflada BJ Sports',
         'price': 89.90,
+        'old_price': 109.90,
         'icon': '👕',
         'image': 'img/store/camisa_treino_camuflada.jpg',
         'badge': 'Novo',
-        'sizes': 'P ao XG',
+        'sizes': ['P', 'M', 'G', 'GG', 'XG'],
         'description': 'Camiseta dry-fit oficial com detalhes camuflados em vermelho e preto. Respirabilidade máxima para o condicionamento físico.'
     },
     {
@@ -94,10 +112,11 @@ STORE_PRODUCTS = [
         'category': 'Vestuário',
         'name': 'Camiseta Casual BJ Sports (Preta)',
         'price': 79.90,
+        'old_price': 99.90,
         'icon': '👕',
         'image': 'img/store/camiseta_preta_mockup.jpg',
         'badge': 'Casual',
-        'sizes': 'P ao XG',
+        'sizes': ['P', 'M', 'G', 'GG', 'XG'],
         'description': 'Camiseta 100% algodão penteado com corte moderno e branding minimalista BJ Sports.'
     },
     {
@@ -107,8 +126,8 @@ STORE_PRODUCTS = [
         'name': 'Faixa de Graduação BJJ',
         'price': 79.90,
         'icon': '🎗️',
-        'badge': '',
-        'sizes': 'A0 ao A4',
+        'badge': 'Oficial',
+        'sizes': ['A0', 'A1', 'A2', 'A3', 'A4'],
         'description': 'Faixa resistente com tarja oficial adequada ao sistema de graduação IBJJF.'
     },
     {
@@ -117,9 +136,10 @@ STORE_PRODUCTS = [
         'category': 'Acessórios BJJ',
         'name': 'Bolsa Tatame 35L BJ Sports',
         'price': 189.90,
+        'old_price': 219.90,
         'icon': '🎒',
-        'badge': '',
-        'sizes': '35 litros',
+        'badge': 'Tático',
+        'sizes': ['Único (35L)'],
         'description': 'Mochila tática 35L com compartimento ventilado para kimono e bolsos impermeáveis para acessórios.'
     },
     {
@@ -131,7 +151,7 @@ STORE_PRODUCTS = [
         'old_price': 449.90,
         'icon': '🥊',
         'badge': 'Destaque',
-        'sizes': '12, 14 e 16 oz',
+        'sizes': ['12 oz', '14 oz', '16 oz'],
         'description': 'Proteção multicamadas com espuma injetada e fecho em velcro reforçado para treinos pesados de sparring.'
     },
     {
@@ -140,9 +160,10 @@ STORE_PRODUCTS = [
         'category': 'Luvas',
         'name': 'Luva Training Fit 12oz',
         'price': 249.90,
+        'old_price': 289.90,
         'icon': '🥊',
         'badge': '',
-        'sizes': '10, 12 e 14 oz',
+        'sizes': ['10 oz', '12 oz', '14 oz'],
         'description': 'Modelo versátil para treinos em saco de pancadas, manoplas e aulas técnicas de Boxe e Muay Thai.'
     },
     {
@@ -151,9 +172,10 @@ STORE_PRODUCTS = [
         'category': 'Proteção',
         'name': 'Capacete de Sparring Pro',
         'price': 279.90,
+        'old_price': 319.90,
         'icon': '🪖',
         'badge': 'Segurança',
-        'sizes': 'P, M e G',
+        'sizes': ['P', 'M', 'G'],
         'description': 'Proteção anatômica para queixo, pômulo e orelhas com regulagem tripla na nuca e topo.'
     },
     {
@@ -164,7 +186,7 @@ STORE_PRODUCTS = [
         'price': 39.90,
         'icon': '🩹',
         'badge': '',
-        'sizes': 'Par 4,5 metros',
+        'sizes': ['Par (4,5m)'],
         'description': 'Bandagens de alta elasticidade e respirabilidade para fixação das articulações da mão e punho.'
     },
     {
@@ -175,7 +197,7 @@ STORE_PRODUCTS = [
         'price': 59.90,
         'icon': '🛡️',
         'badge': '',
-        'sizes': 'Adulto',
+        'sizes': ['Adulto'],
         'description': 'Moldagem térmica dual density com canal de respiração frontal e estojo protetor antibacteriano.'
     },
     {
@@ -186,7 +208,7 @@ STORE_PRODUCTS = [
         'price': 189.90,
         'icon': '🎯',
         'badge': '',
-        'sizes': 'Par',
+        'sizes': ['Par'],
         'description': 'Alvo curvo em P.U. reforçado para treinos de velocidade, combinação de golpes e manopla.'
     },
     {
@@ -195,9 +217,9 @@ STORE_PRODUCTS = [
         'category': 'Treinamento',
         'name': 'Corda Speed Rope Pro',
         'price': 69.90,
-        'icon': '感',
+        'icon': '⚡',
         'badge': '',
-        'sizes': 'Ajustável (3m)',
+        'sizes': ['Ajustável (3m)'],
         'description': 'Corda de pular com rolamento rápido e cabo metálico encapado ajustável para alto rendimento.'
     },
     {
@@ -206,10 +228,10 @@ STORE_PRODUCTS = [
         'category': 'Treinamento',
         'name': 'Saco de Pancadas 90cm Heavy Bag',
         'price': 649.90,
+        'old_price': 699.90,
         'icon': '💥',
         'badge': 'Sob encomenda',
-        'sizes': '90 × 30 cm',
+        'sizes': ['90 × 30 cm'],
         'description': 'Estrutura ultra-resistente em couro ecológico com correntes e giratório de aço.'
     },
 ]
-
