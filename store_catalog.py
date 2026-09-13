@@ -125,10 +125,59 @@ STORE_PRODUCTS = [
         'category': 'Acessórios BJJ',
         'name': 'Faixa de Graduação BJJ',
         'price': 79.90,
+        'old_price': 89.90,
         'icon': '🎗️',
+        'image': 'img/store/faixa_branca.jpg',
         'badge': 'Oficial',
         'sizes': ['A0', 'A1', 'A2', 'A3', 'A4'],
-        'description': 'Faixa resistente com tarja oficial adequada ao sistema de graduação IBJJF.'
+        'description': 'Faixa resistente de graduação com ponteira e tarja preta/vermelha oficial adequada ao sistema de graduação IBJJF.',
+        'colors': [
+            {
+                'id': 'branca',
+                'name': 'Branca',
+                'hex': '#f4f4f6',
+                'image': 'img/store/faixa_branca.jpg',
+                'price': 79.90,
+                'old_price': 89.90,
+                'badge': 'Iniciante'
+            },
+            {
+                'id': 'azul',
+                'name': 'Azul',
+                'hex': '#1d4ed8',
+                'image': 'img/store/faixa_azul.jpg',
+                'price': 79.90,
+                'old_price': 89.90,
+                'badge': 'Oficial'
+            },
+            {
+                'id': 'roxa',
+                'name': 'Roxa',
+                'hex': '#7e22ce',
+                'image': 'img/store/faixa_roxa.jpg',
+                'price': 84.90,
+                'old_price': 94.90,
+                'badge': 'Intermediário'
+            },
+            {
+                'id': 'marrom',
+                'name': 'Marrom',
+                'hex': '#5c3a21',
+                'image': 'img/store/faixa_marrom.jpg',
+                'price': 84.90,
+                'old_price': 94.90,
+                'badge': 'Avançado'
+            },
+            {
+                'id': 'preta',
+                'name': 'Preta',
+                'hex': '#18181b',
+                'image': 'img/store/faixa_preta.jpg',
+                'price': 89.90,
+                'old_price': 99.90,
+                'badge': 'Master'
+            }
+        ]
     },
     {
         'id': 'BJJ-010',
