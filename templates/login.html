@@ -5,57 +5,37 @@
   {% if not is_logged_in %}
   <!-- Section 1: Formulário de Autenticação com Painel Lateral Explicativo (Login e Cadastro Flask) -->
   <section class="section portal-section login-page-section" id="authSection">
-    <div class="container portal-auth-container">
-      <div class="portal-auth-shell">
+    <div class="container portal-auth-container" style="max-width: 520px; margin: 0 auto;">
+      
+      <!-- CARTÃO ÚNICO DE AUTENTICAÇÃO (LOGIN E CADASTRO) -->
+      <div class="glass-panel portal-card portal-single-card">
         
-        <!-- PAINEL LATERAL DE TEXTO E APRESENTAÇÃO (LADO ESQUERDO) -->
-        <aside class="portal-auth-intro">
-          <div class="portal-intro-brand">
-            <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports">
-            <div><strong>BJ Sports</strong><span>Centro de Treinamento</span></div>
+        <!-- LOGO E MARCA NO CABEÇALHO DO CARD ÚNICO -->
+        <div class="portal-card-header text-center" style="margin-bottom: 22px;">
+          <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="BJ Sports" style="width: 50px; height: 50px; margin-bottom: 6px;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0; letter-spacing: 0.02em;">BJ SPORTS</h2>
+          <span style="color: #f87171; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">CENTRO DE TREINAMENTO</span>
+        </div>
+
+        <!-- MENSAGEM DINÂMICA DE LOGIN -->
+        <div data-portal-login-intro class="text-center" style="margin-bottom: 20px;">
+          <span class="portal-intro-eyebrow" style="color: #f87171; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em;">ÁREA DO ALUNO</span>
+          <h1 style="font-family: var(--font-heading); font-size: 1.65rem; font-weight: 900; color: #ffffff; margin: 4px 0 6px; line-height: 1.15;">Seu treino continua aqui.</h1>
+          <p style="color: #aeb8c8; font-size: 0.85rem; margin: 0; line-height: 1.45;">Acesse sua rotina de aulas, acompanhe mensalidades e consulte sua evolução no tatame.</p>
+        </div>
+
+        <!-- MENSAGEM DINÂMICA DE CADASTRO -->
+        <div class="hidden text-center" data-portal-register-intro style="margin-bottom: 20px;">
+          <span class="portal-intro-eyebrow" style="color: #f87171; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em;">NOVA MATRÍCULA</span>
+          <h1 style="font-family: var(--font-heading); font-size: 1.65rem; font-weight: 900; color: #ffffff; margin: 4px 0 6px; line-height: 1.15;">Faça parte do BJ Sports.</h1>
+          <p style="color: #aeb8c8; font-size: 0.85rem; margin: 0; line-height: 1.45;">Cadastre-se para garantir sua vaga e ter acesso ao sistema completo da academia.</p>
+          <div style="margin-top: 12px; padding: 10px; background: rgba(255, 255, 255, 0.04); border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <small style="color: #cbd5e1; display: block; margin-bottom: 6px; font-size: 0.78rem;">Deseja ler os termos do contrato antes de se cadastrar?</small>
+            <button type="button" id="btnOpenContractModal" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+              <i data-lucide="file-text" style="width: 15px; height: 15px;"></i> Ler Contrato Completo
+            </button>
           </div>
-
-          <div data-portal-login-intro>
-            <div class="portal-intro-copy">
-              <span class="portal-intro-eyebrow">ÁREA DO ALUNO</span>
-              <h1>Seu treino continua aqui.</h1>
-              <p>Acesse sua rotina de aulas, acompanhe mensalidades e consulte sua evolução no tatame.</p>
-            </div>
-
-            <ul class="portal-intro-benefits">
-              <li><i data-lucide="calendar-check"></i><span><strong>Treinos organizados</strong><small>Horários e registros em um só lugar</small></span></li>
-              <li><i data-lucide="shield-check"></i><span><strong>Acesso protegido</strong><small>Seus dados permanecem seguros</small></span></li>
-              <li><i data-lucide="activity"></i><span><strong>Treinos acompanhados</strong><small>Frequência e presença no tatame</small></span></li>
-            </ul>
-
-            <span class="portal-intro-support"><i data-lucide="message-circle"></i> Precisa de ajuda? Fale com o Mestre Bolivar.</span>
-          </div>
-
-          <!-- PAINEL LATERAL DE NOVO CADASTRO -->
-          <div class="hidden" data-portal-register-intro>
-            <div class="portal-intro-copy">
-              <span class="portal-intro-eyebrow">NOVA MATRÍCULA</span>
-              <h1>Faça parte do BJ Sports.</h1>
-              <p>Cadastre-se para garantir sua vaga e ter acesso ao sistema completo da academia.</p>
-            </div>
-
-            <ul class="portal-intro-benefits">
-              <li><i data-lucide="zap"></i><span><strong>Cadastro rápido</strong><small>Leve menos de 1 minuto para se registrar</small></span></li>
-              <li><i data-lucide="award"></i><span><strong>Todas as modalidades</strong><small>Jiu-Jitsu, Muay Thai, Boxe e Musculação</small></span></li>
-              <li><i data-lucide="file-text"></i><span><strong>Contrato 100% Digital</strong><small>Disponível no seu painel após o primeiro acesso</small></span></li>
-            </ul>
-
-            <div style="margin-top: 20px; padding: 14px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
-              <small style="color: #cbd5e1; display: block; margin-bottom: 8px;">Deseja ler os termos do contrato antes de se cadastrar?</small>
-              <button type="button" id="btnOpenContractModal" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <i data-lucide="file-text" style="width: 16px; height: 16px;"></i> Ler Contrato Completo
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        <!-- CARTÃO DO FORMULÁRIO DE LOGIN E CADASTRO (LADO DIREITO) -->
-        <div class="glass-panel portal-card">
+        </div>
           
           <!-- Tabs de Alternância: Entrar vs Criar Conta -->
           <div class="portal-tabs" id="portalTabs">
@@ -73,10 +53,10 @@
             <input type="hidden" name="action" value="login">
             
             <div class="form-group">
-              <label for="portalCpf">Usuário ou CPF *</label>
+              <label for="portalCpf">Usuário, CPF ou e-mail *</label>
               <div class="input-with-icon">
                 <i data-lucide="user" class="input-icon"></i>
-                <input type="text" name="portalCpf" id="portalCpf" placeholder="seu usuário ou 000.000.000-00" required autocomplete="username">
+                <input type="text" name="portalCpf" id="portalCpf" placeholder="Seu usuário, CPF ou e-mail" required autocomplete="username">
               </div>
             </div>
 
@@ -108,11 +88,12 @@
             <input type="hidden" name="action" value="register">
 
             <!-- 1. Usuário (Único) -->
+            <h2 class="registration-section-heading">Seus dados</h2>
             <div class="form-group">
               <label for="regUsername">Usuário (Login Único) *</label>
               <div class="input-with-icon">
                 <i data-lucide="user-check" class="input-icon"></i>
-                <input type="text" name="regUsername" id="regUsername" placeholder="Crie um apelido" required>
+                <input type="text" name="regUsername" id="regUsername" placeholder="Crie um apelido" autocomplete="username" autocapitalize="none" spellcheck="false" required>
               </div>
               <span class="field-hint">💡 Seu nome de usuário exclusivo para login no sistema.</span>
             </div>
@@ -122,7 +103,7 @@
               <label for="regName">Nome Completo *</label>
               <div class="input-with-icon">
                 <i data-lucide="user" class="input-icon"></i>
-                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" required>
+                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" autocomplete="name" required>
               </div>
             </div>
 
@@ -146,6 +127,19 @@
               <span class="field-hint">📅 Informe a data de nascimento do aluno.</span>
             </div>
 
+            <fieldset id="minorConsentFields" class="hidden guardian-registration-fields">
+              <legend>Dados do responsável legal</legend>
+              <p class="field-hint">O responsável deverá confirmar o contrato após entrar no portal. Estes dados não registram autorização de imagem nem aceite.</p>
+              <label for="imageGuardianName">Nome completo do responsável *</label>
+              <input id="imageGuardianName" name="imageGuardianName" maxlength="120" autocomplete="name" disabled>
+              <label for="imageGuardianCpf">CPF do responsável *</label>
+              <input id="imageGuardianCpf" name="imageGuardianCpf" data-cpf-mask inputmode="numeric" maxlength="14" placeholder="000.000.000-00" disabled>
+              <label for="imageGuardianRelationship">Vínculo com o aluno *</label>
+              <select id="imageGuardianRelationship" name="imageGuardianRelationship" disabled>
+                <option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option>
+              </select>
+            </fieldset>
+
             <!-- 5. CPF Numérico -->
             <div class="form-group">
               <label for="regCpf">CPF (11 dígitos) *</label>
@@ -157,18 +151,14 @@
             <div class="form-group">
               <label>WhatsApp / Celular *</label>
               <div class="phone-split-group">
-                <div style="width: 85px;">
-                  <select name="regDdd" id="regDdd" required style="width: 100%;">
-                    <option value="83" selected>(83)</option>
-                    <option value="84">(84)</option>
-                    <option value="88">(88)</option>
-                    <option value="81">(81)</option>
-                    <option value="11">(11)</option>
-                    <option value="21">(21)</option>
+                <div class="phone-ddd-field">
+                  <label class="sr-only" for="regDDD">DDD brasileiro</label>
+                  <select name="regDDD" id="regDDD" required aria-label="DDD brasileiro">
+                    {% for ddd in brazil_ddds %}<option value="{{ ddd }}"{% if ddd == '83' %} selected{% endif %}>({{ ddd }})</option>{% endfor %}
                   </select>
                 </div>
                 <div style="flex: 1;">
-                  <input type="text" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 0000 0000" inputmode="numeric" maxlength="11" required>
+                  <input type="text" name="regPhoneNumber" id="regPhoneNumber" placeholder="9 9999 9999" inputmode="numeric" maxlength="11" required>
                 </div>
               </div>
               <span class="field-hint">📱 Telefone para contato e notificações.</span>
@@ -195,6 +185,7 @@
             </div>
 
             <!-- 9. Escolha do Plano e Dias de Treino -->
+            <h2 class="registration-section-heading">Seu treino</h2>
             <div class="form-group">
               <label for="regPlan">Escolha o Plano de Aulas *</label>
               <select name="regPlan" id="regPlan" required>
@@ -243,12 +234,13 @@
             </div>
 
             <!-- 11. Senha & Confirmação -->
+            <h2 class="registration-section-heading">Acesso à conta</h2>
             <div class="form-row">
               <div class="form-group">
                 <label for="regPass">Criar Senha *</label>
                 <div class="input-with-eye">
                   <i data-lucide="shield-check" class="input-icon"></i>
-                  <input type="password" name="regPass" id="regPass" placeholder="••••••••" required>
+                  <input type="password" name="regPass" id="regPass" autocomplete="new-password" placeholder="••••••••" required>
                   <button type="button" class="btn-toggle-eye" data-target="regPass" title="Mostrar/Ocultar Senha">
                     <i data-lucide="eye"></i>
                   </button>
@@ -264,7 +256,7 @@
                 <label for="regPassConfirm">Confirmar Senha *</label>
                 <div class="input-with-eye">
                   <i data-lucide="shield-check" class="input-icon"></i>
-                  <input type="password" id="regPassConfirm" placeholder="••••••••" required>
+                  <input type="password" id="regPassConfirm" autocomplete="new-password" placeholder="••••••••" required>
                   <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
                     <i data-lucide="eye"></i>
                   </button>
@@ -286,12 +278,12 @@
               <small style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">💡 Informação essencial para a segurança nos treinos e acompanhamento do Professor e dos Monitores.</small>
             </div>
 
+            <p class="registration-contract-notice">Sua conta será criada com o contrato pendente. Após entrar, você terá <strong>60 horas desde o cadastro</strong> para ler e confirmar em <strong>Minha Conta → Contrato</strong>. Depois do prazo, as demais funções ficam bloqueadas até o aceite. Criar a conta não significa aceitar o contrato ou autorizar o uso de imagem.</p>
             <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow submit-reg-btn" id="btnRegisterSubmit" style="margin-top: 14px;">
               <i data-lucide="user-plus"></i> Finalizar Cadastro
             </button>
           </form>
         </div>
-
       </div>
     </div>
   </section>
@@ -472,16 +464,18 @@
 
     function handleMinorCheckbox(checkbox) {
       const minorFields = document.getElementById('minorConsentFields');
-      const radioMinor = document.getElementById('radioMinorConsent');
-      const radioAdult = document.getElementById('radioAdultConsent');
-
-      if (checkbox.checked) {
-        if (radioMinor) radioMinor.checked = true;
-        if (minorFields) minorFields.classList.remove('hidden');
-      } else {
-        if (radioAdult) radioAdult.checked = true;
-        if (minorFields) minorFields.classList.add('hidden');
+      const birth = document.getElementById('regBirthDate')?.value;
+      if (birth) {
+        const date = new Date(`${birth}T12:00:00`), today = new Date();
+        let age = today.getFullYear() - date.getFullYear();
+        if (today.getMonth() < date.getMonth() || (today.getMonth() === date.getMonth() && today.getDate() < date.getDate())) age--;
+        checkbox.checked = age >= 0 && age < 18;
       }
+      minorFields?.classList.toggle('hidden', !checkbox.checked);
+      minorFields?.querySelectorAll('input, select').forEach(field => {
+        field.required = checkbox.checked;
+        field.disabled = !checkbox.checked;
+      });
     }
 
     function syncMinorStatusFromBirthDate() {
@@ -508,7 +502,7 @@
       const saveDraft = () => {
         const fields = {};
         new FormData(form).forEach((value, name) => {
-          if (['csrf_token', 'action', 'regPass'].includes(name)) return;
+          if (['csrf_token', 'action', 'regPass', 'acceptMembershipTerms', 'acknowledgePrivacy', 'confirmLegalCapacity', 'imageConsentScope'].includes(name)) return;
           if (!fields[name]) fields[name] = [];
           fields[name].push(value);
         });
@@ -527,7 +521,7 @@
           form.elements.regPlan.dispatchEvent(new Event('change'));
         }
         Object.entries(draft.fields).forEach(([name, values]) => {
-          if (['regPlan', 'regTrainingDays', 'comboModalities', 'privateInstructor'].includes(name)) return;
+          if (['regPlan', 'regTrainingDays', 'comboModalities', 'privateInstructor', 'acceptMembershipTerms', 'acknowledgePrivacy', 'confirmLegalCapacity', 'imageConsentScope'].includes(name)) return;
           const controls = [...form.querySelectorAll(`[name="${CSS.escape(name)}"]`)];
           controls.forEach((control, index) => {
             if (control.type === 'checkbox' || control.type === 'radio') {
@@ -537,6 +531,7 @@
             }
           });
         });
+        if (draft.fields.regDdd?.[0] && !draft.fields.regDDD) form.elements.regDDD.value = draft.fields.regDdd[0];
         const trainingDays = draft.fields.regTrainingDays?.[0] || '';
         document.querySelector(`[data-plan-schedule="${trainingDays}"]:not(:disabled)`)?.click();
         const comboValues = draft.fields.comboModalities || [];

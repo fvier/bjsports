@@ -358,42 +358,188 @@ body {
 
 .avatar-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
-  margin-top: 10px;
-  width: 260px;
-  padding: 12px;
+  width: 224px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(10px);
-  transition: all 0.25s ease;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
   z-index: 150;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
-  background: #12121c;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #12121c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px;
 }
 
 .user-avatar-dropdown:hover .avatar-menu,
 .user-avatar-dropdown.active .avatar-menu {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .menu-user-info {
-  padding-bottom: 10px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--border-light);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 10px 10px;
+  margin-bottom: 3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.menu-user-info strong { font-size: 0.95rem; color: #ffffff; }
-.menu-user-info small { color: var(--text-muted); font-size: 0.8rem; }
+.user-info-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 125px;
+}
+
+.user-handle-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  padding: 2px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.avatar-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.avatar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: transparent !important;
+  border: none !important;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: none !important;
+}
+
+.avatar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff;
+}
+
+.avatar-nav-icon {
+  width: 15px;
+  height: 15px;
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.avatar-nav-item:hover .avatar-nav-icon {
+  color: var(--accent-gold, #f59e0b);
+}
+
+.avatar-menu-separator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 3px 6px;
+}
+
+.avatar-logout-form {
+  margin: 0;
+  padding: 0;
+}
+
+.avatar-nav-item.logout-action,
+button.logout-dropdown-item {
+  color: #f87171 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.avatar-nav-item.logout-action:hover,
+button.logout-dropdown-item:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+}
+
+.avatar-nav-icon.icon-danger {
+  color: #f87171 !important;
+}
+
+.avatar-nav-item.logout-action:hover .avatar-nav-icon.icon-danger,
+button.logout-dropdown-item:hover .icon-danger,
+button.logout-dropdown-item:hover .icon-red {
+  color: #ef4444 !important;
+}
+
+.public-light-theme .avatar-menu {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
+}
+.public-light-theme .menu-user-info {
+  border-bottom-color: #f1f5f9;
+}
+.public-light-theme .user-name-title {
+  color: #0f172a;
+}
+.public-light-theme .user-handle-sub {
+  color: #64748b;
+}
+.public-light-theme .avatar-nav-item {
+  color: #334155;
+}
+.public-light-theme .avatar-nav-item:hover {
+  background: #f8fafc !important;
+  color: #0f172a;
+}
+.public-light-theme .avatar-nav-icon {
+  color: #64748b;
+}
+.public-light-theme .avatar-menu-separator {
+  background: #f1f5f9;
+}
 
 /* ==========================================================================
    GPS PARAÍBA ERP REPLICA STYLES (STICKY SIDEBAR INDEPENDENT OF SCROLL)
@@ -650,6 +796,12 @@ body {
   background-color: var(--erp-bg-main);
   overflow-x: clip;
   min-width: 0;
+}
+
+.checkin-status-panel select[name="class_slot"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .erp-topbar {
@@ -1502,16 +1654,11 @@ body.erp-page.erp-light-theme {
 .glass-panel { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 32px; }
 
 .portal-section { padding: 20px 0 100px 0; }
-.login-page-section { min-height:calc(100vh - 78px); display:flex; align-items:flex-start; padding-top:34px; background:radial-gradient(circle at 22% 28%,rgba(229,9,20,.09),transparent 34%); }
-.portal-auth-container { max-width:1180px; }
-.portal-auth-shell { display:grid; grid-template-columns:minmax(380px,1fr) minmax(470px,1.08fr); gap:18px; align-items:stretch; }
-.portal-auth-intro { position:relative; min-height:520px; display:flex; flex-direction:column; padding:34px; overflow:hidden; background:linear-gradient(150deg,#231114 0%,#12131b 52%,#151822 100%); border:1px solid rgba(229,9,20,.2); border-radius:18px; box-shadow:0 20px 55px rgba(0,0,0,.28); }
-.portal-auth-intro::after { content:""; position:absolute; right:-90px; bottom:-110px; width:260px; height:260px; border:42px solid rgba(229,9,20,.07); border-radius:50%; }
-.portal-intro-brand { position:relative; z-index:1; display:flex; align-items:center; gap:11px; }.portal-intro-brand img { width:43px; height:43px; object-fit:contain; }.portal-intro-brand div { display:flex; flex-direction:column; }.portal-intro-brand strong { color:#fff; font:800 1rem var(--font-heading); }.portal-intro-brand span { color:#f87171; font-size:.58rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
-.portal-intro-copy { position:relative; z-index:1; margin-top:58px; }.portal-intro-eyebrow { color:#f87171; font-size:.65rem; font-weight:800; letter-spacing:.16em; }.portal-intro-copy h1 { max-width:320px; margin:7px 0 12px; color:#fff; font:800 2.15rem/1.08 var(--font-heading); }.portal-intro-copy p { max-width:350px; color:#aeb8c8; font-size:.83rem; line-height:1.6; }
-.portal-intro-benefits { position:relative; z-index:1; display:flex; flex-direction:column; gap:16px; margin-top:28px; list-style:none; }.portal-intro-benefits li { display:flex; align-items:center; gap:11px; }.portal-intro-benefits li > svg { width:18px; height:18px; color:#f87171; }.portal-intro-benefits span { display:flex; flex-direction:column; }.portal-intro-benefits strong { color:#e5e7eb; font-size:.75rem; }.portal-intro-benefits small { color:#7f8a9a; font-size:.64rem; }
-.portal-intro-support { position:relative; z-index:1; display:flex; align-items:center; gap:7px; margin-top:22px; color:#98a2b3; font-size:.67rem; }.portal-intro-support svg { width:14px; height:14px; }
-.portal-card { min-width:0; padding:34px 36px; background: rgba(18, 18, 26, 0.95); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 18px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42); }
+.login-page-section { min-height:calc(100vh - 78px); display:flex; align-items:center; justify-content:center; padding:34px 16px 60px; background:radial-gradient(circle at 50% 30%,rgba(229,9,20,.12),transparent 52%); }
+.portal-auth-container { width:100%; max-width:520px; margin:0 auto; }
+.portal-auth-shell { display:flex; flex-direction:column; width:100%; }
+.portal-auth-intro { display:none; }
+.portal-card { width:100%; min-width:0; padding:34px 30px; background: rgba(18, 18, 26, 0.96); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 20px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 35px rgba(229, 9, 20, 0.08); }
 
 .portal-tabs { display: flex; gap: 8px; background: rgba(0, 0, 0, 0.4); padding: 6px; border-radius: var(--radius-md); margin-bottom: 28px; }
 .portal-tab-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--text-muted); font-family: var(--font-heading); font-weight: 700; font-size: 0.92rem; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.25s ease; }
@@ -1944,7 +2091,7 @@ body.public-light-theme {
   .planos-section .grid-planos { grid-template-columns: 1fr; }
   .mensalidades-summary-grid { grid-template-columns: 1fr; }
   .erp-sidebar { width: 100% !important; position: relative !important; top: 0 !important; height: auto !important; max-height: none !important; margin-top: 0 !important; }
-  .erp-page .erp-main-container { padding-top:0; }
+  .erp-page .erp-main-container { width:100%; padding-top:0; }
   .erp-page .erp-topbar, .erp-page .erp-sidebar.collapsed + .erp-main-container .erp-topbar { position:sticky; top:0; right:auto; left:auto; padding:10px 16px; }
   .erp-page .erp-user-badge .badge-pill { display: none; }
   .erp-page .erp-user-name { display: none; }
@@ -3448,3 +3595,16 @@ select.filial-select-custom option, select#filialSelectDropdown option { font-we
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
   background: rgba(245, 158, 11, 0.12);
 }
+
+/* Cadastro: DDD legível e apresentação compacta no celular. */
+.login-page-section .phone-split-group{display:flex;gap:10px;align-items:center}
+.login-page-section .phone-ddd-field{flex:0 0 96px;min-width:96px}
+.login-page-section .phone-ddd-field select{width:100%;padding:12px 10px 12px 12px!important;background-image:none;appearance:auto;text-overflow:clip}
+.guardian-registration-fields{border:1px solid #64748b;border-radius:10px;padding:16px;display:grid;gap:8px}
+.guardian-registration-fields.hidden{display:none}
+.registration-contract-notice{padding:14px;border:1px solid #64748b;border-radius:10px;font-size:.85rem;line-height:1.55}
+.contract-deadline-banner{position:relative;z-index:90;margin:12px;padding:12px 16px;background:#312b16;color:#fef3c7;border:1px solid #b89436;border-radius:10px;font-size:.9rem}
+.contract-deadline-banner a{color:#fde68a;text-decoration:underline;font-weight:700}
+@media(max-width:760px){.login-page-section .portal-auth-shell{grid-template-columns:minmax(0,1fr)}.login-page-section .portal-auth-intro{min-height:0;padding:16px}.login-page-section .portal-intro-copy{margin-top:12px}.login-page-section .portal-intro-copy h1{font-size:1.45rem;max-width:none;margin:4px 0}.login-page-section .portal-intro-copy p,.login-page-section .portal-intro-benefits,.login-page-section .portal-intro-support,.login-page-section [data-portal-register-intro]>div:last-child:not(.portal-intro-copy){display:none}.login-page-section .portal-card{min-width:0;padding:18px 14px}.login-page-section .phone-split-group>div:last-child{min-width:0}.login-page-section .form-row{grid-template-columns:minmax(0,1fr)}}
+
+.login-page-section .phone-ddd-field .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
