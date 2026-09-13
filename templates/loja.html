@@ -109,6 +109,7 @@
             <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
           </div>
 
+          <div class="store-product-body">
             {% set sport_label_map = {'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA'} %}
             <div class="store-product-meta"><span>{{ sport_label_map.get(product.sport, product.sport|title) }}</span><span>{{ product.category }}</span></div>
             <h3 class="card-title-clickable" data-open-modal="{{ product.id }}">{{ product.name }}</h3>
