@@ -52,7 +52,8 @@
     count.textContent = visible.length;
     empty.classList.toggle('hidden', visible.length !== 0);
     const labels = [];
-    if (sport !== 'all') labels.push(sport === 'jiu-jitsu' ? 'Jiu-Jitsu' : 'Boxe');
+    const sportNames = { 'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA' };
+    if (sport !== 'all') labels.push(sportNames[sport] || sport);
     if (categories.size) labels.push([...categories].join(', '));
     if (price !== 'all') labels.push('faixa de preço selecionada');
     if (term) labels.push(`busca: “${search.value.trim()}”`);
@@ -148,7 +149,8 @@
       return;
     }
 
-    modalSportTag.textContent = currentProduct.sport === 'jiu-jitsu' ? 'Jiu-Jitsu' : 'Boxe';
+    const sportNames = { 'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA' };
+    modalSportTag.textContent = sportNames[currentProduct.sport] || currentProduct.sport;
     modalCategoryTag.textContent = currentProduct.category || '';
     modalTitle.textContent = currentProduct.name || '';
     modalDescription.textContent = currentProduct.description || '';

@@ -11,8 +11,10 @@
         <h1>Equipamentos para sua <span>evolução</span></h1>
         <p>Uma primeira proposta de loja organizada por esporte e categoria. Produtos, estoque e preços abaixo são hipotéticos e servem para planejarmos a experiência.</p>
         <div class="store-hero-actions">
-          <button class="store-primary-btn" data-quick-filter="jiu-jitsu">Explorar Jiu-Jitsu</button>
-          <button class="store-outline-btn" data-quick-filter="boxe">Explorar Boxe</button>
+          <button class="store-primary-btn" data-quick-filter="jiu-jitsu">Jiu-Jitsu</button>
+          <button class="store-outline-btn" data-quick-filter="boxe">Boxe</button>
+          <button class="store-outline-btn" data-quick-filter="muay-thai">Muay Thai</button>
+          <button class="store-outline-btn" data-quick-filter="mma">MMA</button>
         </div>
       </div>
       <div class="store-concept-card">
@@ -24,7 +26,7 @@
 
   <section class="container store-metrics" aria-label="Resumo do catálogo">
     <div><span>{{ products|length }}</span><small>produtos conceituais</small></div>
-    <div><span>2</span><small>esportes principais</small></div>
+    <div><span>{{ store_sports|length }}</span><small>esportes principais</small></div>
     <div><span>{{ store_categories|length }}</span><small>categorias organizadas</small></div>
     <div><span id="interestCount">0</span><small>na lista de interesse</small></div>
   </section>
@@ -47,8 +49,9 @@
       <fieldset class="store-filter-group">
         <legend>Esporte</legend>
         <label><input type="radio" name="sport" value="all" checked> Todos <span>{{ products|length }}</span></label>
-        <label><input type="radio" name="sport" value="jiu-jitsu"> Jiu-Jitsu <span>{{ products|selectattr('sport', 'equalto', 'jiu-jitsu')|list|length }}</span></label>
-        <label><input type="radio" name="sport" value="boxe"> Boxe <span>{{ products|selectattr('sport', 'equalto', 'boxe')|list|length }}</span></label>
+        {% for sp in store_sports %}
+        <label><input type="radio" name="sport" value="{{ sp.id }}"> {{ sp.name }} <span>{{ products|selectattr('sport', 'equalto', sp.id)|list|length }}</span></label>
+        {% endfor %}
       </fieldset>
 
       <fieldset class="store-filter-group">
@@ -106,8 +109,8 @@
             <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
           </div>
 
-          <div class="store-product-body">
-            <div class="store-product-meta"><span>{{ 'Jiu-Jitsu' if product.sport == 'jiu-jitsu' else 'Boxe' }}</span><span>{{ product.category }}</span></div>
+            {% set sport_label_map = {'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA'} %}
+            <div class="store-product-meta"><span>{{ sport_label_map.get(product.sport, product.sport|title) }}</span><span>{{ product.category }}</span></div>
             <h3 class="card-title-clickable" data-open-modal="{{ product.id }}">{{ product.name }}</h3>
 
             {# Color Swatches #}

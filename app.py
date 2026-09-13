@@ -5,11 +5,15 @@ import urllib.parse
 import secrets
 import click
 import tempfile
+from firmware_catalog import firmware_info, source_archive
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, g, make_response, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text, or_, func
+from sqlalchemy.orm import validates
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from registration_rules import BRAZIL_DDDS, cpf_digits as normalize_cpf, age_on, parse_age_limits
 from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, datetime, timedelta
@@ -64,6 +68,7 @@ MEMBERSHIP_TERMS_VERSION = '2026-09-11.1'
 PRIVACY_NOTICE_VERSION = '2026-08-17'
 BELT_COLORS = {'branca', 'azul', 'roxa', 'marrom', 'preta'}
 BELT_LABELS = {'branca': 'Branca', 'azul': 'Azul', 'roxa': 'Roxa', 'marrom': 'Marrom', 'preta': 'Preta'}
+CLASS_MODALITIES = ('Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA')
 DEFAULT_CLASS_GROUPS = [
     {'id': 1, 'name': 'Jiu-Jitsu Kids 1', 'modality': 'Jiu-Jitsu', 'audience': 'Kids',
      'schedules': ['Ter, Qui • 17:00'], 'weekly_sessions': 2, 'instructor': 'Mestre Bolivar',
@@ -256,6 +261,10 @@ def add_security_headers(response):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    @validates('cpf')
+    def normalize_cpf_value(self, key, value):
+        return normalize_cpf(value)
+
     name = db.Column(db.String(120), nullable=False)
     cpf = db.Column(db.String(14), unique=True, nullable=False)
     ddd = db.Column(db.String(2), nullable=False)
@@ -275,6 +284,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     belt_color = db.Column(db.String(20), nullable=False, default='branca')
     belt_degree = db.Column(db.Integer, nullable=False, default=0)
+    contract_due_at = db.Column(db.DateTime, nullable=True)  # Somente novos cadastros; legado permanece sem prazo.
     membership_terms_version = db.Column(db.String(20))
     membership_terms_accepted_at = db.Column(db.DateTime)
     privacy_notice_version = db.Column(db.String(20))
@@ -598,6 +608,45 @@ class User(db.Model):
 
         return f"https://wa.me/{full_number}?text={urllib.parse.quote(msg)}"
 
+def normalized_cpf_expression():
+    return func.replace(func.replace(func.replace(User.cpf, '.', ''), '-', ''), ' ', '')
+
+
+cpf_unique_index = db.Index('uq_user_cpf_normalized', normalized_cpf_expression(), unique=True)
+
+
+def contract_status(user, reference=None):
+    reference = reference or datetime.utcnow()
+    pending = bool(user and (
+        user.membership_terms_version != MEMBERSHIP_TERMS_VERSION
+        or not user.membership_terms_accepted_at
+        or user.privacy_notice_version != PRIVACY_NOTICE_VERSION
+        or not user.privacy_notice_accepted_at
+        or not user.image_use_consent or not user.image_use_consent_at
+        or user.image_consent_scope not in {'adult', 'minor_guardian'}
+    ))
+    deadline = user.contract_due_at if user else None
+    remaining = max(0, int((deadline - reference).total_seconds())) if deadline else 0
+    return {'pending': pending, 'deadline': deadline, 'remaining_seconds': remaining,
+            'expired': bool(pending and deadline and reference >= deadline)}
+
+
+@app.before_request
+def enforce_contract_deadline():
+    if not session.get('user_id') or request.endpoint in {
+        None, 'static', 'login', 'logout', 'contrato', 'change_temporary_password',
+        'pagina_catraca_doc', 'pagina_esp_hub', 'api_firmware_source',
+        'api_firmware_download', 'api_firmware_check',
+    }:
+        return None
+    user = db.session.get(User, session['user_id'])
+    if user and user.role == 'aluno' and contract_status(user)['expired']:
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify(error='Prazo de 60 horas encerrado. Confirme o contrato para continuar.',
+                           contract_url=url_for('contrato')), 403
+        return redirect(url_for('contrato'))
+
+
 class ContractAcceptance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
@@ -816,10 +865,16 @@ class MonthlyFeeExemption(db.Model):
         return period_key >= start_key and (end_key is None or period_key < end_key)
 
 class ClassGroup(db.Model):
+    __table_args__ = (
+        db.CheckConstraint('min_age IS NULL OR min_age BETWEEN 0 AND 150', name='ck_class_group_min_age'),
+        db.CheckConstraint('max_age IS NULL OR (max_age BETWEEN 0 AND 150 AND (min_age IS NULL OR max_age >= min_age))', name='ck_class_group_max_age'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     modality = db.Column(db.String(40), nullable=False)
     audience = db.Column(db.String(30), nullable=False, default='Adulto')
+    min_age = db.Column(db.Integer, nullable=True)
+    max_age = db.Column(db.Integer, nullable=True)
     schedules_json = db.Column(db.Text, nullable=False, default='[]')
     instructor = db.Column(db.String(120), nullable=False, default='Mestre Bolivar')
     responsible_monitor_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
@@ -833,6 +888,20 @@ class ClassGroup(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     responsible_monitor = db.relationship('User', foreign_keys=[responsible_monitor_id])
+
+    @property
+    def formatted_age_range(self):
+        if self.min_age is None and self.max_age is None:
+            return 'Faixa etária não definida'
+        def years(value):
+            return f'{value} ano' if value == 1 else f'{value} anos'
+        if self.max_age is None:
+            return f'A partir de {years(self.min_age)}'
+        if self.min_age is None:
+            return f'Até {years(self.max_age)}'
+        if self.min_age == self.max_age:
+            return years(self.min_age)
+        return f'{self.min_age} a {self.max_age} anos'
 
     @property
     def location_info(self):
@@ -1098,6 +1167,44 @@ def credit_class_has_space(user, group, training_date, class_time):
     reservations = Booking.query.filter_by(class_group_id=group.id, class_date=training_date,
                                            class_time=class_time).count()
     return len(enrolled_ids) + extra + reservations < group.capacity
+
+
+def portal_class_has_space(user, group, training_date, class_time):
+    if group.capacity <= 0:
+        return False
+    enrolled_ids = {item.user_id for item in group.enrollments if item.active}
+    if user.id in enrolled_ids:
+        # Matrícula reserva lugar, mas capacidade zero/sobrelotação precisa de correção.
+        return len(enrolled_ids) <= group.capacity
+    if group.status == 'lotada':
+        return False
+    attendees = {item.user_id for item in Attendance.query.filter(
+        Attendance.class_group_id == group.id, Attendance.training_date == training_date,
+        Attendance.class_time == class_time, Attendance.status.in_(['pendente', 'confirmado']),
+    ).all()}
+    reservations = Booking.query.filter_by(class_group_id=group.id, class_date=training_date,
+                                           class_time=class_time).count()
+    return len(enrolled_ids | attendees) + reservations < group.capacity
+
+
+def portal_class_eligibility(user, group, training_date, experimental=False):
+    enrolled_ids = {item.class_group_id for item in user.class_enrollments if item.active}
+    if experimental:
+        if enrolled_ids:
+            return 'Aula experimental indisponível: você já está matriculado em uma turma.'
+        if not user.get_trial_status()['in_trial']:
+            return 'O período experimental de 60 horas não está ativo. Procure a recepção.'
+    elif group.id not in enrolled_ids:
+        return 'Você não está matriculado na turma escolhida. Procure a recepção.'
+    modalities = user.get_selected_modalities_list()
+    if modalities and group.modality not in modalities:
+        return 'A turma escolhida não pertence às modalidades do seu plano.'
+    plan = (user.plan or '').casefold()
+    if all(day in plan for day in ('seg', 'qua', 'sex')) and training_date.weekday() not in {0, 2, 4}:
+        return 'O dia da aula escolhida não está incluído no seu plano.'
+    if all(day in plan for day in ('ter', 'qui')) and training_date.weekday() not in {1, 3}:
+        return 'O dia da aula escolhida não está incluído no seu plano.'
+    return None
 
 
 def migrate_attendance_occurrences():
@@ -1390,6 +1497,7 @@ def split_combined_muay_thai_class():
 
     evening = ClassGroup(
         name=evening_name, modality=combined.modality, audience=combined.audience,
+        min_age=combined.min_age, max_age=combined.max_age,
         instructor=combined.instructor, responsible_monitor=combined.responsible_monitor,
         capacity=combined.capacity, waiting=combined.waiting, class_value=combined.class_value,
         duration_minutes=combined.duration_minutes, status=combined.status,
@@ -1678,6 +1786,9 @@ with app.app_context():
     if 'sex' not in user_columns:
         db.session.execute(text("ALTER TABLE \"user\" ADD COLUMN sex VARCHAR(20) NOT NULL DEFAULT 'prefer_not'"))
     db.session.execute(text('CREATE UNIQUE INDEX IF NOT EXISTS ix_user_email_unique ON "user" (email)'))
+    if 'contract_due_at' not in user_columns:
+        timestamp_type = 'TIMESTAMP' if db.engine.dialect.name == 'postgresql' else 'DATETIME'
+        db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN contract_due_at {timestamp_type}'))
     if 'membership_terms_version' not in user_columns:
         db.session.execute(text('ALTER TABLE "user" ADD COLUMN membership_terms_version VARCHAR(20)'))
     if 'membership_terms_accepted_at' not in user_columns:
@@ -1743,6 +1854,10 @@ with app.app_context():
     if 'class_time' not in booking_columns:
         db.session.execute(text('ALTER TABLE booking ADD COLUMN class_time VARCHAR(5)'))
     class_group_columns = {column['name'] for column in inspect(db.engine).get_columns('class_group')}
+    if 'min_age' not in class_group_columns:
+        db.session.execute(text('ALTER TABLE class_group ADD COLUMN min_age INTEGER CONSTRAINT ck_class_group_min_age CHECK (min_age IS NULL OR min_age BETWEEN 0 AND 150)'))
+    if 'max_age' not in class_group_columns:
+        db.session.execute(text('ALTER TABLE class_group ADD COLUMN max_age INTEGER CONSTRAINT ck_class_group_max_age CHECK (max_age IS NULL OR (max_age BETWEEN 0 AND 150 AND (min_age IS NULL OR max_age >= min_age)))'))
     if 'responsible_monitor_id' not in class_group_columns:
         db.session.execute(text('ALTER TABLE class_group ADD COLUMN responsible_monitor_id INTEGER REFERENCES "user"(id)'))
         db.session.execute(text('CREATE INDEX IF NOT EXISTS ix_class_group_responsible_monitor_id ON class_group (responsible_monitor_id)'))
@@ -1871,11 +1986,8 @@ def inject_user_context():
     role = session.get('user_role', 'aluno')
     pending_attendance_count = Attendance.query.filter_by(status='pendente').count() if role in {'monitor', 'instrutor'} else 0
     pending_payments_count = User.query.filter_by(payment_status='Pendente', monthly_fee_exempt=False).count() if role in {'monitor', 'instrutor'} else 0
-    contract_pending = bool(current_user and (
-        current_user.membership_terms_version != MEMBERSHIP_TERMS_VERSION
-        or current_user.privacy_notice_version != PRIVACY_NOTICE_VERSION
-        or current_user.image_consent_scope not in {'adult', 'minor_guardian'}
-    ))
+    current_contract = contract_status(current_user)
+    contract_pending = current_contract['pending']
 
     # Cálculo da contagem regressiva de 60h para o Aluno
     in_trial_period = False
@@ -1907,6 +2019,7 @@ def inject_user_context():
         'pending_attendance_count': pending_attendance_count,
         'pending_payments_count': pending_payments_count,
         'contract_pending': contract_pending,
+        'contract_deadline_status': current_contract,
         'in_trial_period': in_trial_period,
         'trial_hours': trial_hours,
         'trial_minutes': trial_minutes,
@@ -2595,10 +2708,17 @@ def blog():
 @app.route('/loja.html')
 def loja():
     store_categories = sorted(list({p['category'] for p in STORE_PRODUCTS if p.get('category')}))
+    store_sports = [
+        {'id': 'jiu-jitsu', 'name': 'Jiu-Jitsu'},
+        {'id': 'boxe', 'name': 'Boxe'},
+        {'id': 'muay-thai', 'name': 'Muay Thai'},
+        {'id': 'mma', 'name': 'MMA'}
+    ]
     return render_template(
         'loja.html',
         products=STORE_PRODUCTS,
         store_categories=store_categories,
+        store_sports=store_sports,
         page_title='Loja BJ Sports'
     )
 
@@ -2718,20 +2838,13 @@ def login():
         if action == 'login':
             login_input = request.form.get('portalCpf', '').strip()
             password_input = request.form.get('portalPassword', '')
-            clean_digits = ''.join(c for c in login_input if c.isdigit())
-            
+            login_cpf = normalize_cpf(login_input) if re.fullmatch(r'[0-9.\- ]+', login_input) else ''
             user = User.query.filter(
                 (db.func.lower(User.username) == login_input.casefold()) |
                 (db.func.lower(User.name) == login_input.casefold()) |
-                (User.cpf == login_input) |
-                (db.func.lower(User.email) == login_input.casefold())
+                (db.func.lower(User.email) == login_input.casefold()) |
+                (normalized_cpf_expression() == login_cpf if login_cpf else db.false())
             ).first()
-
-            if not user and clean_digits:
-                for u in User.query.all():
-                    if ''.join(c for c in u.cpf if c.isdigit()) == clean_digits:
-                        user = u
-                        break
 
             if user and user.check_password(password_input):
                 session.clear()
@@ -2756,7 +2869,7 @@ def login():
             username = request.form.get('regUsername', '').strip()
             name = request.form.get('regName', '').strip()
             cpf = request.form.get('regCpf', '').strip()
-            ddd = ''.join(c for c in request.form.get('regDDD', '') if c.isdigit())
+            ddd = request.form.get('regDDD', request.form.get('regDdd', '')).strip()
             phone = ''.join(c for c in request.form.get('regPhoneNumber', '') if c.isdigit())
             email = request.form.get('regEmail', '').strip().casefold()
             sex = request.form.get('regSex', 'prefer_not').strip()
@@ -2770,14 +2883,9 @@ def login():
             if not due_date or not due_date.isdigit() or not (1 <= int(due_date) <= 28):
                 due_date = today_reg_day
             password = request.form.get('regPass', '')
-            accepted_membership_terms = request.form.get('acceptMembershipTerms') == 'on'
-            acknowledged_privacy = request.form.get('acknowledgePrivacy') == 'on'
-            accepted_legal_capacity = request.form.get('confirmLegalCapacity') == 'on'
-            image_consent_scope = request.form.get('imageConsentScope', '')
             guardian_name = request.form.get('imageGuardianName', '').strip()
-            guardian_cpf = request.form.get('imageGuardianCpf', '').strip()
+            guardian_cpf = normalize_cpf(request.form.get('imageGuardianCpf', ''))
             guardian_relationship = request.form.get('imageGuardianRelationship', '').strip()
-            image_use_consent = image_consent_scope in {'adult', 'minor_guardian'}
             birth_date_raw = request.form.get('regBirthDate', '').strip()
             birth_date = None
             is_minor_by_birth_date = False
@@ -2787,7 +2895,7 @@ def login():
             is_experimental = request.form.get('isExperimentalClass') == '1'
             medical_restriction_val = (medical_restriction_details or 'Possui restrição médica') if has_medical_restriction else None
 
-            cpf_digits = ''.join(c for c in cpf if c.isdigit())
+            cpf_digits = normalize_cpf(cpf)
             errors = []
             try:
                 birth_date = datetime.strptime(birth_date_raw, '%Y-%m-%d').date()
@@ -2796,10 +2904,21 @@ def login():
                     raise ValueError
             except (TypeError, ValueError):
                 errors.append('Informe uma data de nascimento válida.')
+            if birth_date:
+                is_minor_by_birth_date = age_on(birth_date, datetime.now().date()) < 18
+            if is_minor_by_birth_date:
+                if not 3 <= len(guardian_name) <= 120:
+                    errors.append('Informe o nome completo do responsável legal pelo menor.')
+                if not is_valid_cpf(guardian_cpf):
+                    errors.append('Informe um CPF válido para o responsável legal.')
+                elif guardian_cpf == cpf_digits:
+                    errors.append('O CPF do responsável deve ser diferente do CPF do aluno.')
+                if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
+                    errors.append('Informe o vínculo do responsável legal pelo menor.')
             if not re.fullmatch(r'[A-Za-z0-9_.-]{3,80}', username): errors.append('Usuário deve ter de 3 a 80 caracteres válidos.')
             if len(name) < 3: errors.append('Informe o nome completo.')
             if not is_valid_cpf(cpf_digits): errors.append('CPF inválido.')
-            if not re.fullmatch(r'\d{2}', ddd) or not re.fullmatch(r'\d{9}', phone): errors.append('Telefone inválido.')
+            if ddd not in BRAZIL_DDDS or not re.fullmatch(r'9[0-9]{8}', phone): errors.append('Telefone inválido. Escolha um DDD brasileiro e informe os 9 dígitos do celular.')
             if len(email) > 254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email): errors.append('Informe um e-mail válido.')
             if sex not in {'masculino', 'feminino', 'prefer_not'}: errors.append('Escolha uma opção válida para sexo.')
             if (len(password) < 8 or not re.search(r'\d', password)
@@ -2851,7 +2970,7 @@ def login():
                 return redirect(url_for('login', mode='register'))
 
             existing_username = User.query.filter(User.username == username).first()
-            existing_cpf = User.query.filter(User.cpf == cpf).first()
+            existing_cpf = User.query.filter(normalized_cpf_expression() == cpf_digits).first()
             existing_email = User.query.filter(db.func.lower(User.email) == email).first()
 
             if existing_username:
@@ -2864,11 +2983,11 @@ def login():
                 flash(f'O e-mail {email} já está cadastrado na plataforma.', 'error')
                 return redirect(url_for('login', mode='register'))
 
-            if True:
+            try:
                 new_user = User(
                     username=username,
                     name=name,
-                    cpf=cpf,
+                    cpf=cpf_digits,
                     ddd=ddd,
                     phone=phone,
                     email=email,
@@ -2878,16 +2997,17 @@ def login():
                     start_month=datetime.now().month,
                     role='aluno',
                     payment_status='Pendente',
+                    contract_due_at=datetime.utcnow() + timedelta(hours=60),
                     membership_terms_version=None,
                     membership_terms_accepted_at=None,
                     privacy_notice_version=None,
                     privacy_notice_accepted_at=None,
                     image_use_consent=False,
                     image_use_consent_at=None,
-                    image_consent_scope=None,
-                    image_consent_guardian_name=None,
-                    image_consent_guardian_cpf=None,
-                    image_consent_guardian_relationship=None,
+                    image_consent_scope='none',
+                    image_consent_guardian_name=guardian_name if is_minor_by_birth_date else None,
+                    image_consent_guardian_cpf=guardian_cpf if is_minor_by_birth_date else None,
+                    image_consent_guardian_relationship=guardian_relationship if is_minor_by_birth_date else None,
                     medical_restriction=medical_restriction_val,
                     is_experimental=is_experimental,
                     birth_date=birth_date,
@@ -2899,15 +3019,9 @@ def login():
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
-                db.session.flush()
-                db.session.add(ContractAcceptance(
-                    user_id=new_user.id,
-                    membership_terms_version=MEMBERSHIP_TERMS_VERSION,
-                    privacy_notice_version=PRIVACY_NOTICE_VERSION,
-                    image_consent_scope=image_consent_scope,
-                    source='registration',
-                ))
+                # A conta nasce pendente. O aceite só é criado no formulário do contrato.
                 db.session.commit()
+                session.clear()
                 session['user_id'] = new_user.id
                 session['user_name'] = new_user.name
                 session['username'] = new_user.username
@@ -2915,6 +3029,10 @@ def login():
                 session['user_plan'] = new_user.plan
                 session['user_due_date'] = new_user.due_date
                 session['first_registration'] = True
+            except IntegrityError:
+                db.session.rollback()
+                flash('Usuário, CPF ou e-mail já cadastrado. Confira os dados ou entre na sua conta.', 'error')
+                return redirect(url_for('login', mode='register'))
             return redirect(url_for('dashboard'))
 
         elif action == 'update_due_date':
@@ -2977,7 +3095,7 @@ def login():
         professional_groups[group].append({'username': professional.username, 'name': professional.name})
 
     return render_template('login.html', page_title='Área de Membros', is_logged_in=False,
-                           available_plans=available_plans,
+                           available_plans=available_plans, brazil_ddds=BRAZIL_DDDS,
                            registration_modalities=registration_modalities,
                            registration_combos=registration_combos,
                            professional_groups=professional_groups,
@@ -3025,7 +3143,7 @@ def presencas():
     if request.method == 'POST':
         action = request.form.get('action', 'request_checkin')
         if action in {'confirm_attendance', 'reject_attendance'}:
-            if session.get('user_role') not in {'monitor', 'instrutor'}:
+            if user.role not in {'monitor', 'instrutor'}:
                 flash('Somente monitores e instrutores podem analisar presenças.', 'error')
                 return redirect(url_for('presencas'))
             attendance = db.session.get(Attendance, request.form.get('attendance_id', type=int))
@@ -3079,77 +3197,48 @@ def presencas():
             db.session.rollback()
             return redirect(url_for('presencas'))
 
-        # VALIDAÇÃO DE TURMA E DIA AUTORIZADO DO ALUNO
         today_date = datetime.now().date()
-        today_weekday = today_date.weekday()
-        weekday_names = {0: 'Segunda-feira', 1: 'Terça-feira', 2: 'Quarta-feira', 3: 'Quinta-feira', 4: 'Sexta-feira', 5: 'Sábado', 6: 'Domingo'}
-        today_name = weekday_names.get(today_weekday, '')
-
-        target_class_id = request.form.get('class_group_id', type=int)
-        target_class = db.session.get(ClassGroup, target_class_id) if target_class_id else None
-        is_experimental = request.form.get('is_experimental') == '1'
-
-        enrolled_class_ids = {enrollment.class_group_id for enrollment in user_active_enrollments}
-        if is_experimental and user_active_enrollments and (
-                target_class is None or target_class.id in enrolled_class_ids):
-            flash('Aula experimental indisponível: você já está matriculado nesta turma.', 'error')
+        slot = request.form.get('class_slot', '')
+        group_id, _, class_time = slot.partition('|')
+        target_id = int(group_id) if group_id.isdigit() else request.form.get('class_group_id', type=int)
+        target = db.session.get(ClassGroup, target_id) if target_id else None
+        experimental = request.form.get('is_experimental') == '1'
+        if not target:
+            flash('Selecione a turma e o horário da aula de hoje.', 'error')
             return redirect(url_for('presencas'))
-
-        allowed_weekdays = set()
-
-        if user_active_enrollments:
-            for enr in user_active_enrollments:
-                cg = enr.class_group
-                for sch in (cg.schedules or []):
-                    sch_lower = sch.lower()
-                    if 'seg' in sch_lower: allowed_weekdays.add(0)
-                    if 'ter' in sch_lower: allowed_weekdays.add(1)
-                    if 'qua' in sch_lower: allowed_weekdays.add(2)
-                    if 'qui' in sch_lower: allowed_weekdays.add(3)
-                    if 'sex' in sch_lower: allowed_weekdays.add(4)
-                    if 'sáb' in sch_lower or 'sab' in sch_lower: allowed_weekdays.add(5)
-                    if 'dom' in sch_lower: allowed_weekdays.add(6)
-
-        if not allowed_weekdays:
-            normalized_plan = (user.plan or '').lower()
-            if 'passe livre' in normalized_plan or 'combo' in normalized_plan or 'todos os dias' in normalized_plan:
-                allowed_weekdays = {0, 1, 2, 3, 4, 5, 6}
-            elif all(d in normalized_plan for d in ('seg', 'qua', 'sex')):
-                allowed_weekdays = {0, 2, 4}
-            elif all(d in normalized_plan for d in ('ter', 'qui')):
-                allowed_weekdays = {1, 3}
-            else:
-                allowed_weekdays = {0, 1, 2, 3, 4, 5}
-
-        # 1. Bloqueia se hoje não for um dia de treino autorizado para o aluno
-        if today_weekday not in allowed_weekdays:
-            flash(f'⚠️ Check-in não permitido: você não possui treino agendado para hoje ({today_name}) no seu plano/turma ({user.plan}).', 'error')
-            return redirect(url_for('presencas'))
-
-        # 2. Bloqueia se o aluno tentar fazer check-in numa turma onde não está inscrito
-        if target_class and user_active_enrollments:
-            if target_class.id not in enrolled_class_ids:
-                flash(f'⚠️ Check-in não permitido: você não está cadastrado na turma "{target_class.name}". Você só pode fazer check-in nas turmas em que está matriculado.', 'error')
-                return redirect(url_for('presencas'))
-
-        existing = Attendance.query.filter_by(user_id=session['user_id'], training_date=today_date).first()
-        if existing:
-            if existing.status == 'confirmado':
-                message = 'Sua presença de hoje já foi confirmada.'
-            elif existing.status == 'negado':
-                message = 'Seu check-in de hoje não foi confirmado pelo instrutor.'
-            else:
-                message = 'Seu check-in de hoje já está aguardando confirmação do instrutor.'
-            flash(message, 'info')
+        # Serializa matrícula/solicitação por aluno e a disputa pela última vaga.
+        db.session.execute(User.__table__.update().where(User.id == user.id).values(name=User.name))
+        db.session.execute(ClassGroup.__table__.update().where(ClassGroup.id == target.id).values(name=ClassGroup.name))
+        db.session.refresh(target)
+        occurrences = class_occurrences_for_weekday(target, today_date.weekday())
+        if not class_time and len(occurrences) == 1:
+            class_time = occurrences[0]['start_time']
+        occurrence = next((item for item in occurrences if item['start_time'] == class_time), None)
+        error = None
+        if target.status not in {'ativa', 'lotada'} or not occurrence:
+            error = 'A turma escolhida está inativa ou não possui esta aula hoje.'
         else:
-            active_enrollment = target_class or next((item.class_group for item in user_active_enrollments), None)
-            db.session.add(Attendance(
-                user_id=session['user_id'], status='pendente',
-                modality=active_enrollment.modality if active_enrollment else get_attendance_modality(user.plan),
-                class_group_id=active_enrollment.id if active_enrollment else None,
-            ))
-            db.session.commit()
-            flash('Check-in enviado! Aguarde a confirmação do instrutor.', 'success')
+            error = portal_class_eligibility(user, target, today_date, experimental)
+        if not error and not portal_class_has_space(user, target, today_date, class_time):
+            error = 'Esta aula está lotada ou sem capacidade disponível.'
+        if error:
+            db.session.rollback()
+            flash(error, 'error')
+            return redirect(url_for('presencas'))
+        existing = Attendance.query.filter_by(user_id=user.id, training_date=today_date,
+                         class_group_id=target.id, class_time=class_time).first()
+        if existing:
+            db.session.rollback()
+            flash('Esta aula já possui um check-in registrado.', 'info')
+        else:
+            db.session.add(Attendance(user_id=user.id, training_date=today_date, status='pendente',
+                                     modality=target.modality, class_group_id=target.id, class_time=class_time))
+            try:
+                db.session.commit()
+                flash('Check-in enviado! Aguarde a confirmação do instrutor.', 'success')
+            except IntegrityError:
+                db.session.rollback()
+                flash('Esta aula já possui um check-in registrado.', 'info')
         return redirect(url_for('presencas'))
     today = datetime.now().date()
     confirmed_query = Attendance.query.filter_by(user_id=user.id, status='confirmado')
@@ -3207,9 +3296,22 @@ def presencas():
                     credit_slots.append({'value': f"{group.id}|{occurrence['start_time']}",
                                          'label': f"{group.name} • {occurrence['start_time']}"})
 
+    portal_slots = []
+    if not credit_balance:
+        registered = {(item.class_group_id, item.class_time) for item in Attendance.query.filter_by(
+            user_id=user.id, training_date=today).all()}
+        for group in ClassGroup.query.filter(ClassGroup.status.in_(['ativa', 'lotada'])).order_by(ClassGroup.name).all():
+            if portal_class_eligibility(user, group, today, experimental=not bool(user_active_enrollments)):
+                continue
+            for occurrence in class_occurrences_for_weekday(group, today.weekday()):
+                if ((group.id, occurrence['start_time']) not in registered
+                        and portal_class_has_space(user, group, today, occurrence['start_time'])):
+                    portal_slots.append({'value': f"{group.id}|{occurrence['start_time']}",
+                                         'label': f"{group.name} • {occurrence['start_time']}"})
+
     pending_confirmations = []
     pending_confirmation_groups = []
-    if session.get('user_role') in {'monitor', 'instrutor'}:
+    if user.role in {'monitor', 'instrutor'}:
         pending_confirmations = Attendance.query.filter_by(status='pendente').order_by(
             Attendance.training_date.desc(), Attendance.modality.asc(), Attendance.created_at.asc()
         ).all()
@@ -3223,7 +3325,7 @@ def presencas():
             group_map[key]['items'].append(attendance)
     return render_template('presencas.html', page_title='Presenças & Treinos',
                            has_overdue=has_overdue,
-                           credit_balance=credit_balance, credit_slots=credit_slots,
+                           credit_balance=credit_balance, credit_slots=credit_slots, portal_slots=portal_slots,
                            attendance_windows=attendance_windows,
                            attendance_expected=attendance_expected,
                            attendance_percentages=attendance_percentages,
@@ -3416,18 +3518,71 @@ def cards_planos():
         total_revenue=f"R$ {total_revenue_estimated:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
     )
 
-@app.route('/planos_admin', methods=['GET', 'POST'])
-@app.route('/planos_admin.html', methods=['GET', 'POST'])
+@app.route('/planos_admin')
+@app.route('/planos_admin.html')
 @role_required('instrutor')
 def planos_admin():
+    """Compatibilidade de favoritos; operações usam exclusivamente a gestão unificada."""
+    plan_tab = 'plans' if request.args.get('tab') == 'plans' else 'modalities'
+    return redirect(url_for('gestao_turmas', tab='plans', plan_tab=plan_tab))
+
+
+def render_plan_catalog(active_tab, form_state=None, status=200):
+    plans_list = Plan.query.order_by(Plan.category, Plan.name).all()
+    usage = {plan.id: User.query.filter(User.plan.ilike(f'{plan.name}%')).count() for plan in plans_list}
+    active_class_groups = ClassGroup.query.filter_by(status='ativa').order_by(ClassGroup.name).all()
+    schedules_by_modality = {}
+    for class_group in active_class_groups:
+        schedules_by_modality.setdefault(class_group.modality, [])
+        for schedule in class_group.schedules:
+            if schedule not in schedules_by_modality[class_group.modality]:
+                schedules_by_modality[class_group.modality].append(schedule)
+    plan_schedules = {}
+    for plan in plans_list:
+        plan_schedules[plan.id] = []
+        for modality in plan.get_modalities():
+            for schedule in schedules_by_modality.get(modality, []):
+                if schedule not in plan_schedules[plan.id]:
+                    plan_schedules[plan.id].append(schedule)
+    return render_template(
+        'gestao_turmas.html', page_title='Turmas e planos', management_tab='plans',
+        plans=plans_list, plan_usage=usage, allowed_modalities=CLASS_MODALITIES,
+        individual_count=sum(1 for plan in plans_list if plan.category == 'Planos Individuais'),
+        special_count=sum(1 for plan in plans_list if plan.category != 'Planos Individuais'),
+        active_tab=active_tab, plan_schedules=plan_schedules, plan_form_state=form_state,
+    ), status
+
+
+def manage_plan_catalog():
+    """Chamado somente pela rota de gestão protegida para instrutores."""
     allowed_categories = {'Planos Individuais', 'Combos & Planos Especiais'}
-    allowed_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
-    return_tab = request.form.get('return_tab', request.args.get('tab', 'modalities'))
+    allowed_modalities = CLASS_MODALITIES
+    return_tab = request.form.get('return_tab', request.args.get('plan_tab', 'modalities'))
     if return_tab not in {'modalities', 'plans'}:
         return_tab = 'modalities'
 
     def admin_redirect():
-        return redirect(url_for('planos_admin', tab=return_tab))
+        return redirect(url_for('gestao_turmas', tab='plans', plan_tab=return_tab))
+
+    def invalid_plan(errors):
+        # Reapresentar no mesmo POST: nenhum valor do formulário vai para o cookie.
+        fields = {'action', 'plan_id', 'return_tab', 'name', 'category', 'price',
+                  'price_ter_qui', 'price_seg_qua_sex', 'price_all_days', 'sub',
+                  'features', 'modalities', 'discount_percent', 'selection_count',
+                  'shared_type', 'force_all_days', 'is_featured'}
+        state = {'errors': errors, 'data': {
+            key: request.form.getlist(key) for key in fields if key in request.form
+        }}
+        return render_plan_catalog(return_tab, state, status=400)
+
+    def save_plan():
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            app.logger.exception('Erro ao salvar plano')
+            return invalid_plan(['Não foi possível gravar o plano. Nenhuma alteração foi salva. Tente novamente.'])
+        return None
 
     def plan_form_values():
         name = request.form.get('name', '').strip()
@@ -3490,15 +3645,13 @@ def planos_admin():
 
     if request.method == 'POST':
         action = request.form.get('action')
-        if action == 'create':
+        if action == 'plan_create':
             (name, category, price, sub, features, modalities, schedule_prices,
              discount_percent, selection_count, shared_type, force_all_days, errors) = plan_form_values()
             if Plan.query.filter(db.func.lower(Plan.name) == name.casefold()).first():
                 errors.append('Já existe um plano com esse nome.')
             if errors:
-                for error in errors:
-                    flash(error, 'error')
-                return admin_redirect()
+                return invalid_plan(errors)
             is_featured = 'is_featured' in request.form
             new_plan = Plan(
                 name=name, category=category, price=price, sub=sub or None,
@@ -3511,11 +3664,15 @@ def planos_admin():
                 force_all_days=force_all_days,
             )
             db.session.add(new_plan)
-            db.session.commit()
+            error_response = save_plan()
+            if error_response:
+                return error_response
             flash(f'Plano e modalidades de “{name}” cadastrados. O catálogo já foi atualizado.', 'success')
-        elif action == 'update':
+        elif action == 'plan_update':
             plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
+            if not plan:
+                abort(404)
             if plan:
                 (name, category, price, sub, features, modalities, schedule_prices,
                  discount_percent, selection_count, shared_type, force_all_days, errors) = plan_form_values()
@@ -3523,9 +3680,7 @@ def planos_admin():
                 if duplicate:
                     errors.append('Já existe outro plano com esse nome.')
                 if errors:
-                    for error in errors:
-                        flash(error, 'error')
-                    return admin_redirect()
+                    return invalid_plan(errors)
                 old_name, old_price = plan.name, plan.price
                 old_schedule_prices = {
                     key: plan.get_price_for_schedule(key)
@@ -3557,11 +3712,15 @@ def planos_admin():
                         updated_plan = updated_plan.replace(old_price, current_price, 1)
                     user.plan = updated_plan
                     synchronized += 1
-                db.session.commit()
+                error_response = save_plan()
+                if error_response:
+                    return error_response
                 flash(f'“{plan.name}” atualizado em todo o sistema e em {synchronized} matrícula(s).', 'success')
-        elif action == 'delete':
+        elif action == 'plan_delete':
             plan_id = request.form.get('plan_id', type=int)
             plan = db.session.get(Plan, plan_id)
+            if not plan:
+                abort(404)
             if plan:
                 linked_users = User.query.filter(User.plan.ilike(f'{plan.name}%')).count()
                 if linked_users:
@@ -3572,29 +3731,7 @@ def planos_admin():
                 flash(f'Plano “{plan.name}” removido do catálogo.', 'info')
         return admin_redirect()
 
-    plans_list = Plan.query.order_by(Plan.category, Plan.name).all()
-    usage = {plan.id: User.query.filter(User.plan.ilike(f'{plan.name}%')).count() for plan in plans_list}
-    active_class_groups = ClassGroup.query.filter_by(status='ativa').order_by(ClassGroup.name).all()
-    schedules_by_modality = {}
-    for class_group in active_class_groups:
-        schedules_by_modality.setdefault(class_group.modality, [])
-        for schedule in class_group.schedules:
-            if schedule not in schedules_by_modality[class_group.modality]:
-                schedules_by_modality[class_group.modality].append(schedule)
-    plan_schedules = {}
-    for plan in plans_list:
-        plan_schedules[plan.id] = []
-        for modality in plan.get_modalities():
-            for schedule in schedules_by_modality.get(modality, []):
-                if schedule not in plan_schedules[plan.id]:
-                    plan_schedules[plan.id].append(schedule)
-    return render_template(
-        'planos_admin.html', page_title='Planos e Modalidades', plans=plans_list,
-        plan_usage=usage, allowed_modalities=sorted(allowed_modalities),
-        individual_count=sum(1 for plan in plans_list if plan.category == 'Planos Individuais'),
-        special_count=sum(1 for plan in plans_list if plan.category != 'Planos Individuais'),
-        active_tab=return_tab, plan_schedules=plan_schedules,
-    )
+    return render_plan_catalog(return_tab)
 
 @app.route('/gestao/turmas', methods=['GET', 'POST'])
 @app.route('/gestao/turmas.html', methods=['GET', 'POST'])
@@ -3604,6 +3741,14 @@ def planos_admin():
 @app.route('/gestao_turmas.html', methods=['GET', 'POST'])
 @role_required('instrutor')
 def gestao_turmas():
+    plan_actions = {'plan_create', 'plan_update', 'plan_delete'}
+    action = request.form.get('action', '')
+    if request.args.get('tab') == 'plans' or action in plan_actions:
+        if request.method == 'POST' and action not in plan_actions:
+            abort(400)
+        return manage_plan_catalog()
+    if request.method == 'POST' and action not in {'create', 'update'}:
+        abort(400)
     ensure_class_groups()
     class_form_state = session.pop('class_form_state', None)
 
@@ -3612,7 +3757,7 @@ def gestao_turmas():
             key: value for key, value in request.form.items()
             if key != 'csrf_token' and key in {
                 'action', 'class_id', 'class_name', 'class_location_slug', 'class_modality',
-                'class_audience', 'class_icon', 'class_schedule', 'class_instructor',
+                'class_audience', 'class_min_age', 'class_max_age', 'class_icon', 'class_schedule', 'class_instructor',
                 'responsible_monitor_id', 'class_capacity', 'class_value', 'class_duration',
                 'class_status', 'publish_public',
             }
@@ -3629,6 +3774,13 @@ def gestao_turmas():
         name = request.form.get('class_name', '').strip()
         modality = request.form.get('class_modality', '').strip()
         audience = request.form.get('class_audience', '').strip()
+        try:
+            min_age, max_age = parse_age_limits(
+                request.form.get('class_min_age', class_group.min_age),
+                request.form.get('class_max_age', class_group.max_age),
+            )
+        except ValueError as exc:
+            return return_to_class_form(str(exc))
         schedules = parse_class_schedules(request.form.get('class_schedule'))
         instructor = request.form.get('class_instructor', '').strip()
         responsible_monitor_id = request.form.get('responsible_monitor_id', type=int)
@@ -3653,7 +3805,7 @@ def gestao_turmas():
         validation_error = None
         if not name:
             validation_error = 'Informe o nome da turma.'
-        elif modality not in {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}:
+        elif modality not in CLASS_MODALITIES:
             validation_error = 'Selecione uma modalidade válida.'
         elif audience not in {'Adulto', 'Kids', 'Todos'}:
             validation_error = 'Selecione um público válido.'
@@ -3680,6 +3832,7 @@ def gestao_turmas():
         class_group.name = name
         class_group.modality = modality
         class_group.audience = audience
+        class_group.min_age, class_group.max_age = min_age, max_age
         class_group.schedules = schedules
         class_group.instructor = instructor
         class_group.responsible_monitor = responsible_monitor
@@ -3769,7 +3922,7 @@ def gestao_turmas():
     }
 
     modalities_smart_metrics = []
-    for mod in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA']:
+    for mod in CLASS_MODALITIES:
         mod_classes = [c for c in all_classes if c.modality == mod]
         mod_capacity = sum(c.capacity for c in mod_classes)
         mod_enrolled = sum(c.enrolled for c in mod_classes)
@@ -3819,7 +3972,8 @@ def gestao_turmas():
         })
 
     return render_template(
-        'gestao_turmas.html', page_title='Gestão de Turmas e Filiais', classes=classes, overview=overview,
+        'gestao_turmas.html', page_title='Turmas e planos', management_tab='classes',
+        allowed_modalities=CLASS_MODALITIES, classes=classes, overview=overview,
         modalities_smart=modalities_smart_metrics, search_query=search_query,
         modality_filter=modality_filter, status_filter=status_filter, location_filter=location_filter,
         locations_dict=get_locations_dict(),
@@ -5129,34 +5283,47 @@ def integracoes_catraca():
 def catraca_app_view():
     return render_template('catraca_app.html')
 
+@app.route('/catracadoc')
+@app.route('/catracadoc.html')
+def pagina_catraca_doc():
+    info = firmware_info(os.path.join(app.root_path, 'firmware'))
+    return render_template('catraca_doc.html', firmware_version=info['version'])
+
+
 @app.route('/esp')
 @app.route('/esp.html')
 def pagina_esp_hub():
-    ino_path = os.path.join(app.root_path, 'firmware', 'esp32_catraca', 'esp32_catraca.ino')
-    ino_exists = os.path.exists(ino_path)
-    bin_path = os.path.join(app.root_path, 'firmware', 'esp32_catraca', 'firmware.bin')
-    bin_exists = os.path.exists(bin_path)
-    return render_template(
-        'esp_catraca.html',
-        page_title='BJ Sports • Central ESP32 Catraca',
-        ino_exists=ino_exists,
-        bin_exists=bin_exists,
-        firmware_version='v2.1.0-OTA'
-    )
+    info = firmware_info(os.path.join(app.root_path, 'firmware'))
+    return render_template('esp_catraca.html', page_title='BJ Sports • Central ESP32 Catraca',
+                           firmware_version=info['version'], bin_exists=info['bin_exists'])
+
+
+@app.route('/api/firmware/source.zip')
+def api_firmware_source():
+    return send_file(source_archive(os.path.join(app.root_path, 'firmware')),
+                     mimetype='application/zip', as_attachment=True,
+                     download_name='bjsports-firmware.zip')
+
 
 @app.route('/api/firmware/download/<filename>')
 def api_firmware_download(filename):
-    if filename not in {'esp32_catraca.ino', 'firmware.bin'}:
+    if filename not in {'esp32_catraca.ino', 'access_policy.h', 'firmware.bin'}:
         abort(404)
-    fw_dir = os.path.join(app.root_path, 'firmware', 'esp32_catraca')
-    return send_from_directory(fw_dir, filename, as_attachment=True)
+    if filename == 'firmware.bin' and not firmware_info(os.path.join(app.root_path, 'firmware'))['bin_exists']:
+        abort(404)
+    return send_from_directory(os.path.join(app.root_path, 'firmware', 'esp32_catraca'),
+                               filename, as_attachment=True)
+
 
 @app.route('/api/firmware/check', methods=['GET'])
 def api_firmware_check():
+    info = firmware_info(os.path.join(app.root_path, 'firmware'))
     return jsonify({
-        'device': 'ESP32-WROOM-32',
-        'latest_version': 'v2.1.0-OTA',
-        'download_url': f"{request.host_url.rstrip('/')}/api/firmware/download/firmware.bin",
+        'device': 'ESP32-WROOM-32', 'latest_version': info['version'],
+        'binary_available': info['bin_exists'],
+        'download_url': (f"{request.host_url.rstrip('/')}/api/firmware/download/firmware.bin"
+                         if info['bin_exists'] else None),
+        'source_url': f"{request.host_url.rstrip('/')}/api/firmware/source.zip",
         'mandatory': False
     }), 200
 
@@ -5521,14 +5688,15 @@ def gestao_modalidades_combo():
 def contrato():
     user = db.session.get(User, session['user_id'])
     authorized_image_scopes = {'adult', 'minor_guardian'}
-    image_authorization_required = user.image_consent_scope not in authorized_image_scopes
-    is_pending = (
-        user.membership_terms_version != MEMBERSHIP_TERMS_VERSION
-        or user.privacy_notice_version != PRIVACY_NOTICE_VERSION
-        or image_authorization_required
-    )
+    is_minor = bool(user.birth_date and age_on(user.birth_date, datetime.now().date()) < 18)
+    image_authorization_required = (user.image_consent_scope not in authorized_image_scopes
+                                    or not user.image_use_consent or not user.image_use_consent_at)
+    is_pending = contract_status(user)['pending']
 
     if request.method == 'POST':
+        db.session.execute(User.__table__.update().where(User.id == user.id).values(name=User.name))
+        db.session.refresh(user)
+        is_pending = contract_status(user)['pending']
         submitted_image_scope = request.form.get('imageConsentScope', '').strip()
         effective_image_scope = (
             user.image_consent_scope
@@ -5536,16 +5704,18 @@ def contrato():
             else submitted_image_scope
         )
         guardian_name = request.form.get('imageGuardianName', '').strip()
-        guardian_cpf = request.form.get('imageGuardianCpf', '').strip()
+        guardian_cpf = normalize_cpf(request.form.get('imageGuardianCpf', ''))
         guardian_relationship = request.form.get('imageGuardianRelationship', '').strip()
         image_errors = []
+        if is_minor and effective_image_scope != 'minor_guardian':
+            image_errors.append('O contrato de aluno menor deve ser confirmado pelo responsável legal.')
         if effective_image_scope not in authorized_image_scopes:
             image_errors.append('Autorize o uso de imagem para aceitar esta versão do contrato.')
         elif effective_image_scope == 'minor_guardian' and image_authorization_required:
             guardian_cpf_digits = ''.join(character for character in guardian_cpf if character.isdigit())
-            if len(guardian_name) < 3:
+            if not 3 <= len(guardian_name) <= 120:
                 image_errors.append('Informe o nome completo do responsável pela autorização de imagem do menor.')
-            if not is_valid_cpf(guardian_cpf_digits):
+            if not is_valid_cpf(guardian_cpf_digits) or guardian_cpf_digits == normalize_cpf(user.cpf):
                 image_errors.append('Informe um CPF válido para o responsável pela autorização de imagem.')
             if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
                 image_errors.append('Informe o vínculo do responsável legal pelo menor.')
@@ -5581,6 +5751,7 @@ def contrato():
             ))
             db.session.commit()
             flash('Atualização do contrato aceita e registrada com sucesso.', 'success')
+        db.session.rollback()  # Libera a trava também nas validações recusadas.
         return redirect(url_for('contrato'))
 
     consent_labels = {
@@ -5597,7 +5768,7 @@ def contrato():
         current_privacy_version=PRIVACY_NOTICE_VERSION,
         contract_plan_text=user.plan, contract_due_text=f'dia {user.due_date} de cada mês',
         image_consent_label=consent_labels.get(user.image_consent_scope, consent_labels['none']),
-        image_authorization_required=image_authorization_required,
+        image_authorization_required=image_authorization_required, contract_is_minor=is_minor,
         acceptance_history=history,
     )
 
