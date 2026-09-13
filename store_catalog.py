@@ -150,6 +150,7 @@ STORE_PRODUCTS = [
         'price': 399.90,
         'old_price': 449.90,
         'icon': '🥊',
+        'image': 'img/store/luva_pro_sparring.jpg',
         'badge': 'Destaque',
         'sizes': ['12 oz', '14 oz', '16 oz'],
         'description': 'Proteção multicamadas com espuma injetada e fecho em velcro reforçado para treinos pesados de sparring.'
@@ -162,7 +163,8 @@ STORE_PRODUCTS = [
         'price': 249.90,
         'old_price': 289.90,
         'icon': '🥊',
-        'badge': '',
+        'image': 'img/store/luva_training_fit.jpg',
+        'badge': 'Treino',
         'sizes': ['10 oz', '12 oz', '14 oz'],
         'description': 'Modelo versátil para treinos em saco de pancadas, manoplas e aulas técnicas de Boxe e Muay Thai.'
     },
@@ -174,6 +176,7 @@ STORE_PRODUCTS = [
         'price': 279.90,
         'old_price': 319.90,
         'icon': '🪖',
+        'image': 'img/store/capacete_sparring.jpg',
         'badge': 'Segurança',
         'sizes': ['P', 'M', 'G'],
         'description': 'Proteção anatômica para queixo, pômulo e orelhas com regulagem tripla na nuca e topo.'
@@ -185,7 +188,8 @@ STORE_PRODUCTS = [
         'name': 'Bandagem Elástica 4,5m (Par)',
         'price': 39.90,
         'icon': '🩹',
-        'badge': '',
+        'image': 'img/store/bandagem_elastica.jpg',
+        'badge': 'Essencial',
         'sizes': ['Par (4,5m)'],
         'description': 'Bandagens de alta elasticidade e respirabilidade para fixação das articulações da mão e punho.'
     },
@@ -196,7 +200,8 @@ STORE_PRODUCTS = [
         'name': 'Protetor Bucal Moldável Dual Density',
         'price': 59.90,
         'icon': '🛡️',
-        'badge': '',
+        'image': 'img/store/protetor_bucal.jpg',
+        'badge': 'Proteção',
         'sizes': ['Adulto'],
         'description': 'Moldagem térmica dual density com canal de respiração frontal e estojo protetor antibacteriano.'
     },
@@ -207,7 +212,8 @@ STORE_PRODUCTS = [
         'name': 'Manopla Curva Focus Pad (Par)',
         'price': 189.90,
         'icon': '🎯',
-        'badge': '',
+        'image': 'img/store/manopla_curva.jpg',
+        'badge': 'Precisão',
         'sizes': ['Par'],
         'description': 'Alvo curvo em P.U. reforçado para treinos de velocidade, combinação de golpes e manopla.'
     },
@@ -218,7 +224,8 @@ STORE_PRODUCTS = [
         'name': 'Corda Speed Rope Pro',
         'price': 69.90,
         'icon': '⚡',
-        'badge': '',
+        'image': 'img/store/corda_speed_rope.jpg',
+        'badge': 'Velocidade',
         'sizes': ['Ajustável (3m)'],
         'description': 'Corda de pular com rolamento rápido e cabo metálico encapado ajustável para alto rendimento.'
     },
@@ -230,7 +237,8 @@ STORE_PRODUCTS = [
         'price': 649.90,
         'old_price': 699.90,
         'icon': '💥',
-        'badge': 'Sob encomenda',
+        'image': 'img/store/saco_pancadas.jpg',
+        'badge': 'Heavy Duty',
         'sizes': ['90 × 30 cm'],
         'description': 'Estrutura ultra-resistente em couro ecológico com correntes e giratório de aço.'
     },
