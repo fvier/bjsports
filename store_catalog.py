@@ -183,13 +183,14 @@ STORE_PRODUCTS = [
         'id': 'BJJ-010',
         'sport': 'jiu-jitsu',
         'category': 'Acessórios BJJ',
-        'name': 'Bolsa Tatame 35L BJ Sports',
+        'name': 'Bolsa Mochila Grande Respirável com Alça Removivel Muay Thai Boxe Jiu Jitsu',
         'price': 189.90,
         'old_price': 219.90,
         'icon': '🎒',
-        'badge': 'Tático',
-        'sizes': ['Único (35L)'],
-        'description': 'Mochila tática 35L com compartimento ventilado para kimono e bolsos impermeáveis para acessórios.'
+        'image': 'img/store/bolsa_mochila_respiravel.jpg',
+        'badge': 'Ventilada',
+        'sizes': ['Único (Grande)'],
+        'description': 'Bolsa mochila esportiva grande e ultra-respirável em tela mesh de alta resistência, com alça de ombro removível e compartimento ventilado para equipamentos de Muay Thai, Boxe e Jiu-Jitsu.'
     },
     {
         'id': 'BOX-001',
