@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">
 
 <main class="store-page">
@@ -78,10 +79,12 @@
           <small>Valores ilustrativos para discussão</small>
         </div>
         <div class="store-toolbar-actions">
-          {% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
           {% if can_user_edit %}
           <button type="button" class="store-add-product-btn" id="openAddProductModalBtn">
             <i data-lucide="plus-circle"></i> + Adicionar Produto
+          </button>
+          <button type="button" class="store-analyze-images-btn" id="openImageOptimizerBtn">
+            <i data-lucide="image"></i> Analisar Imagens
           </button>
           {% endif %}
           <label>Ordenar por
@@ -578,6 +581,89 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal Otimizador & Diagnóstico de Imagens -->
+<div id="imageOptimizerModal" class="store-edit-modal-backdrop hidden" aria-hidden="true">
+  <div class="store-edit-modal store-optimizer-modal-container">
+    <div class="store-edit-modal-header">
+      <div>
+        <h3><i data-lucide="image"></i> Diagnóstico e Auditoria de Imagens</h3>
+        <small>Varredura em tempo real, análise de peso/resolução e otimização para WebP</small>
+      </div>
+      <button type="button" class="store-edit-modal-close" id="closeImageOptimizerModalBtn" aria-label="Fechar">&times;</button>
+    </div>
+
+    <!-- Cards de KPIs -->
+    <div class="optimizer-kpi-grid">
+      <div class="optimizer-kpi-card">
+        <span class="kpi-value" id="kpiTotalScanned">0</span>
+        <small class="kpi-label">Imagens Escaneadas</small>
+      </div>
+      <div class="optimizer-kpi-card">
+        <span class="kpi-value" id="kpiTotalWeight">0 MB</span>
+        <small class="kpi-label">Peso Total</small>
+      </div>
+      <div class="optimizer-kpi-card warning">
+        <span class="kpi-value" id="kpiHeavyCount">0</span>
+        <small class="kpi-label">Pesadas (> 250 KB)</small>
+      </div>
+      <div class="optimizer-kpi-card success">
+        <span class="kpi-value" id="kpiProjectedSavings">0 MB</span>
+        <small class="kpi-label">Economia Estimada</small>
+      </div>
+    </div>
+
+    <!-- Barra de Filtros & Busca -->
+    <div class="optimizer-filter-bar">
+      <div class="optimizer-tabs" id="optimizerTabs">
+        <button type="button" class="tab-btn active" data-tab="all">Todas</button>
+        <button type="button" class="tab-btn" data-tab="Banners">Banners</button>
+        <button type="button" class="tab-btn" data-tab="Produtos">Produtos</button>
+        <button type="button" class="tab-btn" data-tab="pesada">Pesadas (>250KB)</button>
+        <button type="button" class="tab-btn" data-tab="pendente">Pendentes (JPG/PNG)</button>
+      </div>
+      <input type="search" id="optimizerSearch" placeholder="Buscar por nome do arquivo..." class="optimizer-search-input">
+    </div>
+
+    <!-- Tabela de Auditoria -->
+    <div class="optimizer-table-container">
+      <table class="optimizer-table">
+        <thead>
+          <tr>
+            <th>Miniatura</th>
+            <th>Arquivo / Caminho</th>
+            <th>Categoria</th>
+            <th>Resolução</th>
+            <th>Formato</th>
+            <th>Tamanho</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="optimizerTableBody">
+          <tr>
+            <td colspan="7" class="text-center">Carregando relatório de auditoria...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Opções de Perfil de Compressão & Rodapé -->
+    <div class="optimizer-footer-controls">
+      <div class="profile-selector-group">
+        <strong>Perfil de Compressão:</strong>
+        <label><input type="radio" name="compression_profile" value="balanced" checked> Equilibrado (1280px / Q80)</label>
+        <label><input type="radio" name="compression_profile" value="ultra"> Hard Compress (1000px / Q72)</label>
+        <label><input type="radio" name="compression_profile" value="hq"> Alta Fidelidade (1400px / Q85)</label>
+      </div>
+      <div class="optimizer-actions">
+        <button type="button" class="store-outline-btn" id="reAnalyzeImagesBtn">Analisar Novamente</button>
+        <button type="button" class="store-primary-btn" id="runOptimizationBtn">
+          <i data-lucide="zap"></i> Executar Otimização
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 {% endif %}

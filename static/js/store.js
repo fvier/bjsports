@@ -903,5 +903,215 @@
       });
     });
   }
+
+  // -------------------------------------------------------------
+  // 6. IMAGE OPTIMIZER & DIAGNOSTICS LOGIC
+  // -------------------------------------------------------------
+  const optimizerModal = document.getElementById('imageOptimizerModal');
+  const openOptimizerBtn = document.getElementById('openImageOptimizerBtn');
+  const closeOptimizerBtn = document.getElementById('closeImageOptimizerModalBtn');
+  const reAnalyzeBtn = document.getElementById('reAnalyzeImagesBtn');
+  const runOptimizeBtn = document.getElementById('runOptimizationBtn');
+  const optimizerSearchInput = document.getElementById('optimizerSearch');
+  const optimizerTableBody = document.getElementById('optimizerTableBody');
+
+  let currentReportItems = [];
+  let currentActiveTab = 'all';
+
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+           window.CSRF_TOKEN ||
+           document.querySelector('input[name="csrf_token"]')?.value || '';
+  }
+
+  function openOptimizerModal() {
+    if (!optimizerModal) return;
+    optimizerModal.classList.remove('hidden');
+    optimizerModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    fetchImageAnalysis();
+  }
+
+  function closeOptimizerModal() {
+    if (!optimizerModal) return;
+    optimizerModal.classList.add('hidden');
+    optimizerModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (openOptimizerBtn) openOptimizerBtn.addEventListener('click', openOptimizerModal);
+  if (closeOptimizerBtn) closeOptimizerBtn.addEventListener('click', closeOptimizerModal);
+  if (reAnalyzeBtn) reAnalyzeBtn.addEventListener('click', fetchImageAnalysis);
+
+  if (optimizerModal) {
+    optimizerModal.addEventListener('click', (e) => {
+      if (e.target === optimizerModal) closeOptimizerModal();
+    });
+  }
+
+  function fetchImageAnalysis() {
+    if (!optimizerTableBody) return;
+
+    if (openOptimizerBtn) {
+      openOptimizerBtn.disabled = true;
+      openOptimizerBtn.innerHTML = 'Analisando...';
+    }
+    if (reAnalyzeBtn) {
+      reAnalyzeBtn.disabled = true;
+      reAnalyzeBtn.textContent = 'Analisando...';
+    }
+
+    optimizerTableBody.innerHTML = '<tr><td colspan="7" class="text-center">🔍 Escaneando e analisando imagens do sistema via Pillow...</td></tr>';
+
+    fetch('/api/admin/images/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (openOptimizerBtn) {
+        openOptimizerBtn.disabled = false;
+        openOptimizerBtn.innerHTML = '<i data-lucide="image"></i> Analisar Imagens';
+        if (window.lucide) window.lucide.createIcons();
+      }
+      if (reAnalyzeBtn) {
+        reAnalyzeBtn.disabled = false;
+        reAnalyzeBtn.textContent = 'Analisar Novamente';
+      }
+
+      if (data.success && data.report) {
+        const { summary, items } = data.report;
+        currentReportItems = items || [];
+
+        const kpiScanned = document.getElementById('kpiTotalScanned');
+        const kpiWeight = document.getElementById('kpiTotalWeight');
+        const kpiHeavy = document.getElementById('kpiHeavyCount');
+        const kpiSavings = document.getElementById('kpiProjectedSavings');
+
+        if (kpiScanned) kpiScanned.textContent = summary.total_scanned;
+        if (kpiWeight) kpiWeight.textContent = summary.total_weight_mb + ' MB';
+        if (kpiHeavy) kpiHeavy.textContent = summary.heavy_count;
+        if (kpiSavings) kpiSavings.textContent = summary.projected_savings_mb + ' MB';
+
+        renderOptimizerTable();
+      } else {
+        optimizerTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-red-500">${data.error || 'Erro ao analisar imagens.'}</td></tr>`;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      if (openOptimizerBtn) {
+        openOptimizerBtn.disabled = false;
+        openOptimizerBtn.innerHTML = '<i data-lucide="image"></i> Analisar Imagens';
+      }
+      if (reAnalyzeBtn) {
+        reAnalyzeBtn.disabled = false;
+        reAnalyzeBtn.textContent = 'Analisar Novamente';
+      }
+      optimizerTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-red-500">Erro de conexão ao realizar auditoria de imagens.</td></tr>';
+    });
+  }
+
+  function renderOptimizerTable() {
+    if (!optimizerTableBody) return;
+
+    const query = (optimizerSearchInput?.value || '').trim().toLowerCase();
+
+    const filtered = currentReportItems.filter(item => {
+      let matchesTab = true;
+      if (currentActiveTab === 'Banners') matchesTab = item.category === 'Banners';
+      else if (currentActiveTab === 'Produtos') matchesTab = item.category === 'Produtos';
+      else if (currentActiveTab === 'pesada') matchesTab = item.status === 'pesada';
+      else if (currentActiveTab === 'pendente') matchesTab = item.status === 'pendente' || item.status === 'pesada';
+
+      const matchesSearch = !query || item.filename.toLowerCase().includes(query) || item.rel_path.toLowerCase().includes(query);
+
+      return matchesTab && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+      optimizerTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhuma imagem encontrada para os filtros selecionados.</td></tr>';
+      return;
+    }
+
+    optimizerTableBody.innerHTML = filtered.map(item => {
+      const imgUrl = `/static/${item.rel_path}`;
+      const sizeStr = item.size_mb > 1 ? `${item.size_mb} MB` : `${item.size_kb} KB`;
+      return `
+        <tr>
+          <td><img src="${imgUrl}" alt="${item.filename}" class="table-thumb" loading="lazy"></td>
+          <td><strong>${item.filename}</strong><br><small class="text-muted">${item.rel_path}</small></td>
+          <td>${item.category}</td>
+          <td>${item.width} × ${item.height} px</td>
+          <td><span class="font-mono text-xs">${item.format}</span></td>
+          <td><strong>${sizeStr}</strong></td>
+          <td>
+            <span class="badge-status ${item.badge_color}">
+              ${item.badge_color === 'green' ? '🟢' : item.badge_color === 'yellow' ? '🟡' : '🔴'} ${item.status_label}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const tabsContainer = document.getElementById('optimizerTabs');
+  if (tabsContainer) {
+    tabsContainer.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentActiveTab = btn.dataset.tab;
+        renderOptimizerTable();
+      });
+    });
+  }
+
+  if (optimizerSearchInput) {
+    optimizerSearchInput.addEventListener('input', renderOptimizerTable);
+  }
+
+  if (runOptimizeBtn) {
+    runOptimizeBtn.addEventListener('click', () => {
+      const selectedProfile = document.querySelector('input[name="compression_profile"]:checked')?.value || 'balanced';
+
+      runOptimizeBtn.disabled = true;
+      runOptimizeBtn.innerHTML = 'Otimizando...';
+
+      fetch('/api/admin/images/optimize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify({
+          profile: selectedProfile
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        runOptimizeBtn.disabled = false;
+        runOptimizeBtn.innerHTML = '<i data-lucide="zap"></i> Executar Otimização';
+        if (window.lucide) window.lucide.createIcons();
+
+        if (data.success) {
+          alert(`🎉 Otimização concluída com sucesso!\n\nProcessadas: ${data.total_processed} imagens\nEconomia total obtida: ${data.total_saved_mb} MB`);
+          fetchImageAnalysis();
+        } else {
+          alert(data.error || 'Erro ao otimizar imagens.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        runOptimizeBtn.disabled = false;
+        runOptimizeBtn.innerHTML = '<i data-lucide="zap"></i> Executar Otimização';
+        alert('Erro de conexão ao executar otimização.');
+      });
+    });
+  }
 })();
+
 

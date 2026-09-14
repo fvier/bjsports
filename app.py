@@ -20,6 +20,7 @@ from datetime import date, datetime, timedelta
 from training_credits import MODALITIES as CREDIT_MODALITIES, SCHEDULE_LABELS, billing_period, weekly_allowance, released_credits, contract_plan_name
 from store_catalog import STORE_PRODUCTS, get_customized_products, save_store_customization, save_created_product
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
+from image_optimizer import scan_and_analyze_images, optimize_images
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'bjsports-production-secret-key-2026-cajazeiras')
@@ -2903,6 +2904,37 @@ def add_store_product():
 
     saved = save_created_product(new_product)
     return jsonify({'success': True, 'product': saved})
+
+@app.route('/api/admin/images/analyze', methods=['POST'])
+def analyze_catalog_images():
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    if not user_role or user_role not in {'instrutor', 'admin', 'professor'}:
+        return jsonify({'error': 'Acesso não autorizado. Apenas instrutores/administradores podem analisar imagens.'}), 403
+
+    report = scan_and_analyze_images(app.static_folder)
+    return jsonify({'success': True, 'report': report})
+
+@app.route('/api/admin/images/optimize', methods=['POST'])
+def optimize_catalog_images():
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    if not user_role or user_role not in {'instrutor', 'admin', 'professor'}:
+        return jsonify({'error': 'Acesso não autorizado. Apenas instrutores/administradores podem otimizar imagens.'}), 403
+
+    data = request.get_json(silent=True) or {}
+    file_paths = data.get('file_paths', [])
+    profile = data.get('profile', 'balanced')
+
+    if not file_paths:
+        report = scan_and_analyze_images(app.static_folder)
+        file_paths = [item['rel_path'] for item in report['items'] if item['status'] in ['pesada', 'pendente']]
+
+    result = optimize_images(file_paths, profile=profile, static_folder=app.static_folder)
+    return jsonify(result)
+
 
 
 @app.route('/api/bookings', methods=['POST'])

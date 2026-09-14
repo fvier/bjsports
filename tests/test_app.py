@@ -2208,8 +2208,36 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(cat_res.status_code, 200)
         self.assertIn('Kimono BJ Sports Pro Test', cat_res.get_data(as_text=True))
 
+    def test_image_optimizer_routes_and_analysis(self):
+        csrf_token = self.csrf()
+        # 1. Anonymous user blocked
+        res = self.client.post('/api/admin/images/analyze', headers={'X-CSRF-Token': csrf_token})
+        self.assertEqual(res.status_code, 403)
+
+        # 2. Student user blocked
+        self.login('aluno')
+        res = self.client.post('/api/admin/images/analyze', headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(res.status_code, 403)
+
+        # 3. Instructor allowed to analyze images
+        self.login('instrutor')
+        res = self.client.post('/api/admin/images/analyze', headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data.get('success'))
+        self.assertIn('report', data)
+        self.assertIn('summary', data['report'])
+        self.assertIn('items', data['report'])
+        self.assertGreater(data['report']['summary']['total_scanned'], 0)
+
+        # 4. Instructor allowed to run optimization
+        res_opt = self.client.post('/api/admin/images/optimize', json={'profile': 'balanced'}, headers={'X-CSRF-Token': self.csrf()})
+        self.assertEqual(res_opt.status_code, 200)
+        data_opt = res_opt.get_json()
+        self.assertTrue(data_opt.get('success'))
 
 
 if __name__ == '__main__':
     unittest.main()
+
 
