@@ -377,6 +377,30 @@
     document.getElementById('editProductOldPrice').value = prod.old_price !== null && prod.old_price !== undefined ? prod.old_price : '';
     document.getElementById('editProductDescription').value = prod.description || '';
 
+    // Render per-color stock section if colors exist
+    const colorSection = document.getElementById('editColorStockSection');
+    const colorGrid = document.getElementById('editColorStockGrid');
+    if (colorSection && colorGrid) {
+      colorGrid.innerHTML = '';
+      if (prod.colors && prod.colors.length > 0) {
+        colorSection.classList.remove('hidden');
+        prod.colors.forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'store-form-group';
+          item.innerHTML = `
+            <label for="editColorStock_${c.id}">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c.hex};margin-right:6px;border:1px solid rgba(255,255,255,0.3);vertical-align:middle;"></span>
+              Estoque (${c.name})
+            </label>
+            <input type="number" min="0" step="1" id="editColorStock_${c.id}" class="edit-color-stock-input" data-color-id="${c.id}" value="${c.stock_quantity !== null && c.stock_quantity !== undefined ? c.stock_quantity : ''}" placeholder="Ex: 5">
+          `;
+          colorGrid.appendChild(item);
+        });
+      } else {
+        colorSection.classList.add('hidden');
+      }
+    }
+
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
@@ -418,11 +442,22 @@
       const productId = document.getElementById('editProductId').value;
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.CSRF_TOKEN || '';
 
+      const colorInputs = editForm.querySelectorAll('.edit-color-stock-input');
+      let colorStocks = null;
+      if (colorInputs.length > 0) {
+        colorStocks = {};
+        colorInputs.forEach(input => {
+          const val = input.value.trim();
+          colorStocks[input.dataset.colorId] = val !== '' ? parseInt(val, 10) : null;
+        });
+      }
+
       const rawStock = document.getElementById('editStockQuantity').value.trim();
       const payload = {
         is_sold_out: document.getElementById('editIsSoldOut').checked,
         is_hidden: document.getElementById('editIsHidden').checked,
         stock_quantity: rawStock !== '' ? parseInt(rawStock, 10) : null,
+        color_stocks: colorStocks,
         out_of_stock_text: document.getElementById('editOutOfStockText').value.trim(),
         name: document.getElementById('editProductName').value.trim(),
         badge: document.getElementById('editProductBadge').value.trim(),
@@ -500,6 +535,17 @@
             }
           } else if (hiddenBadge) {
             hiddenBadge.remove();
+          }
+
+          // Update swatches dataset for color stocks
+          if (updated.colors && updated.colors.length > 0) {
+            const swatches = currentEditingCard.querySelectorAll('.store-swatch-dot');
+            swatches.forEach(swatch => {
+              const matchC = updated.colors.find(c => c.id === swatch.dataset.colorId);
+              if (matchC) {
+                swatch.dataset.colorStock = matchC.stock_quantity !== null && matchC.stock_quantity !== undefined ? matchC.stock_quantity : '';
+              }
+            });
           }
 
           // Update Stock Quantity in card footer

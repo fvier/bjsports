@@ -372,6 +372,34 @@
   color: #ff7a49;
 }
 
+/* Per-color Stock Section in Edit Modal */
+.store-color-stock-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 4px 0 8px;
+}
+.store-edit-section-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.store-edit-section-title svg {
+  width: 16px;
+  height: 16px;
+  color: #ff7a49;
+}
+.store-color-stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
 .store-edit-modal-footer {
   display: flex;
   justify-content: flex-end;

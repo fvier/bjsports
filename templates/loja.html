@@ -143,7 +143,8 @@
                         data-color-img="{{ url_for('static', filename=col.image) }}"
                         data-color-price="R$ {{ '%.2f'|format(col.price)|replace('.', ',') }}"
                         data-color-old-price="{% if col.old_price %}R$ {{ '%.2f'|format(col.old_price)|replace('.', ',') }}{% endif %}"
-                        data-color-badge="{{ col.badge }}">
+                        data-color-badge="{{ col.badge }}"
+                        data-color-stock="{% if col.stock_quantity is not none %}{{ col.stock_quantity }}{% endif %}">
                 </button>
                 {% endfor %}
               </div>
@@ -311,13 +312,18 @@
 
       <div class="store-form-row">
         <div class="store-form-group">
-          <label for="editStockQuantity">Qtd. em Estoque (Unidades)</label>
-          <input type="number" min="0" step="1" id="editStockQuantity" name="stock_quantity" placeholder="Ex: 15 (Opcional)">
+          <label for="editStockQuantity">Qtd. Estoque Geral (Unidades)</label>
+          <input type="number" min="0" step="1" id="editStockQuantity" name="stock_quantity" placeholder="Ex: 15 (Geral)">
         </div>
         <div class="store-form-group" id="outOfStockTextGroup">
           <label for="editOutOfStockText">Texto da Faixa de Esgotado</label>
           <input type="text" id="editOutOfStockText" name="out_of_stock_text" placeholder="ESGOTADO • CHEGARÁ EM BREVE">
         </div>
+      </div>
+
+      <div id="editColorStockSection" class="store-color-stock-section hidden">
+        <h4 class="store-edit-section-title"><i data-lucide="palette"></i> Quantidade em Estoque por Cor</h4>
+        <div id="editColorStockGrid" class="store-color-stock-grid"></div>
       </div>
 
       <div class="store-form-row">

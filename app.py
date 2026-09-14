@@ -2751,6 +2751,8 @@ def edit_store_product(product_id):
                 updates['stock_quantity'] = None
         else:
             updates['stock_quantity'] = None
+    if 'color_stocks' in data and isinstance(data['color_stocks'], dict):
+        updates['color_stocks'] = data['color_stocks']
     if 'out_of_stock_text' in data:
         updates['out_of_stock_text'] = str(data['out_of_stock_text']).strip()
     if 'name' in data and str(data['name']).strip():

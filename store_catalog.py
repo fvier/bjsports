@@ -415,6 +415,22 @@ def save_store_customization(product_id, data):
     customizations = load_store_customizations()
     if product_id not in customizations:
         customizations[product_id] = {}
+
+    import copy
+    color_stocks = data.pop('color_stocks', None)
+    if color_stocks is not None and isinstance(color_stocks, dict):
+        base_product = next((p for p in STORE_PRODUCTS if p['id'] == product_id), None)
+        existing_colors = customizations[product_id].get('colors')
+        if not existing_colors and base_product and 'colors' in base_product:
+            existing_colors = copy.deepcopy(base_product['colors'])
+        if existing_colors:
+            for c in existing_colors:
+                cid = c.get('id')
+                if cid in color_stocks:
+                    val = color_stocks[cid]
+                    c['stock_quantity'] = int(val) if val is not None and str(val).strip() != '' else None
+            customizations[product_id]['colors'] = existing_colors
+
     customizations[product_id].update(data)
     with open(CUSTOMIZATIONS_FILE, 'w', encoding='utf-8') as f:
         json.dump(customizations, f, ensure_ascii=False, indent=2)
@@ -428,7 +444,16 @@ def get_customized_products(include_hidden=True):
     for p in products:
         pid = p['id']
         if pid in customizations:
-            p.update(customizations[pid])
+            p_custom = copy.deepcopy(customizations[pid])
+            custom_colors = p_custom.get('colors')
+            if custom_colors and 'colors' in p:
+                for base_c in p['colors']:
+                    match_c = next((cc for cc in custom_colors if cc.get('id') == base_c.get('id')), None)
+                    if match_c:
+                        base_c.update(match_c)
+                del p_custom['colors']
+            p.update(p_custom)
+
         p.setdefault('is_sold_out', False)
         p.setdefault('is_hidden', False)
         p.setdefault('stock_quantity', None)
