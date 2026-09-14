@@ -413,6 +413,17 @@ def load_store_customizations():
 def save_store_customization(product_id, data):
     os.makedirs(os.path.dirname(CUSTOMIZATIONS_FILE), exist_ok=True)
     customizations = load_store_customizations()
+
+    # Check if this product is in created_products
+    created = customizations.get('created_products', [])
+    created_item = next((p for p in created if p.get('id') == product_id), None)
+    if created_item:
+        created_item.update(data)
+        customizations['created_products'] = created
+        with open(CUSTOMIZATIONS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(customizations, f, ensure_ascii=False, indent=2)
+        return created_item
+
     if product_id not in customizations:
         customizations[product_id] = {}
 
@@ -436,14 +447,47 @@ def save_store_customization(product_id, data):
         json.dump(customizations, f, ensure_ascii=False, indent=2)
     return customizations[product_id]
 
+def save_created_product(product_data):
+    os.makedirs(os.path.dirname(CUSTOMIZATIONS_FILE), exist_ok=True)
+    customizations = load_store_customizations()
+    created = customizations.get('created_products', [])
+
+    if not product_data.get('id'):
+        prefix = (product_data.get('sport') or 'BJJ').upper()[:3]
+        import uuid
+        product_data['id'] = f"{prefix}-{uuid.uuid4().hex[:6].upper()}"
+
+    sport_icons = {
+        'jiu-jitsu': '🥋',
+        'boxe': '🥊',
+        'muay-thai': '🦵',
+        'mma': '🛡️'
+    }
+    if not product_data.get('icon'):
+        product_data['icon'] = sport_icons.get(product_data.get('sport'), '🥋')
+
+    existing_idx = next((i for i, p in enumerate(created) if p.get('id') == product_data.get('id')), None)
+    if existing_idx is not None:
+        created[existing_idx].update(product_data)
+    else:
+        created.append(product_data)
+
+    customizations['created_products'] = created
+    with open(CUSTOMIZATIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(customizations, f, ensure_ascii=False, indent=2)
+    return product_data
+
 def get_customized_products(include_hidden=True):
     customizations = load_store_customizations()
     import copy
     products = copy.deepcopy(STORE_PRODUCTS)
+    created_products = copy.deepcopy(customizations.get('created_products', []))
+    products.extend(created_products)
+
     result = []
     for p in products:
         pid = p['id']
-        if pid in customizations:
+        if pid in customizations and pid not in [cp['id'] for cp in created_products]:
             p_custom = copy.deepcopy(customizations[pid])
             custom_colors = p_custom.get('colors')
             if custom_colors and 'colors' in p:
@@ -460,4 +504,5 @@ def get_customized_products(include_hidden=True):
         if include_hidden or not p.get('is_hidden'):
             result.append(p)
     return result
+
 

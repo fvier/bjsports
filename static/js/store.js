@@ -598,4 +598,310 @@
       });
     });
   }
+
+  // -------------------------------------------------------------
+  // 5. INSTRUCTOR ADD PRODUCT MODAL LOGIC
+  // -------------------------------------------------------------
+  const addModal = document.getElementById('storeAddProductModal');
+  const openAddBtn = document.getElementById('openAddProductModalBtn');
+  const closeAddBtn = document.getElementById('closeAddProductModalBtn');
+  const cancelAddBtn = document.getElementById('cancelAddProductBtn');
+  const addForm = document.getElementById('storeAddProductForm');
+
+  if (addModal && addForm) {
+    const mainImageInput = document.getElementById('addProductImage');
+    const mainImagePreview = document.getElementById('mainImagePreview');
+    const mainImagePlaceholder = document.getElementById('mainImagePlaceholder');
+    const galleryInput = document.getElementById('addProductGallery');
+    const galleryThumbsGrid = document.getElementById('galleryThumbsGrid');
+    const selectedColorTags = document.getElementById('selectedColorTags');
+    const addPaletteColors = document.getElementById('addPaletteColors');
+    const addSizesGrid = document.getElementById('addSizesGrid');
+
+    let selectedColors = [];
+    let selectedSizes = new Set();
+
+    function openAddModal() {
+      addModal.classList.remove('hidden');
+      addModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddModal() {
+      addModal.classList.add('hidden');
+      addModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      addForm.reset();
+
+      if (mainImagePreview) {
+        mainImagePreview.src = '';
+        mainImagePreview.classList.add('hidden');
+      }
+      if (mainImagePlaceholder) {
+        mainImagePlaceholder.classList.remove('hidden');
+      }
+
+      selectedColors = [];
+      renderColorTags();
+
+      if (addPaletteColors) {
+        addPaletteColors.querySelectorAll('.palette-dot').forEach(dot => dot.classList.remove('selected'));
+      }
+
+      selectedSizes.clear();
+      if (addSizesGrid) {
+        addSizesGrid.querySelectorAll('.size-pill').forEach(pill => pill.classList.remove('active'));
+      }
+
+      if (galleryThumbsGrid) {
+        const items = galleryThumbsGrid.querySelectorAll('.gallery-thumb-item');
+        items.forEach(el => el.remove());
+      }
+
+      document.querySelectorAll('.gender-btn').forEach(btn => {
+        const rad = btn.querySelector('input');
+        if (rad && rad.value === 'Unissex') {
+          rad.checked = true;
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    if (openAddBtn) openAddBtn.addEventListener('click', openAddModal);
+    if (closeAddBtn) closeAddBtn.addEventListener('click', closeAddModal);
+    if (cancelAddBtn) cancelAddBtn.addEventListener('click', closeAddModal);
+
+    addModal.addEventListener('click', (e) => {
+      if (e.target === addModal) closeAddModal();
+    });
+
+    if (mainImageInput) {
+      mainImageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            mainImagePreview.src = evt.target.result;
+            mainImagePreview.classList.remove('hidden');
+            if (mainImagePlaceholder) mainImagePlaceholder.classList.add('hidden');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (galleryInput && galleryThumbsGrid) {
+      galleryInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        galleryThumbsGrid.querySelectorAll('.gallery-thumb-item').forEach(el => el.remove());
+        files.forEach(f => {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            const img = document.createElement('img');
+            img.src = evt.target.result;
+            img.className = 'gallery-thumb-item';
+            galleryThumbsGrid.appendChild(img);
+          };
+          reader.readAsDataURL(f);
+        });
+      });
+    }
+
+    const genderBtns = document.querySelectorAll('.gender-btn');
+    genderBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        genderBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const input = btn.querySelector('input');
+        if (input) input.checked = true;
+      });
+    });
+
+    function renderColorTags() {
+      if (!selectedColorTags) return;
+      selectedColorTags.innerHTML = '';
+      selectedColors.forEach((c, idx) => {
+        const tag = document.createElement('span');
+        tag.className = 'color-tag-item';
+        tag.style.borderLeft = `4px solid ${c.hex}`;
+        tag.innerHTML = `${c.name} <button type="button" data-idx="${idx}" title="Remover cor">&times;</button>`;
+        selectedColorTags.appendChild(tag);
+      });
+
+      selectedColorTags.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const i = Number(e.target.dataset.idx);
+          const removed = selectedColors.splice(i, 1)[0];
+          renderColorTags();
+          if (removed && addPaletteColors) {
+            const dot = addPaletteColors.querySelector(`[data-color-id="${removed.id}"]`);
+            if (dot && !selectedColors.some(sc => sc.id === removed.id)) {
+              dot.classList.remove('selected');
+            }
+          }
+        });
+      });
+    }
+
+    if (addPaletteColors) {
+      addPaletteColors.querySelectorAll('.palette-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          const cid = dot.dataset.colorId;
+          const cname = dot.dataset.colorName;
+          const chex = dot.dataset.colorHex;
+
+          const existingIdx = selectedColors.findIndex(c => c.id === cid);
+          if (existingIdx >= 0) {
+            selectedColors.splice(existingIdx, 1);
+            dot.classList.remove('selected');
+          } else {
+            selectedColors.push({ id: cid, name: cname, hex: chex });
+            dot.classList.add('selected');
+          }
+          renderColorTags();
+        });
+      });
+    }
+
+    if (addSizesGrid) {
+      addSizesGrid.querySelectorAll('.size-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const sizeVal = pill.dataset.size;
+          if (selectedSizes.has(sizeVal)) {
+            selectedSizes.delete(sizeVal);
+            pill.classList.remove('active');
+          } else {
+            selectedSizes.add(sizeVal);
+            pill.classList.add('active');
+          }
+        });
+      });
+    }
+
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveAddProductBtn');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = 'Salvando...';
+      }
+
+      const formData = new FormData(addForm);
+      formData.set('sizes', JSON.stringify([...selectedSizes]));
+      formData.set('colors', JSON.stringify(selectedColors));
+
+      fetch('/api/store/products/add', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i data-lucide="plus-circle"></i> Cadastrar Produto';
+          if (window.lucide) window.lucide.createIcons();
+        }
+
+        if (data.success && data.product) {
+          const p = data.product;
+          const cardArticle = document.createElement('article');
+          cardArticle.className = `store-product-card ${p.is_hidden ? 'is-product-hidden' : ''}`;
+          cardArticle.dataset.id = p.id;
+          cardArticle.dataset.sport = p.sport;
+          cardArticle.dataset.category = p.category;
+          cardArticle.dataset.price = p.price;
+          cardArticle.dataset.name = p.name.toLowerCase();
+          cardArticle.dataset.json = JSON.stringify(p);
+
+          const sportLabelMap = { 'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA' };
+          const sportName = sportLabelMap[p.sport] || p.sport;
+
+          let swatchesHtml = '';
+          if (p.colors && p.colors.length > 0) {
+            swatchesHtml = `
+              <div class="store-card-colors">
+                <span class="store-colors-title">Cores:</span>
+                <div class="store-swatches-row">
+                  ${p.colors.map((col, idx) => `
+                    <button type="button" class="store-swatch-dot ${idx === 0 ? 'active' : ''}"
+                            style="background-color: ${col.hex};"
+                            title="${col.name}"
+                            data-color-id="${col.id}"
+                            data-color-name="${col.name}"
+                            data-color-hex="${col.hex}">
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          let sizesHtml = '';
+          if (p.sizes && p.sizes.length > 0) {
+            sizesHtml = `
+              <div class="store-product-sizes">
+                <span class="store-sizes-title">Tamanhos:</span>
+                <div class="store-sizes-pills">
+                  ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          const imgHtml = p.image ? `<img src="/static/${p.image}" alt="${p.name}" class="store-product-img card-img-element" loading="lazy">` : `<span class="store-product-icon" aria-hidden="true">${p.icon || '🥋'}</span>`;
+
+          cardArticle.innerHTML = `
+            <div class="store-product-media store-media-${p.sport} ${p.is_sold_out ? 'is-sold-out' : ''}" data-open-modal="${p.id}">
+              ${p.is_hidden ? '<span class="store-hidden-badge" title="Este produto está oculto para alunos e visitantes">👁️ OCULTO NO SITE</span>' : ''}
+              ${p.is_sold_out ? `<div class="store-sold-out-ribbon"><span>⛔ ${p.out_of_stock_text || 'ESGOTADO • CHEGARÁ EM BREVE'} ⛔</span></div>` : ''}
+              <button class="store-edit-card-btn" type="button" data-edit-product="${p.id}" title="Editar card do produto (Instrutor)">
+                <i data-lucide="edit-3"></i> Editar
+              </button>
+              ${p.badge ? `<span class="store-product-badge card-badge-element">${p.badge}</span>` : ''}
+              <span class="store-product-code">${p.id}</span>
+              ${imgHtml}
+              <button class="store-interest-btn" type="button" aria-label="Adicionar ${p.name} à lista de interesse" data-interest="${p.id}"><i data-lucide="heart"></i></button>
+            </div>
+            <div class="store-product-body">
+              <div class="store-product-meta"><span>${sportName}</span><span>${p.category}</span></div>
+              <h3 class="card-title-clickable" data-open-modal="${p.id}">${p.name}</h3>
+              ${swatchesHtml}
+              ${sizesHtml}
+              <div class="store-product-footer">
+                <div class="store-price">
+                  ${p.stock_quantity !== null && p.stock_quantity !== undefined ? `<span class="store-stock-count card-stock-element"><i data-lucide="boxes"></i> Estoque: <strong>${p.stock_quantity}</strong> un.</span>` : ''}
+                  <span class="card-price">R$ ${Number(p.price).toFixed(2).replace('.', ',')}</span>
+                  ${p.old_price ? `<span class="store-old-price card-old-price">R$ ${Number(p.old_price).toFixed(2).replace('.', ',')}</span>` : ''}
+                </div>
+                <button class="store-card-action-btn" data-open-modal="${p.id}"><i data-lucide="shopping-cart"></i> Ver Detalhes</button>
+              </div>
+            </div>
+          `;
+
+          grid.prepend(cardArticle);
+          cards.unshift(cardArticle);
+
+          if (window.lucide) window.lucide.createIcons();
+
+          closeAddModal();
+          applyFilters();
+          alert('Produto cadastrado com sucesso!');
+        } else {
+          alert(data.error || 'Erro ao cadastrar produto.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i data-lucide="plus-circle"></i> Cadastrar Produto';
+          if (window.lucide) window.lucide.createIcons();
+        }
+        alert('Erro de conexão ao cadastrar produto.');
+      });
+    });
+  }
 })();
+

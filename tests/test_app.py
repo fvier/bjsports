@@ -2167,6 +2167,49 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('Turmas e planos', res.get_data(as_text=True))
 
+    def test_add_store_product_route_and_permissions(self):
+        csrf_token = self.csrf()
+        # 1. Anonymous user cannot add product (has CSRF, no role)
+        res = self.client.post('/api/store/products/add', data={'name': 'Kimono Test', 'price': 100, 'csrf_token': csrf_token})
+        self.assertEqual(res.status_code, 403)
+
+        # 2. Logged in student cannot add product
+        self.login('aluno')
+        res = self.client.post('/api/store/products/add', data={'name': 'Kimono Test', 'price': 100, 'csrf_token': self.csrf()})
+        self.assertEqual(res.status_code, 403)
+
+        # 3. Logged in instructor can add product
+        self.login('instrutor')
+        res = self.client.post('/api/store/products/add', data={
+            'name': 'Kimono BJ Sports Pro Test',
+            'price': '399.90',
+            'old_price': '449.90',
+            'sport': 'jiu-jitsu',
+            'category': 'Kimonos',
+            'gender': 'Masculino',
+            'badge': 'Edição Especial',
+            'sizes': '["A1", "A2", "A3"]',
+            'colors': '[{"id": "preto", "name": "Preto", "hex": "#141416"}]',
+            'stock_quantity': '15',
+            'description': 'Kimono de teste com alta durabilidade',
+            'csrf_token': self.csrf()
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data.get('success'))
+        product = data.get('product')
+        self.assertEqual(product['name'], 'Kimono BJ Sports Pro Test')
+        self.assertEqual(product['price'], 399.90)
+        self.assertEqual(product['sport'], 'jiu-jitsu')
+        self.assertEqual(product['sizes'], ['A1', 'A2', 'A3'])
+
+        # 4. Verify product appears in catalog
+        cat_res = self.client.get('/loja')
+        self.assertEqual(cat_res.status_code, 200)
+        self.assertIn('Kimono BJ Sports Pro Test', cat_res.get_data(as_text=True))
+
+
 
 if __name__ == '__main__':
     unittest.main()
+

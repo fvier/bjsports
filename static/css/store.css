@@ -409,7 +409,256 @@
   margin-top: 8px;
 }
 
+/* Add Product Toolbar Button */
+.store-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.store-add-product-btn {
+  background: linear-gradient(135deg, #e50914, #b20710);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+}
+.store-add-product-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.45);
+}
+
+/* Add Product Modal (2 Columns) */
+.store-add-modal-container {
+  max-width: 900px;
+}
+.store-add-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+}
+@media(max-width: 768px) {
+  .store-add-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dropzone Media Column */
+.store-add-media-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.store-media-dropzone {
+  border: 2px dashed rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.store-media-dropzone:hover {
+  border-color: #e50914;
+  background: rgba(229, 9, 20, 0.05);
+}
+.dropzone-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.dropzone-icon {
+  font-size: 2.2rem;
+}
+.dropzone-placeholder strong {
+  font-size: 0.95rem;
+  color: #fff;
+}
+.dropzone-placeholder p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 200px;
+}
+.dropzone-preview {
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* Gallery Upload Slots */
+.store-gallery-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.store-gallery-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #d0d4e4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.gallery-thumbs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gallery-add-slot {
+  width: 56px;
+  height: 56px;
+  border: 1px dashed rgba(255,255,255,0.25);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+.gallery-add-slot:hover {
+  border-color: #e50914;
+  color: #e50914;
+}
+.gallery-thumb-item {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Segmented Control for Gender */
+.store-gender-segmented {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+.gender-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.gender-btn input {
+  display: none;
+}
+.gender-btn.active {
+  background: #e50914;
+  color: #fff;
+}
+
+/* Color Swatches Palette & Tags */
+.store-add-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.palette-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.palette-dot:hover {
+  transform: scale(1.15);
+}
+.palette-dot.selected {
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.4);
+}
+.selected-colors-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.color-tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+}
+.color-tag-item button {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+/* Size Pills Grid */
+.store-add-sizes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.size-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #d0d4e4;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.size-pill:hover {
+  border-color: #e50914;
+  color: #fff;
+}
+.size-pill.active {
+  background: #e50914;
+  border-color: #e50914;
+  color: #fff;
+}
+.req {
+  color: #e50914;
+  font-weight: bold;
+}
+
 @media(max-width:1100px){.store-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.store-hero-grid{grid-template-columns:1fr}.store-concept-card{max-width:600px}}
 @media(max-width:840px){ .store-modal-grid { grid-template-columns: 1fr; } .store-modal-main-view { height: 280px; } .store-modal-container { padding: 20px; } }
 @media(max-width:800px){.store-layout{grid-template-columns:1fr}.store-filter-panel{position:relative;top:0}.store-filter-actions #storeMobileFilterToggle{display:inline}.store-filter-panel.filters-collapsed>:not(.store-filter-title){display:none}.store-metrics{grid-template-columns:repeat(2,1fr)}.store-metrics div:nth-child(2){border-right:0}.store-metrics div:nth-child(-n+2){border-bottom:1px solid var(--border-light)}.store-next-steps{grid-template-columns:1fr}}
 @media(max-width:560px){.main-header #openScheduleModal{display:none}.store-hero{padding:50px 0}.store-hero h1{font-size:2.5rem}.store-product-grid{grid-template-columns:1fr}.store-toolbar{align-items:flex-start;flex-direction:column}.store-toolbar label{width:100%;justify-content:space-between}.store-metrics{margin-left:16px;margin-right:16px}.store-metrics div{padding:15px}.store-metrics span{font-size:1.35rem}}
+

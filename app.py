@@ -18,7 +18,7 @@ from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, datetime, timedelta
 from training_credits import MODALITIES as CREDIT_MODALITIES, SCHEDULE_LABELS, billing_period, weekly_allowance, released_credits, contract_plan_name
-from store_catalog import STORE_PRODUCTS, get_customized_products, save_store_customization
+from store_catalog import STORE_PRODUCTS, get_customized_products, save_store_customization, save_created_product
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
 
 app = Flask(__name__)
@@ -2780,6 +2780,130 @@ def edit_store_product(product_id):
     target_product = next((p for p in all_products if p['id'] == product_id), None)
 
     return jsonify({'success': True, 'product': target_product})
+
+@app.route('/api/store/products/add', methods=['POST'])
+def add_store_product():
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    if not user_role or user_role not in {'instrutor', 'admin', 'professor'}:
+        return jsonify({'error': 'Acesso não autorizado. Apenas instrutores/administradores podem adicionar produtos.'}), 403
+
+    if request.is_json:
+        data = request.get_json() or {}
+        image_path = data.get('image', 'img/store/kimono_preto.jpg')
+        gallery_paths = data.get('gallery', [])
+    else:
+        data = request.form.to_dict()
+        image_path = 'img/store/kimono_preto.jpg'
+        gallery_paths = []
+
+        file = request.files.get('image')
+        if file and file.filename:
+            from werkzeug.utils import secure_filename
+            import uuid
+            ext = os.path.splitext(file.filename)[1].lower()
+            if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                uploads_dir = os.path.join(app.static_folder, 'img', 'store', 'uploads')
+                os.makedirs(uploads_dir, exist_ok=True)
+                sec_name = secure_filename(file.filename)
+                unique_filename = f"prod_{uuid.uuid4().hex[:8]}_{sec_name}"
+                file.save(os.path.join(uploads_dir, unique_filename))
+                image_path = f"img/store/uploads/{unique_filename}"
+
+        gallery_files = request.files.getlist('gallery_images')
+        for gfile in gallery_files:
+            if gfile and gfile.filename:
+                from werkzeug.utils import secure_filename
+                import uuid
+                ext = os.path.splitext(gfile.filename)[1].lower()
+                if ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                    uploads_dir = os.path.join(app.static_folder, 'img', 'store', 'uploads')
+                    os.makedirs(uploads_dir, exist_ok=True)
+                    sec_name = secure_filename(gfile.filename)
+                    unique_filename = f"gal_{uuid.uuid4().hex[:8]}_{sec_name}"
+                    gfile.save(os.path.join(uploads_dir, unique_filename))
+                    gallery_paths.append(f"img/store/uploads/{unique_filename}")
+
+    name = str(data.get('name', '')).strip()
+    if not name:
+        return jsonify({'error': 'O nome do produto é obrigatório.'}), 400
+
+    try:
+        price = float(data.get('price', 0))
+        if price <= 0:
+            return jsonify({'error': 'O preço deve ser maior que zero.'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Preço inválido.'}), 400
+
+    old_price = None
+    if data.get('old_price'):
+        try:
+            old_price = float(data.get('old_price'))
+        except (ValueError, TypeError):
+            pass
+
+    sport = str(data.get('sport', 'jiu-jitsu')).strip().lower()
+    category = str(data.get('category', 'Vestuário')).strip()
+    gender = str(data.get('gender', 'Unissex')).strip()
+    badge = str(data.get('badge', '')).strip() or None
+    description = str(data.get('description', '')).strip() or None
+
+    stock_quantity = None
+    if data.get('stock_quantity') is not None and str(data.get('stock_quantity')).strip() != '':
+        try:
+            stock_quantity = int(data.get('stock_quantity'))
+        except (ValueError, TypeError):
+            pass
+
+    is_sold_out = str(data.get('is_sold_out', '')).lower() in ['true', '1', 'on']
+    is_hidden = str(data.get('is_hidden', '')).lower() in ['true', '1', 'on']
+
+    sizes = []
+    raw_sizes = data.get('sizes')
+    if isinstance(raw_sizes, list):
+        sizes = [str(s).strip() for s in raw_sizes if str(s).strip()]
+    elif isinstance(raw_sizes, str):
+        if raw_sizes.startswith('['):
+            try:
+                sizes = json.loads(raw_sizes)
+            except Exception:
+                sizes = [s.strip() for s in raw_sizes.split(',') if s.strip()]
+        else:
+            sizes = [s.strip() for s in raw_sizes.split(',') if s.strip()]
+
+    colors = []
+    raw_colors = data.get('colors')
+    if isinstance(raw_colors, list):
+        colors = raw_colors
+    elif isinstance(raw_colors, str):
+        if raw_colors.startswith('['):
+            try:
+                colors = json.loads(raw_colors)
+            except Exception:
+                pass
+
+    new_product = {
+        'sport': sport,
+        'category': category,
+        'gender': gender,
+        'name': name,
+        'price': price,
+        'old_price': old_price,
+        'image': image_path,
+        'gallery': gallery_paths,
+        'badge': badge,
+        'sizes': sizes,
+        'colors': colors,
+        'description': description,
+        'stock_quantity': stock_quantity,
+        'is_sold_out': is_sold_out,
+        'is_hidden': is_hidden
+    }
+
+    saved = save_created_product(new_product)
+    return jsonify({'success': True, 'product': saved})
+
 
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
