@@ -89,6 +89,7 @@
 
       <div class="store-active-filter" id="activeStoreFilter">Todos os esportes e categorias</div>
 
+      {% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
       <div class="store-product-grid" id="storeProductGrid">
         {% for product in products %}
         <article class="store-product-card" 
@@ -104,7 +105,7 @@
               <span>⛔ {{ product.out_of_stock_text or 'ESGOTADO • CHEGARÁ EM BREVE' }} ⛔</span>
             </div>
             {% endif %}
-            {% if can_edit %}
+            {% if can_user_edit %}
             <button class="store-edit-card-btn" type="button" data-edit-product="{{ product.id }}" title="Editar card do produto (Instrutor)">
               <i data-lucide="edit-3"></i> Editar
             </button>
@@ -263,7 +264,7 @@
   </div>
 </div>
 
-{% if can_edit %}
+{% if can_user_edit %}
 {# INSTRUCTOR EDIT PRODUCT MODAL #}
 <div class="store-modal-backdrop hidden" id="storeEditProductModal" role="dialog" aria-modal="true">
   <div class="store-edit-modal-container">
