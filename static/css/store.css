@@ -81,8 +81,8 @@
 /* -------------------------------------------------------------
    PRODUCT QUICK-VIEW MODAL STYLING
    ------------------------------------------------------------- */
-.store-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(10px); z-index: 9999; display: grid; place-items: center; padding: 20px; overflow-y: auto; opacity: 1; transition: opacity .25s ease; }
-.store-modal-backdrop.hidden { display: none; opacity: 0; pointer-events: none; }
+.store-modal-backdrop, .store-edit-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(10px); z-index: 9999; display: grid; place-items: center; padding: 20px; overflow-y: auto; opacity: 1; transition: opacity .25s ease; }
+.store-modal-backdrop.hidden, .store-edit-modal-backdrop.hidden { display: none !important; opacity: 0; pointer-events: none; }
 .store-modal-container { position: relative; width: 100%; max-width: 920px; background: #12141c; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 20px; padding: 32px; box-shadow: 0 30px 90px rgba(0,0,0,0.7); animation: modalPop .3s ease-out; }
 @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
