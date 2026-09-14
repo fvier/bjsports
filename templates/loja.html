@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}">
+{% set user_role_val = (user_role or session.get('user_role') or (current_user.role if current_user else ''))|lower %}
+{% set can_user_edit = can_edit or user_role_val in ['instrutor', 'admin', 'professor', 'monitor'] %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_2">
 
 <main class="store-page">
   <section class="store-hero">
@@ -668,5 +669,5 @@
 </div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='js/store.js') }}"></script>
+<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_2"></script>
 {% endblock %}

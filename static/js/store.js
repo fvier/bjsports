@@ -1112,6 +1112,21 @@
       });
     });
   }
+
+  // Global Event Delegation for toolbar buttons to guarantee modal opening
+  document.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('#openAddProductModalBtn');
+    if (addBtn) {
+      e.preventDefault();
+      openAddModal();
+    }
+    const optBtn = e.target.closest('#openImageOptimizerBtn');
+    if (optBtn) {
+      e.preventDefault();
+      openOptimizerModal();
+    }
+  });
 })();
+
 
 
