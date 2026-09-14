@@ -3,7 +3,7 @@
 {% block content %}
 {% set user_role_val = (user_role or session.get('user_role') or (current_user.role if current_user else ''))|lower %}
 {% set can_user_edit = can_edit or user_role_val in ['instrutor', 'admin', 'professor', 'monitor'] %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_3">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_4">
 
 <main class="store-page">
   <section class="store-hero">
@@ -700,5 +700,5 @@
 </div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_3"></script>
+<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_4"></script>
 {% endblock %}
