@@ -368,6 +368,8 @@
     document.getElementById('editProductId').value = prod.id;
     document.getElementById('editModalProductCode').textContent = prod.id;
     document.getElementById('editIsSoldOut').checked = Boolean(prod.is_sold_out);
+    document.getElementById('editIsHidden').checked = Boolean(prod.is_hidden);
+    document.getElementById('editStockQuantity').value = prod.stock_quantity !== null && prod.stock_quantity !== undefined ? prod.stock_quantity : '';
     document.getElementById('editOutOfStockText').value = prod.out_of_stock_text || 'ESGOTADO • CHEGARÁ EM BREVE';
     document.getElementById('editProductName').value = prod.name || '';
     document.getElementById('editProductBadge').value = prod.badge || '';
@@ -416,8 +418,11 @@
       const productId = document.getElementById('editProductId').value;
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.CSRF_TOKEN || '';
 
+      const rawStock = document.getElementById('editStockQuantity').value.trim();
       const payload = {
         is_sold_out: document.getElementById('editIsSoldOut').checked,
+        is_hidden: document.getElementById('editIsHidden').checked,
+        stock_quantity: rawStock !== '' ? parseInt(rawStock, 10) : null,
         out_of_stock_text: document.getElementById('editOutOfStockText').value.trim(),
         name: document.getElementById('editProductName').value.trim(),
         badge: document.getElementById('editProductBadge').value.trim(),
@@ -454,6 +459,9 @@
           currentEditingCard.dataset.name = updated.name.toLowerCase();
           currentEditingCard.dataset.price = updated.price;
 
+          // Toggle hidden state class on card
+          currentEditingCard.classList.toggle('is-product-hidden', Boolean(updated.is_hidden));
+
           // Update title
           const titleEl = currentEditingCard.querySelector('h3');
           if (titleEl) titleEl.textContent = updated.name;
@@ -479,6 +487,36 @@
             badgeEl.textContent = updated.badge;
           } else if (badgeEl) {
             badgeEl.remove();
+          }
+
+          // Update Hidden badge on card media
+          let hiddenBadge = mediaEl.querySelector('.store-hidden-badge');
+          if (updated.is_hidden) {
+            if (!hiddenBadge) {
+              hiddenBadge = document.createElement('span');
+              hiddenBadge.className = 'store-hidden-badge';
+              hiddenBadge.textContent = '👁️ OCULTO NO SITE';
+              mediaEl.appendChild(hiddenBadge);
+            }
+          } else if (hiddenBadge) {
+            hiddenBadge.remove();
+          }
+
+          // Update Stock Quantity in card footer
+          const priceContainer = currentEditingCard.querySelector('.store-price');
+          let stockEl = currentEditingCard.querySelector('.card-stock-element');
+          if (updated.stock_quantity !== null && updated.stock_quantity !== undefined) {
+            if (!stockEl && priceContainer) {
+              stockEl = document.createElement('span');
+              stockEl.className = 'store-stock-count card-stock-element';
+              priceContainer.prepend(stockEl);
+            }
+            if (stockEl) {
+              stockEl.innerHTML = `<i data-lucide="boxes"></i> Estoque: <strong>${updated.stock_quantity}</strong> un.`;
+              if (window.lucide) window.lucide.createIcons();
+            }
+          } else if (stockEl) {
+            stockEl.remove();
           }
 
           // Update ribbon & sold out media class

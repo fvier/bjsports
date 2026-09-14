@@ -322,6 +322,56 @@
   color: var(--text-muted);
 }
 
+.store-toggle-switch input:checked + .store-slider-warning {
+  background-color: #ff9800;
+}
+.store-hidden-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px dashed rgba(255, 152, 0, 0.3);
+  padding: 14px 16px;
+  border-radius: 10px;
+}
+
+/* Hidden product card styling for instructors */
+.store-product-card.is-product-hidden {
+  border: 1px dashed rgba(255, 152, 0, 0.6);
+  opacity: 0.85;
+}
+.store-hidden-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(255, 152, 0, 0.95);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  z-index: 11;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.store-stock-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.store-stock-count strong {
+  color: #fff;
+}
+.store-stock-count svg {
+  width: 14px;
+  height: 14px;
+  color: #ff7a49;
+}
+
 .store-edit-modal-footer {
   display: flex;
   justify-content: flex-end;

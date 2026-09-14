@@ -420,13 +420,19 @@ def save_store_customization(product_id, data):
         json.dump(customizations, f, ensure_ascii=False, indent=2)
     return customizations[product_id]
 
-def get_customized_products():
+def get_customized_products(include_hidden=True):
     customizations = load_store_customizations()
     import copy
     products = copy.deepcopy(STORE_PRODUCTS)
+    result = []
     for p in products:
         pid = p['id']
         if pid in customizations:
             p.update(customizations[pid])
-    return products
+        p.setdefault('is_sold_out', False)
+        p.setdefault('is_hidden', False)
+        p.setdefault('stock_quantity', None)
+        if include_hidden or not p.get('is_hidden'):
+            result.append(p)
+    return result
 

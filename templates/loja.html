@@ -92,7 +92,7 @@
       {% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
       <div class="store-product-grid" id="storeProductGrid">
         {% for product in products %}
-        <article class="store-product-card" 
+        <article class="store-product-card {% if product.is_hidden %}is-product-hidden{% endif %}" 
                  data-id="{{ product.id }}" 
                  data-sport="{{ product.sport }}" 
                  data-category="{{ product.category }}" 
@@ -100,6 +100,9 @@
                  data-name="{{ product.name|lower }}"
                  data-json='{{ product|tojson|forceescape }}'>
           <div class="store-product-media store-media-{{ product.sport }} {% if product.is_sold_out %}is-sold-out{% endif %}" data-open-modal="{{ product.id }}">
+            {% if product.is_hidden %}
+            <span class="store-hidden-badge" title="Este produto está oculto para alunos e visitantes">👁️ OCULTO NO SITE</span>
+            {% endif %}
             {% if product.is_sold_out %}
             <div class="store-sold-out-ribbon">
               <span>⛔ {{ product.out_of_stock_text or 'ESGOTADO • CHEGARÁ EM BREVE' }} ⛔</span>
@@ -162,6 +165,9 @@
 
             <div class="store-product-footer">
               <div class="store-price">
+                {% if product.stock_quantity is not none %}
+                <span class="store-stock-count card-stock-element"><i data-lucide="boxes"></i> Estoque: <strong>{{ product.stock_quantity }}</strong> un.</span>
+                {% endif %}
                 <del class="card-old-price">{% if product.old_price %}R$ {{ '%.2f'|format(product.old_price)|replace('.', ',') }}{% endif %}</del>
                 <strong class="card-price">R$ {{ '%.2f'|format(product.price)|replace('.', ',') }}</strong>
                 <small>preço hipotético</small>
@@ -279,20 +285,39 @@
     <form id="storeEditProductForm" class="store-edit-form">
       <input type="hidden" id="editProductId" name="product_id">
       
-      <div class="store-form-group store-sold-out-toggle">
-        <label class="store-toggle-switch">
-          <input type="checkbox" id="editIsSoldOut" name="is_sold_out">
-          <span class="store-slider"></span>
-        </label>
-        <div class="store-toggle-label">
-          <strong>Marcar como ESGOTADO</strong>
-          <small>Exibe a faixa diagonal de indisponibilidade sobre a imagem do produto.</small>
+      <div class="store-form-row">
+        <div class="store-form-group store-sold-out-toggle">
+          <label class="store-toggle-switch">
+            <input type="checkbox" id="editIsSoldOut" name="is_sold_out">
+            <span class="store-slider"></span>
+          </label>
+          <div class="store-toggle-label">
+            <strong>Marcar como ESGOTADO</strong>
+            <small>Exibe a faixa diagonal de indisponibilidade.</small>
+          </div>
+        </div>
+
+        <div class="store-form-group store-hidden-toggle">
+          <label class="store-toggle-switch">
+            <input type="checkbox" id="editIsHidden" name="is_hidden">
+            <span class="store-slider store-slider-warning"></span>
+          </label>
+          <div class="store-toggle-label">
+            <strong>Ocultar da Loja</strong>
+            <small>Esconde o produto para os alunos.</small>
+          </div>
         </div>
       </div>
 
-      <div class="store-form-group" id="outOfStockTextGroup">
-        <label for="editOutOfStockText">Texto da Faixa de Esgotado</label>
-        <input type="text" id="editOutOfStockText" name="out_of_stock_text" placeholder="ESGOTADO • CHEGARÁ EM BREVE">
+      <div class="store-form-row">
+        <div class="store-form-group">
+          <label for="editStockQuantity">Qtd. em Estoque (Unidades)</label>
+          <input type="number" min="0" step="1" id="editStockQuantity" name="stock_quantity" placeholder="Ex: 15 (Opcional)">
+        </div>
+        <div class="store-form-group" id="outOfStockTextGroup">
+          <label for="editOutOfStockText">Texto da Faixa de Esgotado</label>
+          <input type="text" id="editOutOfStockText" name="out_of_stock_text" placeholder="ESGOTADO • CHEGARÁ EM BREVE">
+        </div>
       </div>
 
       <div class="store-form-row">

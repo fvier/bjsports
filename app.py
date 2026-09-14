@@ -2707,7 +2707,12 @@ def blog():
 @app.route('/loja')
 @app.route('/loja.html')
 def loja():
-    products = get_customized_products()
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    can_edit = bool(user_role in {'instrutor', 'admin', 'professor'})
+
+    products = get_customized_products(include_hidden=can_edit)
     store_categories = sorted(list({p['category'] for p in products if p.get('category')}))
     store_sports = [
         {'id': 'jiu-jitsu', 'name': 'Jiu-Jitsu'},
@@ -2715,10 +2720,6 @@ def loja():
         {'id': 'muay-thai', 'name': 'Muay Thai'},
         {'id': 'mma', 'name': 'MMA'}
     ]
-    user_id = session.get('user_id')
-    user = db.session.get(User, user_id) if user_id else None
-    user_role = session.get('user_role') or (user.role if user else None)
-    can_edit = bool(user_role in {'instrutor', 'admin', 'professor'})
     return render_template(
         'loja.html',
         products=products,
@@ -2740,6 +2741,16 @@ def edit_store_product(product_id):
     updates = {}
     if 'is_sold_out' in data:
         updates['is_sold_out'] = bool(data['is_sold_out'])
+    if 'is_hidden' in data:
+        updates['is_hidden'] = bool(data['is_hidden'])
+    if 'stock_quantity' in data:
+        if data['stock_quantity'] is not None and str(data['stock_quantity']).strip() != '':
+            try:
+                updates['stock_quantity'] = int(data['stock_quantity'])
+            except (ValueError, TypeError):
+                updates['stock_quantity'] = None
+        else:
+            updates['stock_quantity'] = None
     if 'out_of_stock_text' in data:
         updates['out_of_stock_text'] = str(data['out_of_stock_text']).strip()
     if 'name' in data and str(data['name']).strip():
@@ -2762,11 +2773,11 @@ def edit_store_product(product_id):
     if 'description' in data:
         updates['description'] = str(data['description']).strip() if data['description'] else None
 
-    updated_product = save_store_customization(product_id, updates)
-    if not updated_product:
-        return jsonify({'error': 'Produto não encontrado.'}), 404
+    save_store_customization(product_id, updates)
+    all_products = get_customized_products(include_hidden=True)
+    target_product = next((p for p in all_products if p['id'] == product_id), None)
 
-    return jsonify({'success': True, 'product': updated_product})
+    return jsonify({'success': True, 'product': target_product})
 
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
