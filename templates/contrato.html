@@ -29,8 +29,8 @@
       <section class="account-contract-status {{ 'is-pending' if contract_pending else 'is-current' }}" aria-live="polite">
         <i data-lucide="{{ 'file-warning' if contract_pending else 'badge-check' }}"></i>
         <div>
-          <strong>{{ 'Atualização aguardando seu aceite' if contract_pending else 'Contrato atualizado' }}</strong>
-          <p>{% if contract_pending %}Há uma nova versão disponível. Leia o texto abaixo e confirme no final da página.{% else %}Seu aceite corresponde à versão atual do contrato, do aviso de privacidade e da autorização registrada.{% endif %}</p>
+          <strong>{{ 'Contrato aguardando seu aceite' if contract_pending else 'Contrato atualizado' }}</strong>
+          <p>{% if contract_pending %}Leia o texto abaixo e confirme no final da página. O cadastro não registra aceite automático.{% if contract_deadline_status.deadline %} O prazo de 60 horas deste cadastro está informado no aviso do portal.{% endif %}{% else %}Seu aceite corresponde à versão atual do contrato, do aviso de privacidade e da autorização registrada.{% endif %}</p>
         </div>
       </section>
 
@@ -43,6 +43,9 @@
         <article><span>Autorização de imagem</span><strong>{{ image_consent_label }}</strong></article>
       </section>
 
+      {% if contract_deadline_status.deadline %}
+      <p class="registration-contract-notice"><strong>Procedimento deste cadastro:</strong> a criação da conta e o aceite são etapas separadas. Você tem 60 horas desde o cadastro para confirmar após entrar. O texto contratual abaixo será revisado em uma atualização futura; referências à conclusão do cadastro não representam aceite automático.</p>
+      {% endif %}
       <article class="account-contract-document" id="contractDocument">
         <header class="account-contract-document-head">
           <div class="account-contract-brand">
@@ -71,18 +74,19 @@
         <div><span>ACEITE NECESSÁRIO</span><h2>Confirme a versão atualizada</h2><p>O sistema guardará a versão, a data, o horário e o vínculo com sua conta.</p></div>
         <form method="POST" action="{{ url_for('contrato') }}">
           <input type="hidden" name="action" value="accept_contract_update">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           {% if image_authorization_required %}
           <fieldset class="contract-image-authorization" data-contract-image-choice>
             <legend>Autorização de imagem necessária</legend>
             <p>Para aceitar esta versão, escolha quem concede a autorização descrita nos itens 12 a 14.</p>
             <div class="contract-image-options">
-              <label><input type="radio" name="imageConsentScope" value="adult" required><span><i data-lucide="circle-check-big"></i><strong>Aluno adulto</strong><small>Tenho 18 anos ou mais e autorizo.</small></span></label>
+              <label><input type="radio" name="imageConsentScope" value="adult" required{% if contract_is_minor %} disabled{% endif %}><span><i data-lucide="circle-check-big"></i><strong>Aluno adulto</strong><small>Tenho 18 anos ou mais e autorizo.</small></span></label>
               <label><input type="radio" name="imageConsentScope" value="minor_guardian" required><span><i data-lucide="shield-check"></i><strong>Responsável pelo menor</strong><small>Autorizo como responsável legal.</small></span></label>
             </div>
             <div class="contract-guardian-fields hidden" data-contract-minor-fields>
-              <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" maxlength="120" autocomplete="name"></label>
-              <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
-              <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship"><option value="">Selecione</option><option value="mae">Mãe</option><option value="pai">Pai</option><option value="responsavel_legal">Responsável legal</option></select></label>
+              <label><span>Nome completo do responsável</span><input type="text" name="imageGuardianName" value="{{ contract_user.image_consent_guardian_name or '' }}" maxlength="120" autocomplete="name"></label>
+              <label><span>CPF do responsável</span><input type="text" name="imageGuardianCpf" value="{{ contract_user.image_consent_guardian_cpf or '' }}" data-cpf-mask placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></label>
+              <label><span>Vínculo com o aluno</span><select name="imageGuardianRelationship"><option value="">Selecione</option><option value="mae"{% if contract_user.image_consent_guardian_relationship == 'mae' %} selected{% endif %}>Mãe</option><option value="pai"{% if contract_user.image_consent_guardian_relationship == 'pai' %} selected{% endif %}>Pai</option><option value="responsavel_legal"{% if contract_user.image_consent_guardian_relationship == 'responsavel_legal' %} selected{% endif %}>Responsável legal</option></select></label>
             </div>
           </fieldset>
           {% endif %}

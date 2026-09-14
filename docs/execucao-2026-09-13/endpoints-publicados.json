@@ -1,0 +1,36 @@
+{
+  "/esp": {
+    "status": 200,
+    "final_url": "https://bjsports.com.br/esp"
+  },
+  "/api/firmware/check": {
+    "status": 200,
+    "final_url": "https://bjsports.com.br/api/firmware/check",
+    "catalog": {
+      "binary_available": false,
+      "device": "ESP32-WROOM-32",
+      "download_url": null,
+      "latest_version": "v2.2.0",
+      "mandatory": false,
+      "source_url": "http://bjsports.com.br/api/firmware/source.zip"
+    }
+  },
+  "/api/firmware/source.zip": {
+    "status": 200,
+    "final_url": "https://bjsports.com.br/api/firmware/source.zip",
+    "files": [
+      "bjsports-firmware/platformio.ini",
+      "bjsports-firmware/README.md",
+      "bjsports-firmware/esp32_catraca/esp32_catraca.ino",
+      "bjsports-firmware/esp32_catraca/access_policy.h"
+    ]
+  },
+  "/gestao_turmas.html": {
+    "status": 200,
+    "final_url": "https://bjsports.com.br/login.html?next=/gestao_turmas.html"
+  },
+  "/planos_admin.html": {
+    "status": 200,
+    "final_url": "https://bjsports.com.br/login.html?next=/planos_admin.html"
+  }
+}

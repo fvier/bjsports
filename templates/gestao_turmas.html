@@ -2,14 +2,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="erp-wrapper class-management-page">
+<div class="erp-wrapper class-management-page unified-management">
   {% include "_erp_sidebar.html" %}
 
   <div class="erp-main-container">
     <header class="erp-topbar">
       <div class="erp-topbar-left">
         <button class="erp-hamburger-toggle" id="erpHambergerBtn" title="Alternar menu"><i data-lucide="menu"></i></button>
-        <span class="erp-blue-badge">BJ Sports ERP • Gestão de Turmas e Filiais</span>
+        <span class="erp-blue-badge">BJ Sports ERP • Turmas e planos</span>
       </div>
       <div class="erp-topbar-right">
         {% include "_topbar_actions.html" %}
@@ -19,14 +19,22 @@
 
     <main class="erp-content class-management-content">
       <section class="class-management-heading">
-        <div><span><i data-lucide="clipboard-list"></i> GESTÃO OPERACIONAL</span><h1>Gestão de Turmas e Filiais</h1><p>Administre a grade oficial de cada filial/unidade, os responsáveis, horários, capacidade e vínculos dos alunos.</p></div>
+        <div><span><i data-lucide="clipboard-list"></i> GESTÃO OPERACIONAL</span><h1>Turmas e planos</h1><p>Organize as turmas, os horários e os planos oferecidos pela academia.</p></div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-          <a href="{{ url_for('gestao_turmas') }}" class="btn-sub-nav active"><i data-lucide="calendar-range"></i> Turmas</a>
           <a href="{{ url_for('locais_admin') }}" class="btn-sub-nav"><i data-lucide="map-pin"></i> Filiais</a>
           <a href="{{ url_for('gestao_icones') }}" class="btn-sub-nav"><i data-lucide="shapes"></i> Ícones</a>
-          <button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>
+          {% if management_tab == 'classes' %}<button type="button" class="class-management-primary" data-class-modal-open><i data-lucide="plus"></i>Nova turma</button>{% endif %}
         </div>
       </section>
+
+      <nav class="management-tabs" aria-label="Turmas e planos">
+        <a href="{{ url_for('gestao_turmas') }}" {% if management_tab == 'classes' %}aria-current="page"{% endif %}><i data-lucide="calendar-range"></i>Turmas</a>
+        <a href="{{ url_for('gestao_turmas', tab='plans') }}" {% if management_tab == 'plans' %}aria-current="page"{% endif %}><i data-lucide="tag"></i>Planos</a>
+      </nav>
+
+      {% if management_tab == 'plans' %}
+        {% include '_plan_catalog.html' %}
+      {% else %}
 
       <section class="class-management-kpis">
         <article><i data-lucide="layout-grid"></i><div><span>Turmas cadastradas</span><strong>{{ overview.classes }}</strong><small>Cadastros persistentes</small></div></article>
@@ -114,7 +122,7 @@
       <form class="class-management-filters" method="get">
         <label class="class-management-search"><span>Buscar turma</span><div><i data-lucide="search"></i><input type="search" name="q" value="{{ search_query }}" placeholder="Nome, modalidade ou instrutor"></div></label>
         <label><span>Filial / Unidade</span><select name="location_slug"><option value="todas">Todas as Unidades</option>{% for slug, loc in (locations_dict or {}).items() %}<option value="{{ slug }}" {% if location_filter == slug %}selected{% endif %}>{{ loc.name }}</option>{% endfor %}</select></label>
-        <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in ['Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'] %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
+        <label><span>Modalidade</span><select name="modality"><option value="todas">Todas</option>{% for modality in allowed_modalities %}<option value="{{ modality }}" {% if modality_filter == modality %}selected{% endif %}>{{ modality }}</option>{% endfor %}</select></label>
         <label><span>Situação</span><select name="status"><option value="todos">Todas</option><option value="ativa" {% if status_filter == 'ativa' %}selected{% endif %}>Ativa</option><option value="lotada" {% if status_filter == 'lotada' %}selected{% endif %}>Lotada</option><option value="rascunho" {% if status_filter == 'rascunho' %}selected{% endif %}>Rascunho</option><option value="suspensa" {% if status_filter == 'suspensa' %}selected{% endif %}>Suspensa</option></select></label>
         <button type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
         {% if search_query or modality_filter != 'todas' or status_filter != 'todos' or location_filter != 'todas' %}<a href="{{ url_for('gestao_turmas') }}" title="Limpar filtros"><i data-lucide="x"></i></a>{% endif %}
@@ -127,15 +135,15 @@
             <thead><tr><th>Turma</th><th>Dias e horários</th><th>Responsáveis</th><th>Valor da turma</th><th>Vínculos e check-ins</th><th>Situação</th><th aria-label="Ações"></th></tr></thead>
             <tbody>
               {% for class_item in classes %}
-              {% set occupancy = (class_item.enrolled / class_item.capacity * 100)|round|int %}
+              {% set occupancy = (class_item.enrolled / class_item.capacity * 100)|round|int if class_item.capacity else 0 %}
               <tr>
-                <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><img src="{{ url_for('static', filename='img/icons/' ~ class_item.icon_name ~ '_light.png') }}" alt="" aria-hidden="true"></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small></div></div></td>
+                <td><div class="class-management-name"><span class="modality-{{ class_item.modality|lower|replace(' ', '-')|replace('-', '') }}"><img src="{{ url_for('static', filename='img/icons/' ~ class_item.icon_name ~ '_light.png') }}" alt="" aria-hidden="true"></span><div><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}">{{ class_item.name }}</a><small>{{ class_item.modality }} • {{ class_item.audience }}</small><small>{{ class_item.formatted_age_range }}</small></div></div></td>
                 <td><div class="class-management-schedules">{% for schedule in class_item.schedules %}<span><i data-lucide="clock-3"></i>{{ schedule }}</span>{% endfor %}</div></td>
                 <td><div class="class-management-responsibles"><strong class="class-management-instructor">{{ class_item.instructor }}</strong><small>{{ 'Monitor: ' ~ class_item.responsible_monitor.name if class_item.responsible_monitor else 'Sem monitor responsável' }}</small></div></td>
                 <td><span class="class-management-value {% if class_item.class_value is none %}is-empty{% endif %}">{{ class_item.formatted_class_value }}</span></td>
                 <td><div class="class-management-occupancy"><span><strong>{{ class_item.enrolled }}/{{ class_item.capacity }} vinculados</strong><small>{{ occupancy }}%</small></span><div><i style="width:{{ occupancy }}%"></i></div><em>{{ class_item.checkin_people }} pessoa(s) • {{ class_item.checkin_records }} check-in(s)</em></div></td>
                 <td><span class="class-management-status is-{{ class_item.status }}"><i></i>{{ class_item.status|capitalize }}</span></td>
-                <td><div class="class-management-actions"><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}#checkins-da-turma" class="class-management-checkins" title="Ver pessoas que fizeram check-in"><i data-lucide="users-round"></i><span>{{ class_item.checkin_people }}</span></a><button type="button" class="class-management-edit" title="Editar turma" data-class-modal-open data-class-id="{{ class_item.id }}" data-class-name="{{ class_item.name }}" data-class-modality="{{ class_item.modality }}" data-class-audience="{{ class_item.audience }}" data-class-capacity="{{ class_item.capacity }}" data-class-value="{{ '%.2f'|format(class_item.class_value) if class_item.class_value is not none else '' }}" data-class-schedule="{{ class_item.schedules|join(' / ') }}" data-class-instructor="{{ class_item.instructor }}" data-responsible-monitor-id="{{ class_item.responsible_monitor_id or '' }}" data-class-duration="{{ class_item.duration_minutes }}" data-class-status="{{ class_item.status }}" data-class-location-slug="{{ class_item.location_slug }}" data-class-published="{{ '1' if class_item.publish_public else '0' }}" data-class-icon="{{ class_item.icon_name }}"><i data-lucide="pencil"></i></button></div></td>
+                <td><div class="class-management-actions"><a href="{{ url_for('gestao_turma_detalhes', class_id=class_item.id) }}#checkins-da-turma" class="class-management-checkins" title="Ver pessoas que fizeram check-in"><i data-lucide="users-round"></i><span>{{ class_item.checkin_people }}</span></a><button type="button" class="class-management-edit" title="Editar turma" data-class-modal-open data-class-id="{{ class_item.id }}" data-class-name="{{ class_item.name }}" data-class-modality="{{ class_item.modality }}" data-class-audience="{{ class_item.audience }}" data-class-min-age="{{ class_item.min_age if class_item.min_age is not none else '' }}" data-class-max-age="{{ class_item.max_age if class_item.max_age is not none else '' }}" data-class-capacity="{{ class_item.capacity }}" data-class-value="{{ '%.2f'|format(class_item.class_value) if class_item.class_value is not none else '' }}" data-class-schedule="{{ class_item.schedules|join(' / ') }}" data-class-instructor="{{ class_item.instructor }}" data-responsible-monitor-id="{{ class_item.responsible_monitor_id or '' }}" data-class-duration="{{ class_item.duration_minutes }}" data-class-status="{{ class_item.status }}" data-class-location-slug="{{ class_item.location_slug }}" data-class-published="{{ '1' if class_item.publish_public else '0' }}" data-class-icon="{{ class_item.icon_name }}"><i data-lucide="pencil"></i></button></div></td>
               </tr>
               {% else %}
               <tr><td colspan="7"><div class="class-management-empty"><i data-lucide="search-x"></i><strong>Nenhuma turma encontrada</strong><span>Ajuste ou limpe os filtros para visualizar a grade.</span></div></td></tr>
@@ -149,10 +157,12 @@
         <header><span>PONTOS PARA AVALIAR</span><h2>O que esta gestão poderá controlar</h2></header>
         <div><article><i data-lucide="calendar-cog"></i><strong>Grade e horários</strong><small>Dias, turnos, duração e conflitos de agenda.</small></article><article><i data-lucide="users"></i><strong>Capacidade</strong><small>Limite, ocupação e lista de espera por turma.</small></article><article><i data-lucide="user-round-cog"></i><strong>Responsáveis</strong><small>Instrutor principal e possíveis substituições.</small></article><article><i data-lucide="eye"></i><strong>Publicação</strong><small>Definir o que aparece na landing page e no check-in.</small></article></div>
       </section>
+      {% endif %}
     </main>
   </div>
 </div>
 
+{% if management_tab == 'classes' %}
 <div class="class-editor-backdrop {% if not class_form_state %}hidden{% endif %}" data-class-modal>
   <section class="class-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="classEditorTitle">
     <header><div><span>CADASTRO DE TURMA</span><h2 id="classEditorTitle" data-class-modal-title>Nova turma</h2><p>Preencha os dados que serão utilizados na gestão e no calendário.</p></div><button type="button" data-class-modal-close aria-label="Fechar"><i data-lucide="x"></i></button></header>
@@ -162,8 +172,11 @@
       <input type="hidden" name="class_id" value="">
       <label class="is-wide"><span>Nome da turma</span><input type="text" name="class_name" placeholder="Ex.: Jiu-Jitsu Iniciante" required></label>
       <label class="is-wide"><span>Filial / Unidade *</span><select name="class_location_slug" id="classLocationSlug">{% for slug, loc in (locations_dict or {}).items() %}<option value="{{ slug }}">{{ loc.name }} ({{ loc.city }}-{{ loc.state }})</option>{% endfor %}</select></label>
-      <label><span>Modalidade</span><select name="class_modality"><option>Jiu-Jitsu</option><option>Boxe</option><option>Muay Thai</option><option>MMA</option></select></label>
+      <label><span>Modalidade</span><select name="class_modality">{% for modality in allowed_modalities %}<option>{{ modality }}</option>{% endfor %}</select></label>
       <label><span>Público</span><select name="class_audience"><option>Adulto</option><option>Kids</option><option>Todos</option></select></label>
+      <label><span>Idade mínima</span><input type="number" name="class_min_age" min="0" max="150" step="1" inputmode="numeric" placeholder="Não definida" aria-describedby="classAgeHelp"></label>
+      <label><span>Idade máxima</span><input type="number" name="class_max_age" min="0" max="150" step="1" inputmode="numeric" placeholder="Não definida" aria-describedby="classAgeHelp"></label>
+      <p class="is-wide" id="classAgeHelp">Informe idades em anos completos. Campos vazios indicam limites ainda não definidos pela academia. O público Kids não define automaticamente uma idade.</p>
       <fieldset class="is-wide class-editor-icons">
         <legend>Ícone da turma</legend>
         <div>{% for preset in preset_icons %}<label><input type="radio" name="class_icon" value="{{ preset.icon }}" {% if loop.first %}checked{% endif %}><span><img src="{{ url_for('static', filename='img/icons/' ~ preset.icon ~ '_light.png') }}" alt=""><small>{{ preset.label }}</small></span></label>{% endfor %}</div>
@@ -181,4 +194,5 @@
   </section>
 </div>
 {% if class_form_state %}<script type="application/json" id="classFormRestore">{{ class_form_state|tojson }}</script>{% endif %}
+{% endif %}
 {% endblock %}

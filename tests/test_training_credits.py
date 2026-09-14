@@ -139,7 +139,9 @@ class TrainingCreditsTests(unittest.TestCase):
             db.session.remove()
             with db.engine.begin() as conn:
                 conn.execute(text('DROP TABLE attendance'))
-                conn.execute(text('CREATE TABLE attendance (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, class_group_id INTEGER, training_date DATE NOT NULL, modality VARCHAR(60), status VARCHAR(20), confirmed_by_username VARCHAR(80), confirmed_at DATETIME, created_at DATETIME, CONSTRAINT uq_attendance_day UNIQUE(user_id, training_date))'))
+                id_type = 'SERIAL' if conn.dialect.name == 'postgresql' else 'INTEGER'
+                timestamp_type = 'TIMESTAMP' if conn.dialect.name == 'postgresql' else 'DATETIME'
+                conn.execute(text(f'CREATE TABLE attendance (id {id_type} PRIMARY KEY, user_id INTEGER NOT NULL, class_group_id INTEGER, training_date DATE NOT NULL, modality VARCHAR(60), status VARCHAR(20), confirmed_by_username VARCHAR(80), confirmed_at {timestamp_type}, created_at {timestamp_type}, CONSTRAINT uq_attendance_day UNIQUE(user_id, training_date))'))
                 conn.execute(text("INSERT INTO attendance VALUES (42, :uid, :gid, '2026-08-01', 'Boxe', 'confirmado', 'instrutor', NULL, NULL)"), {'uid': self.user_id, 'gid': self.group_id})
             migrate_attendance_occurrences()
             migrate_attendance_occurrences()

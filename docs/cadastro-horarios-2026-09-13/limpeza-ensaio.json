@@ -1,0 +1,7 @@
+{
+  "test_container_removed": "bj-validation-db-schedule-20260914",
+  "anonymous_volume_removed": true,
+  "internal_test_network_removed": "bj-schedule-validation-20260914",
+  "production_modified": false,
+  "backups_preserved": true
+}

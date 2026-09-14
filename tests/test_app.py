@@ -7,8 +7,19 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 from unittest.mock import patch
 from openpyxl import load_workbook
+from sqlalchemy import text
 
-os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+test_database_url = os.environ.get('BJ_TEST_DATABASE_URL', 'sqlite:///:memory:')
+if test_database_url != 'sqlite:///:memory:':
+    from sqlalchemy.engine import make_url
+    test_database = make_url(test_database_url)
+    # A suíte apaga tabelas: aceitar somente banco e host de ensaio explícitos.
+    if (test_database.get_backend_name() != 'postgresql'
+            or not (test_database.database or '').startswith('bj_test_')
+            or not (test_database.host in {'localhost', '127.0.0.1'}
+                    or (test_database.host or '').startswith('bj-validation-db-'))):
+        raise RuntimeError('BJ_TEST_DATABASE_URL deve apontar para um PostgreSQL isolado bj_test_.')
+os.environ['DATABASE_URL'] = test_database_url
 os.environ['SECRET_KEY'] = 'test-only-secret-key'
 os.environ.pop('SEED_DEMO_DATA', None)
 
@@ -75,117 +86,113 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('data-flash-duration="2800"', dashboard.get_data(as_text=True))
         self.assertIn('data-flash-close', dashboard.get_data(as_text=True))
 
-    def test_registration_requires_versioned_terms_and_image_authorization(self):
-        page = self.client.get('/login.html?mode=register').get_data(as_text=True)
-        self.assertIn('TERMO DE ADESÃO', page)
-        self.assertIn('Seu contrato, sem letras miúdas', page)
-        self.assertIn('Cancelamento da matrícula', page)
-        self.assertIn('Saúde física, saúde mental e bem-estar', page)
-        self.assertIn('Seus direitos sobre os dados', page)
-        self.assertIn('Alunos menores de idade', page)
-        self.assertIn('<strong>Enquanto existir débito vencido, o sistema poderá impedir novos check-ins e reservas.</strong>', page)
-        self.assertIn('<strong>A BJ Sports definiu esta autorização como uma condição para concluir uma nova matrícula por este cadastro.</strong>', page)
-        self.assertIn('Imagem de crianças e adolescentes', page)
-        self.assertIn('melhor interesse do menor', page)
-        self.assertIn('name="acceptMembershipTerms"', page)
-        self.assertIn('name="acknowledgePrivacy"', page)
-        self.assertIn('name="confirmLegalCapacity"', page)
-        self.assertIn('name="imageConsentScope"', page)
-        self.assertIn('value="minor_guardian"', page)
-        self.assertIn('Revise e confirme suas escolhas', page)
-        self.assertIn('Nenhuma foto será enviada agora.', page)
-        self.assertNotIn('Prefiro não aparecer', page)
-        self.assertIn('Autorizo como aluno adulto', page)
-        self.assertIn('Autorizo pelo aluno menor', page)
-        self.assertIn('Sem a autorização, o cadastro não será concluído.', page)
-        self.assertIn('name="regEmail"', page)
-        self.assertIn('placeholder="Ex: 83"', page)
-        self.assertIn('placeholder="9 9999 9999"', page)
-        self.assertIn('type="hidden" name="regDueDate"', page)
-        self.assertIn("const storageKey = 'bjSportsRegistrationDraft';", page)
-        self.assertIn("['csrf_token', 'action', 'regPass'].includes(name)", page)
-        self.assertIn('placeholder="Crie um apelido"', page)
-        self.assertIn('name="regSex"', page)
-        self.assertIn('Prefiro não informar', page)
-        self.assertIn('<option value="" selected disabled>Selecione uma modalidade</option>', page)
-        self.assertNotIn('Plano Passe Livre', page)
-        self.assertIn('data-plan-schedule="ter-qui"', page)
-        self.assertIn('data-plan-schedule="seg-qua-sex"', page)
-        self.assertIn('data-plan-schedule="todos"', page)
-        self.assertIn('Todos dias', page)
-        self.assertLess(page.index('Seg - Qua - Sex'), page.index('Ter &amp; Qui'))
-        self.assertIn('data-schedule-price', page)
-        self.assertIn('const selectedPrices = selectedPlan?.prices || {};', page)
-        self.assertIn('renderPlanOptions();', page)
-        self.assertIn('Cadastro de aluno menor de idade', page)
-        self.assertNotIn('👶', page)
-        self.assertIn('Aula Particular', page)
-        self.assertEqual(page.count('name="comboModalities"'), 3)
-        self.assertIn('id="comboModalityFields"', page)
-        self.assertIn('name="privateInstructor"', page)
-        self.assertIn('<optgroup label="Professores">', page)
-        self.assertIn('<optgroup label="Monitores">', page)
-        self.assertLess(page.index('<optgroup label="Professores">'), page.index('<optgroup label="Monitores">'))
-        self.assertIn('class="is-approved"', page)
-        self.assertEqual(self.client.get('/treinoteca.html').status_code, 404)
+    def registration_payload(self, **overrides):
         with app.app_context():
-            plan = Plan.query.one()
+            plan = Plan.query.first()
             plan_value = f'{plan.name} — {plan.price}'
-
-        registration = {
+        return dict({
             'action': 'register', 'regUsername': 'novoaluno', 'regName': 'Novo Aluno',
             'regCpf': '529.982.247-25', 'regDDD': '83', 'regPhoneNumber': '9 9999 9999',
             'regEmail': 'novoaluno@example.com', 'regSex': 'prefer_not',
-            'regBirthDate': '1990-05-10',
-            'regPlan': plan_value, 'regTrainingDays': 'seg-qua-sex',
-            'regDueDate': '15', 'regPass': 'Senha123',
-        }
-        denied = self.client.post('/login', data={
-            **registration, 'csrf_token': self.csrf(),
-        }, follow_redirects=True)
-        self.assertIn('Leia e aceite o termo de adesão', denied.get_data(as_text=True))
-        self.assertIn('mode=register', denied.request.url)
-        with app.app_context():
-            self.assertIsNone(User.query.filter_by(username='novoaluno').first())
+            'regBirthDate': '1990-05-10', 'regPlan': plan_value,
+            'regTrainingDays': 'seg-qua-sex', 'regDueDate': '15', 'regPass': 'Senha123',
+        }, **overrides)
 
-        denied_password = self.client.post('/login', data={
-            **registration, 'regPass': 'senhafraca', 'acceptMembershipTerms': 'on',
-            'acknowledgePrivacy': 'on', 'confirmLegalCapacity': 'on',
-            'imageConsentScope': 'adult', 'csrf_token': self.csrf(),
-        }, follow_redirects=True)
-        self.assertIn('com número, letra maiúscula e letra minúscula', denied_password.get_data(as_text=True))
-
-        denied_image = self.client.post('/login', data={
-            **registration, 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
-            'confirmLegalCapacity': 'on', 'csrf_token': self.csrf(),
-        }, follow_redirects=True)
-        self.assertIn('autorize o uso de imagem', denied_image.get_data(as_text=True))
-        with app.app_context():
-            self.assertIsNone(User.query.filter_by(username='novoaluno').first())
-
-        accepted = self.client.post('/login', data={
-            **registration, 'acceptMembershipTerms': 'on', 'acknowledgePrivacy': 'on',
-            'confirmLegalCapacity': 'on', 'imageConsentScope': 'adult',
-            'csrf_token': self.csrf(),
-        })
-        self.assertEqual(accepted.status_code, 302)
-        self.assertTrue(accepted.headers['Location'].endswith('/dashboard'))
+    def test_registration_creates_pending_account_with_60_hour_deadline(self):
+        page = self.client.get('/login?mode=register').get_data(as_text=True)
+        self.assertIn('Usuário, CPF ou e-mail', page)
+        self.assertIn('name="regDDD"', page)
+        self.assertIn('id="minorConsentFields"', page)
+        self.assertIn('60 horas desde o cadastro', page)
+        self.assertNotIn('name="acceptMembershipTerms"', page)
+        from registration_rules import BRAZIL_DDDS
+        self.assertEqual(len(BRAZIL_DDDS), 67)
+        for ddd in BRAZIL_DDDS:
+            self.assertIn(f'value="{ddd}"', page)
+        response = self.client.post('/login', data={**self.registration_payload(), 'csrf_token': self.csrf()})
+        self.assertEqual(response.status_code, 302)
         with app.app_context():
             user = User.query.filter_by(username='novoaluno').one()
-            self.assertEqual(user.membership_terms_version, MEMBERSHIP_TERMS_VERSION)
-            self.assertIsNotNone(user.membership_terms_accepted_at)
-            self.assertEqual(user.privacy_notice_version, '2026-08-17')
-            self.assertIsNotNone(user.privacy_notice_accepted_at)
-            self.assertTrue(user.image_use_consent)
-            self.assertIsNotNone(user.image_use_consent_at)
-            self.assertEqual(user.image_consent_scope, 'adult')
-            self.assertEqual(user.email, 'novoaluno@example.com')
-            self.assertEqual(user.sex, 'prefer_not')
+            self.assertEqual(user.cpf, '52998224725')
+            self.assertEqual(user.ddd, '83')
             self.assertEqual(user.phone, '999999999')
-            self.assertEqual(user.plan, 'Plano Teste • Seg, Qua, Sex — R$ 100,00/mês')
-            acceptance = ContractAcceptance.query.filter_by(user_id=user.id).one()
-            self.assertEqual(acceptance.source, 'registration')
-            self.assertEqual(acceptance.membership_terms_version, MEMBERSHIP_TERMS_VERSION)
+            self.assertIsNone(user.membership_terms_accepted_at)
+            self.assertIsNone(user.membership_terms_version)
+            self.assertFalse(user.image_use_consent)
+            self.assertEqual(ContractAcceptance.query.filter_by(user_id=user.id).count(), 0)
+            self.assertAlmostEqual((user.contract_due_at - user.created_at).total_seconds(), 60 * 3600, delta=2)
+        self.assertEqual(self.client.get('/presencas').status_code, 200)
+
+    def test_registration_ignores_forged_consent_and_rejects_invalid_ddd(self):
+        rejected = self.client.post('/login', data={**self.registration_payload(regDDD='20'), 'csrf_token': self.csrf()}, follow_redirects=True)
+        self.assertIn('DDD brasileiro', rejected.get_data(as_text=True))
+        with app.app_context():
+            self.assertIsNone(User.query.filter_by(username='novoaluno').first())
+        self.client.post('/login', data={**self.registration_payload(acceptMembershipTerms='on', imageConsentScope='adult'), 'csrf_token': self.csrf()})
+        with app.app_context():
+            user = User.query.filter_by(username='novoaluno').one()
+            self.assertFalse(user.image_use_consent)
+            self.assertEqual(ContractAcceptance.query.count(), 0)
+
+    def test_registration_cpf_variants_do_not_create_duplicate_accounts(self):
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            user.cpf = '52998224725'
+            db.session.commit()
+            # Simula armazenamento legado pontuado sem passar pelo validador ORM.
+            db.session.execute(text('UPDATE "user" SET cpf = :cpf WHERE id = :id'), {'cpf':'529.982.247-25', 'id':user.id})
+            db.session.commit()
+        for value in ['529.982.247-25', '52998224725', '529 982 247 25']:
+            self.client.post('/login', data={**self.registration_payload(regCpf=value), 'csrf_token': self.csrf()})
+        with app.app_context():
+            self.assertIsNone(User.query.filter_by(username='novoaluno').first())
+            self.assertEqual(ContractAcceptance.query.count(), 0)
+        self.assertEqual(self.login('52998224725').status_code, 302)
+        with self.client.session_transaction() as session_data:
+            self.assertEqual(session_data['username'], 'aluno')
+
+    def test_login_accepts_email_case_insensitively(self):
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            user.email = 'aluno@example.com'
+            db.session.commit()
+        self.login('ALUNO@EXAMPLE.COM')
+        with self.client.session_transaction() as data:
+            self.assertEqual(data['username'], 'aluno')
+
+    def test_contract_deadline_blocks_only_new_accounts_until_explicit_acceptance(self):
+        self.client.post('/login', data={**self.registration_payload(), 'csrf_token': self.csrf()})
+        with app.app_context():
+            user = User.query.filter_by(username='novoaluno').one()
+            user.contract_due_at = datetime.utcnow() - timedelta(seconds=1)
+            db.session.commit()
+        self.assertIn('/minha-conta/contrato', self.client.get('/dashboard').location)
+        self.assertIn('/minha-conta/contrato', self.client.post('/presencas', data={'csrf_token': self.csrf()}).location)
+        response = self.client.post('/minha-conta/contrato', data={'action':'accept_contract_update', 'imageConsentScope':'adult', 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(ContractAcceptance.query.count(), 0)
+        response = self.client.post('/minha-conta/contrato', data={'action':'accept_contract_update', 'acceptContractUpdate':'on', 'imageConsentScope':'adult', 'csrf_token':self.csrf()})
+        self.assertEqual(self.client.get('/dashboard').status_code, 200)
+        with app.app_context():
+            user = User.query.filter_by(username='novoaluno').one()
+            accepted = ContractAcceptance.query.filter_by(user_id=user.id).one()
+            self.assertEqual(user.membership_terms_accepted_at, accepted.accepted_at)
+            self.assertEqual(user.membership_terms_version, accepted.membership_terms_version)
+        self.client.post('/minha-conta/contrato', data={'action':'accept_contract_update', 'acceptContractUpdate':'on', 'imageConsentScope':'adult', 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(ContractAcceptance.query.count(), 1)
+
+    def test_old_pending_accounts_are_not_blocked_or_given_new_deadlines(self):
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            user.created_at = datetime.utcnow() - timedelta(days=100)
+            db.session.commit()
+        self.login('aluno')
+        self.assertEqual(self.client.get('/dashboard').status_code, 200)
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            self.assertIsNone(user.contract_due_at)
+            self.assertEqual(ContractAcceptance.query.count(), 0)
 
     def test_minor_image_consent_requires_and_records_legal_guardian(self):
         with app.app_context():
@@ -216,12 +223,67 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(accepted.status_code, 302)
         with app.app_context():
             user = User.query.filter_by(username='alunomenor').one()
-            self.assertTrue(user.image_use_consent)
-            self.assertEqual(user.image_consent_scope, 'minor_guardian')
+            self.assertFalse(user.image_use_consent)
+            self.assertEqual(user.image_consent_scope, 'none')
             self.assertEqual(user.image_consent_guardian_name, 'Maria Responsável')
-            self.assertEqual(user.image_consent_guardian_cpf, '529.982.247-25')
+            self.assertEqual(user.image_consent_guardian_cpf, '52998224725')
             self.assertEqual(user.image_consent_guardian_relationship, 'mae')
-            self.assertIsNotNone(user.image_use_consent_at)
+            self.assertIsNone(user.image_use_consent_at)
+            self.assertEqual(ContractAcceptance.query.filter_by(user_id=user.id).count(), 0)
+
+    def test_minor_must_use_guardian_at_explicit_contract_acceptance(self):
+        payload = self.registration_payload(regBirthDate='2014-05-10', imageGuardianName='Responsável Teste',
+                    imageGuardianCpf='111.444.777-35', imageGuardianRelationship='mae')
+        self.client.post('/login', data={**payload, 'csrf_token':self.csrf()})
+        self.client.post('/minha-conta/contrato', data={'action':'accept_contract_update',
+            'acceptContractUpdate':'on', 'imageConsentScope':'adult', 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(ContractAcceptance.query.count(), 0)
+        self.client.post('/minha-conta/contrato', data={'action':'accept_contract_update',
+            'acceptContractUpdate':'on', 'imageConsentScope':'minor_guardian',
+            'imageGuardianName':'Responsável Teste', 'imageGuardianCpf':'111.444.777-35',
+            'imageGuardianRelationship':'mae', 'csrf_token':self.csrf()})
+        with app.app_context():
+            user = User.query.filter_by(username='novoaluno').one()
+            self.assertEqual(user.image_consent_scope, 'minor_guardian')
+            self.assertEqual(user.image_consent_guardian_cpf, '11144477735')
+            self.assertEqual(ContractAcceptance.query.filter_by(user_id=user.id).count(), 1)
+
+    def test_contract_deadline_boundary_and_login_does_not_extend_it(self):
+        from app import contract_status
+        self.client.post('/login', data={**self.registration_payload(), 'csrf_token':self.csrf()})
+        with app.app_context():
+            user = User.query.filter_by(username='novoaluno').one()
+            deadline = user.contract_due_at
+            self.assertFalse(contract_status(user, deadline-timedelta(microseconds=1))['expired'])
+            self.assertTrue(contract_status(user, deadline)['expired'])
+        with self.client.session_transaction() as data:
+            data.clear()
+        self.login('novoaluno', 'Senha123')
+        with app.app_context():
+            self.assertEqual(User.query.filter_by(username='novoaluno').one().contract_due_at, deadline)
+
+    def test_database_rejects_normalized_cpf_collision(self):
+        from sqlalchemy.exc import IntegrityError
+        with app.app_context():
+            users = User.query.order_by(User.id).limit(2).all()
+            db.session.execute(text('UPDATE "user" SET cpf = :cpf WHERE id = :id'), {'cpf':'529.982.247-25','id':users[0].id})
+            db.session.commit()
+            with self.assertRaises(IntegrityError):
+                db.session.execute(text('UPDATE "user" SET cpf = :cpf WHERE id = :id'), {'cpf':'52998224725','id':users[1].id})
+                db.session.commit()
+            db.session.rollback()
+
+    def test_catracadoc_is_public_and_marks_physical_validation_pending(self):
+        response = self.client.get('/catracadoc')
+        self.assertEqual(response.status_code, 200)
+        page = response.get_data(as_text=True)
+        self.assertIn('O botão ainda não foi validado na placa.', page)
+        self.assertIn('GPIO27', page)
+        self.assertIn('10 minutos', page)
+        self.assertIn('api/firmware/source.zip', page)
+        self.assertNotIn('bjsports123', page)
+        self.assertNotIn('bjsports-catraca-secret', page)
 
     def test_private_class_requires_and_records_selected_professional(self):
         payload = {
@@ -303,7 +365,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Jiu-Jitsu Kids 2', page)
         self.assertNotIn('Jiu-Jitsu Kids 2 (a partir de 8 anos)', page)
         self.assertIn('class="experimental-checkbox-label"', page)
-        self.assertIn('<strong>Aula Experimental Grátis</strong>', page)
+        self.assertIn('Agendar Aula Experimental Grátis', page)
         self.assertIn('experimental-checkbox-action', page)
 
     def test_landing_schedule_comes_from_public_class_management_records(self):
@@ -800,7 +862,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(self.client.get('/campeonatos/interno').status_code, 200)
         self.assertEqual(self.client.get('/campeonatos/placar').status_code, 200)
         self.assertEqual(self.client.get('/gestao/turmas').status_code, 200)
-        self.assertEqual(self.client.get('/planos_admin').status_code, 200)
+        self.assertEqual(self.client.get('/gestao_turmas.html?tab=plans').status_code, 200)
         self.assertEqual(self.client.get('/gestao').status_code, 200)
 
     def test_financial_reports_export_pdf_via_markdown_and_detailed_xlsx(self):
@@ -957,8 +1019,8 @@ class BJSportsTestCase(unittest.TestCase):
         instructor_menu = self.client.get('/dashboard').get_data(as_text=True)
         self.assertIn('FINANCEIRO E ADMINISTRAÇÃO', instructor_menu)
         self.assertIn('Visão Financeira', instructor_menu)
-        self.assertIn('Turmas e Filiais', instructor_menu)
-        self.assertIn('Planos', instructor_menu)
+        self.assertIn('Turmas e planos', instructor_menu)
+        self.assertNotIn('/planos_admin', instructor_menu)
         self.assertIn('Mensalidades', instructor_menu)
         self.assertIn('Usuários e Permissões', instructor_menu)
         self.assertIn('Graduações', instructor_menu)
@@ -981,9 +1043,9 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('Integrações • Catraca', turnstile_page)
         self.assertIn('FORMAS DE IDENTIFICAÇÃO', turnstile_page)
         self.assertIn('REGRAS DE LIBERAÇÃO', turnstile_page)
-        self.assertIn('Topdata Fit Easy com leitor facial', turnstile_page)
+        self.assertIn('ESP32-WROOM-32', turnstile_page)
         self.assertIn('APIs abertas informadas', turnstile_page)
-        self.assertIn('Nenhuma catraca está sendo comandada', turnstile_page)
+        self.assertIn('Validação física pendente', turnstile_page)
         championship_page = self.client.get('/campeonatos/interno').get_data(as_text=True)
         self.assertIn('Campeonatos internos', championship_page)
         self.assertIn('Novo campeonato', championship_page)
@@ -1230,9 +1292,101 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertEqual(self.client.get('/loja').status_code, 200)
         self.assertEqual(self.client.get('/loja.html').status_code, 200)
 
+    def test_legacy_plan_routes_redirect_get_and_reject_post_without_writes(self):
+        self.login('instrutor')
+        csrf = self.csrf()
+        for path in ('/planos_admin', '/planos_admin.html'):
+            response = self.client.get(path + '?tab=plans')
+            self.assertEqual(response.status_code, 302)
+            self.assertIn('/gestao_turmas.html?tab=plans&plan_tab=plans', response.location)
+            response = self.client.post(path, data={
+                'csrf_token': csrf, 'action': 'delete', 'plan_id': 1,
+            })
+            self.assertEqual(response.status_code, 405)
+        with app.app_context():
+            self.assertEqual(Plan.query.count(), 1)
+            self.assertEqual(Plan.query.first().name, 'Plano Teste')
+
+    def test_unified_tabs_preserve_data_and_separate_mutation_targets(self):
+        self.login('instrutor')
+        self.client.get('/gestao_turmas.html')
+        with app.app_context():
+            before_users = [(u.id, u.plan) for u in User.query.order_by(User.id)]
+            before_plans = [(p.id, p.name, p.price) for p in Plan.query.order_by(Plan.id)]
+            before_groups = ClassGroup.query.count()
+            before_payments = MonthlyPayment.query.count()
+        plans_page = self.client.get('/gestao_turmas.html?tab=plans').get_data(as_text=True)
+        self.assertIn('Turmas e planos', plans_page)
+        self.assertIn('name="action" value="plan_create"', plans_page)
+        self.assertNotIn('data-class-modal>', plans_page)
+        self.assertNotIn('class="class-management-kpis"', plans_page)
+        self.assertNotIn('/planos_admin', plans_page)
+        self.assertNotIn('name="action" value="plan_create"', self.client.get('/gestao_turmas.html').get_data(as_text=True))
+        for path, action in [('/gestao_turmas.html?tab=plans', 'create'),
+                             ('/gestao_turmas.html', 'plan_unknown')]:
+            response = self.client.post(path, data={'action': action, 'csrf_token': self.csrf()})
+            self.assertEqual(response.status_code, 400)
+        with app.app_context():
+            self.assertEqual(before_users, [(u.id, u.plan) for u in User.query.order_by(User.id)])
+            self.assertEqual(before_plans, [(p.id, p.name, p.price) for p in Plan.query.order_by(Plan.id)])
+            self.assertEqual(before_groups, ClassGroup.query.count())
+            self.assertEqual(before_payments, MonthlyPayment.query.count())
+
+    def test_unified_plan_write_requires_instructor_and_csrf(self):
+        for role in ('aluno', 'monitor'):
+            self.login(role)
+            self.assertEqual(self.client.get('/gestao_turmas.html?tab=plans').status_code, 302)
+            response = self.client.post('/gestao_turmas.html?tab=plans', data={
+                'action': 'plan_delete', 'plan_id': 1, 'csrf_token': self.csrf(),
+            })
+            self.assertEqual(response.status_code, 302)
+            with self.client.session_transaction() as data:
+                data.clear()
+        self.login('instrutor')
+        response = self.client.post('/gestao_turmas.html?tab=plans', data={'action': 'plan_delete', 'plan_id': 1})
+        self.assertEqual(response.status_code, 400)
+        with app.app_context():
+            self.assertEqual(Plan.query.count(), 1)
+
+    def test_invalid_plan_retains_form_without_changing_account_or_catalog(self):
+        self.login('instrutor')
+        payload = {'action': 'plan_update', 'plan_id': 1, 'name': 'Nome digitado',
+                   'category': 'Planos Individuais', 'modalities': ['Boxe'],
+                   'price_ter_qui': 'inválido', 'price_seg_qua_sex': 'R$ 100,00/mês',
+                   'price_all_days': 'R$ 120,00/mês', 'features': 'Benefício digitado',
+                   'return_tab': 'modalities', 'csrf_token': self.csrf()}
+        response = self.client.post('/gestao_turmas.html?tab=plans', data=payload)
+        self.assertEqual(response.status_code, 400)
+        page = response.get_data(as_text=True)
+        self.assertIn('Não foi possível salvar o plano', page)
+        self.assertIn('Nome digitado', page)
+        self.assertIn('id="planCatalogState"', page)
+        with self.client.session_transaction() as session_data:
+            self.assertNotIn('plan_form_state', session_data)
+        with app.app_context():
+            self.assertEqual(Plan.query.first().name, 'Plano Teste')
+            self.assertEqual(User.query.filter_by(username='aluno').one().plan, 'Plano Teste — R$ 100,00/mês')
+
+    def test_plan_database_failure_rolls_back_catalog_and_linked_accounts(self):
+        from sqlalchemy.exc import SQLAlchemyError
+        self.login('instrutor')
+        csrf = self.csrf()
+        with patch('app.db.session.commit', side_effect=SQLAlchemyError('falha simulada')):
+            response = self.client.post('/gestao_turmas.html?tab=plans', data={
+                'action': 'plan_update', 'plan_id': 1, 'name': 'Nome após edição',
+                'category': 'Planos Individuais', 'modalities': ['Jiu-Jitsu'],
+                'price': 'R$ 130,00/mês', 'return_tab': 'modalities', 'csrf_token': csrf,
+            })
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Nenhuma alteração foi salva', response.get_data(as_text=True))
+        with app.app_context():
+            self.assertEqual(Plan.query.first().name, 'Plano Teste')
+            self.assertEqual(Plan.query.first().price, 'R$ 100,00/mês')
+            self.assertEqual(User.query.filter_by(username='aluno').one().plan, 'Plano Teste — R$ 100,00/mês')
+
     def test_plan_admin_is_central_source_for_modalities_and_enrollments(self):
         self.login('instrutor')
-        page = self.client.get('/planos_admin').get_data(as_text=True)
+        page = self.client.get('/gestao_turmas.html?tab=plans').get_data(as_text=True)
         self.assertIn('data-plan-tab="modalities"', page)
         self.assertIn('data-plan-tab="plans"', page)
         self.assertIn('class="plan-admin-table', page)
@@ -1240,7 +1394,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertNotIn('<th>Benefícios</th>', page)
         self.assertNotIn('<th>Nome</th>', page)
         self.assertNotIn('<th>Descrição</th>', page)
-        self.assertIn('<thead><tr><th>Ações</th><th>Modalidades</th><th>Horários</th>', page)
+        self.assertIn('<thead><tr><th>Ações</th><th>Modalidade</th><th>Horários</th>', page)
         self.assertNotIn('plan-row-identity', page)
         self.assertIn('class="plan-modality-text"', page)
         self.assertIn('Planos totalmente personalizados', page)
@@ -1250,14 +1404,14 @@ class BJSportsTestCase(unittest.TestCase):
         self.assertIn('<th>3 aulas/semana*</th>', page)
         self.assertIn('<th>Ilimitado*</th>', page)
         self.assertIn('data-plan-benefits-toggle=', page)
-        created = self.client.post('/planos_admin', data={
-            'action': 'create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',
+        created = self.client.post('/gestao_turmas.html?tab=plans', data={
+            'action': 'plan_create', 'name': 'Plano Boxe Central', 'category': 'Planos Individuais',
             'price': 'R$ 110,00/mês', 'modalities': ['Boxe'], 'sub': 'Boxe oficial',
             'features': 'Técnica; Condicionamento', 'return_tab': 'modalities',
             'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('cadastrados. O catálogo já foi atualizado', created.get_data(as_text=True))
-        self.assertEqual(created.request.args.get('tab'), 'modalities')
+        self.assertEqual(created.request.args.get('plan_tab'), 'modalities')
         with app.app_context():
             plan = Plan.query.filter_by(name='Plano Boxe Central').one()
             self.assertEqual(plan.modality, 'Boxe')
@@ -1266,8 +1420,8 @@ class BJSportsTestCase(unittest.TestCase):
             db.session.commit()
             plan_id = plan.id
 
-        updated = self.client.post('/planos_admin', data={
-            'action': 'update', 'plan_id': plan_id, 'name': 'Boxe Essencial',
+        updated = self.client.post('/gestao_turmas.html?tab=plans', data={
+            'action': 'plan_update', 'plan_id': plan_id, 'name': 'Boxe Essencial',
             'category': 'Planos Individuais', 'price_ter_qui': 'R$ 105,00/mês',
             'price_seg_qua_sex': 'R$ 115,00/mês', 'price_all_days': 'R$ 130,00/mês',
             'modalities': ['Boxe'], 'sub': 'Plano atualizado', 'features': 'Técnica; Defesa',
@@ -1281,8 +1435,8 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(plan.get_price_for_schedule('seg-qua-sex'), 'R$ 115,00/mês')
             self.assertEqual(plan.get_price_for_schedule('todos'), 'R$ 130,00/mês')
 
-        blocked = self.client.post('/planos_admin', data={
-            'action': 'delete', 'plan_id': plan_id, 'csrf_token': self.csrf(),
+        blocked = self.client.post('/gestao_turmas.html?tab=plans', data={
+            'action': 'plan_delete', 'plan_id': plan_id, 'csrf_token': self.csrf(),
         }, follow_redirects=True)
         self.assertIn('Não é possível excluir', blocked.get_data(as_text=True))
         with app.app_context():
@@ -1482,7 +1636,7 @@ class BJSportsTestCase(unittest.TestCase):
     def test_booking_is_persisted(self):
         response = self.client.post('/api/bookings', json={'login_or_name': 'Visitante Teste', **self.booking_slot(),
             'cpf3': '', 'modality': 'Jiu-Jitsu', 'shift_time': 'Segunda 19:00',
-            'is_experimental': True}, headers={'X-CSRF-Token': self.csrf()})
+            'is_experimental': True, 'risk_consent': True}, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 201)
         with app.app_context():
             self.assertEqual(Booking.query.count(), 1)
@@ -1490,7 +1644,7 @@ class BJSportsTestCase(unittest.TestCase):
     def test_booking_reserves_last_spot_and_rejects_full_class(self):
         slot = self.booking_slot(capacity=1)
         payload = {'login_or_name': 'Visitante Um', 'cpf3': '', 'modality': 'Jiu-Jitsu',
-                   'shift_time': 'Segunda 19:00', 'is_experimental': True, **slot}
+                   'shift_time': 'Segunda 19:00', 'is_experimental': True, 'risk_consent': True, **slot}
         first = self.client.post('/api/bookings', json=payload, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(first.status_code, 201)
         self.assertEqual(first.get_json()['remaining'], 0)
@@ -1557,13 +1711,14 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertEqual(Attendance.query.count(), 0)
 
     def test_student_in_active_60h_trial_can_register_attendance(self):
+        slot = self.portal_slot(enrolled=False)
         self.login('aluno')
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
             student.payment_status = 'Pendente'
             student.created_at = datetime.utcnow() - timedelta(hours=12)
             db.session.commit()
-        response = self.client.post('/presencas', data={'csrf_token': self.csrf()}, follow_redirects=True)
+        response = self.client.post('/presencas', data={'class_slot':slot, 'is_experimental':'1', 'csrf_token': self.csrf()}, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         page = response.get_data(as_text=True)
         self.assertNotIn('Check-in bloqueado', page)
@@ -1606,10 +1761,74 @@ class BJSportsTestCase(unittest.TestCase):
         }, headers={'X-CSRF-Token': self.csrf()})
         self.assertEqual(response.status_code, 400)
 
-    def test_attendance_is_idempotent_per_day(self):
+    def portal_slot(self, enrolled=True, capacity=20, status='ativa', day_offset=0):
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            group = ClassGroup(name=f'Turma Teste {ClassGroup.query.count()}', modality='MMA', audience='Adulto',
+                               instructor='Instrutor', capacity=capacity, status=status)
+            day = ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')[(datetime.now().weekday() + day_offset) % 7]
+            group.schedules = [f'{day} • 18:00 e 19:00']
+            db.session.add(group)
+            db.session.flush()
+            if enrolled:
+                db.session.add(ClassEnrollment(user_id=user.id, class_group_id=group.id, active=True))
+            db.session.commit()
+            return f'{group.id}|18:00'
+
+    def test_non_credit_checkin_rejects_inactive_wrong_day_and_zero_capacity(self):
+        self.login('aluno')
+        valid = self.portal_slot()
+        for slot in [self.portal_slot(status='inativa'), self.portal_slot(day_offset=1), self.portal_slot(capacity=0)]:
+            self.client.post('/presencas', data={'class_slot':slot, 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 0)
+        self.client.post('/presencas', data={'class_slot':valid, 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 1)
+
+    def test_non_credit_checkin_requires_own_enrollment_and_plan_modality(self):
+        self.login('aluno')
+        own = self.portal_slot()
+        other = self.portal_slot(enrolled=False)
+        self.client.post('/presencas', data={'class_slot':other, 'csrf_token':self.csrf()})
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            user.selected_modalities = 'Boxe'
+            db.session.commit()
+        self.client.post('/presencas', data={'class_slot':own, 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 0)
+
+    def test_non_credit_trial_rejects_reserved_last_spot(self):
+        slot = self.portal_slot(enrolled=False, capacity=1)
+        with app.app_context():
+            user = User.query.filter_by(username='aluno').one()
+            user.payment_status = 'Pendente'
+            db.session.add(Booking(login_or_name='Visitante', modality='MMA', shift_time='Hoje 18:00',
+                                   class_group_id=int(slot.split('|')[0]), class_time='18:00', class_date=datetime.now().date()))
+            db.session.commit()
+        self.login('aluno')
+        self.client.post('/presencas', data={'class_slot':slot, 'is_experimental':'1', 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 0)
+
+    def test_non_credit_two_occurrences_and_student_cannot_confirm(self):
+        slot = self.portal_slot()
+        self.login('aluno')
+        for item in [slot, slot.replace('18:00','19:00')]:
+            self.client.post('/presencas', data={'class_slot':item, 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(Attendance.query.count(), 2)
+            attendance_id = Attendance.query.first().id
+        self.client.post('/presencas', data={'action':'confirm_attendance', 'attendance_id':attendance_id, 'csrf_token':self.csrf()})
+        with app.app_context():
+            self.assertEqual(db.session.get(Attendance,attendance_id).status, 'pendente')
+
+    def test_attendance_is_idempotent_per_occurrence(self):
+        slot = self.portal_slot()
         self.login('aluno')
         for _ in range(2):
-            self.assertEqual(self.client.post('/presencas', data={'csrf_token': self.csrf()}).status_code, 302)
+            self.assertEqual(self.client.post('/presencas', data={'class_slot':slot, 'csrf_token': self.csrf()}).status_code, 302)
         with app.app_context():
             self.assertEqual(Attendance.query.count(), 1)
             self.assertEqual(Attendance.query.one().status, 'pendente')
@@ -1643,7 +1862,7 @@ class BJSportsTestCase(unittest.TestCase):
 
         booking_response = self.client.post('/api/bookings', json={
             'login_or_name': 'aluno', 'cpf3': '000', 'modality': 'Jiu-Jitsu',
-            'shift_time': 'Hoje 19:00', 'is_experimental': True,
+            'shift_time': 'Hoje 19:00', 'is_experimental': True, 'risk_consent': True,
             'class_group_id': group_id, 'class_date': datetime.now().date().isoformat(),
             'class_time': '19:00',
         }, headers={'X-CSRF-Token': self.csrf()})
@@ -1655,7 +1874,7 @@ class BJSportsTestCase(unittest.TestCase):
         weekday_label = ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')[datetime.now().weekday()]
         with app.app_context():
             student = User.query.filter_by(username='aluno').one()
-            student.plan = 'Jiu-Jitsu (Seg, Qua, Sex) — R$ 100,00/mês'
+            student.plan = 'Plano Teste — R$ 100,00/mês'
             group = ClassGroup(name='Turma de Hoje', modality='Jiu-Jitsu', audience='Adulto',
                                instructor='Instrutor', status='ativa', publish_public=True)
             group.schedules = [f'{weekday_label} • 19:00']
@@ -1663,12 +1882,13 @@ class BJSportsTestCase(unittest.TestCase):
             db.session.flush()
             db.session.add(ClassEnrollment(user_id=student.id, class_group_id=group.id, active=True))
             db.session.commit()
+            group_id = group.id
         initial_page = self.client.get('/presencas').get_data(as_text=True)
         self.assertIn('Frequência em formação', initial_page)
         self.assertNotIn('Últimos 30 dias', initial_page)
 
         response = self.client.post('/presencas', data={
-            'action': 'request_checkin', 'csrf_token': self.csrf()
+            'action': 'request_checkin', 'class_slot':f'{group_id}|19:00', 'csrf_token': self.csrf()
         }, follow_redirects=True)
         self.assertIn('Aguardando confirmação', response.get_data(as_text=True))
         pending_dashboard = self.client.get('/dashboard').get_data(as_text=True)
@@ -1700,9 +1920,10 @@ class BJSportsTestCase(unittest.TestCase):
             self.assertIsNotNone(attendance.confirmed_at)
 
     def test_instructor_can_reject_pending_checkin(self):
+        slot = self.portal_slot()
         self.login('aluno')
         self.client.post('/presencas', data={
-            'action': 'request_checkin', 'csrf_token': self.csrf()
+            'action': 'request_checkin', 'class_slot':slot, 'csrf_token': self.csrf()
         })
         with app.app_context():
             attendance_id = Attendance.query.one().id
@@ -1787,7 +2008,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('aluno')
         page = self.client.get('/minha-conta/contrato.html').get_data(as_text=True)
         self.assertIn('Minha Conta • Contrato', page)
-        self.assertIn('Atualização aguardando seu aceite', page)
+        self.assertIn('Contrato aguardando seu aceite', page)
         self.assertIn('data-contract-print', page)
         self.assertIn('Mudanças neste termo', page)
         self.assertIn('Aceitar atualização', page)
@@ -1944,7 +2165,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('instrutor')
         res = self.client.get('/gestao/turmas-e-filiais')
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Gestão de Turmas e Filiais', res.get_data(as_text=True))
+        self.assertIn('Turmas e planos', res.get_data(as_text=True))
 
 
 if __name__ == '__main__':

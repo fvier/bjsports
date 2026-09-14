@@ -1,0 +1,30 @@
+[
+  {
+    "file": "app.py",
+    "matches_local_baseline": false
+  },
+  {
+    "file": "templates/base.html",
+    "matches_local_baseline": true
+  },
+  {
+    "file": "templates/gestao_turmas.html",
+    "matches_local_baseline": true
+  },
+  {
+    "file": "templates/planos_admin.html",
+    "matches_local_baseline": true
+  },
+  {
+    "file": "templates/_erp_sidebar.html",
+    "matches_local_baseline": false
+  },
+  {
+    "file": "templates/locais_admin.html",
+    "matches_local_baseline": true
+  },
+  {
+    "file": "templates/gestao_icones.html",
+    "matches_local_baseline": true
+  }
+]

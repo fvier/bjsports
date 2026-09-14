@@ -1,0 +1,7 @@
+{
+  "test_container_removed": "bj-validation-db-age-20260913",
+  "anonymous_volume_removed": true,
+  "internal_test_network_removed": "bj-age-validation-20260913",
+  "production_modified": false,
+  "backups_preserved": true
+}

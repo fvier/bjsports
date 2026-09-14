@@ -1,0 +1,105 @@
+/* Gestão unificada: abas e edição de planos a partir do celular. */
+.class-editor-backdrop { z-index: 12000; }
+.class-editor-form #classAgeHelp {
+  grid-column: 1 / -1; margin: 0; color: var(--text-muted);
+  font-size: 13px; line-height: 1.5;
+}
+.class-editor-form > label > span { font-size: 13px; }
+.class-editor-form input:not([type="checkbox"]):not([type="radio"]),
+.class-editor-form select { min-height: 44px; font-size: 16px; }
+.class-editor-form footer button { min-height: 44px; font-size: 14px; }
+.unified-management .management-tabs {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  margin: 18px 0 24px;
+}
+.unified-management .management-tabs a {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 10px 16px; border: 1px solid var(--border-light);
+  border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 700;
+}
+.unified-management .management-tabs a[aria-current] {
+  color: #111827; background: #fbbf24; border-color: #fbbf24;
+}
+.unified-management .plan-catalog-heading { padding: 20px; gap: 16px; }
+.unified-management .plan-catalog-heading h2 { margin: 8px 0; line-height: 1.25; font-size: 1.25rem; }
+.unified-management .plan-catalog-heading p { font-size: 14px; line-height: 1.5; }
+.unified-management .plan-catalog-heading > button,
+.unified-management .plan-catalog-tabs button,
+.unified-management .plan-table-actions button { min-height: 44px; }
+.unified-management .plan-catalog-heading > button { flex-shrink: 0; }
+.unified-management .plan-catalog-list,
+.unified-management .plan-catalog-create { min-width: 0; padding: 16px; }
+.unified-management .plan-catalog-tabs { flex-wrap: wrap; }
+.unified-management .plan-catalog-tabs button { flex: 1 1 180px; min-width: 0; white-space: normal; }
+.unified-management .plan-impact-note,
+.unified-management .plan-form-errors {
+  margin: 0; padding: 16px; border: 1px solid #b08935; border-radius: 12px;
+  background: #2c2517; color: #f9e2ad; font-size: 14px; line-height: 1.6;
+}
+.unified-management .plan-form-errors { border-color: #f87171; background: #351d25; color: #fecaca; }
+.unified-management .plan-form-errors ul { margin: 8px 0 0; padding-left: 22px; }
+.unified-management .plan-frequency-note { font-size: 14px; line-height: 1.6; }
+.unified-management .plan-modality-cell > small { display: block; margin-top: 8px; font-size: 12px; color: #b7c4d6; }
+.unified-management .plan-catalog-modalities input:focus-visible + span { outline: 3px solid #60a5fa; outline-offset: 3px; }
+.unified-management .plan-catalog-modalities label > span { min-height: 44px; display: flex; align-items: center; }
+.unified-management .plan-table-actions { flex-wrap: wrap; }
+.unified-management .plan-table-actions button { min-width: 44px; }
+.unified-management .plan-schedule-cell span { font-size: 13px; line-height: 1.5; }
+.unified-management .plan-admin-table-wrap { max-width: 100%; }
+@media (max-width: 767px) {
+  .unified-management .plan-catalog-heading { flex-direction: column; align-items: stretch; }
+  .unified-management .plan-catalog-content { gap: 16px; }
+  .unified-management .plan-catalog-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .unified-management .plan-catalog-summary article { padding: 12px; align-items: flex-start; }
+  .unified-management .plan-catalog-summary article > svg { display: none; }
+  .unified-management .plan-catalog-summary small { display: none; }
+  .unified-management .plan-admin-table { display: block; min-width: 0; width: 100%; }
+  .unified-management .plan-admin-table thead { display: none; }
+  .unified-management .plan-admin-table tbody { display: block; }
+  .unified-management .plan-admin-table tr { display: block; padding: 12px; margin: 0 0 16px; border: 1px solid var(--border-light); border-radius: 12px; }
+  .unified-management .plan-admin-table td { display: block; width: 100% !important; min-width: 0 !important; padding: 10px 0; border: 0; }
+  .unified-management .plan-admin-table td[data-label]::before { content: attr(data-label); display: block; color: #b7c4d6; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .unified-management .plan-admin-table input:not([type=checkbox]),
+  .unified-management .plan-admin-table select { width: 100%; min-width: 0; }
+  .unified-management .plan-admin-table .hidden { display: none; }
+  .unified-management .plan-table-actions button span { display: inline; }
+  .unified-management .plan-expanded-editor,
+  .unified-management .plan-behavior-grid { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+  .unified-management .plan-expanded-editor textarea { width: 100%; min-width: 0; }
+}
+.erp-light-theme .unified-management .plan-catalog-heading,
+.erp-light-theme .unified-management .plan-catalog-summary article,
+.erp-light-theme .unified-management .plan-catalog-list,
+.erp-light-theme .unified-management .plan-catalog-create,
+.erp-light-theme .unified-management .plan-admin-table,
+.erp-light-theme .unified-management .plan-expanded-editor {
+  background: #fff; border-color: #d0d5dd;
+}
+.erp-light-theme .unified-management .plan-catalog-summary strong,
+.erp-light-theme .unified-management .plan-modality-text,
+.erp-light-theme .unified-management .plan-expanded-editor strong,
+.erp-light-theme .unified-management .plan-catalog-form label > span,
+.erp-light-theme .unified-management .plan-catalog-form legend { color: #1d2939; }
+.erp-light-theme .unified-management .plan-admin-table th,
+.erp-light-theme .unified-management .plan-catalog-tabs { background: #f2f4f7; }
+.erp-light-theme .unified-management .plan-admin-table tbody tr:hover { background: #f9fafb; }
+.erp-light-theme .unified-management .plan-catalog-summary span,
+.erp-light-theme .unified-management .plan-catalog-summary small,
+.erp-light-theme .unified-management .plan-admin-table td[data-label]::before,
+.erp-light-theme .unified-management .plan-modality-cell > small,
+.erp-light-theme .unified-management .plan-schedule-cell,
+.erp-light-theme .unified-management .plan-schedule-cell span,
+.erp-light-theme .unified-management .plan-custom-note small,
+.erp-light-theme .unified-management .plan-behavior-grid label > span,
+.erp-light-theme .unified-management .plan-catalog-tabs button:not(.is-active) { color: #475467; }
+.erp-light-theme .unified-management .plan-actions-cell { background: #f9fafb; }
+.erp-light-theme .unified-management .plan-custom-note { color: #1d2939; }
+.erp-light-theme .unified-management .plan-table-actions .is-danger { color: #b42318; }
+.erp-light-theme .unified-management .plan-catalog-modalities span { color: #475467 !important; }
+.erp-light-theme .unified-management .plan-catalog-modalities input:checked + span,
+.erp-light-theme .unified-management .plan-table-modalities input:checked + span { color: #166534 !important; background: #f0fdf4; }
+.erp-light-theme .unified-management .plan-impact-note { color: #854d0e; background: #fffbeb; border-color: #fcd34d; }
+.erp-light-theme .unified-management .plan-form-errors { color: #991b1b; background: #fef2f2; border-color: #fca5a5; }
+@media (min-width: 768px) {
+  .unified-management .management-tabs { max-width: 480px; }
+}

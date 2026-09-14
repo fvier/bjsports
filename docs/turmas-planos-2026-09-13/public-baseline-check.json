@@ -1,0 +1,13 @@
+[
+  {
+    "route": "/login?mode=register",
+    "status": 200,
+    "final_url": "https://bjsports.com.br/login?mode=register",
+    "deadline_copy": true,
+    "legacy_contract_field": false
+  },
+  {
+    "route": "/catracadoc",
+    "status": 404
+  }
+]

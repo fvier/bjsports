@@ -539,7 +539,7 @@
         </div>
         <div class="form-group">
             <label for="tokenInput">Chave de Segurança (API Key)</label>
-            <input type="password" id="tokenInput" class="form-control" placeholder="bjsports-catraca-secret">
+            <input type="password" id="tokenInput" class="form-control" placeholder="Token exclusivo do ESP32 (32–128 caracteres)">
         </div>
         <button class="btn-submit" style="background:#2563eb; margin-bottom:8px;" onclick="testTurnstileGiro()">
             <i data-lucide="rotate-cw" style="display:inline; vertical-align:middle; width:18px;"></i> Testar Giro Manual da Catraca
@@ -618,8 +618,8 @@
         feedbackBadgeContainer.innerHTML = badgeHtml;
 
         if (state === "success") {
-            playBeep("success");
             triggerTurnstileUnlock();
+            return;
         } else if (state === "warning") {
             playBeep("warn");
         } else if (state === "danger") {
@@ -638,23 +638,52 @@
         feedbackBadgeContainer.innerHTML = "";
     }
 
+    let unlockInFlight = false;
     async function triggerTurnstileUnlock() {
-        const espIp = localStorage.getItem("bj_esp32_ip") || "http://192.168.1.150";
-        const apiKey = localStorage.getItem("bj_esp32_key") || "bjsports-catraca-secret";
-        
+        if (unlockInFlight) return false;
+        unlockInFlight = true;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 6000);
         try {
-            fetch(`${espIp}/liberar`, {
-                method: "POST",
-                headers: { "Authorization": "Bearer " + apiKey },
-                mode: "no-cors"
-            }).catch(() => {});
-
-            fetch("/api/catraca/testar-giro", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ reason: "Reconhecimento Facial" })
-            }).catch(() => {});
-        } catch (e) {}
+            const espIp = (localStorage.getItem("bj_esp32_ip") || "").replace(/\/$/, "");
+            const apiKey = localStorage.getItem("bj_esp32_key") || "";
+            if (!espIp || apiKey.length < 32) throw new Error("Configure o endereço e o token exclusivo do ESP32.");
+            const headers = { Authorization: "Bearer " + apiKey };
+            const statusResponse = await fetch(`${espIp}/status`, { headers, mode: "cors", signal: controller.signal, cache: "no-store" });
+            if (!statusResponse.ok) throw new Error("ESP32 indisponível ou credencial inválida.");
+            const status = await statusResponse.json();
+            if (!status.ready || status.pulso_ativo || typeof status.boot_id !== "string" || !Number.isInteger(status.uptime_ms)) {
+                throw new Error("ESP32 ocupado ou firmware incompatível.");
+            }
+            const id = crypto.randomUUID();
+            const response = await fetch(`${espIp}/liberar`, {
+                method: "POST", mode: "cors", signal: controller.signal,
+                headers: { ...headers, "X-Command-ID": id, "X-Boot-ID": status.boot_id,
+                    "X-Expires-Ms": String((status.uptime_ms + 5000) >>> 0) }
+            });
+            if (!response.ok) throw new Error("ESP32 recusou o comando. Confira a catraca antes de tentar novamente.");
+            const result = await response.json();
+            if (result.success !== true || result.state !== "command_accepted" || result.command_id !== id) {
+                throw new Error("Resposta do ESP32 não confirmou o comando.");
+            }
+            feedbackDesc.textContent = "Pulso confirmado pelo ESP32. Passagem sem confirmação por sensor.";
+            playBeep("success");
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(resetToStandby, 4000);
+            return true;
+        } catch (error) {
+            container.className = "kiosk-container state-warning";
+            feedbackTitle.textContent = "Liberação não confirmada";
+            feedbackDesc.textContent = error.name === "AbortError"
+                ? "Tempo de resposta esgotado. Confira a catraca na recepção; o comando não será repetido automaticamente."
+                : (error instanceof TypeError ? "Falha de rede ou bloqueio do navegador. Confira a conexão local na recepção." : error.message);
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(resetToStandby, 8000);
+            return false;
+        } finally {
+            clearTimeout(timeout);
+            unlockInFlight = false;
+        }
     }
 
     let currentCpf = "";
@@ -701,7 +730,7 @@
     function handleAccessResult(data) {
         if (data.status === "LIBERADO") {
             const badge = `<span class="feedback-badge" style="background:var(--green-success); color:white;">🥋 ${data.modality || "Acesso Geral"}</span>`;
-            setState("success", `Seja bem-vindo(a), ${data.user_name}! 🟢`, "Catraca liberada. Bom treino!", badge, 2500);
+            setState("success", `Seja bem-vindo(a), ${data.user_name}! 🟢`, "Acesso autorizado. Aguardando confirmação do ESP32…", badge, 2500);
         } else if (data.status === "PENDENCIA_FINANCEIRA") {
             const badge = `<span class="feedback-badge" style="background:var(--red-danger); color:white;">Mensalidade Pendente</span>`;
             setState("danger", `Olá, ${data.user_name} 🔴`, "Consta uma pendência no seu plano. Por favor, dirija-se à recepção.", badge, 4500);
@@ -709,7 +738,7 @@
             const badge = `<span class="feedback-badge" style="background:var(--yellow-warn); color:#000;">Fora do Horário</span>`;
             setState("warning", `Olá, ${data.user_name} 🟡`, "Seu plano não inclui o horário atual. Fale com a recepção.", badge, 4000);
         } else {
-            setState("warning", "Rosto não identificado 🟡", "Centralize seu rosto ou utilize a opção "Digitar CPF"", "", 3500);
+            setState("warning", "Rosto não identificado 🟡", 'Centralize seu rosto ou utilize a opção "Digitar CPF"', "", 3500);
         }
     }
 
@@ -727,7 +756,7 @@
             });
             const data = await res.json();
             const badge = `<span class="feedback-badge" style="background:#dc2626; color:white;">VIP • ${modality}</span>`;
-            setState("success", `Bem-vindo à Aula Experimental, ${name}! 🥋`, "Catraca liberada! Aproveite o seu treino na BJ Sports!", badge, 3500);
+            setState("success", `Bem-vindo à Aula Experimental, ${name}! 🥋`, "Acesso autorizado. Aguardando confirmação do ESP32…", badge, 3500);
         } catch (err) {
             setState("danger", "Erro ao Registrar", "Consulte a recepção para liberação manual.", "", 3000);
         }
@@ -743,8 +772,8 @@
     document.getElementById("btnCloseCpfModal").onclick = () => document.getElementById("modalCpf").classList.remove("active");
 
     document.getElementById("btnAdminModal").onclick = () => {
-        document.getElementById("espIpInput").value = localStorage.getItem("bj_esp32_ip") || "http://192.168.1.150";
-        document.getElementById("tokenInput").value = localStorage.getItem("bj_esp32_key") || "bjsports-catraca-secret";
+        document.getElementById("espIpInput").value = localStorage.getItem("bj_esp32_ip") || "";
+        document.getElementById("tokenInput").value = localStorage.getItem("bj_esp32_key") || "";
         document.getElementById("modalAdmin").classList.add("active");
     };
     document.getElementById("btnCloseAdminModal").onclick = () => document.getElementById("modalAdmin").classList.remove("active");
@@ -752,6 +781,14 @@
     function saveSettings() {
         const ip = document.getElementById("espIpInput").value.trim();
         const key = document.getElementById("tokenInput").value.trim();
+        try {
+            const url = new URL(ip);
+            if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash || url.pathname !== "/") throw new Error();
+            if (!/^[\x21-\x7e]{32,128}$/.test(key)) throw new Error();
+        } catch (_) {
+            alert("Informe a URL do ESP32 (http://endereço) e um token de 32 a 128 caracteres sem espaços.");
+            return;
+        }
         localStorage.setItem("bj_esp32_ip", ip);
         localStorage.setItem("bj_esp32_key", key);
         document.getElementById("modalAdmin").classList.remove("active");
@@ -759,8 +796,8 @@
     }
 
     async function testTurnstileGiro() {
-        triggerTurnstileUnlock();
-        alert("Comando de pulso elétrico enviado para a catraca!");
+        const confirmed = await triggerTurnstileUnlock();
+        alert(confirmed ? "ESP32 confirmou o pulso. Passagem não medida por sensor." : "Liberação não confirmada. Confira o aviso na tela.");
     }
 
     // Service Worker e Instalação PWA

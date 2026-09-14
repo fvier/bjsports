@@ -1,0 +1,50 @@
+{
+  "accounts": 21,
+  "new_deadlines": 0,
+  "test_accounts": 0,
+  "class_audiences": [
+    {
+      "modality": "Boxe",
+      "audience": "Adulto",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 2
+    },
+    {
+      "modality": "Jiu-Jitsu",
+      "audience": "Adulto",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 5
+    },
+    {
+      "modality": "Jiu-Jitsu",
+      "audience": "Kids",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 2
+    },
+    {
+      "modality": "MMA",
+      "audience": "Adulto",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 2
+    },
+    {
+      "modality": "Muay Thai",
+      "audience": "Adulto",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 3
+    },
+    {
+      "modality": "Muay Thai",
+      "audience": "Kids",
+      "status": "ativa",
+      "publish_public": true,
+      "groups": 1
+    }
+  ],
+  "age_columns": []
+}

@@ -1,0 +1,21 @@
+{
+  "sqlite": {
+    "passed": 98,
+    "seconds": 43.779
+  },
+  "postgres": {
+    "passed": 98,
+    "seconds": 109.68
+  },
+  "real_clone": {
+    "tables": 21,
+    "changed_tables": [],
+    "initializations": 2
+  },
+  "synthetic_browser": {
+    "business_flows": 7,
+    "management_checks": 28
+  },
+  "package_entries": 27,
+  "production_test_guard": true
+}

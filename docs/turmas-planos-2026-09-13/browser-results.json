@@ -1,0 +1,170 @@
+[
+  {
+    "page": "turmas-dark",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "individuais-dark",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "combos-dark",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "turmas-light",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "individuais-light",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "combos-light",
+    "width": 360,
+    "viewport": 360,
+    "content": 360
+  },
+  {
+    "page": "turmas-dark",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "individuais-dark",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "combos-dark",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "turmas-light",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "individuais-light",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "combos-light",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "page": "erro-criacao",
+    "width": 390,
+    "viewport": 390,
+    "content": 390
+  },
+  {
+    "width": 390,
+    "create_error_restored": true,
+    "create_edit_delete": true,
+    "legacy_redirect": true
+  },
+  {
+    "page": "turmas-dark",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "individuais-dark",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "combos-dark",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "turmas-light",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "individuais-light",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "combos-light",
+    "width": 768,
+    "viewport": 768,
+    "content": 768
+  },
+  {
+    "page": "turmas-dark",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "individuais-dark",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "combos-dark",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "turmas-light",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "individuais-light",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "combos-light",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "page": "erro-criacao",
+    "width": 1440,
+    "viewport": 1440,
+    "content": 1440
+  },
+  {
+    "width": 1440,
+    "create_error_restored": true,
+    "create_edit_delete": true,
+    "legacy_redirect": true
+  }
+]

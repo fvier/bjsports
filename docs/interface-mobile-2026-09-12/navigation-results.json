@@ -1,0 +1,32 @@
+[
+  {
+    "width": 320,
+    "menu": "public",
+    "keyboard_backdrop_resize": true
+  },
+  {
+    "width": 320,
+    "menu": "portal",
+    "keyboard_backdrop_resize": true
+  },
+  {
+    "width": 390,
+    "menu": "public",
+    "keyboard_backdrop_resize": true
+  },
+  {
+    "width": 390,
+    "menu": "portal",
+    "keyboard_backdrop_resize": true
+  },
+  {
+    "width": 768,
+    "menu": "public",
+    "keyboard_backdrop_resize": true
+  },
+  {
+    "width": 768,
+    "menu": "portal",
+    "keyboard_backdrop_resize": true
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "sqlite": {
+    "tests": 110,
+    "seconds": 55.518,
+    "passed": true
+  },
+  "postgresql_isolated": {
+    "tests": 110,
+    "seconds": 117.134,
+    "passed": true
+  },
+  "browser_local": {
+    "checks": 8,
+    "widths": [
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "javascript_errors": 0
+  },
+  "browser_production": {
+    "checks": 24,
+    "widths": [
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "javascript_errors": 0,
+    "production_writes": false
+  }
+}

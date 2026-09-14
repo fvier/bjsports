@@ -1,0 +1,291 @@
+/* Interface comum: a composição padrão atende o celular; amplia em 992px. */
+:root {
+  --ui-touch: 44px;
+  --ui-dock-height: 68px;
+  --ui-muted: #aeb8c8;
+}
+body { padding-bottom: calc(var(--ui-dock-height) + env(safe-area-inset-bottom)) !important; }
+body.navigation-drawer-open { overflow: hidden; }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 3px;
+}
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, .btn { touch-action: manipulation; }
+.btn, .day-btn, .portal-tab-btn { min-height: var(--ui-touch); }
+.main-header .btn-header-login.active-link-btn {
+  background: #fbbf24; color: #111827; box-shadow: none;
+}
+.btn-toggle-eye, .public-theme-toggle, .mobile-nav-toggle, .erp-hamburger-toggle {
+  min-width: var(--ui-touch); min-height: var(--ui-touch);
+}
+.erp-sidebar-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none; width: 44px; height: 44px; margin-left: auto;
+  color: inherit; border: 1px solid var(--border-light); border-radius: 10px;
+  background: transparent; cursor: pointer;
+}
+.erp-sidebar-close svg { width: 22px; height: 22px; }
+.erp-sidebar-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 1999;
+  background: rgb(0 0 0 / 60%); backdrop-filter: blur(3px);
+}
+.erp-sidebar-backdrop.active { display: block; }
+.erp-page .erp-wrapper { display: block; min-height: calc(100dvh - var(--ui-dock-height)); }
+.erp-page .erp-sidebar {
+  position: fixed !important; inset: 0 auto 0 0; z-index: 2000;
+  width: min(320px, calc(100vw - 36px)) !important; height: 100vh !important;
+  height: 100dvh !important; max-height: none !important; margin: 0 !important;
+  padding-bottom: env(safe-area-inset-bottom); overflow-y: auto;
+  overscroll-behavior: contain; visibility: hidden; transform: translateX(-105%);
+  transition: transform 180ms ease;
+}
+.erp-page .erp-sidebar.is-mobile-open { visibility: visible; transform: translateX(0); transition: none; }
+/* Não animar visibility: todos os destinos de Tab devem aparecer juntos. */
+.erp-sidebar .erp-nav-item, .erp-sidebar .erp-group-title,
+.mobile-nav-drawer a, .mobile-nav-drawer button {
+  transition-property: color, background-color, border-color;
+}
+.erp-page .erp-sidebar .erp-brand-header { padding: 18px 16px; gap: 10px; }
+.erp-page .erp-sidebar .erp-brand-logo { width: 44px; }
+.erp-page .erp-sidebar .erp-brand-name { font-size: 18px; }
+.erp-page .erp-sidebar .erp-brand-sub { font-size: 9px; letter-spacing: .04em; }
+.erp-page .erp-sidebar .erp-nav-item { min-height: 48px; }
+.erp-page .erp-sidebar .erp-item-label { font-size: 14px; }
+.erp-page .erp-sidebar .erp-group-title { min-height: 44px; }
+.erp-page .erp-sidebar .erp-group-title-text { font-size: 11px; }
+.erp-page .erp-main-container { width: 100%; min-width: 0; padding-top: 0; }
+.erp-page .erp-topbar, .erp-page .erp-sidebar.collapsed + .erp-main-container .erp-topbar {
+  position: sticky; inset: 0 0 auto; z-index: 100;
+  height: 64px; min-height: 64px; padding: 8px 16px; gap: 8px;
+}
+.erp-page .erp-blue-badge, .erp-page .erp-user-name, .erp-page .erp-user-badge .badge-pill { display: none; }
+.erp-topbar-left, .erp-topbar-right { min-width: 0; }
+.erp-quick-actions .erp-topbar-icon { display: none; }
+.erp-quick-actions .topbar-action-square { min-width: 44px; min-height: 44px; }
+.erp-user-badge { min-height: 44px; }
+.erp-page .erp-content { width: 100%; min-width: 0; padding: 20px 16px 32px; }
+.erp-page .erp-hero-banner { padding: 22px 20px; border-radius: 16px; }
+.erp-page .erp-hero-heading { font-size: clamp(1.65rem, 6vw, 2.25rem); line-height: 1.15; overflow-wrap: anywhere; }
+.erp-page .erp-hero-sub { margin-top: 10px; font-size: 14px; line-height: 1.6; }
+.erp-page .erp-status-indicator { font-size: 11px; line-height: 1.5; letter-spacing: .08em; }
+.erp-page .erp-content > .glass-panel { padding: 20px; border-radius: 16px; }
+.erp-page .erp-content h2, .erp-page .erp-content h3 { overflow-wrap: anywhere; }
+.erp-page .form-row, .erp-page .member-grid-2 { grid-template-columns: minmax(0, 1fr); }
+.erp-page input:not([type=hidden]):not([type=checkbox]):not([type=radio]),
+.erp-page select, .erp-page textarea { max-width: 100%; min-height: 44px; font-size: 16px; }
+.erp-page .erp-content label { line-height: 1.5; }
+.erp-page .table-responsive { width: 100%; min-width: 0; max-width: 100%; overscroll-behavior-x: contain; }
+.erp-page .minimal-tab-btn { min-height: 44px; }
+.erp-page .minimal-tabs-bar { gap: 8px !important; }
+.erp-page .welcome-account-hero { padding: 22px 20px; min-height: 0; }
+.erp-page .welcome-checkin-cta { width: 100%; min-height: 52px; }
+.erp-page .welcome-summary-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.erp-page .welcome-summary-card { min-height: 112px; padding: 18px; }
+.erp-page .welcome-details-grid { grid-template-columns: minmax(0, 1fr); }
+.erp-page .welcome-account-list > div { grid-template-columns: 90px minmax(0, 1fr); gap: 12px; }
+.erp-page .welcome-account-list dd { overflow-wrap: anywhere; }
+.erp-page .checkin-status-panel > div { min-width: 0; width: 100%; }
+.erp-page .checkin-status-panel form { max-width: none !important; }
+.erp-page .checkin-status-panel select { min-height: 48px; padding: 10px 12px; border-radius: 8px; }
+.erp-page .checkin-status-panel .btn { width: 100%; justify-content: center; min-height: 52px; }
+.erp-page .attendance-history-item { flex-wrap: wrap; gap: 12px; }
+.erp-page .attendance-history-item > div { flex: 1 1 150px; }
+.erp-page .attendance-history-item strong { font-size: 14px; overflow-wrap: anywhere; }
+.erp-page .attendance-history-item small { font-size: 12px; line-height: 1.5; }
+.erp-page .attendance-metrics-empty > div { min-width: 0; }
+.erp-page .attendance-metrics-empty small { font-size: 12px; }
+.erp-page .attendance-metrics-empty strong { font-size: 14px; }
+
+/* A agenda vira uma lista de dias, mantendo todos os eventos e horários livres. */
+.erp-page .class-calendar-board { grid-template-columns: minmax(0, 1fr); overflow: visible; margin-right: 0; border-radius: 12px; }
+.erp-page .class-calendar-day { min-width: 0; border-right: 0; border-bottom: 1px solid var(--border-light); }
+.erp-page .class-calendar-day > header { display: flex; gap: 10px; align-items: center; padding: 12px 16px; }
+.erp-page .class-calendar-day > header span, .erp-page .class-calendar-day > header small { font-size: 13px; }
+.erp-page .class-calendar-day > header strong { font-size: 24px; }
+.erp-page .class-calendar-events { min-height: 0; padding: 12px; gap: 10px; }
+.erp-page .class-calendar-event { padding: 14px; gap: 6px; }
+.erp-page .class-calendar-event > strong { font-size: 15px; white-space: normal; }
+.erp-page .class-calendar-event > span, .erp-page .class-calendar-event > small,
+.erp-page .class-calendar-event time { font-size: 13px; white-space: normal; line-height: 1.5; }
+.erp-page .class-calendar-event > em { font-size: 11px; }
+.erp-page .class-calendar-empty { min-height: 52px; flex-direction: row; }
+.erp-page .class-calendar-empty span, .erp-page .class-calendar-free { font-size: 12px; }
+.erp-page .class-calendar-free { padding: 12px 16px; }
+.erp-page .class-calendar-free span { font-size: 12px; }
+
+/* Formulários de entrada: leitura confortável e preenchimento em uma coluna. */
+.login-page-section { min-height: 0; padding: 16px 0 32px; }
+.login-page-section .portal-auth-container { max-width: 680px; padding-inline: 16px; }
+.login-page-section .portal-auth-shell { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.login-page-section .portal-auth-intro { min-height: 0; padding: 18px; }
+.login-page-section .portal-intro-brand { display: none; }
+.login-page-section .portal-intro-copy { margin-top: 0; }
+.login-page-section .portal-intro-copy h1 { margin: 6px 0 0; font-size: 24px; max-width: none; }
+.login-page-section .portal-intro-copy p, .login-page-section .portal-intro-benefits,
+.login-page-section .portal-intro-support,
+.login-page-section [data-portal-register-intro] > div:last-child:not(.portal-intro-copy) { display: none; }
+.login-page-section .portal-card { padding: 20px 16px; }
+.login-page-section .portal-tabs { margin-bottom: 22px; gap: 4px; }
+.login-page-section .portal-tab-btn { padding: 10px 6px; min-height: 48px; font-size: 14px; }
+.login-page-section .portal-form { gap: 18px; }
+.login-page-section .portal-form .form-group label { font-size: 14px; line-height: 1.5; }
+.login-page-section .portal-form input:not([type=hidden]):not([type=checkbox]):not([type=radio]),
+.login-page-section .portal-form select { min-height: 48px; font-size: 16px; }
+.login-page-section .form-row { grid-template-columns: minmax(0, 1fr); }
+.login-page-section .field-hint, .login-page-section .forgot-pass-link,
+.login-page-section .password-requirements { font-size: 13px; line-height: 1.5; }
+.login-page-section .field-hint { color: var(--ui-muted); }
+.login-page-section .registration-schedule-filter button { min-height: 48px; }
+.login-page-section .registration-schedule-filter button span,
+.login-page-section .registration-schedule-filter button strong { font-size: 13px; }
+.login-page-section .phone-split-group { gap: 10px; }
+.login-page-section .phone-split-group > div:last-child { min-width: 0; }
+.login-page-section #btnRegisterSubmit, .login-page-section #btnLoginSubmit { min-height: 52px; font-size: 16px; }
+.registration-section-heading { margin: 12px 0 0; padding-top: 20px; border-top: 1px solid var(--border-light); font-size: 17px; font-family: var(--font-heading); }
+.registration-section-heading:first-of-type { margin-top: 0; padding-top: 0; border: 0; }
+
+/* Consulta da grade real no cadastro, sem seleção ou reserva de turma. */
+.registration-plan-type { padding: 0; margin: 0; border: 0; min-width: 0; }
+.registration-plan-type legend { margin-bottom: 8px; font-size: 14px; }
+.registration-plan-type > div { display: flex; gap: 8px; }
+.registration-plan-type button { flex: 1; min-height: 48px; padding: 10px; font-size: 14px; color: inherit; background: transparent; border: 1px solid var(--border-light); border-radius: 8px; cursor: pointer; }
+.registration-plan-type button[aria-pressed="true"] { background: #fbbf24; border-color: #fbbf24; color: #111827; font-weight: 700; }
+.registration-classes { min-width: 0; padding: 16px; border: 1px solid var(--border-light); border-radius: 12px; }
+.registration-classes h3 { font-size: 18px; margin: 0 0 8px; }
+.registration-classes p { font-size: 14px; line-height: 1.55; margin: 8px 0; overflow-wrap: anywhere; }
+.registration-classes-note, .registration-classes [data-class-status] { color: var(--ui-muted); }
+.registration-class-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 16px 0; }
+.registration-class-filters label { display: grid; gap: 6px; font-size: 14px; }
+.registration-class-filters select { width: 100%; min-width: 0; }
+.registration-class-list { margin-top: 12px; border-top: 1px solid var(--border-light); }
+.registration-class-list summary { padding: 14px 0; min-height: 48px; cursor: pointer; font-size: 15px; font-weight: 700; }
+.registration-class-card { padding: 14px 0; border-top: 1px solid var(--border-light); }
+.registration-class-card h4 { font-size: 16px; overflow-wrap: anywhere; }
+.registration-class-card ul { margin: 10px 0; padding-left: 20px; font-size: 14px; line-height: 1.7; }
+.registration-class-full { font-weight: 700; }
+.registration-class-refresh { min-height: 44px; padding: 8px 14px; font-size: 14px; background: transparent; color: inherit; border: 1px solid var(--border-light); border-radius: 8px; cursor: pointer; }
+@media (min-width: 600px) {
+  .registration-class-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Navegação inferior e margem de segurança dos aparelhos com indicador de início. */
+.mobile-bottom-dock { display: flex; align-items: stretch; height: auto; min-height: var(--ui-dock-height); padding: 4px 8px calc(4px + env(safe-area-inset-bottom)); }
+.mobile-bottom-dock .dock-item { min-width: 0; min-height: 56px; border-radius: 10px; padding: 6px 2px; gap: 5px; }
+.mobile-bottom-dock .dock-item span { font-size: 11px; line-height: 1.2; }
+.mobile-bottom-dock .dock-item.active { background: rgb(251 191 36 / 8%); }
+.whatsapp-float-btn { bottom: calc(var(--ui-dock-height) + env(safe-area-inset-bottom) + 16px) !important; }
+.mobile-nav-drawer { visibility: hidden; padding-bottom: env(safe-area-inset-bottom); }
+.mobile-drawer-header .brand-link { min-width: 0; gap: 8px; }
+.mobile-drawer-header .header-logo { width: 36px; height: 36px; }
+.mobile-drawer-header .brand-name { font-size: 16px; }
+.mobile-drawer-header .brand-sub { font-size: 8px; }
+.mobile-drawer-close { flex: none; min-width: 44px; }
+.mobile-nav-drawer.active { visibility: visible; }
+.mobile-drawer-close, .mobile-nav-link, .mobile-nav-group-trigger, .mobile-subnav-link { min-height: 44px; }
+.contract-deadline-banner { font-size: 14px; line-height: 1.6; padding: 14px 16px; }
+.contract-deadline-banner a { display: inline-block; padding-block: 8px; }
+
+/* Página pública: ações visíveis e grade de horários sem deslocamento lateral. */
+.hero-section { padding: 32px 0; }
+.hero-content { gap: 24px; }
+.hero-text { min-width: 0; }
+.hero-title { font-size: clamp(2rem, 9vw, 3rem); line-height: 1.08; }
+.hero-desc { font-size: 16px; line-height: 1.65; }
+.hero-buttons { flex-direction: column; gap: 12px; }
+.hero-buttons .btn { width: 100%; white-space: normal; justify-content: center; min-height: 50px; }
+.hero-media { width: 100%; min-width: 0; }
+.hero-logo-img { width: 160px; }
+.logo-hero-wrapper { max-width: 100%; }
+.glowing-ring { width: min(220px, 65vw); height: min(220px, 65vw); }
+.section-title { font-size: clamp(1.7rem, 6vw, 2.5rem); overflow-wrap: anywhere; }
+.schedule-filters { gap: 8px; flex-wrap: wrap; }
+.schedule-filters .day-btn { flex: 1 1 140px; justify-content: center; font-size: 13px; }
+.schedule-board { padding: 14px; }
+.schedule-board-header { min-width: 0; gap: 10px; flex-wrap: wrap; }
+.schedule-flight-table { display: block; min-width: 0; width: 100%; }
+.schedule-flight-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+.schedule-flight-table tbody { display: grid; gap: 12px; }
+.schedule-flight-table .schedule-flight-row { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 12px; padding: 16px 12px; border: 1px solid var(--border-light); border-radius: 12px; }
+.schedule-flight-table .schedule-flight-row td { min-width: 0; padding: 0; border: 0; white-space: normal; }
+.schedule-flight-table .schedule-time-cell { align-self: start; }
+.schedule-flight-table .schedule-class-cell { display: flex; gap: 8px; }
+.schedule-flight-table .schedule-class-code { flex: none; }
+.schedule-flight-table .schedule-class-name { min-width: 0; }
+.schedule-flight-table .schedule-class-name strong { white-space: normal; font-size: 14px; }
+.schedule-flight-table td[data-label] { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; }
+.schedule-flight-table td[data-label]::before { content: attr(data-label); flex: none; color: var(--ui-muted); font-size: 12px; }
+.schedule-flight-table .schedule-action-cell { grid-column: 1 / -1; }
+.schedule-flight-table .schedule-action-cell .btn { width: 100%; justify-content: center; }
+.public-light-theme { --ui-muted: #475467; }
+.erp-light-theme { --ui-muted: #475467; }
+.erp-light-theme .welcome-attendance-pill strong,
+.erp-light-theme .welcome-graduation-card strong { color: #1d2939 !important; }
+.erp-light-theme .welcome-attendance-pill small,
+.erp-light-theme .welcome-attendance-pill svg { color: #854d0e !important; }
+.erp-light-theme .welcome-graduation-card small { color: #475467 !important; }
+
+@media (min-width: 600px) {
+  .erp-page .welcome-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .erp-page .class-calendar-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .login-page-section .portal-card { padding: 28px; }
+  .hero-buttons { flex-direction: row; }
+}
+
+@media (min-width: 992px) {
+  body { padding-bottom: 0 !important; }
+  .mobile-bottom-dock, .erp-sidebar-close, .erp-sidebar-backdrop { display: none; }
+  .erp-page .erp-wrapper { display: flex; min-height: 100vh; }
+  .erp-page .erp-sidebar { position: sticky !important; top: 0; width: 260px !important; visibility: visible; transform: none; z-index: 101; transition: width 180ms ease; }
+  .erp-page .erp-sidebar.collapsed { width: 72px !important; }
+  .erp-page .erp-sidebar.collapsed .erp-brand-header { padding-inline: 14px; }
+  .erp-page .erp-main-container { width: auto; padding-top: 66px; }
+  .erp-page .erp-topbar { position: fixed; left: 260px; height: 66px; }
+  .erp-page .erp-sidebar.collapsed + .erp-main-container .erp-topbar { position: fixed; left: 72px; }
+  .erp-page .erp-blue-badge, .erp-page .erp-user-name { display: inline-flex; }
+  .erp-quick-actions .erp-topbar-icon { display: inline-flex; }
+  .erp-page .erp-content { padding: 28px; }
+  .erp-page .erp-hero-heading { font-size: 2.5rem; }
+  .erp-page .form-row, .erp-page .member-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .erp-page .welcome-checkin-cta { width: auto; }
+  .erp-page .welcome-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .erp-page .welcome-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .erp-page .class-calendar-board { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .erp-page .class-calendar-day > header { display: flex; flex-wrap: wrap; gap: 6px; }
+  .erp-page .class-calendar-events { min-height: 180px; }
+  .erp-page .class-calendar-event { padding: 10px; }
+  .erp-page .class-calendar-event > strong { font-size: 13px; }
+  .erp-page .class-calendar-event > span, .erp-page .class-calendar-event > small, .erp-page .class-calendar-event time { font-size: 12px; }
+  .login-page-section { padding: 34px 0 64px; }
+  .login-page-section .portal-auth-container { max-width: 1180px; }
+  .login-page-section .portal-auth-shell { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; }
+  .login-page-section .portal-auth-intro { padding: 32px; }
+  .login-page-section .portal-intro-brand { display: flex; }
+  .login-page-section .portal-intro-copy { margin-top: 40px; }
+  .login-page-section .portal-intro-copy h1 { max-width: 340px; font-size: 36px; }
+  .login-page-section .portal-intro-copy p { display: block; margin-top: 14px; }
+  .login-page-section .portal-intro-benefits { display: flex; }
+  .login-page-section .portal-intro-support,
+  .login-page-section [data-portal-register-intro] > div:last-child:not(.portal-intro-copy) { display: block; }
+  .login-page-section .form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-section { padding: 64px 0; }
+  .hero-content { gap: 48px; }
+  .hero-title { font-size: clamp(3rem, 4.6vw, 4.5rem); }
+  .hero-buttons .btn { width: auto; }
+  .hero-media { width: auto; }
+  .hero-logo-img { width: 280px; }
+  .glowing-ring { width: 360px; height: 360px; }
+  .schedule-filters .day-btn { flex: none; }
+  .schedule-board { padding: 24px; }
+  .schedule-flight-table { display: table; }
+  .schedule-flight-table thead { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  .schedule-flight-table tbody { display: table-row-group; }
+  .schedule-flight-table .schedule-flight-row { display: table-row; }
+  .schedule-flight-table .schedule-flight-row td { display: table-cell; padding: 16px 12px; vertical-align: middle; }
+  .schedule-flight-table td[data-label]::before { content: none; }
+  .schedule-flight-table .schedule-action-cell .btn { width: auto; }
+  .whatsapp-float-btn { bottom: 24px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

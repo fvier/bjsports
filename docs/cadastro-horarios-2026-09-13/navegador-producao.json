@@ -1,0 +1,186 @@
+[
+  {
+    "width": 390,
+    "theme": "light",
+    "plan": "Jiu-Jitsu",
+    "classes": 7,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "plan": "MMA",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "plan": "Boxe",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "plan": "Muay Thai",
+    "classes": 4,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "combo_modalities": [
+      "Boxe",
+      "Jiu-Jitsu"
+    ],
+    "classes": 9
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "private_instructor_choice": true
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "plan": "Jiu-Jitsu",
+    "classes": 7,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "plan": "MMA",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "plan": "Boxe",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "plan": "Muay Thai",
+    "classes": 4,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "combo_modalities": [
+      "Boxe",
+      "Jiu-Jitsu"
+    ],
+    "classes": 9
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "private_instructor_choice": true
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "plan": "Jiu-Jitsu",
+    "classes": 7,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "plan": "MMA",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "plan": "Boxe",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "plan": "Muay Thai",
+    "classes": 4,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "combo_modalities": [
+      "Boxe",
+      "Jiu-Jitsu"
+    ],
+    "classes": 9
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "private_instructor_choice": true
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "plan": "Jiu-Jitsu",
+    "classes": 7,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "plan": "MMA",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "plan": "Boxe",
+    "classes": 2,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "plan": "Muay Thai",
+    "classes": 4,
+    "matches_public_management_data": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "combo_modalities": [
+      "Boxe",
+      "Jiu-Jitsu"
+    ],
+    "classes": 9
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "private_instructor_choice": true
+  }
+]

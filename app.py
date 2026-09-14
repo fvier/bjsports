@@ -18,7 +18,7 @@ from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, datetime, timedelta
 from training_credits import MODALITIES as CREDIT_MODALITIES, SCHEDULE_LABELS, billing_period, weekly_allowance, released_credits, contract_plan_name
-from store_catalog import STORE_PRODUCTS
+from store_catalog import STORE_PRODUCTS, get_customized_products, save_store_customization
 from financial_reports import build_financial_markdown, markdown_to_pdf, financial_report_to_xlsx
 
 app = Flask(__name__)
@@ -2707,20 +2707,66 @@ def blog():
 @app.route('/loja')
 @app.route('/loja.html')
 def loja():
-    store_categories = sorted(list({p['category'] for p in STORE_PRODUCTS if p.get('category')}))
+    products = get_customized_products()
+    store_categories = sorted(list({p['category'] for p in products if p.get('category')}))
     store_sports = [
         {'id': 'jiu-jitsu', 'name': 'Jiu-Jitsu'},
         {'id': 'boxe', 'name': 'Boxe'},
         {'id': 'muay-thai', 'name': 'Muay Thai'},
         {'id': 'mma', 'name': 'MMA'}
     ]
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    can_edit = bool(user_role in {'instrutor', 'admin', 'professor'})
     return render_template(
         'loja.html',
-        products=STORE_PRODUCTS,
+        products=products,
         store_categories=store_categories,
         store_sports=store_sports,
+        can_edit=can_edit,
         page_title='Loja BJ Sports'
     )
+
+@app.route('/api/store/products/<product_id>/edit', methods=['POST'])
+def edit_store_product(product_id):
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id) if user_id else None
+    user_role = session.get('user_role') or (user.role if user else None)
+    if not user_role or user_role not in {'instrutor', 'admin', 'professor'}:
+        return jsonify({'error': 'Acesso não autorizado. Apenas instrutores/administradores podem editar produtos.'}), 403
+
+    data = request.get_json(silent=True) or {}
+    updates = {}
+    if 'is_sold_out' in data:
+        updates['is_sold_out'] = bool(data['is_sold_out'])
+    if 'out_of_stock_text' in data:
+        updates['out_of_stock_text'] = str(data['out_of_stock_text']).strip()
+    if 'name' in data and str(data['name']).strip():
+        updates['name'] = str(data['name']).strip()
+    if 'price' in data and str(data['price']).strip():
+        try:
+            updates['price'] = float(data['price'])
+        except (ValueError, TypeError):
+            pass
+    if 'old_price' in data:
+        if data['old_price'] is not None and str(data['old_price']).strip() != '':
+            try:
+                updates['old_price'] = float(data['old_price'])
+            except (ValueError, TypeError):
+                updates['old_price'] = None
+        else:
+            updates['old_price'] = None
+    if 'badge' in data:
+        updates['badge'] = str(data['badge']).strip() if data['badge'] else None
+    if 'description' in data:
+        updates['description'] = str(data['description']).strip() if data['description'] else None
+
+    updated_product = save_store_customization(product_id, updates)
+    if not updated_product:
+        return jsonify({'error': 'Produto não encontrado.'}), 404
+
+    return jsonify({'success': True, 'product': updated_product})
 
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
@@ -2829,6 +2875,46 @@ def booking_availability():
                 if remaining > 0:
                     options.append(availability)
     return jsonify({'options': options, 'classes': classes})
+
+@app.get('/api/cadastro/turmas')
+def registration_class_catalog():
+    """Grade pública para consulta no cadastro; não cria vínculos ou reservas."""
+    enrollment_counts = db.session.query(
+        ClassEnrollment.class_group_id,
+        db.func.count(ClassEnrollment.id).label('total'),
+    ).filter(ClassEnrollment.active.is_(True)).group_by(ClassEnrollment.class_group_id).subquery()
+    rows = db.session.query(ClassGroup, Location, db.func.coalesce(enrollment_counts.c.total, 0)).join(
+        Location, Location.slug == ClassGroup.location_slug,
+    ).outerjoin(enrollment_counts, enrollment_counts.c.class_group_id == ClassGroup.id).filter(
+        ClassGroup.publish_public.is_(True), ClassGroup.status.in_({'ativa', 'lotada'}),
+        Location.active.is_(True),
+    ).order_by(Location.name, ClassGroup.modality, ClassGroup.name, ClassGroup.id).all()
+    classes = []
+    for group, location, enrolled in rows:
+        schedules = []
+        raw_schedules = group.schedules
+        for schedule in raw_schedules if isinstance(raw_schedules, list) else []:
+            if not isinstance(schedule, str):
+                continue
+            days, separator, times = schedule.partition('•')
+            weekdays = [day.strip() for day in days.split(',') if day.strip() in CLASS_WEEKDAY_LOOKUP]
+            if not separator or not weekdays:
+                continue
+            for start in re.findall(r'(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)', times):
+                hour = int(start[:2])
+                schedules.append({'days': ', '.join(weekdays), 'time': start,
+                                  'period': 'manha' if hour < 12 else ('tarde' if hour < 18 else 'noite')})
+        classes.append({
+            'id': group.id, 'name': group.name, 'modality': group.modality,
+            'audience': group.audience, 'age_label': group.formatted_age_range,
+            'instructor': group.instructor, 'schedules': schedules,
+            'location': {'slug': location.slug, 'name': location.name, 'city': location.city},
+            'full': group.status == 'lotada' or group.capacity <= enrolled,
+        })
+    response = jsonify({'classes': classes})
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
 
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login.html', methods=['GET', 'POST'])

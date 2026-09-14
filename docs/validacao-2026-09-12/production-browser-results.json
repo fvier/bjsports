@@ -1,0 +1,53 @@
+[
+  {
+    "flow": "adult",
+    "viewport": "desktop",
+    "registration": true,
+    "deadline_60h": true,
+    "no_automatic_acceptance": true,
+    "explicit_consistent_acceptance": true,
+    "email_and_cpf_login": true
+  },
+  {
+    "flow": "checkin",
+    "viewport": "desktop",
+    "role": "monitor",
+    "result": "confirmado"
+  },
+  {
+    "flow": "checkin",
+    "viewport": "desktop",
+    "role": "instrutor",
+    "result": "negado"
+  },
+  {
+    "flow": "adult",
+    "viewport": "mobile",
+    "registration": true,
+    "deadline_60h": true,
+    "no_automatic_acceptance": true,
+    "explicit_consistent_acceptance": true,
+    "email_and_cpf_login": true
+  },
+  {
+    "flow": "checkin",
+    "viewport": "mobile",
+    "role": "monitor",
+    "result": "confirmado"
+  },
+  {
+    "flow": "checkin",
+    "viewport": "mobile",
+    "role": "instrutor",
+    "result": "negado"
+  },
+  {
+    "flow": "minor",
+    "viewport": "minor",
+    "registration": true,
+    "deadline_60h": true,
+    "no_automatic_acceptance": true,
+    "explicit_consistent_acceptance": true,
+    "email_and_cpf_login": true
+  }
+]

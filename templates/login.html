@@ -186,6 +186,13 @@
 
             <!-- 9. Escolha do Plano e Dias de Treino -->
             <h2 class="registration-section-heading">Seu treino</h2>
+            <fieldset class="registration-plan-type">
+              <legend>Tipo de plano</legend>
+              <div>
+                <button type="button" id="btnTypeModalidades" data-registration-plan-type="modalidade" aria-pressed="true">Individuais</button>
+                <button type="button" id="btnTypeCombos" data-registration-plan-type="combo" aria-pressed="false">Combos e especiais</button>
+              </div>
+            </fieldset>
             <div class="form-group">
               <label for="regPlan">Escolha o Plano de Aulas *</label>
               <select name="regPlan" id="regPlan" required>
@@ -221,6 +228,19 @@
                 <small>As modalidades devem ser diferentes entre si.</small>
               </div>
             </div>
+
+            <section id="registrationClasses" class="registration-classes hidden" aria-labelledby="registrationClassesTitle" data-catalog-url="{{ url_for('registration_class_catalog') }}">
+              <h3 id="registrationClassesTitle">Turmas e horários</h3>
+              <p class="registration-classes-note">Consulte os horários da modalidade e confirme com a academia a turma adequada. Esta consulta não reserva vaga nem realiza matrícula em uma turma.</p>
+              <div class="registration-class-filters hidden" data-class-filters>
+                <label for="registrationClassLocation">Unidade<select id="registrationClassLocation"><option value="">Todas as unidades</option></select></label>
+                <label for="registrationClassPeriod">Período<select id="registrationClassPeriod"><option value="">Todos os períodos</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option></select></label>
+              </div>
+              <p data-class-status role="status" aria-live="polite"></p>
+              <button type="button" class="registration-class-refresh hidden" data-class-refresh>Atualizar horários</button>
+              <div data-class-results></div>
+            </section>
+            <script type="application/json" id="registrationSchedulePlans">{{ (registration_modalities + registration_combos)|tojson }}</script>
 
             <!-- 10. Dia de Vencimento da Mensalidade (Automático pela data de matrícula) -->
             <div class="form-group" style="background: rgba(37, 211, 102, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);">
@@ -421,7 +441,7 @@
       const btn = document.getElementById('btnRegisterSubmit');
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Realizando matrícula...';
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Criando conta...';
         if (window.lucide) window.lucide.createIcons();
       }
     });
@@ -429,38 +449,20 @@
     renderPlanOptions();
 
     function switchPlanType(type) {
-      const btnMod = document.getElementById('btnTypeModalidades');
-      const btnComb = document.getElementById('btnTypeCombos');
       const selectPlan = document.getElementById('regPlan');
       if (!selectPlan) return;
-      activePlanType = type;
-
-      if (type === 'modalidade') {
-        if (btnMod) {
-          btnMod.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
-          btnMod.style.color = '#000000';
-          btnMod.style.border = 'none';
-        }
-        if (btnComb) {
-          btnComb.style.background = 'rgba(30, 41, 59, 0.8)';
-          btnComb.style.color = '#94a3b8';
-          btnComb.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-        }
-        renderPlanOptions();
-      } else {
-        if (btnComb) {
-          btnComb.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-          btnComb.style.color = '#ffffff';
-          btnComb.style.border = 'none';
-        }
-        if (btnMod) {
-          btnMod.style.background = 'rgba(30, 41, 59, 0.8)';
-          btnMod.style.color = '#94a3b8';
-          btnMod.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-        }
-        renderPlanOptions();
-      }
+      activePlanType = type === 'combo' ? 'combo' : 'modalidade';
+      document.querySelectorAll('[data-registration-plan-type]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.registrationPlanType === activePlanType));
+      });
+      renderPlanOptions();
     }
+
+    document.querySelectorAll('[data-registration-plan-type]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (activePlanType !== button.dataset.registrationPlanType) switchPlanType(button.dataset.registrationPlanType);
+      });
+    });
 
     function handleMinorCheckbox(checkbox) {
       const minorFields = document.getElementById('minorConsentFields');
@@ -554,6 +556,7 @@
 
     setupRegistrationDraft();
   </script>
+  <script src="{{ url_for('static', filename='js/registration_schedule.js') }}" defer></script>
 
   {% else %}
 

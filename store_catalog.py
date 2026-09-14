@@ -1,4 +1,5 @@
-"""Catálogo conceitual e oficial da loja BJ Sports."""
+import os
+import json
 
 STORE_PRODUCTS = [
     {
@@ -395,3 +396,37 @@ STORE_PRODUCTS = [
         'description': 'Protetor genital anatômico com bordas em gel flexível e cúpula de alta resistência para proteção absoluta nos treinos de MMA.'
     },
 ]
+
+import json
+
+CUSTOMIZATIONS_FILE = os.path.join(os.path.dirname(__file__), 'instance', 'store_customizations.json')
+
+def load_store_customizations():
+    if os.path.exists(CUSTOMIZATIONS_FILE):
+        try:
+            with open(CUSTOMIZATIONS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+def save_store_customization(product_id, data):
+    os.makedirs(os.path.dirname(CUSTOMIZATIONS_FILE), exist_ok=True)
+    customizations = load_store_customizations()
+    if product_id not in customizations:
+        customizations[product_id] = {}
+    customizations[product_id].update(data)
+    with open(CUSTOMIZATIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(customizations, f, ensure_ascii=False, indent=2)
+    return customizations[product_id]
+
+def get_customized_products():
+    customizations = load_store_customizations()
+    import copy
+    products = copy.deepcopy(STORE_PRODUCTS)
+    for p in products:
+        pid = p['id']
+        if pid in customizations:
+            p.update(customizations[pid])
+    return products
+

@@ -1,0 +1,310 @@
+[
+  {
+    "width": 390,
+    "role": "public",
+    "route": "/",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "public",
+    "route": "/login",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "public",
+    "route": "/login?mode=register",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "public",
+    "route": "/turmas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "aluno",
+    "route": "/mensalidades_aluno",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "monitor",
+    "route": "/mensalidades_aluno",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "role": "instrutor",
+    "route": "/mensalidades_admin",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "public",
+    "route": "/",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "public",
+    "route": "/login",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "public",
+    "route": "/login?mode=register",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "public",
+    "route": "/turmas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "aluno",
+    "route": "/mensalidades_aluno",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "monitor",
+    "route": "/mensalidades_aluno",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/dashboard",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/presencas",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/calendario",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/configuracoes",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/minha-conta/contrato",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "role": "instrutor",
+    "route": "/mensalidades_admin",
+    "http": 200,
+    "overflow": false
+  }
+]

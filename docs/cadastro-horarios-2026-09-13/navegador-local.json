@@ -1,0 +1,66 @@
+[
+  {
+    "width": 390,
+    "theme": "dark",
+    "individual_and_filters": true,
+    "ages_from_management": true,
+    "large_catalog_collapsible_by_keyboard": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "combo_modalities": true,
+    "private_professional_preserved": true,
+    "empty_and_failure_recovery": true,
+    "no_enrollment_fields": true
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "individual_and_filters": true,
+    "ages_from_management": true,
+    "large_catalog_collapsible_by_keyboard": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "combo_modalities": true,
+    "private_professional_preserved": true,
+    "empty_and_failure_recovery": true,
+    "no_enrollment_fields": true
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "individual_and_filters": true,
+    "ages_from_management": true,
+    "large_catalog_collapsible_by_keyboard": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "combo_modalities": true,
+    "private_professional_preserved": true,
+    "empty_and_failure_recovery": true,
+    "no_enrollment_fields": true
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "individual_and_filters": true,
+    "ages_from_management": true,
+    "large_catalog_collapsible_by_keyboard": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "combo_modalities": true,
+    "private_professional_preserved": true,
+    "empty_and_failure_recovery": true,
+    "no_enrollment_fields": true
+  }
+]

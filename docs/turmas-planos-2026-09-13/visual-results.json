@@ -1,0 +1,26 @@
+[
+  {
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "schedule_color": "rgb(203, 213, 225)"
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "schedule_color": "rgb(71, 84, 103)"
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "overflow": false,
+    "schedule_color": "rgb(203, 213, 225)"
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "overflow": false,
+    "schedule_color": "rgb(71, 84, 103)"
+  }
+]

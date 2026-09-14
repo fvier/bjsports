@@ -1,26 +1,7 @@
-/*
- * =========================================================================
- * BJ SPORTS - FIRMWARE DE CONTROLE DE CATRACA INTELIGENTE v2.0
- * Placa: ESP32-WROOM-32 (NodeMCU / Doit DevKit v1 / ESP32 Dev Module)
- * Desenvolvido para: BJ Sports - Gestão de Academias
- * =========================================================================
- * 
- * RECURSOS IMPLEMENTADOS:
- * 1. Configuração 100% pelo Celular (Captive Portal / Hotspot AP)
- * 2. Memória Não-Volátil (NVS/Preferences) - não perde senha ao faltar luz
- * 3. mDNS: Acesso direto por http://catraca.local (não precisa caçar o IP)
- * 4. Painel Web Mobile com Teste de Pulso Manual e Scanner de Redes Wi-Fi
- * 5. API REST com Token de Segurança para o Tablet Facial (/liberar)
- * 6. Web OTA (/update) para atualizar firmware via navegador sem cabo USB
- *
- * PINAGEM:
- * - GPIO 4  -> IN do Módulo Relé 5V (Nível LOW ativo)
- * - GPIO 2  -> LED Azul Embutido (Indicador de Pulso e Status)
- * - 5V/VIN  -> VCC do Módulo Relé
- * - GND     -> GND do Módulo Relé
- * =========================================================================
+/* BJ Sports ESP32-WROOM-32 — v2.2.0
+ * GPIO4: relé ativo LOW; GPIO2: LED; GPIO27: botão de manutenção para GND.
+ * Leia README.md antes de gravar. Sem sensor: contabiliza comandos, não passagens.
  */
-
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
@@ -28,367 +9,285 @@
 #include <Preferences.h>
 #include <Update.h>
 #include <esp_task_wdt.h>
+#include <esp_timer.h>
+#include <esp_system.h>
+#include <esp_idf_version.h>
+#include "access_policy.h"
 
-// =========================================================================
-// DEFINIÇÃO DE PINOS E CONSTANTES
-// =========================================================================
-const char* FIRMWARE_VERSION = "v2.1.0-OTA";
-const int PIN_RELE = 4;        // GPIO 4 aciona o relé da solenóide
-const int PIN_LED = 2;         // LED azul indicador no ESP32
-const byte DNS_PORT = 53;      // Porta para o Captive Portal DNS
-
-// Nome do Ponto de Acesso criado para configuração pelo celular
-const char* AP_SSID = "BJ-SPORTS-CATRACA";
-const char* AP_PASS = "bjsports123"; // Senha do hotspot (mínimo 8 caracteres) ou "" para aberto
-
-// Objetos Globais
+const char* FIRMWARE_VERSION = "v2.2.0";
+const int PIN_RELE = 4, PIN_LED = 2, PIN_MANUTENCAO = 27;
+const uint32_t MAINTENANCE_MS = 600000;
 WebServer server(80);
 DNSServer dnsServer;
 Preferences prefs;
-
-// Variáveis de Configuração Persistentes
-String wifi_ssid = "";
-String wifi_pass = "";
-String api_token = "bjsports-catraca-secret";
+String wifi_ssid, wifi_pass, api_token, admin_pass, ap_pass, csrf, boot_id;
+String allowed_origin = "https://bjsports.com.br";
 int pulso_ms = 1000;
-unsigned long total_giros = 0;
-bool modo_ap = false;
+unsigned long total_liberacoes = 0, persisted_count = 0;
+uint32_t last_flush = 0, last_reconnect = 0;
+bool modo_ap = false, maintenance = false, ota_active = false, ota_ok = false;
+bool watchdog_ready = false, mdns_started = false, timer_ready = false;
+volatile bool pulso_ativo = false;
+portMUX_TYPE pulse_mux = portMUX_INITIALIZER_UNLOCKED;
+esp_timer_handle_t pulse_timer;
+String command_ids[64];
+uint32_t command_deadlines[64] = {};
 
-// Controle de Pulso Não-Bloqueante (millis)
-bool pulso_ativo = false;
-unsigned long tempo_inicio_pulso = 0;
-
-// =========================================================================
-// AÇÃO DO SOLENÓIDE: Pulso Não-Bloqueante (Seguro contra travamentos)
-// =========================================================================
-void dispararPulsoCatraca() {
-  Serial.println("[CATRACA] -> Pulso elétrico acionado! Destravando solenóide...");
-  digitalWrite(PIN_RELE, LOW);    // Ativa relé (nível LOW ativo)
-  digitalWrite(PIN_LED, HIGH);    // Acende LED azul
+String randomSecret() {
+  uint8_t bytes[24];
+  esp_fill_random(bytes, sizeof(bytes));
+  const char* hex = "0123456789abcdef";
+  String result;
+  result.reserve(48);
+  for (uint8_t b : bytes) { result += hex[b >> 4]; result += hex[b & 15]; }
+  return result;
+}
+String escapeHtml(String value) {
+  value.replace("&", "&amp;"); value.replace("<", "&lt;");
+  value.replace(">", "&gt;"); value.replace("\"", "&quot;"); value.replace("'", "&#39;");
+  return value;
+}
+void errorResponse(int code, const char* message) {
+  server.send(code, "application/json", String("{\"success\":false,\"error\":\"") + message + "\"}");
+}
+void stopPulse(void*) {
+  portENTER_CRITICAL(&pulse_mux);
+  digitalWrite(PIN_RELE, HIGH);
+  digitalWrite(PIN_LED, LOW);
+  pulso_ativo = false;
+  portEXIT_CRITICAL(&pulse_mux);
+}
+bool startPulse() {
+  if (!timer_ready || ota_active || pulso_ativo) return false;
+  // Timer em tarefa dedicada: não depende do servidor HTTP voltar ao loop.
+  // O callback não acessa NVS, String, rede ou Serial.
+  portENTER_CRITICAL(&pulse_mux);
+  if (esp_timer_start_once(pulse_timer, uint64_t(pulso_ms) * 1000) != ESP_OK) {
+    portEXIT_CRITICAL(&pulse_mux); return false;
+  }
+  digitalWrite(PIN_RELE, LOW);
+  digitalWrite(PIN_LED, HIGH);
   pulso_ativo = true;
-  tempo_inicio_pulso = millis();
-  
-  total_giros++;
-  prefs.putULong("giros", total_giros);
-  Serial.printf("[CATRACA] -> Solenóide aberto. Total de liberações: %lu\n", total_giros);
+  portEXIT_CRITICAL(&pulse_mux);
+  total_liberacoes++;
+  return true;
 }
-
-void atualizarEstadoPulso() {
-  if (pulso_ativo && (millis() - tempo_inicio_pulso >= (unsigned long)pulso_ms)) {
-    digitalWrite(PIN_RELE, HIGH);   // Trava novamente
-    digitalWrite(PIN_LED, LOW);
-    pulso_ativo = false;
-    Serial.println("[CATRACA] -> Trava rearmada com segurança (non-blocking).");
+void flushCounter() {
+  if (total_liberacoes != persisted_count && !pulso_ativo && !ota_active) {
+    if (prefs.putULong("giros", total_liberacoes) == sizeof(unsigned long)) persisted_count = total_liberacoes;
   }
+  last_flush = millis();
 }
-
-// =========================================================================
-// INTERFACE WEB HTML (Design Dark Responsivo para Celular)
-// =========================================================================
-String buildHtmlPage(String conteudoBody) {
-  String html = "<!DOCTYPE html><html lang='pt-BR'><head><meta charset='UTF-8'>";
-  html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-  html += "<title>BJ Sports • Catraca ESP32</title>";
-  html += "<style>";
-  html += ":root{--bg:#0b0f19;--card:#131a29;--border:#243049;--primary:#dc2626;--text:#f8fafc;--muted:#94a3b8;--accent:#3b82f6;}";
-  html += "* {box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}";
-  html += "body {background:var(--bg);color:var(--text);padding:16px;line-height:1.5;}";
-  html += ".card {background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 16px;box-shadow:0 10px 25px rgba(0,0,0,0.5);}";
-  html += ".header {text-align:center;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:14px;}";
-  html += ".header h1 {font-size:1.3rem;font-weight:800;color:#fff;}";
-  html += ".header h1 span {color:var(--primary);}";
-  html += ".header p {font-size:0.8rem;color:var(--muted);margin-top:2px;}";
-  html += ".stat-grid {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}";
-  html += ".stat-box {background:#0d131f;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}";
-  html += ".stat-box span {font-size:0.75rem;color:var(--muted);display:block;}";
-  html += ".stat-box strong {font-size:1.1rem;color:#fff;}";
-  html += ".btn {display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:0.2s;}";
-  html += ".btn-pulse {background:var(--primary);color:#fff;margin-bottom:14px;box-shadow:0 4px 15px rgba(220,38,38,0.4);}";
-  html += ".btn-pulse:active {transform:scale(0.98);background:#b91c1c;}";
-  html += ".btn-save {background:#10b981;color:#fff;}";
-  html += ".btn-scan {background:var(--accent);color:#fff;font-size:0.82rem;padding:8px 12px;margin-bottom:12px;}";
-  html += ".form-group {margin-bottom:14px;text-align:left;}";
-  html += "label {display:block;font-size:0.82rem;font-weight:600;color:var(--muted);margin-bottom:5px;}";
-  html += "input, select {width:100%;padding:12px;border-radius:8px;background:#090d16;border:1px solid var(--border);color:#fff;font-size:0.95rem;}";
-  html += "input:focus, select:focus {outline:none;border-color:var(--accent);}";
-  html += ".badge {display:inline-block;padding:3px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;text-transform:uppercase;}";
-  html += ".badge-online {background:rgba(16,185,129,0.2);color:#4ade80;}";
-  html += ".badge-ap {background:rgba(245,158,11,0.2);color:#facc15;}";
-  html += ".footer {text-align:center;font-size:0.75rem;color:var(--muted);margin-top:20px;}";
-  html += "</style></head><body>";
-  html += "<div class='card'><div class='header'><h1>BJ <span>SPORTS</span></h1><p>Controle de Acesso da Catraca • ESP32</p></div>";
-  html += conteudoBody;
-  html += "<div class='footer'>BJ Sports Catraca IoT • IP: " + (modo_ap ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "</div>";
-  html += "</div></body></html>";
-  return html;
+bool maintenanceOpen() { return maintenance && millis() < MAINTENANCE_MS; }
+bool adminAuthenticated() { return server.authenticate("admin", admin_pass.c_str()); }
+bool requireAdmin(bool mutation = false) {
+  if (!adminAuthenticated()) { server.requestAuthentication(DIGEST_AUTH, "BJ Sports"); return false; }
+  if (mutation && (!maintenanceOpen() || server.arg("csrf") != csrf)) {
+    errorResponse(403, "Manutencao fechada ou CSRF invalido"); return false;
+  }
+  return true;
 }
-
-// Rota: Home (Painel Principal)
+bool cors() {
+  String origin = server.header("Origin");
+  if (origin.length() && origin != allowed_origin) { errorResponse(403, "Origem nao permitida"); return false; }
+  if (origin.length()) {
+    server.sendHeader("Access-Control-Allow-Origin", allowed_origin);
+    server.sendHeader("Vary", "Origin");
+  }
+  server.sendHeader("Cache-Control", "no-store");
+  return true;
+}
+bool requireApi() {
+  if (!cors()) return false;
+  if (!bj::validBearer(server.header("Authorization").c_str(), api_token.c_str())) {
+    errorResponse(401, "Token ausente ou invalido"); return false;
+  }
+  return true;
+}
+String page(String body) {
+  server.sendHeader("Cache-Control", "no-store");
+  server.sendHeader("X-Content-Type-Options", "nosniff");
+  return "<!doctype html><html lang='pt-BR'><meta charset='utf-8'><meta name='viewport' content='width=device-width'><title>BJ Sports Catraca</title><style>body{font:16px system-ui;background:#0b0f19;color:#f8fafc;max-width:520px;margin:30px auto;padding:16px}input,button{box-sizing:border-box;width:100%;padding:12px;margin:8px 0}a{color:#60a5fa}</style><h1>BJ Sports • Catraca</h1>" + body + "</html>";
+}
+String csrfInput() { return "<input type='hidden' name='csrf' value='" + csrf + "'>"; }
 void handleRoot() {
-  String body = "";
-  
-  // Status Bar
-  body += "<div style='text-align:center;margin-bottom:16px;'>";
-  if (modo_ap) {
-    body += "<span class='badge badge-ap'>MODO HOTSPOT (AP)</span>";
+  if (!requireAdmin()) return;
+  String body = "<p>Firmware " + String(FIRMWARE_VERSION) + "</p><p>Wi-Fi: " + String(WiFi.status() == WL_CONNECTED ? "conectado" : "desconectado") + "</p>";
+  body += "<p>Liberações enviadas: " + String(total_liberacoes) + " • Passagens: sensor não instalado</p>";
+  if (!maintenanceOpen()) {
+    body += "<p>Para alterar configurações, testar ou atualizar: reinicie com o botão GPIO27 pressionado. Janela de 10 minutos.</p>";
   } else {
-    body += "<span class='badge badge-online'>ONLINE NO WI-FI</span>";
+    body += "<form method='post' action='/testar'>" + csrfInput() + "<button>Testar pulso (" + String(pulso_ms) + " ms)</button></form>";
+    body += "<form method='post' action='/salvar'>" + csrfInput();
+    body += "<label>Rede Wi-Fi<input name='ssid' maxlength='32' required value='" + escapeHtml(wifi_ssid) + "'></label>";
+    body += "<label>Senha Wi-Fi (vazio mantém a atual)<input type='password' name='pass' maxlength='63'></label>";
+    body += "<label>Pulso em ms (300–3000)<input type='number' name='pulso' min='300' max='3000' required value='" + String(pulso_ms) + "'></label>";
+    body += "<label>Novo token API (32–128 caracteres; vazio mantém)<input type='password' name='token' minlength='32' maxlength='128' autocomplete='new-password'></label>";
+    body += "<button>Salvar e reiniciar</button></form><p><a href='/update'>Atualização OTA</a></p>";
   }
-  body += "</div>";
-
-  // Botão Grande de Teste de Pulso Manual
-  body += "<a href='/testar' class='btn btn-pulse'>🔓 TESTAR DESTRAVAMENTO (1s)</a>";
-
-  // Estatísticas Rápidas
-  body += "<div class='stat-grid'>";
-  body += "<div class='stat-box'><span>Sinal Wi-Fi</span><strong>" + (modo_ap ? "100%" : String(WiFi.RSSI()) + " dBm") + "</strong></div>";
-  body += "<div class='stat-box'><span>Total Giros</span><strong>" + String(total_giros) + "</strong></div>";
-  body += "</div>";
-
-  // Formulário de Configuração do Wi-Fi
-  body += "<form method='POST' action='/salvar'>";
-  body += "<div style='margin-top:16px;border-top:1px solid var(--border);padding-top:16px;'>";
-  body += "<h3 style='font-size:0.95rem;margin-bottom:12px;color:#cbd5e1;'>⚙️ Configuração da Rede Wi-Fi</h3>";
-  
-  body += "<div class='form-group'>";
-  body += "<label>Nome da Rede Wi-Fi (SSID):</label>";
-  body += "<input type='text' name='ssid' id='ssid' value='" + wifi_ssid + "' placeholder='Ex: BJ_SPORTS_RECEPCAO' required>";
-  body += "</div>";
-
-  body += "<div class='form-group'>";
-  body += "<label>Senha do Wi-Fi:</label>";
-  body += "<input type='password' name='pass' placeholder='Digite a senha do Wi-Fi'>";
-  body += "</div>";
-
-  body += "<div class='form-group'>";
-  body += "<label>Tempo de Pulso da Trava (ms):</label>";
-  body += "<input type='number' name='pulso' value='" + String(pulso_ms) + "' min='300' max='3000'>";
-  body += "</div>";
-
-  body += "<div class='form-group'>";
-  body += "<label>Token Secreto da API (Bearer):</label>";
-  body += "<input type='text' name='token' value='" + api_token + "'>";
-  body += "</div>";
-
-  body += "<button type='submit' class='btn btn-save'>💾 SALVAR E CONECTAR</button>";
-  body += "</div></form>";
-
-  // Link para atualização OTA
-  body += "<div style='text-align:center;margin-top:16px;'>";
-  body += "<a href='/update' style='color:#60a5fa;font-size:0.78rem;text-decoration:none;'>Atualizar Firmware (.bin) via Web</a>";
-  body += "</div>";
-
-  server.send(200, "text/html", buildHtmlPage(body));
+  server.send(200, "text/html", page(body));
 }
-
-// Rota: Disparo de Teste via Web
-void handleTestar() {
-  dispararPulsoCatraca();
-  String body = "<div style='text-align:center;padding:20px 0;'>";
-  body += "<div style='font-size:2.5rem;margin-bottom:10px;'>⚡ CLAC!</div>";
-  body += "<h2 style='color:#4ade80;font-size:1.2rem;margin-bottom:8px;'>Solenóide Acionado com Sucesso!</h2>";
-  body += "<p style='color:#94a3b8;font-size:0.85rem;margin-bottom:20px;'>O relé fechou o contato por " + String(pulso_ms) + "ms e a catraca foi liberada.</p>";
-  body += "<a href='/' class='btn btn-pulse'>VOLTAR AO PAINEL</a>";
-  body += "</div>";
-  server.send(200, "text/html", buildHtmlPage(body));
-}
-
-// Rota: Salvar Configurações na Memória Flash
 void handleSalvar() {
-  if (server.hasArg("ssid") && server.arg("ssid").length() > 0) {
-    wifi_ssid = server.arg("ssid");
-    prefs.putString("ssid", wifi_ssid);
+  if (!requireAdmin(true)) return;
+  if (pulso_ativo || ota_active) { errorResponse(409, "Dispositivo ocupado"); return; }
+  String ssid = server.arg("ssid"), pass = server.arg("pass"), token = server.arg("token");
+  uint32_t pulse;
+  if (!bj::parseUnsigned(server.arg("pulso").c_str(), pulse) || !bj::validPulse(pulse) ||
+      !ssid.length() || ssid.length() > 32 || pass.length() > 63 ||
+      (pass.length() && pass.length() < 8) || (token.length() && !bj::validToken(token.c_str()))) {
+    errorResponse(400, "Configuracao invalida"); return;
   }
-  if (server.hasArg("pass") && server.arg("pass").length() > 0) {
-    wifi_pass = server.arg("pass");
-    prefs.putString("pass", wifi_pass);
-  }
-  if (server.hasArg("pulso")) {
-    pulso_ms = server.arg("pulso").toInt();
-    if (pulso_ms < 300) pulso_ms = 1000;
-    prefs.putInt("pulso", pulso_ms);
-  }
-  if (server.hasArg("token") && server.arg("token").length() > 0) {
-    api_token = server.arg("token");
-    prefs.putString("token", api_token);
-  }
-
-  String body = "<div style='text-align:center;padding:20px 0;'>";
-  body += "<div style='font-size:2.5rem;margin-bottom:10px;'>💾</div>";
-  body += "<h2 style='color:#4ade80;font-size:1.2rem;margin-bottom:8px;'>Configurações Salvas na Memória!</h2>";
-  body += "<p style='color:#cbd5e1;font-size:0.88rem;margin-bottom:16px;'>O ESP32 está reiniciando para conectar na rede: <strong>" + wifi_ssid + "</strong></p>";
-  body += "<p style='color:#94a3b8;font-size:0.8rem;'>Conecte o celular no Wi-Fi da academia e acesse: <br><strong style='color:#38bdf8;'>http://catraca.local</strong></p>";
-  body += "</div>";
-  server.send(200, "text/html", buildHtmlPage(body));
-  
-  delay(1500);
-  ESP.restart();
+  // Validação completa antes de qualquer escrita.
+  bool ok = prefs.putString("ssid", ssid) > 0;
+  if (pass.length()) ok = (prefs.putString("pass", pass) > 0) && ok;
+  if (token.length()) ok = (prefs.putString("token", token) > 0) && ok;
+  ok = (prefs.putInt("pulso", pulse) == sizeof(int)) && ok;
+  if (!ok) { errorResponse(500, "Falha de persistencia; confira a configuracao"); return; }
+  flushCounter();
+  server.send(200, "text/html", page("<p>Configuração salva. Reiniciando; reconecte à rede da academia.</p>"));
+  delay(200); ESP.restart();
 }
-
-// =========================================================================
-// API REST: Usada pelo Sistema BJ Sports / Tablet Facial
-// =========================================================================
-void handleApiLiberar() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-  server.sendHeader("Access-Control-Allow-Headers", "*");
-
-  // Validação do Token de Segurança
-  if (server.hasHeader("Authorization")) {
-    String auth = server.header("Authorization");
-    if (!auth.endsWith(api_token)) {
-      server.send(401, "application/json", "{\"error\":\"Token de autorizacao invalido\"}");
-      return;
-    }
-  }
-
-  dispararPulsoCatraca();
-  server.send(200, "application/json", "{\"success\":true,\"message\":\"Catraca liberada\",\"total_giros\":" + String(total_giros) + "}");
-}
-
 void handleApiStatus() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  String json = "{";
-  json += "\"status\":\"ONLINE\",";
-  json += "\"version\":\"" + String(FIRMWARE_VERSION) + "\",";
-  json += "\"device\":\"ESP32-WROOM-32\",";
-  json += "\"ip\":\"" + (modo_ap ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\",";
-  json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
-  json += "\"total_giros\":" + String(total_giros) + ",";
-  json += "\"pulso_ms\":" + String(pulso_ms) + ",";
-  json += "\"pulso_ativo\":" + String(pulso_ativo ? "true" : "false") + ",";
-  json += "\"free_heap\":" + String(ESP.getFreeHeap());
-  json += "}";
+  if (!requireApi()) return;
+  String json = "{\"version\":\"" + String(FIRMWARE_VERSION) + "\",\"boot_id\":\"" + boot_id + "\",\"uptime_ms\":" + String(millis());
+  json += ",\"wifi_connected\":" + String(WiFi.status() == WL_CONNECTED ? "true" : "false");
+  json += ",\"liberacoes_enviadas\":" + String(total_liberacoes) + ",\"passagens_confirmadas\":null";
+  json += ",\"pulso_ativo\":" + String(pulso_ativo ? "true" : "false") + ",\"pulso_ms\":" + String(pulso_ms);
+  json += ",\"free_heap\":" + String(ESP.getFreeHeap()) + ",\"ready\":" + String(timer_ready && !ota_active ? "true" : "false") + "}";
   server.send(200, "application/json", json);
 }
-
-// =========================================================================
-// SETUP: Inicialização
-// =========================================================================
-void setup() {
-  Serial.begin(115200);
-  delay(500);
-
-  Serial.println("\n==========================================");
-  Serial.printf("  BJ SPORTS • FIRMWARE CATRACA ESP32 %s \n", FIRMWARE_VERSION);
-  Serial.println("==========================================");
-
-  // Inicializa Pinos
-  pinMode(PIN_RELE, OUTPUT);
-  pinMode(PIN_LED, OUTPUT);
-  digitalWrite(PIN_RELE, HIGH); // Relé inicia desligado (travado)
-  digitalWrite(PIN_LED, LOW);
-
-  // Inicializa Watchdog de Hardware (8s contra interferências eletromagnéticas)
-  esp_task_wdt_init(8, true);
-  esp_task_wdt_add(NULL);
-
-  // Carrega configurações da memória flash NVS
-  prefs.begin("bjsports", false);
-  wifi_ssid = prefs.getString("ssid", "");
-  wifi_pass = prefs.getString("pass", "");
-  api_token = prefs.getString("token", "bjsports-catraca-secret");
-  pulso_ms = prefs.getInt("pulso", 1000);
-  total_giros = prefs.getULong("giros", 0);
-
-  Serial.printf("[NVS] SSID Salvo: %s | Pulso: %dms | Giros: %lu\n", wifi_ssid.c_str(), pulso_ms, total_giros);
-
-  // Tentativa de Conexão Wi-Fi no modo Station
-  if (wifi_ssid.length() > 0) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
-    Serial.print("[WIFI] Conectando a " + wifi_ssid);
-
-    int timeouts = 0;
-    while (WiFi.status() != WL_CONNECTED && timeouts < 24) { // 12 segundos tentando
-      delay(500);
-      Serial.print(".");
-      timeouts++;
-    }
+void handleApiLiberar() {
+  if (!requireApi()) return;
+  String id = server.header("X-Command-ID");
+  uint32_t deadline, now = millis();
+  if (!bj::validCommandId(id.c_str()) || server.header("X-Boot-ID") != boot_id ||
+      !bj::parseUnsigned(server.header("X-Expires-Ms").c_str(), deadline) || !bj::validDeadline(now, deadline)) {
+    errorResponse(400, "Comando invalido ou expirado"); return;
   }
-
-  // Se conectou com sucesso
-  if (WiFi.status() == WL_CONNECTED) {
-    modo_ap = false;
-    Serial.println("\n[WIFI] Conectado com sucesso!");
-    Serial.printf("[WIFI] IP: http://%s\n", WiFi.localIP().toString().c_str());
-    
-    // Inicia mDNS (Permite acessar via http://catraca.local)
-    if (MDNS.begin("catraca")) {
-      Serial.println("[mDNS] Respondedor mDNS ativo: http://catraca.local");
-    }
-  } else {
-    // Falhou ou é a primeira inicialização: abre Hotspot para o Celular
-    modo_ap = true;
-    Serial.println("\n[WIFI] Entrando em Modo Hotspot (AP) para configuração pelo Celular...");
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(AP_SSID, AP_PASS);
-    
-    // DNS Server para Captive Portal automático
-    dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-    Serial.printf("[HOTSPOT] Conecte no Wi-Fi: %s (Senha: %s)\n", AP_SSID, AP_PASS);
-    Serial.printf("[HOTSPOT] Acesse no celular: http://%s\n", WiFi.softAPIP().toString().c_str());
+  int slot = -1;
+  for (int i = 0; i < 64; i++) {
+    if (command_ids[i] == id) { errorResponse(409, "Comando ja recebido; nao repetir"); return; }
+    if (!command_ids[i].length() || int32_t(now - command_deadlines[i]) > 0) slot = i;
   }
-
-  // Rotas do Web Server
-  server.on("/", handleRoot);
-  server.on("/testar", handleTestar);
-  server.on("/salvar", HTTP_POST, handleSalvar);
-  server.on("/liberar", handleApiLiberar);
-  server.on("/status", handleApiStatus);
-
-  // Suporte a Captive Portal do Android e iOS
-  server.on("/generate_204", handleRoot);        // Android
-  server.on("/hotspot-detect.html", handleRoot); // Apple iOS
-  server.onNotFound(handleRoot);
-
-  // Rota de Atualização OTA Web (/update)
+  if (slot < 0 || !startPulse()) { errorResponse(409, "Dispositivo ocupado"); return; }
+  command_ids[slot] = id; command_deadlines[slot] = deadline;
+  server.send(200, "application/json", "{\"success\":true,\"state\":\"command_accepted\",\"command_id\":\"" + id + "\",\"passage_confirmed\":false}");
+}
+void handlePreflight() {
+  if (!cors()) return;
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Authorization, X-Command-ID, X-Boot-ID, X-Expires-Ms");
+  server.send(204);
+}
+void setupOta() {
   server.on("/update", HTTP_GET, []() {
-    String html = "<h3>BJ Sports • Atualização de Firmware</h3>";
-    html += "<form method='POST' action='/update' enctype='multipart/form-data'>";
-    html += "<input type='file' name='update'><br><br>";
-    html += "<input type='submit' value='Enviar Firmware .bin'>";
-    html += "</form>";
-    server.send(200, "text/html", buildHtmlPage(html));
+    if (!requireAdmin()) return;
+    if (!maintenanceOpen()) { errorResponse(403, "Abra manutencao fisica"); return; }
+    server.send(200, "text/html", page("<p>Use somente binário compilado e verificado. Não há assinatura criptográfica habilitada nesta placa.</p><form method='post' action='/update?csrf=" + csrf + "' enctype='multipart/form-data'><input type='file' name='update' accept='.bin' required><button>Atualizar firmware</button></form>"));
   });
-
   server.on("/update", HTTP_POST, []() {
-    server.send(200, "text/plain", (Update.hasError()) ? "FALHA NA ATUALIZACAO" : "ATUALIZADO COM SUCESSO! REINICIANDO...");
-    delay(1000);
-    ESP.restart();
+    // A janela precisa estar aberta no início; upload já autorizado pode terminar.
+    if (!adminAuthenticated() || server.arg("csrf") != csrf) {
+      Update.abort(); ota_active = false; ota_ok = false;
+      errorResponse(403, "Atualizacao nao autorizada"); return;
+    }
+    bool success = ota_active && ota_ok && !Update.hasError() && Update.end(true);
+    ota_active = false; ota_ok = false;
+    if (!success) { Update.abort(); errorResponse(400, "Atualizacao falhou; firmware atual mantido"); return; }
+    server.send(200, "text/plain", "Atualizado. Reiniciando.");
+    delay(200); ESP.restart();
   }, []() {
     HTTPUpload& upload = server.upload();
+    if (watchdog_ready) esp_task_wdt_reset();
     if (upload.status == UPLOAD_FILE_START) {
-      Serial.printf("[OTA] Iniciando gravacao: %s\n", upload.filename.c_str());
-      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_WRITE) {
-      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_END) {
-      if (Update.end(true)) {
-        Serial.printf("[OTA] Sucesso: %u bytes gravados.\n", upload.totalSize);
-      } else {
-        Update.printError(Serial);
-      }
+      ota_ok = false;
+      if (!adminAuthenticated() || !maintenanceOpen() || server.arg("csrf") != csrf || pulso_ativo || ota_active) return;
+      flushCounter();
+      ota_active = Update.begin(UPDATE_SIZE_UNKNOWN);
+    } else if (upload.status == UPLOAD_FILE_WRITE && ota_active) {
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) { Update.abort(); ota_active = false; }
+    } else if (upload.status == UPLOAD_FILE_END && ota_active) {
+      ota_ok = upload.totalSize > 0; // Só confirma a partição no handler final autenticado.
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
+      Update.abort(); ota_active = false; ota_ok = false;
     }
   });
-
-  server.begin();
-  Serial.println("[HTTP] Servidor Web ativo e aguardando conexões.");
 }
-
-// =========================================================================
-// LOOP PRINCIPAL (Não-bloqueante com Watchdog Reset)
-// =========================================================================
+void setup() {
+  digitalWrite(PIN_RELE, HIGH); pinMode(PIN_RELE, OUTPUT);
+  pinMode(PIN_LED, OUTPUT); digitalWrite(PIN_LED, LOW);
+  pinMode(PIN_MANUTENCAO, INPUT_PULLUP);
+  Serial.begin(115200);
+  if (!prefs.begin("bjsports", false)) { Serial.println("NVS indisponivel; bloqueado"); return; }
+  wifi_ssid = prefs.getString("ssid", ""); wifi_pass = prefs.getString("pass", "");
+  WiFi.mode(WIFI_STA); // Habilita fonte de entropia RF antes de gerar credenciais.
+  admin_pass = prefs.getString("admin", ""); ap_pass = prefs.getString("ap_pass", "");
+  bool provision = !admin_pass.length() || !ap_pass.length();
+  if (provision) {
+    admin_pass = randomSecret(); ap_pass = randomSecret();
+    if (!prefs.putString("admin", admin_pass) || !prefs.putString("ap_pass", ap_pass)) return;
+    Serial.println("Provisionamento: guarde as credenciais em local seguro.");
+    Serial.println("Usuario: admin"); Serial.println("Senha admin: " + admin_pass);
+    Serial.println("Senha AP: " + ap_pass);
+  }
+  api_token = prefs.getString("token", "");
+  if (!bj::validToken(api_token.c_str())) {
+    api_token = randomSecret();
+    if (!prefs.putString("token", api_token)) return;
+    Serial.println("Novo token API (substitui legado): " + api_token);
+  }
+  csrf = randomSecret(); boot_id = randomSecret();
+  pulso_ms = prefs.getInt("pulso", 1000);
+  if (!bj::validPulse(pulso_ms)) pulso_ms = 1000;
+  total_liberacoes = persisted_count = prefs.getULong("giros", 0);
+  esp_timer_create_args_t args = {};
+  args.callback = stopPulse; args.name = "relay_off";
+  timer_ready = esp_timer_create(&args, &pulse_timer) == ESP_OK;
+  maintenance = provision || !wifi_ssid.length() || digitalRead(PIN_MANUTENCAO) == LOW;
+  if (maintenance) {
+    modo_ap = true; WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(("BJ-CATRACA-" + boot_id.substring(0, 6)).c_str(), ap_pass.c_str());
+    dnsServer.start(53, "*", WiFi.softAPIP());
+  }
+  WiFi.setAutoReconnect(true);
+  if (wifi_ssid.length()) WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+#if ESP_IDF_VERSION_MAJOR >= 5
+  esp_task_wdt_config_t config = {};
+  config.timeout_ms = 8000; config.trigger_panic = true;
+  esp_err_t wd = esp_task_wdt_init(&config);
+  if (wd == ESP_ERR_INVALID_STATE) wd = esp_task_wdt_reconfigure(&config);
+#else
+  esp_err_t wd = esp_task_wdt_init(8, true);
+#endif
+  if (wd == ESP_OK) watchdog_ready = esp_task_wdt_add(NULL) == ESP_OK;
+  const char* headers[] = {"Authorization", "Origin", "X-Command-ID", "X-Boot-ID", "X-Expires-Ms"};
+  server.collectHeaders(headers, 5);
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/salvar", HTTP_POST, handleSalvar);
+  server.on("/testar", HTTP_POST, []() {
+    if (!requireAdmin(true)) return;
+    if (!startPulse()) { errorResponse(409, "Dispositivo ocupado"); return; }
+    server.send(200, "text/html", page("<p>Pulso iniciado. Passagem não confirmada por sensor.</p><a href='/'>Voltar</a>"));
+  });
+  server.on("/liberar", HTTP_POST, handleApiLiberar);
+  server.on("/liberar", HTTP_OPTIONS, handlePreflight);
+  server.on("/status", HTTP_GET, handleApiStatus);
+  server.on("/status", HTTP_OPTIONS, handlePreflight);
+  server.onNotFound([]() { errorResponse(404, "Rota ou metodo nao permitido"); });
+  setupOta(); server.begin();
+}
 void loop() {
-  esp_task_wdt_reset(); // Alimenta o Watchdog de Hardware
+  if (watchdog_ready) esp_task_wdt_reset();
+  if (maintenance && millis() >= MAINTENANCE_MS) maintenance = false;
   if (modo_ap) {
     dnsServer.processNextRequest();
+    if (!maintenanceOpen() && !ota_active) { dnsServer.stop(); WiFi.softAPdisconnect(true); modo_ap = false; WiFi.mode(WIFI_STA); }
+  }
+  if (WiFi.status() == WL_CONNECTED && !mdns_started) mdns_started = MDNS.begin("catraca");
+  if (wifi_ssid.length() && WiFi.status() != WL_CONNECTED && millis() - last_reconnect >= 30000) {
+    last_reconnect = millis(); WiFi.reconnect();
   }
   server.handleClient();
-  atualizarEstadoPulso();
+  if (millis() - last_flush >= 60000) flushCounter();
+  delay(1);
 }
-

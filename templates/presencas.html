@@ -122,7 +122,7 @@
             </div>
             {% if has_overdue %}
             <a href="{{ url_for('mensalidades_aluno') }}" class="btn btn-secondary btn-lg"><i data-lucide="wallet-cards"></i> Ver mensalidades</a>
-            {% elif credit_balance or not today_attendance %}
+            {% else %}
             <form action="{{ url_for('presencas') }}" method="POST" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 480px; margin-top: 12px;">
               <input type="hidden" name="action" value="request_checkin">
 
@@ -133,7 +133,14 @@
                 {% for slot in credit_slots %}<option value="{{ slot.value }}">{{ slot.label }}</option>{% endfor %}
               </select>
               {% if not credit_slots %}<p>Nenhuma outra aula disponível hoje.</p>{% endif %}
-              {% elif not has_active_enrollment %}
+              {% else %}
+              <label for="portalClassSlot">Turma e horário de hoje</label>
+              <select name="class_slot" id="portalClassSlot" required>
+                <option value="">Selecione a turma e o horário</option>
+                {% for slot in portal_slots %}<option value="{{ slot.value }}">{{ slot.label }}</option>{% endfor %}
+              </select>
+              {% if not portal_slots %}<p>Nenhuma aula elegível com vaga disponível hoje. Confira sua matrícula na recepção.</p>{% endif %}
+              {% if not has_active_enrollment %}
               <!-- Aula experimental disponível somente antes da matrícula em turma -->
               <div class="experimental-class-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.35);">
                 <label style="font-weight: 700; color: #ffffff; display: block; margin-bottom: 8px; font-size: 0.95rem;">Deseja agendar uma Aula Experimental Gratuita?</label>
@@ -154,8 +161,9 @@
                 <span><strong>Aula regular da sua turma</strong><small>Você já está matriculado e este check-in será registrado como treino regular.</small></span>
               </div>
               {% endif %}
+              {% endif %}
 
-              <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;" {% if credit_balance and (not credit_slots or credit_balance.remaining == 0) %}disabled{% endif %}>
+              <button type="submit" class="btn btn-primary btn-lg btn-glow" style="align-self: flex-end;" {% if (credit_balance and (not credit_slots or credit_balance.remaining == 0)) or (not credit_balance and not portal_slots) %}disabled{% endif %}>
                 <i data-lucide="check"></i> Enviar Check-in
               </button>
             </form>

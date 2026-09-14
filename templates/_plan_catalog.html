@@ -1,0 +1,88 @@
+<div class="plan-catalog-content">
+
+{% if plan_form_state %}
+<div class="plan-form-errors" role="alert" tabindex="-1" id="planFormErrors"><strong>Não foi possível salvar o plano</strong><ul>{% for error in plan_form_state.errors %}<li>{{ error }}</li>{% endfor %}</ul></div>
+{% endif %}
+
+      <p class="plan-frequency-note">* Jiu-jitsu, boxe e muay thai: frequência com horários flexíveis. MMA e planos especiais mantêm as condições próprias de dias e horários.</p>
+      <section class="plan-catalog-heading">
+        <div><span><i data-lucide="database-zap"></i> CATÁLOGO DE PLANOS</span><h2>Planos individuais, combos e especiais</h2><p>Administre em um único lugar o que aparece no cadastro, nos cards públicos, no perfil do aluno e no financeiro.</p></div>
+        <button type="button" data-plan-create-toggle><i data-lucide="plus"></i><span data-plan-create-button>Novo registro</span></button>
+      </section>
+
+      <p class="plan-impact-note"><strong>Antes de salvar:</strong> alterações de nome e preço também atualizam o plano registrado nas contas vinculadas. Confira os valores e as condições.</p>
+      <section class="plan-catalog-summary">
+        <article><i data-lucide="layers-3"></i><div><span>Total no catálogo</span><strong>{{ plans|length }}</strong><small>Registros no sistema</small></div></article>
+        <article><i data-lucide="circle-dot"></i><div><span>Individuais</span><strong>{{ individual_count }}</strong><small>Uma modalidade por plano</small></div></article>
+        <article><i data-lucide="combine"></i><div><span>Combos e especiais</span><strong>{{ special_count }}</strong><small>Múltiplas modalidades</small></div></article>
+        <article><i data-lucide="users"></i><div><span>Contas vinculadas</span><strong>{{ plan_usage.values()|sum }}</strong><small>Confira o impacto antes de salvar</small></div></article>
+      </section>
+
+      <section class="plan-catalog-create hidden" data-plan-create-panel>
+        <header><div><span>NOVO REGISTRO</span><h2>Cadastrar plano</h2><p>Após salvar, o novo registro ficará disponível em todo o sistema.</p></div><button type="button" data-plan-create-toggle aria-label="Fechar"><i data-lucide="x"></i></button></header>
+        <form method="post" action="{{ url_for('gestao_turmas', tab='plans') }}" class="plan-catalog-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="plan_create"><input type="hidden" name="return_tab" data-plan-return-tab value="{{ active_tab }}">
+          <label><span>Nome do plano *</span><input name="name" maxlength="120" required placeholder="Ex.: Jiu-Jitsu"></label>
+          <label><span>Categoria *</span><select name="category" data-plan-create-category required><option value="Planos Individuais">Plano individual</option><option value="Combos & Planos Especiais">Combo ou plano especial</option></select></label>
+          <label><span>2 aulas/semana *</span><input name="price_ter_qui" required placeholder="R$ 120,00/mês"></label>
+          <label><span>3 aulas/semana *</span><input name="price_seg_qua_sex" required placeholder="R$ 120,00/mês"></label>
+          <label><span>Ilimitado *</span><input name="price_all_days" required placeholder="R$ 120,00/mês"></label>
+          <label><span>Desconto do plano (%)</span><input name="discount_percent" type="number" min="0" max="100" step="0.01" value="0" placeholder="Ex.: 10"></label>
+          <label><span>Modalidades que o aluno escolhe</span><select name="selection_count"><option value="0">Nenhuma — usa as incluídas</option>{% for count in range(1,5) %}<option value="{{ count }}">{{ count }} modalidade(s)</option>{% endfor %}</select></label>
+          <label><span>Tipo compartilhado</span><select name="shared_type"><option value="none">Não compartilhado</option><option value="couple">Plano Casal</option><option value="family">Plano Família</option></select></label>
+          <label class="plan-catalog-featured"><input type="checkbox" name="force_all_days" value="1"><span><strong>Usar Ilimitado</strong><small>Seleciona essa frequência automaticamente.</small></span></label>
+          <label class="plan-catalog-featured"><input type="checkbox" name="is_featured" value="1"><span><strong>Destacar no catálogo</strong><small>Exibe o selo “Mais popular”.</small></span></label>
+          <fieldset class="is-wide"><legend>Modalidades incluídas *</legend><div class="plan-catalog-modalities">{% for modality in allowed_modalities %}<label><input type="checkbox" name="modalities" value="{{ modality }}"><span>{{ modality }}</span></label>{% endfor %}</div><small>Plano individual aceita uma modalidade; combos aceitam uma ou mais.</small></fieldset>
+          <label class="is-wide"><span>Descrição curta</span><input name="sub" maxlength="200" placeholder="Resumo exibido nos cards"></label>
+          <label class="is-wide"><span>Benefícios</span><textarea name="features" rows="3" placeholder="Separe cada benefício com ponto e vírgula"></textarea></label>
+          <footer class="is-wide"><button type="button" data-plan-create-toggle>Cancelar</button><button type="submit" class="is-primary"><i data-lucide="save"></i>Salvar no sistema</button></footer>
+        </form>
+      </section>
+
+      <section class="plan-catalog-list">
+        <header><div><span>CATÁLOGO ATUAL</span><h2>Cadastro organizado</h2></div><small>{{ plans|length }} registro(s)</small></header>
+        <nav class="plan-catalog-tabs" aria-label="Tipos de plano">
+          <button type="button" data-plan-tab="modalities"><i data-lucide="circle-dot"></i>Individuais <strong>{{ individual_count }}</strong></button>
+          <button type="button" data-plan-tab="plans"><i data-lucide="combine"></i>Combos e especiais <strong>{{ special_count }}</strong></button>
+        </nav>
+        {% for tab_name, category, empty_label in [('modalities', 'Planos Individuais', 'Nenhum plano individual cadastrado'), ('plans', 'Combos & Planos Especiais', 'Nenhum plano cadastrado')] %}
+        <div class="plan-catalog-tab-panel {% if tab_name != active_tab %}hidden{% endif %}" data-plan-panel="{{ tab_name }}">
+          {% if tab_name == 'plans' %}<div class="plan-custom-note"><i data-lucide="pencil-ruler"></i><div><strong>Planos totalmente personalizados</strong><small>Nome, modalidades e valores são definidos por você. Os preços não são calculados pela soma das modalidades.</small></div></div>{% endif %}
+          <div class="plan-admin-table-wrap">
+            <table class="plan-admin-table {% if tab_name == 'plans' %}is-custom-plans{% endif %}">
+              {% if tab_name == 'modalities' %}<thead><tr><th>Ações</th><th>Modalidade</th><th>Horários</th><th>2 aulas/semana*</th><th>3 aulas/semana*</th><th>Ilimitado*</th></tr></thead>{% else %}<thead><tr><th>Ações</th><th>Plano personalizado</th><th>Modalidades incluídas</th><th>2 aulas/semana*</th><th>3 aulas/semana*</th><th>Ilimitado*</th></tr></thead>{% endif %}
+              <tbody>
+              {% for plan in plans if (plan.category == category) %}
+                {% set form_id = 'plan-edit-' ~ plan.id %}{% set selected_modalities = plan.get_modalities() %}
+                <tr>
+                  <td class="plan-actions-cell"><form id="{{ form_id }}" method="post" action="{{ url_for('gestao_turmas', tab='plans') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="plan_update"><input type="hidden" name="plan_id" value="{{ plan.id }}"><input type="hidden" name="category" value="{{ category }}"><input type="hidden" name="return_tab" value="{{ tab_name }}">{% if tab_name == 'modalities' %}<input type="hidden" name="name" value="{{ plan.name }}">{% endif %}<input type="hidden" name="sub" value="{{ plan.sub or '' }}">{% if plan.is_featured %}<input type="hidden" name="is_featured" value="1">{% endif %}</form><div class="plan-table-actions"><button type="button" class="is-secondary" data-plan-benefits-toggle="{{ plan.id }}" title="Editar benefícios"><i data-lucide="plus"></i></button><button form="{{ form_id }}" type="submit" title="Salvar alterações"><i data-lucide="save"></i><span>Salvar</span></button><form method="post" action="{{ url_for('gestao_turmas', tab='plans') }}" data-confirm="Excluir o plano {{ plan.name|e }}?" data-confirm-danger="true"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="plan_delete"><input type="hidden" name="plan_id" value="{{ plan.id }}"><input type="hidden" name="return_tab" value="{{ tab_name }}"><button type="submit" class="is-danger" {% if plan_usage[plan.id] %}disabled title="Existem matrículas vinculadas"{% else %}title="Excluir"{% endif %}><i data-lucide="trash-2"></i></button></form></div></td>
+                  {% if tab_name == 'modalities' %}<td class="plan-modality-cell" data-label="Modalidades"><input form="{{ form_id }}" type="hidden" name="modalities" value="{{ selected_modalities[0] }}"><input form="{{ form_id }}" type="hidden" name="discount_percent" value="{{ plan.discount_percent or 0 }}"><input form="{{ form_id }}" type="hidden" name="selection_count" value="{{ plan.get_selection_count() }}"><input form="{{ form_id }}" type="hidden" name="shared_type" value="{{ plan.get_shared_type() }}">{% if plan.requires_all_days() %}<input form="{{ form_id }}" type="hidden" name="force_all_days" value="1">{% endif %}<span class="plan-modality-text">{{ selected_modalities[0] }}</span><small>{{ plan.name }} • {{ plan_usage[plan.id] }} conta(s) vinculada(s)</small></td><td class="plan-schedule-cell" data-label="Horários">{% for schedule in plan_schedules[plan.id] %}<span><i data-lucide="clock-3"></i>{{ schedule }}</span>{% else %}<em>Sem horário vinculado</em>{% endfor %}</td>{% else %}<td class="plan-custom-name" data-label="Plano personalizado"><input form="{{ form_id }}" name="name" value="{{ plan.name }}" maxlength="120" required aria-label="Nome do plano personalizado"><label class="plan-discount-field"><span>Desconto (%)</span><input form="{{ form_id }}" name="discount_percent" type="number" min="0" max="100" step="0.01" value="{{ plan.discount_percent or 0 }}" aria-label="Percentual de desconto"></label><small>{{ plan_usage[plan.id] }} matrícula(s) vinculada(s)</small></td><td class="plan-modality-cell" data-label="Modalidades"><div class="plan-table-modalities">{% for modality in allowed_modalities %}<label><input form="{{ form_id }}" type="checkbox" name="modalities" value="{{ modality }}" {% if modality in selected_modalities %}checked{% endif %}><span>{{ modality }}</span></label>{% endfor %}</div></td>{% endif %}
+                  {% if plan.get_shared_type() in ['couple', 'family'] %}
+                  <td colspan="3" style="background: rgba(245, 158, 11, 0.08); border-left: 1px dashed rgba(245, 158, 11, 0.3); text-align: center; vertical-align: middle;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--accent-gold); font-weight: 700; font-size: 0.85rem;">
+                      <i data-lucide="percent" style="width: 15px; height: 15px;"></i>
+                      <span>Calculado via Desconto (<strong>{{ plan.discount_percent or 0 }}% off</strong>)</span>
+                    </div>
+                    <small style="color: #94a3b8; font-size: 0.74rem; display: block; margin-top: 2px;">
+                      Valor gerado automaticamente a partir das modalidades selecionadas
+                    </small>
+                  </td>
+                  {% else %}
+                  <td class="plan-price-cell" data-label="2 aulas/semana*"><input form="{{ form_id }}" name="price_ter_qui" value="{{ plan.price_ter_qui or plan.price }}" required aria-label="Valor para 2 aulas/semana"></td>
+                  <td class="plan-price-cell" data-label="3 aulas/semana*"><input form="{{ form_id }}" name="price_seg_qua_sex" value="{{ plan.price_seg_qua_sex or plan.price }}" required aria-label="Valor para 3 aulas/semana"></td>
+                  <td class="plan-price-cell" data-label="Ilimitado*"><input form="{{ form_id }}" name="price_all_days" value="{{ plan.price_all_days or plan.price }}" required aria-label="Valor para Ilimitado"></td>
+                  {% endif %}
+                </tr>
+                <tr class="plan-benefits-row hidden" data-plan-benefits="{{ plan.id }}"><td colspan="6"><div class="plan-expanded-editor"><label><strong>Benefícios de {{ plan.name }}</strong><small>Separe cada benefício com ponto e vírgula.</small><textarea form="{{ form_id }}" name="features" rows="3" aria-label="Benefícios">{{ plan.features or '' }}</textarea></label>{% if tab_name == 'plans' %}<div class="plan-behavior-grid"><label><span>Modalidades escolhidas pelo aluno</span><select form="{{ form_id }}" name="selection_count">{% for count in range(0,5) %}<option value="{{ count }}" {% if plan.get_selection_count() == count %}selected{% endif %}>{{ 'Nenhuma — usa as incluídas' if count == 0 else count ~ ' modalidade(s)' }}</option>{% endfor %}</select></label><label><span>Tipo de plano</span><select form="{{ form_id }}" name="shared_type"><option value="none" {% if plan.get_shared_type() == 'none' %}selected{% endif %}>Não compartilhado</option><option value="couple" {% if plan.get_shared_type() == 'couple' %}selected{% endif %}>Casal</option><option value="family" {% if plan.get_shared_type() == 'family' %}selected{% endif %}>Família</option></select></label><label class="plan-force-days"><input form="{{ form_id }}" type="checkbox" name="force_all_days" value="1" {% if plan.requires_all_days() %}checked{% endif %}><span>Selecionar “Ilimitado” automaticamente</span></label></div>{% endif %}</div></td></tr>
+              {% else %}<tr><td colspan="6" class="plan-table-empty">{{ empty_label }}</td></tr>{% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+
+</div>
+
+<script type="application/json" id="planCatalogState">{{ {'activeTab': active_tab, 'formState': plan_form_state}|tojson }}</script>
+<script src="{{ url_for('static', filename='js/plan_catalog.js') }}?v=20260913_1"></script>

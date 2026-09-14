@@ -1,0 +1,62 @@
+[
+  {
+    "file": "app.py",
+    "operation": "modified",
+    "before_sha256": "6746459b89183dbe9100a22d195ad08a0d31af85867a6a9d539e050249796ed4",
+    "after_sha256": "59dd881498fda9bb6b8b01784491255419859e773e8d6358fcd20ae8de26a3d4"
+  },
+  {
+    "file": "templates/base.html",
+    "operation": "modified",
+    "before_sha256": "8e7d52dd4ffdb0bf93e5f4d34f9cb6cac9010c858997eee895e97b1623f6a9bf",
+    "after_sha256": "f46203899de358d326a36677db1b379871645f675761f501bc5279669ff8ef83"
+  },
+  {
+    "file": "templates/gestao_turmas.html",
+    "operation": "modified",
+    "before_sha256": "5d4a3073276e14a531e1f25cc977defbd5a104a0a86d5b78a17ca2fb76519d98",
+    "after_sha256": "6e205a3ea72b2cf9a1de95b9c61db8bdb539d7b453cde83c5e88debcc4d2959a"
+  },
+  {
+    "file": "templates/_erp_sidebar.html",
+    "operation": "modified",
+    "before_sha256": "6d33c2789e2495c118f10aea38268ea14177792c21ee3430dfc0de8dee13aa40",
+    "after_sha256": "ec5cb6e3f84dfd1109df61bb0d84b03edf8cafd7ec269f1edf6b022d1623c718"
+  },
+  {
+    "file": "templates/locais_admin.html",
+    "operation": "modified",
+    "before_sha256": "f524f2d20b55f2f3c09ed9f45a597cbe3abc2825a646e11def8422e87f544ba6",
+    "after_sha256": "7228a6f427d783d3020289dcd20a2e09d9aba2d0e44969f84f7e340812409e4e"
+  },
+  {
+    "file": "templates/gestao_icones.html",
+    "operation": "modified",
+    "before_sha256": "4e29313a507d541f2c940d654db7338df28d8d41221e58468519dea2908dc0b5",
+    "after_sha256": "f5f5410c9dda8954098e5f5f35fdf05c5908ad4a4bac6ddb6bc7e26061988325"
+  },
+  {
+    "file": "templates/planos_admin.html",
+    "operation": "deleted",
+    "before_sha256": "b8391115c903de8881daadb8d5d503222be7171f46806722aa2dd96f0c1c59f1",
+    "after_sha256": null
+  },
+  {
+    "file": "templates/_plan_catalog.html",
+    "operation": "added",
+    "before_sha256": null,
+    "after_sha256": "2ca5bbc801e86109f34f0f33bde8efd5854efdf316e45d33e4c5ed0123843ef5"
+  },
+  {
+    "file": "static/js/plan_catalog.js",
+    "operation": "added",
+    "before_sha256": null,
+    "after_sha256": "174e2da9d2b90f823ae003a675e886c88a38c7828c307dd4cc710d0c2dbcd5f1"
+  },
+  {
+    "file": "static/css/turmas_planos.css",
+    "operation": "added",
+    "before_sha256": null,
+    "after_sha256": "036422f8c051726ba96066970c1c404fbd496f5310bebc33f507661e9a2c5f53"
+  }
+]

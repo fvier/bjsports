@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Procedimentos da catraca • BJ Sports</title>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b0f19;color:#e2e8f0;font:16px/1.65 system-ui,sans-serif}main{max-width:1040px;margin:auto;padding:32px 20px 64px}a{color:#7dd3fc}h1,h2,h3{line-height:1.25;color:#fff}h1{font-size:clamp(1.7rem,4vw,2.5rem)}h2{margin-top:0;font-size:1.35rem}h3{font-size:1.05rem}header p{max-width:760px}nav{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}nav a,.action{padding:8px 12px;border:1px solid #334155;border-radius:8px;text-decoration:none}section{padding:24px;background:#131a29;border:1px solid #293449;border-radius:14px;margin:20px 0;scroll-margin-top:16px}.notice{padding:16px;border-left:4px solid #fbbf24;background:#292315;border-radius:8px}.muted{color:#b1bdd0}.tag{font-weight:700;color:#fca5a5}li{margin:9px 0}code{overflow-wrap:anywhere;color:#fde68a}table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid #334155;vertical-align:top}th{color:#7dd3fc}.table-wrap{overflow:auto}details{border-top:1px solid #334155;padding:12px 0}summary{cursor:pointer;font-weight:650}footer{font-size:.88rem;color:#b1bdd0}@media(max-width:600px){main{padding:20px 12px 40px}section{padding:18px 14px}th,td{padding:8px;font-size:.88rem}ol,ul{padding-left:22px}}@media print{body{background:white;color:black}h1,h2,h3,code,a,th{color:black}section,.notice{background:white;border:1px solid #999}nav{display:none}section{break-inside:avoid}}
+  </style>
+</head>
+<body><main>
+<header>
+  <span class="tag">BJ SPORTS • PROCEDIMENTOS DA CATRACA</span>
+  <h1>Instalação, manutenção e validação do ESP32</h1>
+  <p>Guia do firmware <strong>{{ firmware_version }}</strong> para quem instala e opera a catraca. Siga os testes de bancada antes de conectar a trava em uso.</p>
+  <p class="notice"><strong>O botão ainda não foi validado na placa.</strong> A compilação e os testes de software passaram. Acionamento elétrico, encerramento da manutenção, OTA e comunicação no tablet real continuam pendentes de bancada. Esta página não comprova qual versão está instalada no equipamento.</p>
+</header>
+<nav aria-label="Índice dos procedimentos">
+  <a href="#instalacao">Instalação</a><a href="#botao">Botão de manutenção</a><a href="#teste">Teste do pulso</a><a href="#tablet">Tablet</a><a href="#ota">Atualização</a><a href="#recuperacao">Recuperação</a><a href="#validacao">Validação</a><a href="{{ url_for('pagina_esp_hub') }}">Central ESP32 e downloads</a>
+</nav>
+<section id="instalacao">
+  <h2>1. Primeira instalação e configuração</h2>
+  <ol>
+    <li>Guarde o projeto e o binário anteriores e registre a configuração atual. Mantenha o relé desconectado da trava durante a primeira gravação.</li>
+    <li>Baixe o <a href="{{ url_for('api_firmware_source') }}">projeto completo</a>. Ele contém o arquivo <code>.ino</code>, <code>access_policy.h</code>, instruções e a configuração do PlatformIO.</li>
+    <li>Compile para <code>esp32dev</code> com a plataforma fixada no projeto. A primeira gravação é por USB, feita pelo responsável técnico.</li>
+    <li>Abra o monitor serial em <strong>115200 baud</strong>. Na criação das credenciais, guarde a senha do administrador, a senha do Wi-Fi de manutenção e o token de API. Não compartilhe capturas com essas informações.</li>
+    <li>Conecte o celular à rede com prefixo <code>BJ-CATRACA-</code>, usando a senha exclusiva. Acesse <code>http://192.168.4.1</code>, com usuário <code>admin</code> e a senha gerada.</li>
+    <li>Informe a rede da academia e a senha. Escolha o pulso entre <strong>300 e 3000 ms</strong>, conforme o mecanismo validado pelo técnico. Salve e aguarde o reinício.</li>
+    <li>Conecte novamente à rede da academia e configure no tablet o endereço do ESP e o token exclusivo. Confira a versão em <code>/status</code> com autenticação.</li>
+  </ol>
+  <p class="muted">O token padrão da versão antiga é substituído na migração. SSID, senha da rede e contador legado são preservados. Credenciais geradas não são exibidas novamente a cada reinício.</p>
+</section>
+<section id="botao">
+  <h2>2. Botão de manutenção — GPIO27</h2>
+  <div class="table-wrap"><table><thead><tr><th>Ligação</th><th>Função</th></tr></thead><tbody>
+    <tr><td>Botão momentâneo entre <code>GPIO27</code> e <code>GND</code></td><td>Solicita manutenção quando pressionado durante o reinício. Não aplicar 5 V ao GPIO.</td></tr>
+    <tr><td><code>GPIO4</code></td><td>Comando do módulo relé, ativo em nível LOW.</td></tr>
+    <tr><td><code>GPIO2</code></td><td>LED indicador do pulso.</td></tr>
+  </tbody></table></div>
+  <ol>
+    <li>Pressione e segure o botão de manutenção.</li>
+    <li>Reinicie o ESP32, mantendo o botão pressionado durante a inicialização.</li>
+    <li>Solte o botão após o início do equipamento.</li>
+    <li>Conecte-se à rede <code>BJ-CATRACA-</code> e entre no painel com a senha exclusiva.</li>
+    <li>Faça a configuração, teste ou atualização em até <strong>10 minutos contados desde o boot</strong>.</li>
+    <li>Ao terminar a janela, o AP fecha e novas ações administrativas ficam bloqueadas. Para reabrir, repita o procedimento físico.</li>
+  </ol>
+  <p>O botão de manutenção <strong>não é um botão de destravamento</strong>. Pressioná-lo durante o funcionamento normal não inicia uma liberação. Um upload OTA autorizado e já iniciado pode terminar após o fim da janela.</p>
+  <p class="notice">Comportamento previsto no código; falta confirmar na placa a leitura do botão e o encerramento após 10 minutos.</p>
+</section>
+<section id="teste">
+  <h2>3. Testar o pulso do relé</h2>
+  <ol>
+    <li>Abra a manutenção física e autentique-se no painel.</li>
+    <li>Confira o tempo configurado e mantenha a montagem em bancada.</li>
+    <li>Pressione <strong>Testar pulso</strong> uma vez.</li>
+    <li>Verifique LED e contato do relé. Meça a duração; ouvir um clique não comprova o tempo.</li>
+    <li>Confirme que o relé volta ao estado desligado. Repita o ensaio com comandos próximos: o comando durante pulso ativo deve ser recusado, sem prolongar a liberação.</li>
+  </ol>
+  <p>O temporizador funciona em tarefa separada do servidor HTTP. Falhas elétricas ou da CPU exigem proteção de hardware. O módulo deve ser compatível com lógica de 3,3 V; a solenóide não pode ser ligada diretamente ao GPIO.</p>
+</section>
+<section id="tablet">
+  <h2>4. Configurar e conferir o tablet</h2>
+  <ol>
+    <li>No kiosk, configure a URL do ESP32 e o token exclusivo. Não use a credencial da versão antiga.</li>
+    <li>Faça um teste com a catraca em bancada e observe o retorno.</li>
+    <li>Confirme separadamente: <strong>acesso autorizado pelo sistema → comando aceito pelo ESP → passagem física</strong>.</li>
+    <li>Se aparecer “Liberação não confirmada”, confira a catraca e a conexão na recepção antes de repetir. O sistema não repete o comando automaticamente.</li>
+  </ol>
+  <p class="notice">O site usa HTTPS e o ESP usa HTTP local. O navegador pode bloquear essa comunicação. CORS não elimina esse bloqueio: a instalação precisa validar uma ponte local com TLS confiável ou um aplicativo nativo apropriado. Não desative as proteções do navegador.</p>
+  <p>Sem sensor instalado, <strong>“liberações enviadas” não significa “giros realizados”</strong>. O contador pode perder eventos ainda não gravados se faltar energia; não é um registro de presenças.</p>
+</section>
+<section id="ota">
+  <h2>5. Atualização OTA pelo painel</h2>
+  <ol>
+    <li>Guarde o binário anterior e confirme que há recuperação por USB disponível.</li>
+    <li>Compile e verifique o binário para a placa e as partições corretas. Não envie o código <code>.ino</code> no formulário OTA.</li>
+    <li>Abra a manutenção pelo botão e entre no painel autenticado, com o relé ocioso.</li>
+    <li>Acesse <strong>Atualização OTA</strong>, selecione o <code>.bin</code> verificado e aguarde a resposta, sem desligar o equipamento.</li>
+    <li>Após sucesso e reinício, confira a versão e refaça os testes do relé e da comunicação.</li>
+  </ol>
+  <p class="notice">A assinatura criptográfica do binário e a recuperação automática de versão ainda não estão habilitadas. A autenticação da atualização não substitui essas proteções. Corte de energia e upload interrompido precisam de ensaio de bancada.</p>
+</section>
+<section id="recuperacao">
+  <h2>6. Recuperação e diagnóstico</h2>
+  <details open><summary>Wi-Fi da academia indisponível</summary><p>O ESP tenta reconectar. Uma falha de Wi-Fi não abre manutenção automaticamente em um dispositivo já configurado. Use o botão durante o reinício para corrigir a rede.</p></details>
+  <details><summary>Senha ou token perdido</summary><p>Use a recuperação física por USB com o técnico. Não há senha universal. Antes de apagar configurações, registre os dados que puder recuperar e confirme o procedimento de reprovisionamento.</p></details>
+  <details><summary>Falha durante a atualização</summary><p>Confira a versão que iniciou e o estado do relé. Se o dispositivo não voltar, recupere por USB com o projeto/binário anterior e a configuração de partições conhecida. Não apague a memória sem avaliar a perda das credenciais.</p></details>
+  <details><summary>API recusa a solicitação</summary><p><code>401</code>: token ausente ou inválido. <code>403</code>: origem/manutenção não autorizada. <code>400</code>: comando inválido ou expirado. <code>409</code>: ocupado ou comando repetido. O <code>OPTIONS</code> de CORS nunca deve acionar o relé.</p></details>
+</section>
+<section id="validacao">
+  <h2>7. Registro da validação em bancada</h2>
+  <p>Preencha um registro real com data, responsável, placa, versão, montagem e resultado de cada ensaio. Não marque como aprovado somente porque o código compilou.</p>
+  <ul>
+    <li>Relé desligado no boot, reset e recuperação de energia.</li>
+    <li>Botão GPIO27 reconhecido; manutenção fechada após 10 minutos.</li>
+    <li>Pulsos de 300, 1000 e 3000 ms medidos, inclusive sob tráfego HTTP.</li>
+    <li>Sem token, comando repetido, expirado e <code>OPTIONS</code> sem liberação indevida.</li>
+    <li>Reconexão Wi-Fi e retorno após queda do roteador.</li>
+    <li>OTA válida, arquivo inválido, interrupção e recuperação por USB.</li>
+    <li>Fluxo completo no tablet real e funcionamento da saída de emergência do mecanismo instalado.</li>
+  </ul>
+  <p><strong>Situação documentada em 12/09/2026:</strong> compilação e testes de software aprovados; todos os ensaios físicos acima pendentes.</p>
+</section>
+<footer>Documentação técnica BJ Sports • Consulte também a <a href="{{ url_for('pagina_esp_hub') }}">Central ESP32</a>. Esta página não contém senhas nem tokens de equipamentos.</footer>
+</main></body></html>

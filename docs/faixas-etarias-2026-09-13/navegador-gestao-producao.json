@@ -1,0 +1,86 @@
+[
+  {
+    "width": 390,
+    "theme": "dark",
+    "tab": "turmas",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "tab": "individuais",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "tab": "combos",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "tab": "turmas",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "tab": "individuais",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "tab": "combos",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "tab": "turmas",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "tab": "individuais",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "tab": "combos",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "tab": "turmas",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "tab": "individuais",
+    "status": 200,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "tab": "combos",
+    "status": 200,
+    "overflow": false
+  }
+]

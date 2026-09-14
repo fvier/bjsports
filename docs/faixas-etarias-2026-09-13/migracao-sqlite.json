@@ -1,0 +1,8 @@
+{
+  "database": "isolated SQLite",
+  "tables_preserved": 21,
+  "changed_tables": [],
+  "initializations": 2,
+  "ages_auto_assigned": 0,
+  "inverted_range_rejected": true
+}

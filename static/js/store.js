@@ -345,4 +345,173 @@
 
   updateInterestButtons();
   applyFilters();
+
+  // -------------------------------------------------------------
+  // 5. INSTRUCTOR EDIT PRODUCT MODAL LOGIC
+  // -------------------------------------------------------------
+  const editModal = document.getElementById('storeEditProductModal');
+  const closeEditModalBtn = document.getElementById('closeEditProductModal');
+  const cancelEditBtn = document.getElementById('cancelEditProductBtn');
+  const editForm = document.getElementById('storeEditProductForm');
+  let currentEditingCard = null;
+
+  function openEditModal(card) {
+    if (!editModal || !card || !card.dataset.json) return;
+    let prod = null;
+    try {
+      prod = JSON.parse(card.dataset.json);
+    } catch (e) {
+      return;
+    }
+    currentEditingCard = card;
+
+    document.getElementById('editProductId').value = prod.id;
+    document.getElementById('editModalProductCode').textContent = prod.id;
+    document.getElementById('editIsSoldOut').checked = Boolean(prod.is_sold_out);
+    document.getElementById('editOutOfStockText').value = prod.out_of_stock_text || 'ESGOTADO • CHEGARÁ EM BREVE';
+    document.getElementById('editProductName').value = prod.name || '';
+    document.getElementById('editProductBadge').value = prod.badge || '';
+    document.getElementById('editProductPrice').value = prod.price;
+    document.getElementById('editProductOldPrice').value = prod.old_price !== null && prod.old_price !== undefined ? prod.old_price : '';
+    document.getElementById('editProductDescription').value = prod.description || '';
+
+    editModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditModal() {
+    if (!editModal) return;
+    editModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    currentEditingCard = null;
+  }
+
+  if (closeEditModalBtn) closeEditModalBtn.addEventListener('click', closeEditModal);
+  if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
+  if (editModal) {
+    editModal.addEventListener('click', (e) => {
+      if (e.target === editModal) closeEditModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !editModal.classList.contains('hidden')) closeEditModal();
+    });
+  }
+
+  // Handle Edit Card button clicks
+  document.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('[data-edit-product]');
+    if (editBtn) {
+      e.stopPropagation();
+      e.preventDefault();
+      const card = editBtn.closest('.store-product-card');
+      if (card) openEditModal(card);
+    }
+  });
+
+  if (editForm) {
+    editForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentEditingCard) return;
+
+      const productId = document.getElementById('editProductId').value;
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.CSRF_TOKEN || '';
+
+      const payload = {
+        is_sold_out: document.getElementById('editIsSoldOut').checked,
+        out_of_stock_text: document.getElementById('editOutOfStockText').value.trim(),
+        name: document.getElementById('editProductName').value.trim(),
+        badge: document.getElementById('editProductBadge').value.trim(),
+        price: document.getElementById('editProductPrice').value.trim(),
+        old_price: document.getElementById('editProductOldPrice').value.trim() || null,
+        description: document.getElementById('editProductDescription').value.trim()
+      };
+
+      const saveBtn = document.getElementById('saveEditProductBtn');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = 'Salvando...';
+      }
+
+      fetch(`/api/store/products/${productId}/edit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i data-lucide="save"></i> Salvar Alterações';
+          if (window.lucide) window.lucide.createIcons();
+        }
+
+        if (data.success && data.product) {
+          const updated = data.product;
+          currentEditingCard.dataset.json = JSON.stringify(updated);
+          currentEditingCard.dataset.name = updated.name.toLowerCase();
+          currentEditingCard.dataset.price = updated.price;
+
+          // Update title
+          const titleEl = currentEditingCard.querySelector('h3');
+          if (titleEl) titleEl.textContent = updated.name;
+
+          // Update prices
+          const priceEl = currentEditingCard.querySelector('.card-price');
+          if (priceEl) priceEl.textContent = 'R$ ' + Number(updated.price).toFixed(2).replace('.', ',');
+
+          const oldPriceEl = currentEditingCard.querySelector('.card-old-price');
+          if (oldPriceEl) {
+            oldPriceEl.textContent = updated.old_price ? 'R$ ' + Number(updated.old_price).toFixed(2).replace('.', ',') : '';
+          }
+
+          // Update badge
+          const mediaEl = currentEditingCard.querySelector('.store-product-media');
+          let badgeEl = currentEditingCard.querySelector('.card-badge-element');
+          if (updated.badge) {
+            if (!badgeEl) {
+              badgeEl = document.createElement('span');
+              badgeEl.className = 'store-product-badge card-badge-element';
+              mediaEl.appendChild(badgeEl);
+            }
+            badgeEl.textContent = updated.badge;
+          } else if (badgeEl) {
+            badgeEl.remove();
+          }
+
+          // Update ribbon & sold out media class
+          let ribbonEl = mediaEl.querySelector('.store-sold-out-ribbon');
+          if (updated.is_sold_out) {
+            mediaEl.classList.add('is-sold-out');
+            const text = updated.out_of_stock_text || 'ESGOTADO • CHEGARÁ EM BREVE';
+            if (!ribbonEl) {
+              ribbonEl = document.createElement('div');
+              ribbonEl.className = 'store-sold-out-ribbon';
+              mediaEl.prepend(ribbonEl);
+            }
+            ribbonEl.innerHTML = `<span>⛔ ${text} ⛔</span>`;
+          } else {
+            mediaEl.classList.remove('is-sold-out');
+            if (ribbonEl) ribbonEl.remove();
+          }
+
+          closeEditModal();
+          applyFilters();
+        } else {
+          alert(data.error || 'Erro ao salvar alterações do produto.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i data-lucide="save"></i> Salvar Alterações';
+          if (window.lucide) window.lucide.createIcons();
+        }
+        alert('Erro de conexão ao salvar produto.');
+      });
+    });
+  }
 })();

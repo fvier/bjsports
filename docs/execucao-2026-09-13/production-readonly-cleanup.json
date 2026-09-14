@@ -1,0 +1,16 @@
+{
+  "removed_test_accounts": 3,
+  "removed_test_groups": 0,
+  "dependent_rows": {
+    "class_enrollment": 0,
+    "booking": 0,
+    "attendance": 0,
+    "training_credit_period": 0,
+    "push_subscription": 0,
+    "monthly_payment": 0,
+    "monthly_fee_exemption": 0,
+    "graduation_record": 0,
+    "contract_acceptance": 0,
+    "championship_registration": 0
+  }
+}

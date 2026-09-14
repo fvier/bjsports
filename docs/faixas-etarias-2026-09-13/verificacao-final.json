@@ -1,0 +1,53 @@
+{
+  "current-preservation.json": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "legacy-preservation.json": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "artifact-restore.json": {
+    "release_entries": 28,
+    "restored_source_files": 19,
+    "restored_volume_files": 3,
+    "configuration_preserved": true
+  },
+  "final-backup-restore.json": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "production-preservation.json": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "production-after-ui.json": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "published-package.json": {
+    "checked": 28,
+    "mismatches": [],
+    "old_plan_template_removed": true
+  },
+  "published-source.json": {
+    "checked": 28,
+    "mismatches": [],
+    "old_plan_template_removed": true
+  },
+  "final-counts.json": {
+    "accounts": 22,
+    "technical_accounts": 0,
+    "technical_groups": 0,
+    "accounts_with_contract_deadline": 1,
+    "groups_with_age_limits": 0,
+    "age_constraints": [
+      "ck_class_group_max_age",
+      "ck_class_group_min_age"
+    ]
+  },
+  "published_at_utc": "2026-09-14T01:36:00Z",
+  "image": "sha256:5c9465f44ad38ce1a5926def038991b495816dccba27993dbe65f98a1dc3182c",
+  "configuration_preserved": true,
+  "unrelated_source_preserved": true
+}

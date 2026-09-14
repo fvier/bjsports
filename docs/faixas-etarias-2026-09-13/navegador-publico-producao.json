@@ -1,0 +1,62 @@
+[
+  {
+    "width": 390,
+    "page": "home",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "page": "login",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "page": "cadastro",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "page": "documentacao",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "page": "turmas",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 1440,
+    "page": "home",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 1440,
+    "page": "login",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 1440,
+    "page": "cadastro",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 1440,
+    "page": "documentacao",
+    "http": 200,
+    "horizontal_overflow": false
+  },
+  {
+    "width": 1440,
+    "page": "turmas",
+    "http": 200,
+    "horizontal_overflow": false
+  }
+]

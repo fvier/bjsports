@@ -272,6 +272,7 @@
                 <p class="sub-header">Gestão de firmware, pinagem e instruções de comunicação da catraca inteligente.</p>
             </div>
             <div class="actions-top">
+                <a href="/catracadoc" class="btn btn-outline">Procedimentos e testes</a>
                 <a href="/catraca/app" target="_blank" class="btn btn-primary">
                     <i data-lucide="tablet-smartphone"></i> Abrir App Kiosk (Tablet)
                 </a>
@@ -294,11 +295,11 @@
                             <span class="badge-status badge-green"><i data-lucide="check-circle-2" style="width:14px;"></i> {{ firmware_version }}</span>
                         </div>
                     </div>
-                    <p class="card-desc">Código-fonte oficial em C++/Arduino com mDNS (<code>catraca.local</code>), Watchdog de Hardware, captive portal e suporte a atualização remota (OTA).</p>
+                    <p class="card-desc">Código-fonte oficial em C++/Arduino com mDNS (<code>catraca.local</code>), watchdog, acesso de manutenção protegido e atualização OTA autenticada. A assinatura criptográfica do binário ainda não está habilitada.</p>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <a href="/api/firmware/download/esp32_catraca.ino" class="btn btn-outline" style="justify-content: center;">
-                        <i data-lucide="download"></i> Baixar Código (.ino)
+                    <a href="/api/firmware/source.zip" class="btn btn-outline" style="justify-content: center;">
+                        <i data-lucide="download"></i> Baixar Projeto Completo (.zip)
                     </a>
                     {% if bin_exists %}
                     <a href="/api/firmware/download/firmware.bin" class="btn btn-primary" style="justify-content: center;">
@@ -326,8 +327,9 @@
                         </thead>
                         <tbody>
                             <tr><td><code>GPIO 4</code></td><td>Relé 5V (IN)</td><td>Pulso Solenóide (LOW)</td></tr>
-                            <tr><td><code>GPIO 2</code></td><td>LED Azul</td><td>Status e Heartbeat</td></tr>
-                            <tr><td><code>GPIO 14</code></td><td>Sensor (Opcional)</td><td>Confirmação de Giro</td></tr>
+                            <tr><td><code>GPIO 2</code></td><td>LED Azul</td><td>Indicador de pulso</td></tr>
+                            <tr><td><code>GPIO 14</code></td><td>Sensor (Opcional)</td><td>Não implementado nesta versão</td></tr>
+                            <tr><td><code>GPIO 27</code></td><td>Botão para GND</td><td>Manutenção ao reiniciar</td></tr>
                             <tr><td><code>5V / VIN</code></td><td>VCC Relé</td><td>Alimentação 5V 2A</td></tr>
                             <tr><td><code>GND</code></td><td>GND Relé</td><td>Terra Compartilhado</td></tr>
                         </tbody>
@@ -344,15 +346,16 @@
                         </div>
                         <div>
                             <h2 class="card-title">Comunicação Local & API</h2>
-                            <span class="badge-status badge-cyan">Latência &lt; 50ms</span>
+                            <span class="badge-status badge-cyan">Confirmação do comando</span>
                         </div>
                     </div>
                     <p class="card-desc">O tablet envia requisições locais diretamente para o ESP32 conectado no Wi-Fi da academia:</p>
                     <div class="code-box">
                         POST http://catraca.local/liberar<br>
-                        Header: Authorization: Bearer bjsports-catraca-secret
+                        Header: Authorization: Bearer &lt;token exclusivo&gt;<br>
+                        X-Command-ID, X-Boot-ID e X-Expires-Ms obrigatórios
                     </div>
-                    <p class="card-desc" style="font-size: 0.78rem;">Endpoint de Telemetria: <code>GET http://catraca.local/status</code></p>
+                    <p class="card-desc" style="font-size: 0.78rem;">Consulte primeiro o status autenticado para obter boot_id e uptime_ms. Endpoint de Telemetria: <code>GET http://catraca.local/status</code></p>
                 </div>
             </div>
         </div>
@@ -365,17 +368,17 @@
                 </div>
                 <div>
                     <h2 class="card-title">Como Configurar o ESP32 pela Primeira Vez (Pelo Celular)</h2>
-                    <p class="sub-header">Procedimento sem necessidade de abrir o chip ou conectar cabos na recepção.</p>
+                    <p class="sub-header">Primeira instalação por USB; configuração posterior pelo celular durante a manutenção.</p>
                 </div>
             </div>
             <div class="step-list">
                 <div class="step-item">
                     <span class="step-num">1</span>
-                    <div><strong>Ligue o ESP32 na tomada da catraca:</strong> Ele ligará e criará automaticamente a rede Wi-Fi <code>BJ-SPORTS-CATRACA</code> (Senha: <code>bjsports123</code>).</div>
+                    <div><strong>Ligue o ESP32 na tomada da catraca:</strong> Na primeira gravação, obtenha as credenciais exclusivas pelo monitor serial (115200 baud). Guarde-as com segurança. A rede terá o prefixo <code>BJ-CATRACA-</code>.</div>
                 </div>
                 <div class="step-item">
                     <span class="step-num">2</span>
-                    <div><strong>Conecte seu celular nessa rede:</strong> Abra o navegador e acesse <code>http://catraca.local</code> ou <code>http://192.168.4.1</code>.</div>
+                    <div><strong>Conecte seu celular nessa rede:</strong> Acesse <code>http://192.168.4.1</code> e entre como <code>admin</code> com a senha exclusiva. A janela de manutenção dura 10 minutos.</div>
                 </div>
                 <div class="step-item">
                     <span class="step-num">3</span>
@@ -383,7 +386,7 @@
                 </div>
                 <div class="step-item">
                     <span class="step-num">4</span>
-                    <div><strong>Pronto!</strong> O ESP32 reinicia conectado no Wi-Fi da academia. O tablet com o aplicativo da catraca já conseguirá enviar comandos de liberação imediatamente.</div>
+                    <div><strong>Pronto!</strong> O ESP32 reinicia conectado no Wi-Fi da academia. Configure o endereço e o token no tablet. Valide a comunicação no navegador utilizado: o site HTTPS pode bloquear o acesso ao ESP via HTTP. Para reabrir manutenção, reinicie segurando o botão GPIO27.</div>
                 </div>
             </div>
         </div>

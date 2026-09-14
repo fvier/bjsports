@@ -146,9 +146,9 @@ function renderSchedule(day = 'todos') {
           <small>${escapeHtml(item.audience || getScheduleAudience(item.name))}</small>
         </span>
       </td>
-      <td class="schedule-days-cell">${getNextClassDisplay(item)}</td>
-      <td><span class="price-highlight">${item.price}</span></td>
-      <td>${renderScheduleStatus(item)}</td>
+      <td class="schedule-days-cell" data-label="Próxima aula / Dias">${getNextClassDisplay(item)}</td>
+      <td data-label="Mensalidade"><span class="price-highlight">${item.price}</span></td>
+      <td data-label="Status">${renderScheduleStatus(item)}</td>
       <td class="schedule-action-cell">
         <button class="btn btn-secondary btn-sm quick-book-btn" data-modality="${escapeHtml(item.name)}">
           <i data-lucide="log-in"></i> Check-in
@@ -684,6 +684,81 @@ function setupRegistrationValidation() {
   validatePasswords();
 }
 
+// Menus móveis compartilham foco, teclado e restauração da página ao fechar.
+function setupNavigationDrawer({ panel, toggle, closeButton, backdrop, desktopVisible = false }) {
+  if (!panel || !toggle || !backdrop) return null;
+  const viewport = window.matchMedia('(max-width: 991px)');
+  let opened = false;
+  let returnFocus = null;
+  const inertSiblings = new Map();
+  toggle.setAttribute('aria-controls', panel.id);
+  toggle.setAttribute('aria-expanded', 'false');
+
+  const focusable = () => [...panel.querySelectorAll('a[href],button,input,select,textarea,[tabindex="0"]')]
+    .filter(el => !el.disabled && !el.inert && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+
+  function close(restoreFocus = true) {
+    opened = false;
+    panel.classList.remove('is-mobile-open', 'active');
+    backdrop.classList.remove('active');
+    document.body.classList.remove('navigation-drawer-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    panel.removeAttribute('role');
+    panel.removeAttribute('aria-modal');
+    const hidden = viewport.matches || !desktopVisible;
+    panel.inert = hidden;
+    panel.setAttribute('aria-hidden', String(hidden));
+    inertSiblings.forEach((wasInert, el) => { el.inert = wasInert; });
+    inertSiblings.clear();
+    if (restoreFocus && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+  }
+
+  function open() {
+    if (!viewport.matches || opened) return;
+    opened = true;
+    returnFocus = document.activeElement;
+    panel.inert = false;
+    panel.setAttribute('aria-hidden', 'false');
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.classList.add('is-mobile-open', 'active');
+    backdrop.classList.add('active');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('navigation-drawer-open');
+    // Mantém apenas o painel e seu fundo interativos, inclusive para leitores de tela.
+    for (let ancestor = panel; ancestor.parentElement && ancestor !== document.body; ancestor = ancestor.parentElement) {
+      [...ancestor.parentElement.children].forEach(el => {
+        if (el === ancestor || el === backdrop || !(el instanceof HTMLElement) || ['SCRIPT', 'STYLE', 'LINK'].includes(el.tagName)) return;
+        inertSiblings.set(el, el.inert);
+        el.inert = true;
+      });
+    }
+    requestAnimationFrame(() => {
+      if (opened) (closeButton || focusable()[0])?.focus({ preventScroll: true });
+    });
+  }
+
+  toggle.addEventListener('click', () => { if (viewport.matches) opened ? close() : open(); });
+  closeButton?.addEventListener('click', () => close());
+  backdrop.addEventListener('click', () => close());
+  panel.addEventListener('click', event => { if (opened && event.target.closest('a[href]')) close(false); });
+  document.addEventListener('keydown', event => {
+    if (!opened) return;
+    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    if (event.key !== 'Tab') return;
+    const items = focusable();
+    if (!items.length) return;
+    event.preventDefault();
+    const current = items.indexOf(document.activeElement);
+    const next = current < 0 ? 0 : (current + (event.shiftKey ? -1 : 1) + items.length) % items.length;
+    items[next].focus();
+  });
+  viewport.addEventListener('change', () => close(false));
+  window.addEventListener('pagehide', () => close(false));
+  close(false);
+  return { open, close, isMobile: () => viewport.matches };
+}
+
 // GPS Paraíba ERP Sidebar Toggle & Navigation Logic
 function setupERPSidebar() {
   const sidebar = document.getElementById('erpSidebar');
@@ -760,86 +835,29 @@ function setupERPSidebar() {
     });
   }
 
-  let sidebarOpenTimer = null;
-  let sidebarCloseTimer = null;
-
-  if (hamburgerBtn && sidebar) {
-    hamburgerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
-      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
-      sidebar.classList.toggle('collapsed');
+  if (sidebar && hamburgerBtn) {
+    const drawer = setupNavigationDrawer({
+      panel: sidebar, toggle: hamburgerBtn,
+      closeButton: document.getElementById('erpSidebarClose'),
+      backdrop: document.getElementById('erpSidebarBackdrop'), desktopVisible: true
     });
-  }
-
-  if (sidebar) {
-    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)');
-
-    const expandSidebar = () => {
-      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
-      sidebar.classList.remove('collapsed');
+    const preference = 'bjSportsSidebarCollapsed';
+    let collapsed = false;
+    try { collapsed = localStorage.getItem(preference) === 'true'; } catch (_) {}
+    const updateDesktop = () => {
+      sidebar.classList.toggle('collapsed', !drawer?.isMobile() && collapsed);
+      hamburgerBtn.setAttribute('aria-label', drawer?.isMobile() ? 'Abrir menu do portal' : (collapsed ? 'Expandir menu' : 'Recolher menu'));
+      if (!drawer?.isMobile()) hamburgerBtn.setAttribute('aria-expanded', String(!collapsed));
     };
-
-    const collapseSidebar = () => {
-      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
-      sidebar.classList.add('collapsed');
-
-      sidebar.querySelectorAll('.erp-nav-group').forEach((group) => {
-        const title = group.querySelector(':scope > .erp-group-title');
-        group.classList.add('is-collapsed');
-        if (title) {
-          title.setAttribute('aria-expanded', 'false');
-          try {
-            localStorage.setItem(title.dataset.sidebarStorageKey, 'collapsed');
-          } catch (_) {}
-        }
-      });
-    };
-
-    const requestOpenSidebar = () => {
-      if (sidebarCloseTimer) { clearTimeout(sidebarCloseTimer); sidebarCloseTimer = null; }
-      if (!sidebar.classList.contains('collapsed')) return;
-
-      if (!sidebarOpenTimer) {
-        sidebarOpenTimer = setTimeout(() => {
-          expandSidebar();
-          sidebarOpenTimer = null;
-        }, 1500); // 1,5 segundos de mouse em cima para abrir
-      }
-    };
-
-    const requestCloseSidebar = () => {
-      if (sidebarOpenTimer) { clearTimeout(sidebarOpenTimer); sidebarOpenTimer = null; }
-
-      if (sidebarCloseTimer) clearTimeout(sidebarCloseTimer);
-      sidebarCloseTimer = setTimeout(() => {
-        collapseSidebar();
-        sidebarCloseTimer = null;
-      }, 2000); // 2,0 segundos após se afastar para recolher obrigatoriamente
-    };
-
-    const enableAutomaticCollapse = () => {
-      if (supportsHover.matches) {
-        sidebar.classList.add('collapsed');
-      } else {
-        sidebar.classList.remove('collapsed');
-      }
-    };
-
-    sidebar.addEventListener('mouseenter', () => {
-      if (supportsHover.matches) {
-        requestOpenSidebar();
-      }
+    hamburgerBtn.addEventListener('click', () => {
+      if (drawer?.isMobile()) return;
+      collapsed = !collapsed;
+      try { localStorage.setItem(preference, String(collapsed)); } catch (_) {}
+      updateDesktop();
     });
-
-    sidebar.addEventListener('mouseleave', () => {
-      if (supportsHover.matches) {
-        requestCloseSidebar();
-      }
-    });
-
-    supportsHover.addEventListener('change', enableAutomaticCollapse);
-    enableAutomaticCollapse();
+    window.matchMedia('(max-width: 991px)').addEventListener('change', updateDesktop);
+    updateDesktop();
+    sidebar.querySelectorAll('a.active').forEach(link => link.setAttribute('aria-current', 'page'));
   }
 
   erpNavItems.forEach(item => {
@@ -1128,6 +1146,8 @@ function setupClassManagementPreview() {
   const nameInput = form?.elements.class_name;
   const modalityInput = form?.elements.class_modality;
   const audienceInput = form?.elements.class_audience;
+  const minAgeInput = form?.elements.class_min_age;
+  const maxAgeInput = form?.elements.class_max_age;
   const scheduleInput = form?.elements.class_schedule;
   const instructorInput = form?.elements.class_instructor;
   const responsibleMonitorInput = form?.elements.responsible_monitor_id;
@@ -1152,6 +1172,8 @@ function setupClassManagementPreview() {
       if (nameInput) nameInput.value = button.dataset.className || '';
       if (modalityInput && button.dataset.classModality) modalityInput.value = button.dataset.classModality;
       if (audienceInput && button.dataset.classAudience) audienceInput.value = button.dataset.classAudience;
+      if (minAgeInput) minAgeInput.value = button.dataset.classMinAge || '';
+      if (maxAgeInput) maxAgeInput.value = button.dataset.classMaxAge || '';
       if (scheduleInput) scheduleInput.value = button.dataset.classSchedule || '';
       if (instructorInput) instructorInput.value = button.dataset.classInstructor || 'Mestre Bolivar';
       if (responsibleMonitorInput) responsibleMonitorInput.value = button.dataset.responsibleMonitorId || '';
@@ -2016,26 +2038,10 @@ function setupMobileNavDrawer() {
   const mobileLocaisTrigger = document.getElementById('mobileLocaisTrigger');
   const mobileLocaisSubitems = document.getElementById('mobileLocaisSubitems');
 
-  function openMobileDrawer() {
-    if (mobileNavDrawer && mobileNavOverlay) {
-      mobileNavDrawer.classList.add('active');
-      mobileNavOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      if (window.lucide) window.lucide.createIcons();
-    }
-  }
-
-  function closeMobileDrawer() {
-    if (mobileNavDrawer && mobileNavOverlay) {
-      mobileNavDrawer.classList.remove('active');
-      mobileNavOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
-  if (mobileNavToggle) mobileNavToggle.addEventListener('click', openMobileDrawer);
-  if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', closeMobileDrawer);
-  if (mobileNavOverlay) mobileNavOverlay.addEventListener('click', closeMobileDrawer);
+  mobileNavDrawer?.setAttribute('aria-label', 'Menu de navegação');
+  setupNavigationDrawer({ panel: mobileNavDrawer, toggle: mobileNavToggle,
+    closeButton: mobileDrawerClose, backdrop: mobileNavOverlay });
+  document.querySelectorAll('.mobile-bottom-dock a.active').forEach(link => link.setAttribute('aria-current', 'page'));
 
   if (mobileLocaisTrigger && mobileLocaisSubitems) {
     mobileLocaisTrigger.addEventListener('click', () => {

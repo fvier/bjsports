@@ -1,0 +1,36 @@
+[
+  {
+    "width": 390,
+    "theme": "light",
+    "limits_reloaded": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "limits_reloaded": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "invalid_range_preserved": true,
+    "save_reload_clear": true
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "limits_reloaded": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "limits_reloaded": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "invalid_range_preserved": true,
+    "save_reload_clear": true
+  }
+]

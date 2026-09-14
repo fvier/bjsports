@@ -1,0 +1,13 @@
+{
+  "containers": {
+    "/bjsports-app": "running",
+    "/bjsports-db": "running"
+  },
+  "public_routes": {
+    "/login?mode=register": 200,
+    "/catracadoc": 200,
+    "/api/cadastro/turmas": 200,
+    "/static/js/registration_schedule.js": 200
+  },
+  "image": "sha256:283d12258c64eba1bfb83d6f38c9156fb3ed5f24b25384afd18295bcced7025e"
+}
