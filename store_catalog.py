@@ -10,7 +10,7 @@ STORE_PRODUCTS = [
         'price': 439.90,
         'old_price': 479.90,
         'icon': '🥋',
-        'image': 'img/store/kimono_preto.jpg',
+        'image': 'img/store/kimono_preto_frente_costas_v1.png',
         'badge': 'Oficial',
         'sizes': ['A0', 'A1', 'A2', 'A3', 'A4'],
         'description': 'Kimono de Jiu-Jitsu oficial BJ Sports. Modelagem anatômica para competição em trama leve trançada de alta durabilidade, lapela em EVA e bordados oficiais do CT Bolivar-JR.',
@@ -19,7 +19,7 @@ STORE_PRODUCTS = [
                 'id': 'preto',
                 'name': 'Preto',
                 'hex': '#141416',
-                'image': 'img/store/kimono_preto.jpg',
+                'image': 'img/store/kimono_preto_frente_costas_v1.png',
                 'price': 459.90,
                 'old_price': 499.90,
                 'badge': 'Destaque'
@@ -28,7 +28,7 @@ STORE_PRODUCTS = [
                 'id': 'branco',
                 'name': 'Branco',
                 'hex': '#ffffff',
-                'image': 'img/store/kimono_branco.jpg',
+                'image': 'img/store/kimono_branco_frente_costas_v1.png',
                 'price': 439.90,
                 'old_price': 479.90,
                 'badge': 'Oficial'
@@ -37,7 +37,7 @@ STORE_PRODUCTS = [
                 'id': 'azul',
                 'name': 'Azul Royal',
                 'hex': '#0f34a2',
-                'image': 'img/store/kimono_azul.jpg',
+                'image': 'img/store/kimono_azul_frente_costas_v1.png',
                 'price': 449.90,
                 'old_price': 489.90,
                 'badge': 'Oficial'
@@ -52,7 +52,7 @@ STORE_PRODUCTS = [
         'price': 139.90,
         'old_price': 159.90,
         'icon': '👕',
-        'image': 'img/store/rashguard_manga_longa.jpg',
+        'image': 'img/store/rashguard_eagle_studio_v1.png',
         'badge': 'Lançamento',
         'sizes': ['P', 'M', 'G', 'GG', 'XG'],
         'description': 'Rashguard de alta compressão em vermelho e preto. Estampa exclusiva da águia no abdômen, marca BJ Sports e triângulo Bolivar-JR.',
@@ -61,7 +61,7 @@ STORE_PRODUCTS = [
                 'id': 'preto-vermelho',
                 'name': 'Preto / Vermelho',
                 'hex': '#e50914',
-                'image': 'img/store/rashguard_manga_longa.jpg',
+                'image': 'img/store/rashguard_eagle_studio_v1.png',
                 'price': 139.90,
                 'old_price': 159.90,
                 'badge': 'Lançamento'
@@ -76,7 +76,7 @@ STORE_PRODUCTS = [
         'price': 129.90,
         'old_price': 149.90,
         'icon': '🩳',
-        'image': 'img/store/fight_shorts_grappling.jpg',
+        'image': 'img/store/fight_shorts_grappling_studio_v1.png',
         'badge': 'Destaque',
         'sizes': ['36', '38', '40', '42', '44', '46'],
         'description': 'Bermuda de luta sem bolsos, com logo soco no cós, grafismo lateral BJ Sports e fenda reforçada para mobilidade no No-Gi.'
@@ -89,7 +89,7 @@ STORE_PRODUCTS = [
         'price': 139.90,
         'old_price': 159.90,
         'icon': '🩳',
-        'image': 'img/store/fight_shorts_pro.jpg',
+        'image': 'img/store/fight_shorts_brasil_studio_v1.png',
         'badge': 'Edição Especial',
         'sizes': ['36', '38', '40', '42', '44', '46'],
         'description': 'Bermuda pro com faixas laterais em vermelho, inscrição JIU-JITSU, bandeira do Brasil e ajuste com cordão duplo.'
@@ -102,7 +102,7 @@ STORE_PRODUCTS = [
         'price': 89.90,
         'old_price': 109.90,
         'icon': '👕',
-        'image': 'img/store/camisa_treino_camuflada.jpg',
+        'image': 'img/store/rashguard_camuflada_studio_v1.png',
         'badge': 'Novo',
         'sizes': ['P', 'M', 'G', 'GG', 'XG'],
         'description': 'Camiseta dry-fit oficial com detalhes camuflados em vermelho e preto. Respirabilidade máxima para o condicionamento físico.'
@@ -111,14 +111,43 @@ STORE_PRODUCTS = [
         'id': 'BJJ-008',
         'sport': 'jiu-jitsu',
         'category': 'Vestuário',
-        'name': 'Camiseta Casual BJ Sports (Preta)',
+        'name': 'Camiseta Casual BJ Sports',
         'price': 79.90,
         'old_price': 99.90,
         'icon': '👕',
-        'image': 'img/store/camiseta_preta_mockup.jpg',
+        'image': 'img/store/camiseta_preta_guerreiro_dad_v1.jpg',
         'badge': 'Casual',
         'sizes': ['P', 'M', 'G', 'GG', 'XG'],
-        'description': 'Camiseta 100% algodão penteado com corte moderno e branding minimalista BJ Sports.'
+        'description': 'Camiseta 100% algodão penteado com corte moderno e estampas exclusivas de Jiu-Jitsu CT Bolivar-JR.',
+        'colors': [
+            {
+                'id': 'preta-guerreiro',
+                'name': 'Preta (Guerreiro / Dad)',
+                'hex': '#141416',
+                'image': 'img/store/camiseta_preta_guerreiro_dad_v1.jpg',
+                'price': 79.90,
+                'old_price': 99.90,
+                'badge': 'Destaque'
+            },
+            {
+                'id': 'rosa-tatame',
+                'name': 'Rosa (Lugar de Mulher é no Tatame)',
+                'hex': '#ec4899',
+                'image': 'img/store/camiseta_rosa_mulher_tatame_v1.png',
+                'price': 79.90,
+                'old_price': 99.90,
+                'badge': 'Feminina'
+            },
+            {
+                'id': 'branca-faixas',
+                'name': 'Branca (Faixas & Animais)',
+                'hex': '#ffffff',
+                'image': 'img/store/camiseta_branca_faixas_animais_v1.png',
+                'price': 79.90,
+                'old_price': 99.90,
+                'badge': 'Graduação'
+            }
+        ]
     },
     {
         'id': 'BJJ-009',
@@ -399,6 +428,17 @@ STORE_PRODUCTS = [
 
 import json
 
+STORE_IMAGE_REPLACEMENTS = {
+    'BJJ-001': {
+        f'img/store/kimono_{color}.jpg': f'img/store/kimono_{color}_frente_costas_v1.png'
+        for color in ('preto', 'branco', 'azul')
+    },
+    'BJJ-004': {'img/store/rashguard_manga_longa.jpg': 'img/store/rashguard_eagle_studio_v1.png'},
+    'BJJ-005': {'img/store/fight_shorts_grappling.jpg': 'img/store/fight_shorts_grappling_studio_v1.png'},
+    'BJJ-006': {'img/store/fight_shorts_pro.jpg': 'img/store/fight_shorts_brasil_studio_v1.png'},
+    'BJJ-007': {'img/store/camisa_treino_camuflada.jpg': 'img/store/rashguard_camuflada_studio_v1.png'},
+}
+
 CUSTOMIZATIONS_FILE = os.path.join(os.path.dirname(__file__), 'instance', 'store_customizations.json')
 
 def load_store_customizations():
@@ -498,11 +538,17 @@ def get_customized_products(include_hidden=True):
                 del p_custom['colors']
             p.update(p_custom)
 
+        # Older stock edits saved copies of entire color objects, including the
+        # original image path. Refresh those known assets without rewriting
+        # persisted commercial data or replacing instructor-uploaded images.
+        legacy_images = STORE_IMAGE_REPLACEMENTS.get(pid, {})
+        for item in [p, *p.get('colors', [])]:
+            if item.get('image') in legacy_images:
+                item['image'] = legacy_images[item['image']]
+
         p.setdefault('is_sold_out', False)
         p.setdefault('is_hidden', False)
         p.setdefault('stock_quantity', None)
         if include_hidden or not p.get('is_hidden'):
             result.append(p)
     return result
-
-

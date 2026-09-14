@@ -10,7 +10,13 @@
   const empty = document.getElementById('storeEmpty');
   const interestCount = document.getElementById('interestCount');
   const storageKey = 'bj-sports-store-interest';
-  let interests = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+  let interests = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    if (Array.isArray(saved)) interests = new Set(saved);
+  } catch (_) { /* The catalog remains usable when storage is unavailable. */ }
+  const productFor = card => JSON.parse(card.dataset.json);
+  const money = value => `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
 
   // -------------------------------------------------------------
   // 1. FILTERING & SORTING LOGIC
@@ -67,39 +73,85 @@
       button.setAttribute('aria-pressed', String(active));
     });
     interestCount.textContent = interests.size;
-    localStorage.setItem(storageKey, JSON.stringify([...interests]));
+    try { localStorage.setItem(storageKey, JSON.stringify([...interests])); } catch (_) { /* Session-only interests. */ }
   }
 
   // -------------------------------------------------------------
   // 2. CARD SWATCH COLOR SWITCHING
   // -------------------------------------------------------------
+  function activateColor(card, colorId) {
+    const product = productFor(card);
+    const color = product.colors?.find(item => item.id === colorId) || product.colors?.[0];
+    const variant = color || product;
+    card.dataset.selectedColor = color?.id || '';
+    card.dataset.price = variant.price ?? product.price;
+    card.querySelectorAll('.store-swatch-dot').forEach(swatch => {
+      const active = swatch.dataset.colorId === color?.id;
+      swatch.classList.toggle('active', active);
+      swatch.setAttribute('aria-pressed', String(active));
+    });
+    card.querySelectorAll('.store-carousel-dot').forEach(dot => {
+      const active = dot.dataset.colorId === color?.id;
+      dot.classList.toggle('active', active);
+    });
+    const img = card.querySelector('.card-img-element');
+    if (img) {
+      img.src = `/static/${variant.image || product.image}`;
+      img.alt = `${product.name}${color ? ` — ${color.name}` : ''}`;
+    }
+    card.querySelector('.card-price').textContent = money(variant.price ?? product.price);
+    const oldPrice = variant.old_price ?? product.old_price;
+    card.querySelector('.card-old-price').textContent = oldPrice ? money(oldPrice) : '';
+    const badge = card.querySelector('.card-badge-element');
+    if (badge) badge.textContent = variant.badge ?? product.badge ?? '';
+    card.querySelector('.store-share-status').textContent = '';
+    card.querySelector('.store-share-copy').classList.add('hidden');
+    return color;
+  }
   cards.forEach(card => {
-    const swatches = card.querySelectorAll('.store-swatch-dot');
-    if (!swatches.length) return;
+    activateColor(card, card.querySelector('.store-swatch-dot.active')?.dataset.colorId);
+    card.querySelectorAll('.store-swatch-dot').forEach(swatch => {
+      swatch.addEventListener('click', event => {
+        event.stopPropagation();
+        activateColor(card, swatch.dataset.colorId);
+        applyFilters();
+      });
+    });
 
-    const imgEl = card.querySelector('.card-img-element');
-    const badgeEl = card.querySelector('.card-badge-element');
-    const priceEl = card.querySelector('.card-price');
-    const oldPriceEl = card.querySelector('.card-old-price');
-
-    swatches.forEach(swatch => {
-      const activateSwatch = () => {
-        swatches.forEach(s => s.classList.remove('active'));
-        swatch.classList.add('active');
-
-        if (imgEl && swatch.dataset.colorImg) imgEl.src = swatch.dataset.colorImg;
-        if (priceEl && swatch.dataset.colorPrice) priceEl.textContent = swatch.dataset.colorPrice;
-        if (oldPriceEl) oldPriceEl.textContent = swatch.dataset.colorOldPrice || '';
-        if (badgeEl && swatch.dataset.colorBadge) badgeEl.textContent = swatch.dataset.colorBadge;
+    // Carousel buttons navigation on product cards
+    const prevBtn = card.querySelector('.store-carousel-btn.prev');
+    const nextBtn = card.querySelector('.store-carousel-btn.next');
+    if (prevBtn || nextBtn) {
+      const product = productFor(card);
+      const colors = product.colors || [];
+      const navigateCarousel = (direction) => {
+        if (colors.length === 0) return;
+        const currentSelectedId = card.dataset.selectedColor || colors[0].id;
+        const currentIndex = colors.findIndex(c => c.id === currentSelectedId);
+        let newIndex = (currentIndex + direction + colors.length) % colors.length;
+        activateColor(card, colors[newIndex].id);
+        applyFilters();
       };
 
-      swatch.addEventListener('click', (e) => {
-        e.stopPropagation();
-        activateSwatch();
-      });
+      if (prevBtn) {
+        prevBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          navigateCarousel(-1);
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          navigateCarousel(1);
+        });
+      }
+    }
 
-      swatch.addEventListener('mouseenter', () => {
-        activateSwatch();
+    card.querySelectorAll('.store-carousel-dot').forEach(dot => {
+      dot.addEventListener('click', e => {
+        e.stopPropagation();
+        activateColor(card, dot.dataset.colorId);
+        applyFilters();
       });
     });
   });
@@ -131,6 +183,9 @@
   let currentProduct = null;
   let selectedColor = null;
   let selectedSize = null;
+  let currentCard = null;
+  let modalOpener = null;
+  let bodyOverflow = '';
 
   function updateZapLink() {
     if (!currentProduct || !modalZapLink) return;
@@ -148,6 +203,11 @@
     } catch (e) {
       return;
     }
+    currentCard = card;
+    modalOpener = document.activeElement;
+    document.getElementById('modalImageNote').classList.toggle('hidden', currentProduct.id !== 'BJJ-001');
+    modal.querySelector('.store-share-status').textContent = '';
+    modal.querySelector('.store-share-copy').classList.add('hidden');
 
     const sportNames = { 'jiu-jitsu': 'Jiu-Jitsu', 'boxe': 'Boxe', 'muay-thai': 'Muay Thai', 'mma': 'MMA' };
     modalSportTag.textContent = sportNames[currentProduct.sport] || currentProduct.sport;
@@ -178,26 +238,43 @@
     // Color Swatches / Gallery Setup
     if (currentProduct.colors && currentProduct.colors.length > 0) {
       modalColorBlock.classList.remove('hidden');
-      selectedColor = currentProduct.colors[0];
+      selectedColor = currentProduct.colors.find(col => col.id === card.dataset.selectedColor) || currentProduct.colors[0];
       modalSelectedColorText.textContent = selectedColor.name;
 
       currentProduct.colors.forEach((col, idx) => {
         // Color pill button
         const pill = document.createElement('button');
         pill.type = 'button';
-        pill.className = `modal-pill-btn ${idx === 0 ? 'active' : ''}`;
-        pill.innerHTML = `<span class="modal-pill-color-dot" style="background-color:${col.hex}"></span> ${col.name}`;
+        pill.className = 'modal-pill-btn';
+        pill.dataset.colorId = col.id;
+        const dot = document.createElement('span');
+        dot.className = 'modal-pill-color-dot';
+        dot.style.backgroundColor = col.hex;
+        pill.append(dot, document.createTextNode(` ${col.name}`));
         
         pill.addEventListener('click', () => {
-          document.querySelectorAll('.modal-pill-btn').forEach(p => p.classList.remove('active'));
+          modalColorPills.querySelectorAll('.modal-pill-btn').forEach(p => {
+            p.classList.remove('active');
+            p.setAttribute('aria-pressed', 'false');
+          });
           pill.classList.add('active');
+          pill.setAttribute('aria-pressed', 'true');
           selectedColor = col;
+          activateColor(card, col.id);
+          modal.querySelector('.store-share-status').textContent = '';
+          modal.querySelector('.store-share-copy').classList.add('hidden');
           modalSelectedColorText.textContent = col.name;
           
           if (col.image) modalMainImg.src = `/static/${col.image}`;
-          if (col.price) modalPrice.textContent = `R$ ${Number(col.price).toFixed(2).replace('.', ',')}`;
-          if (col.old_price) modalOldPrice.textContent = `R$ ${Number(col.old_price).toFixed(2).replace('.', ',')}`;
-          if (col.badge) modalBadge.textContent = col.badge;
+          modalMainImg.alt = `${currentProduct.name} — ${col.name}`;
+          modalPrice.textContent = money(col.price ?? currentProduct.price);
+          modalOldPrice.textContent = (col.old_price ?? currentProduct.old_price) ? money(col.old_price ?? currentProduct.old_price) : '';
+          modalBadge.textContent = col.badge ?? currentProduct.badge ?? '';
+          modalThumbsRow.querySelectorAll('.modal-thumb-btn').forEach(thumb => {
+            const active = thumb.dataset.colorId === col.id;
+            thumb.classList.toggle('active', active);
+            thumb.setAttribute('aria-pressed', String(active));
+          });
           
           updateZapLink();
         });
@@ -208,7 +285,13 @@
           const thumb = document.createElement('button');
           thumb.type = 'button';
           thumb.className = `modal-thumb-btn ${idx === 0 ? 'active' : ''}`;
-          thumb.innerHTML = `<img src="/static/${col.image}" alt="${col.name}">`;
+          thumb.dataset.colorId = col.id;
+          thumb.setAttribute('aria-label', `Ver ${col.name}`);
+          const thumbnail = document.createElement('img');
+          thumbnail.src = `/static/${col.image}`;
+          thumbnail.alt = col.name;
+          thumbnail.loading = 'lazy';
+          thumb.appendChild(thumbnail);
           thumb.addEventListener('click', () => {
             document.querySelectorAll('.modal-thumb-btn').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
@@ -217,6 +300,7 @@
           modalThumbsRow.appendChild(thumb);
         }
       });
+      [...modalColorPills.children].find(pill => pill.dataset.colorId === selectedColor.id)?.click();
     } else {
       modalColorBlock.classList.add('hidden');
       selectedColor = null;
@@ -233,10 +317,15 @@
         const szPill = document.createElement('button');
         szPill.type = 'button';
         szPill.className = `modal-pill-btn ${idx === 0 ? 'active' : ''}`;
+        szPill.setAttribute('aria-pressed', String(idx === 0));
         szPill.textContent = sz;
         szPill.addEventListener('click', () => {
-          modalSizePills.querySelectorAll('.modal-pill-btn').forEach(p => p.classList.remove('active'));
+          modalSizePills.querySelectorAll('.modal-pill-btn').forEach(p => {
+            p.classList.remove('active');
+            p.setAttribute('aria-pressed', 'false');
+          });
           szPill.classList.add('active');
+          szPill.setAttribute('aria-pressed', 'true');
           selectedSize = sz;
           modalSelectedSizeText.textContent = sz;
           updateZapLink();
@@ -256,18 +345,25 @@
     }
 
     updateZapLink();
+    updateInterestButtons();
     modal.classList.remove('hidden');
+    bodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    modal.scrollTop = 0;
+    closeModalBtn.focus({preventScroll: true});
   }
 
   function closeModal() {
     if (!modal) return;
     modal.classList.add('hidden');
-    document.body.style.overflow = '';
+    document.body.style.overflow = bodyOverflow;
+    applyFilters();
+    if (modalOpener?.isConnected) modalOpener.focus({preventScroll: true});
   }
 
   // Event delegation for opening quick-view modal
   document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-edit-product], [data-interest], [data-share-product]')) return;
     const trigger = e.target.closest('[data-open-modal]');
     if (trigger) {
       const card = trigger.closest('.store-product-card');
@@ -282,6 +378,12 @@
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+      if (e.key === 'Tab' && !modal.classList.contains('hidden')) {
+        const focusable = [...modal.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled)')].filter(el => el.getClientRects().length);
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
   }
 
@@ -312,7 +414,7 @@
     }
   }));
 
-  document.querySelectorAll('[data-interest]').forEach(button => button.addEventListener('click', (e) => {
+  grid.querySelectorAll('[data-interest]').forEach(button => button.addEventListener('click', (e) => {
     e.stopPropagation();
     const id = button.dataset.interest;
     interests.has(id) ? interests.delete(id) : interests.add(id);
@@ -345,6 +447,59 @@
 
   updateInterestButtons();
   applyFilters();
+
+  // Share only the product and selected color; unrelated query parameters are discarded.
+  let sharing = false;
+  async function shareProduct(card, button) {
+    if (!card || sharing) return;
+    const product = productFor(card);
+    const color = product.colors?.find(item => item.id === card.dataset.selectedColor);
+    const url = new URL('/loja.html', window.location.origin);
+    url.searchParams.set('produto', product.id);
+    if (color) url.searchParams.set('cor', color.id);
+    const area = button.closest('.store-share-area');
+    const status = area.querySelector('.store-share-status');
+    const manual = area.querySelector('.store-share-copy');
+    manual.classList.add('hidden');
+    status.textContent = '';
+    sharing = true;
+    button.disabled = true;
+    try {
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({title: product.name, text: `${product.name}${color ? ` — ${color.name}` : ''}`, url: url.href});
+          return;
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url.href);
+        status.textContent = 'Link copiado! Cole onde quiser compartilhar.';
+      } catch (_) {
+        status.textContent = 'Selecione e copie o link abaixo para compartilhar.';
+        manual.classList.remove('hidden');
+        const input = manual.querySelector('input');
+        input.value = url.href;
+        input.focus();
+        input.select();
+      }
+    } finally {
+      sharing = false;
+      button.disabled = false;
+    }
+  }
+  grid.querySelectorAll('[data-share-product]').forEach(button => {
+    button.addEventListener('click', () => shareProduct(button.closest('.store-product-card'), button));
+  });
+  document.getElementById('modalShareBtn')?.addEventListener('click', event => shareProduct(currentCard, event.currentTarget));
+  const requested = new URLSearchParams(window.location.search);
+  const linkedCard = cards.find(card => card.dataset.id === requested.get('produto'));
+  if (linkedCard) {
+    activateColor(linkedCard, requested.get('cor'));
+    linkedCard.scrollIntoView({block: 'center'});
+    openModalForProduct(linkedCard);
+  }
 
   // -------------------------------------------------------------
   // 5. INSTRUCTOR EDIT PRODUCT MODAL LOGIC
@@ -581,6 +736,7 @@
             if (ribbonEl) ribbonEl.remove();
           }
 
+          activateColor(currentEditingCard, currentEditingCard.dataset.selectedColor);
           closeEditModal();
           applyFilters();
         } else {
@@ -1127,6 +1283,3 @@
     }
   });
 })();
-
-
-

@@ -3,7 +3,7 @@
 {% block content %}
 {% set user_role_val = (user_role or session.get('user_role') or (current_user.role if current_user else ''))|lower %}
 {% set can_user_edit = can_edit or user_role_val in ['instrutor', 'admin', 'professor', 'monitor'] %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_2">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_3">
 
 <main class="store-page">
   <section class="store-hero">
@@ -104,11 +104,12 @@
       {% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
       <div class="store-product-grid" id="storeProductGrid">
         {% for product in products %}
+        {% set display = product.colors[0] if product.colors else product %}
         <article class="store-product-card {% if product.is_hidden %}is-product-hidden{% endif %}" 
                  data-id="{{ product.id }}" 
                  data-sport="{{ product.sport }}" 
                  data-category="{{ product.category }}" 
-                 data-price="{{ product.price }}" 
+                 data-price="{{ display.get('price', product.price) }}"
                  data-name="{{ product.name|lower }}"
                  data-json='{{ product|tojson|forceescape }}'>
           <div class="store-product-media store-media-{{ product.sport }} {% if product.is_sold_out %}is-sold-out{% endif %}" data-open-modal="{{ product.id }}">
@@ -125,14 +126,26 @@
               <i data-lucide="edit-3"></i> Editar
             </button>
             {% endif %}
-            {% if product.badge %}<span class="store-product-badge card-badge-element">{{ product.badge }}</span>{% endif %}
+            {% if product.badge %}<span class="store-product-badge card-badge-element">{{ display.get('badge', product.badge) }}</span>{% endif %}
             <span class="store-product-code">{{ product.id }}</span>
             {% if product.image %}
-              <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="store-product-img card-img-element" loading="lazy">
+              <img src="{{ url_for('static', filename=display.get('image', product.image)) }}" alt="{{ product.name }}{% if product.colors %} — {{ display.name }}{% endif %}" class="store-product-img card-img-element" loading="lazy" decoding="async">
             {% else %}
               <span class="store-product-icon" aria-hidden="true">{{ product.icon }}</span>
             {% endif %}
             <button class="store-interest-btn" type="button" aria-label="Adicionar {{ product.name }} à lista de interesse" data-interest="{{ product.id }}"><i data-lucide="heart"></i></button>
+
+            {% if product.colors and product.colors|length > 1 %}
+            <div class="store-card-carousel-nav">
+              <button type="button" class="store-carousel-btn prev" aria-label="Anterior" data-carousel-prev="{{ product.id }}">&#10094;</button>
+              <button type="button" class="store-carousel-btn next" aria-label="Próximo" data-carousel-next="{{ product.id }}">&#10095;</button>
+            </div>
+            <div class="store-card-carousel-dots">
+              {% for col in product.colors %}
+              <span class="store-carousel-dot {% if loop.first %}active{% endif %}" data-color-id="{{ col.id }}" title="{{ col.name }}"></span>
+              {% endfor %}
+            </div>
+            {% endif %}
           </div>
 
           <div class="store-product-body">
@@ -150,6 +163,7 @@
                 {% set col_img = col.get('image', product.image) %}
                 <button type="button" 
                         class="store-swatch-dot {% if loop.first %}active{% endif %}"
+                        aria-label="{{ col.name }}" aria-pressed="{{ 'true' if loop.first else 'false' }}"
                         style="background-color: {{ col.hex }};"
                         title="{{ col.name }} - R$ {{ '%.2f'|format(col_price)|replace('.', ',') }}"
                         data-color-id="{{ col.id }}"
@@ -183,8 +197,8 @@
                 {% if product.stock_quantity is not none %}
                 <span class="store-stock-count card-stock-element"><i data-lucide="boxes"></i> Estoque: <strong>{{ product.stock_quantity }}</strong> un.</span>
                 {% endif %}
-                <del class="card-old-price">{% if product.old_price %}R$ {{ '%.2f'|format(product.old_price)|replace('.', ',') }}{% endif %}</del>
-                <strong class="card-price">R$ {{ '%.2f'|format(product.price)|replace('.', ',') }}</strong>
+                <del class="card-old-price">{% if display.get('old_price', product.old_price) %}R$ {{ '%.2f'|format(display.get('old_price', product.old_price))|replace('.', ',') }}{% endif %}</del>
+                <strong class="card-price">R$ {{ '%.2f'|format(display.get('price', product.price))|replace('.', ',') }}</strong>
                 <small>preço hipotético</small>
               </div>
               <div class="store-card-actions">
@@ -195,6 +209,15 @@
                   <i data-lucide="plus"></i>
                 </button>
               </div>
+            </div>
+            <div class="store-share-area">
+              <button class="store-share-btn" type="button" data-share-product="{{ product.id }}" aria-label="Compartilhar {{ product.name }}">
+                <i data-lucide="share-2"></i> Compartilhar
+              </button>
+              <p class="store-share-status" role="status" aria-live="polite"></p>
+              <label class="store-share-copy hidden">Copie o link do produto
+                <input type="text" readonly aria-label="Link do produto para copiar">
+              </label>
             </div>
           </div>
         </article>
@@ -229,7 +252,7 @@
 </main>
 
 {# PRODUCT DETAIL QUICK-VIEW MODAL #}
-<div class="store-modal-backdrop hidden" id="storeProductModal" role="dialog" aria-modal="true">
+<div class="store-modal-backdrop hidden" id="storeProductModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="store-modal-container">
     <button class="store-modal-close" id="closeProductModal" type="button" aria-label="Fechar modal">&times;</button>
     <div class="store-modal-grid">
@@ -241,6 +264,7 @@
           <img id="modalMainImg" src="" alt="Produto" class="store-modal-main-img">
         </div>
         <div class="store-modal-thumbs-row" id="modalThumbsRow"></div>
+        <p class="store-image-note hidden" id="modalImageNote">Imagem ilustrativa do modelo, com vistas de frente e costas.</p>
       </div>
 
       {# Right Column: Details & Options #}
@@ -290,6 +314,13 @@
           <a class="store-zap-btn" id="modalZapLink" href="#" target="_blank" rel="noopener">
             <i data-lucide="message-circle"></i> Pedir no WhatsApp
           </a>
+        </div>
+        <div class="store-share-area">
+          <button class="store-share-btn" id="modalShareBtn" type="button"><i data-lucide="share-2"></i> Compartilhar</button>
+          <p class="store-share-status" role="status" aria-live="polite"></p>
+          <label class="store-share-copy hidden">Copie o link do produto
+            <input type="text" readonly aria-label="Link do produto para copiar">
+          </label>
         </div>
       </div>
 
@@ -669,5 +700,5 @@
 </div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_2"></script>
+<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_3"></script>
 {% endblock %}
