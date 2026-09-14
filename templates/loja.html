@@ -3,7 +3,7 @@
 {% block content %}
 {% set user_role_val = (user_role or session.get('user_role') or (current_user.role if current_user else ''))|lower %}
 {% set can_user_edit = can_edit or user_role_val in ['instrutor', 'admin', 'professor', 'monitor'] %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_6">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_7">
 
 <main class="store-page">
   <section class="store-hero">
@@ -83,13 +83,13 @@
           {% if can_user_edit %}
           <div class="store-admin-minimal-bar">
             <button type="button" class="store-minimal-btn primary" id="openAddProductModalBtn" title="Adicionar novo produto ao catálogo">
-              <i data-lucide="plus"></i> <span>Adicionar Produto</span>
+              <i data-lucide="plus"></i> <span>Adicionar</span>
             </button>
             <button type="button" class="store-minimal-btn" id="openImageOptimizerBtn" title="Analisar diagnóstico de imagens">
-              <i data-lucide="search"></i> <span>Analisar Imagens</span>
+              <i data-lucide="search"></i> <span>Analisar</span>
             </button>
             <button type="button" class="store-minimal-btn action" id="openDirectOptimizeBtn" title="Otimizar imagens da loja">
-              <i data-lucide="zap"></i> <span>Otimizar Imagens</span>
+              <i data-lucide="zap"></i> <span>Otimizar</span>
             </button>
           </div>
           {% endif %}
@@ -703,5 +703,5 @@
 </div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_6"></script>
+<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_7"></script>
 {% endblock %}

@@ -995,7 +995,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 .store-minimal-btn {
   display: inline-flex;
