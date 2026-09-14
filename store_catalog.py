@@ -389,6 +389,7 @@ STORE_PRODUCTS = [
         'name': 'Protetor Genital Coquilha Pro MMA',
         'price': 89.90,
         'icon': '🛡️',
+        'image': 'img/store/coquilha_mma_pro.jpg',
         'badge': 'Segurança',
         'sizes': ['P', 'M', 'G'],
         'description': 'Protetor genital anatômico com bordas em gel flexível e cúpula de alta resistência para proteção absoluta nos treinos de MMA.'
