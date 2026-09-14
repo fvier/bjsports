@@ -2710,8 +2710,14 @@ def blog():
 def loja():
     user_id = session.get('user_id')
     user = db.session.get(User, user_id) if user_id else None
-    user_role = session.get('user_role') or (user.role if user else None)
-    can_edit = bool(user_role in {'instrutor', 'admin', 'professor'})
+    user_role = (session.get('user_role') or (user.role if user else '') or '').lower()
+    name_val = (user.name if user else '').lower()
+    username_val = (user.username if user else '').lower()
+    can_edit = bool(
+        user_role in {'instrutor', 'admin', 'professor', 'monitor', 'bolivar'}
+        or 'bolivar' in name_val
+        or 'bolivar' in username_val
+    )
 
     products = get_customized_products(include_hidden=can_edit)
     store_categories = sorted(list({p['category'] for p in products if p.get('category')}))

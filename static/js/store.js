@@ -758,6 +758,16 @@
   // -------------------------------------------------------------
   // 5. INSTRUCTOR ADD PRODUCT MODAL LOGIC
   // -------------------------------------------------------------
+  // 5. ADD STORE PRODUCT MODAL & IMAGE OPTIMIZER
+  // -------------------------------------------------------------
+  function openAddModal() {
+    const modalEl = document.getElementById('storeAddProductModal');
+    if (!modalEl) return;
+    modalEl.classList.remove('hidden');
+    modalEl.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
   const addModal = document.getElementById('storeAddProductModal');
   const openAddBtn = document.getElementById('openAddProductModalBtn');
   const closeAddBtn = document.getElementById('closeAddProductModalBtn');
@@ -776,12 +786,6 @@
 
     let selectedColors = [];
     let selectedSizes = new Set();
-
-    function openAddModal() {
-      addModal.classList.remove('hidden');
-      addModal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
 
     function closeAddModal() {
       addModal.classList.add('hidden');
@@ -1278,6 +1282,11 @@
     }
     const optBtn = e.target.closest('#openImageOptimizerBtn');
     if (optBtn) {
+      e.preventDefault();
+      openOptimizerModal();
+    }
+    const directOptBtn = e.target.closest('#openDirectOptimizeBtn');
+    if (directOptBtn) {
       e.preventDefault();
       openOptimizerModal();
     }

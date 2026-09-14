@@ -3,7 +3,7 @@
 {% block content %}
 {% set user_role_val = (user_role or session.get('user_role') or (current_user.role if current_user else ''))|lower %}
 {% set can_user_edit = can_edit or user_role_val in ['instrutor', 'admin', 'professor', 'monitor'] %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_4">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}?v=20260914_5">
 
 <main class="store-page">
   <section class="store-hero">
@@ -81,12 +81,17 @@
         </div>
         <div class="store-toolbar-actions">
           {% if can_user_edit %}
-          <button type="button" class="store-add-product-btn" id="openAddProductModalBtn">
-            <i data-lucide="plus-circle"></i> + Adicionar Produto
-          </button>
-          <button type="button" class="store-analyze-images-btn" id="openImageOptimizerBtn">
-            <i data-lucide="image"></i> Analisar Imagens
-          </button>
+          <div class="store-admin-minimal-bar">
+            <button type="button" class="store-minimal-btn primary" id="openAddProductModalBtn" title="Adicionar novo produto ao catálogo">
+              <i data-lucide="plus"></i> <span>+ Adicionar Produto</span>
+            </button>
+            <button type="button" class="store-minimal-btn" id="openImageOptimizerBtn" title="Analisar diagnóstico de imagens">
+              <i data-lucide="search"></i> <span>Analisar Imagens</span>
+            </button>
+            <button type="button" class="store-minimal-btn action" id="openDirectOptimizeBtn" title="Otimizar imagens da loja">
+              <i data-lucide="zap"></i> <span>Otimizar Imagens</span>
+            </button>
+          </div>
           {% endif %}
           <label>Ordenar por
             <select id="storeSort">
@@ -100,8 +105,6 @@
       </div>
 
       <div class="store-active-filter" id="activeStoreFilter">Todos os esportes e categorias</div>
-
-      {% set can_user_edit = can_edit or (current_user and current_user.role in ['instrutor', 'admin', 'professor']) or (session.get('user_role') in ['instrutor', 'admin', 'professor']) %}
       <div class="store-product-grid" id="storeProductGrid">
         {% for product in products %}
         {% set display = product.colors[0] if product.colors else product %}
@@ -700,5 +703,5 @@
 </div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_4"></script>
+<script src="{{ url_for('static', filename='js/store.js') }}?v=20260914_5"></script>
 {% endblock %}

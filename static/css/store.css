@@ -989,3 +989,59 @@
   #storeProductModal .store-modal-grid { gap: 18px; }
   #storeProductModal .store-modal-main-view { height: auto; aspect-ratio: 1; margin-top: 28px; }
 }
+
+/* Minimalist Admin Toolbar Buttons */
+.store-admin-minimal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.store-minimal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+.store-minimal-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.store-minimal-btn.primary {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #f87171;
+}
+.store-minimal-btn.primary:hover {
+  background: rgba(229, 9, 20, 0.3);
+  border-color: #e50914;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.3);
+}
+.store-minimal-btn.action {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+.store-minimal-btn.action:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+.store-minimal-btn svg {
+  width: 15px;
+  height: 15px;
+}
