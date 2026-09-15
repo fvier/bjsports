@@ -77,6 +77,20 @@
         <article class="welcome-summary-card"><i data-lucide="calendar-check-2"></i><span>Presenças</span><strong>{{ attendance_month }} neste mês</strong><small>{{ attendance_total }} registro(s) no total</small><small class="welcome-enrollment-time"><i data-lucide="clock-3"></i> Matriculado há {{ enrollment_duration }}</small></article>
       </section>
 
+      <section class="welcome-panel welcome-training-choices" aria-labelledby="myTrainingTitle">
+        <div class="welcome-panel-title"><span id="myTrainingTitle">Minhas turmas e preferências</span><a href="{{ url_for('calendario') }}">Ver calendário</a></div>
+        {% for choice in training_choices %}
+        <article class="welcome-training-choice">
+          <strong>{{ choice.group.name }}</strong>
+          <span>{{ 'Preferência de horário · sem reserva de vaga' if choice.kind == 'preference' else 'Matrícula na turma' }}</span>
+          <small>{{ choice.group.modality }} · {{ choice.group.audience }} · {{ choice.group.schedules|join(' / ') }}</small>
+          {% if not choice.available %}<small>Turma indisponível no momento. Consulte a academia.</small>{% endif %}
+        </article>
+        {% else %}<p>Você ainda não escolheu uma turma. Consulte os horários no calendário e combine sua escolha com a academia.</p>{% endfor %}
+        {% if training_pending_modalities %}<p>Escolha pendente: {{ training_pending_modalities|join(', ') }}. Nenhuma vaga reservada nessas modalidades.</p>{% endif %}
+        {% if training_choices|selectattr('kind', 'equalto', 'preference')|list %}<p>Suas preferências não limitam os créditos: outras aulas elegíveis da modalidade continuam disponíveis para check-in.</p>{% endif %}
+      </section>
+
       <section class="welcome-details-grid">
         <article class="welcome-panel">
           <div class="welcome-panel-title"><span><i data-lucide="user-round"></i>Informações da conta</span><a href="{{ url_for('configuracoes') }}">Gerenciar</a></div>

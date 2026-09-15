@@ -1,0 +1,15 @@
+# Prompts finais das imagens
+
+Modo: ferramenta integrada `image_gen`, sem CLI. Uma imagem por variante, sem pós-processamento gráfico externo. PNGs de 1254 × 1254 pixels copiados para `static/img/store/`.
+
+## Branco — desenho como referência
+
+Use case: product-mockup, sketch-to-render. Create one high-quality product catalog image for the WHITE Kimono BJ Sports Competition, faithfully using the user's original landscape sketch showing FRONT and BACK as the design reference. Among the 3 provided conversation images, the original two-view white-kimono drawing with triangular red/black Bolivar-JR patches is the authoritative reference. The existing white 3D kimono with big BJ chest logos and the black product-card screenshot show the OLD design and must not dictate branding. Output only a clean standalone garment mockup, NOT a website/card/UI. Two full-length views side by side, front on left and back on right, matching size and vertical alignment, entire jacket and trousers visible with clear safe margins. White cotton weave fabric, realistic seams, black belt like the reference, no person, hands, feet or mannequin. Preserve reference branding placement: vertical BJ SPORTS lettering on the front lapel, small red/black triangular BOLIVAR-JR emblem on the outer upper sleeve/shoulder, triangular BOLIVAR-JR emblem on the upper front trouser leg, and a larger triangular BOLIVAR-JR emblem centered high on the back below the collar. Faithfully reproduce the reference emblems rather than inventing big chest logos. In the lapel lettering use black with the small red accent of the reference. Professional clean studio rendering, gently shaded neutral light-gray background, subtle shadows, no extra captions, price, watermark or UI. Square composition optimized so both COMPLETE views remain readable when contained in a shop card, highest practical image detail.
+
+## Preto — edição da imagem branca
+
+Edit the attached catalog mockup. Preserve EXACTLY the two full-length front and back views, garment cut, cotton weave, seams, neutral gray background, camera, spacing, black belt, and the positions and contents of ALL red/black triangular BOLIVAR-JR patches. Keep the BJ SPORTS lapel lettering and small red accent, adjusting dark lettering to white for legibility on the new dark fabric. No added patches, captions, UI or logos, no cropping. Change ONLY the white jacket and trousers fabric to deep BLACK, with visible fabric and fold detail.
+
+## Azul — edição da imagem branca
+
+Edit the attached catalog mockup. Preserve EXACTLY the two full-length front and back views, garment cut, cotton weave, seams, neutral gray background, camera, spacing, black belt, and the positions and contents of ALL red/black triangular BOLIVAR-JR patches. Keep the BJ SPORTS lapel lettering and small red accent, adjusting dark lettering to white for legibility on the new dark fabric. No added patches, captions, UI or logos, no cropping. Change ONLY the white jacket and trousers fabric to ROYAL BLUE (#0f34a2), with realistic fabric shading.

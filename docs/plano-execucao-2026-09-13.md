@@ -1,6 +1,6 @@
 # Plano de execução acompanhado — BJ Sports
 
-13/09/2026. Solicitado pelo usuário: novo plano e avisos de etapa X/Y até concluir.
+Atualizado em 14/09/2026. Solicitado pelo usuário: novo plano e avisos de etapa X/Y até concluir.
 
 Este é o acompanhamento operacional do [plano consolidado](plano-acao-consolidado-2026-09-13.md). A primeira entrega publica a gestão unificada e reconcilia as correções anteriores ausentes na VPS. A segunda integra a escolha de turmas ao cadastro e ao portal, conforme as decisões comerciais.
 
@@ -12,18 +12,18 @@ Este é o acompanhamento operacional do [plano consolidado](plano-acao-consolida
 | 4/12 | Backup atualizado de banco, fonte, imagem e volume; comprovar restauração e preparar reversão. | Concluída: banco, 24 arquivos de fonte, 3 arquivos do volume e imagem recuperados. |
 | 5/12 | Publicar a primeira entrega na VPS com o pacote validado. | Concluída em 13/09 às 16h23 (America/Recife). |
 | 6/12 | Conferir cadastro, contrato, login, check-in, gestão e documentação na publicação; remover somente dados técnicos. | Concluída: 7 fluxos, 12 verificações da gestão e 44 de navegação publicados; limpeza e preservação das 21 tabelas confirmadas. |
-| 7/12 | Definir preferência versus matrícula, faixas etárias, disponibilidade, combos e cadastro sem turma. | Parcial: configuração de idades publicada e conferida em produção. Faltam faixas reais, quantidade de escolhas e regra de cadastro sem turma disponível. |
-| 8/12 | Consultar turmas reais no cadastro e exibir modalidade, unidade, público, professor e horários em celular/desktop. | Parcial: consulta publicada, com filtros e combos. Escolha e resumo do vínculo dependem de 7/12. |
-| 9/12 | Persistir conta e escolha em transação; validar elegibilidade, duplicidade e disputa de vaga. | Pendente |
-| 10/12 | Mostrar escolhas no painel/calendário e manter as regras de cada check-in e modalidade. | Pendente |
-| 11/12 | Ensaiar segunda entrega em PostgreSQL, validar concorrência e fluxos adulto/menor/combo/perfis e interface. | Pendente |
-| 12/12 | Preparar backup próprio, publicar a segunda entrega, conferir produção e registrar evidências finais. | Pendente |
+| 7/12 | Definir preferência versus matrícula, faixas etárias, disponibilidade, combos e cadastro sem turma. | Regras operacionais implementadas: créditos como preferência; turma fixa com matrícula; uma turma fixa por modalidade; sem escolha, conta pendente sem vaga. Permanecem as faixas etárias reais a informar pela academia. |
+| 8/12 | Consultar turmas reais no cadastro e exibir modalidade, unidade, público, professor e horários em celular/desktop. | Concluída: grade real, seleção, filtros e resumo publicados em celular/desktop. |
+| 9/12 | Persistir conta e escolha em transação; validar elegibilidade, duplicidade e disputa de vaga. | Concluída: transação, duplicidade e última vaga verificadas em PostgreSQL; bloqueios não alteram metadados das turmas. |
+| 10/12 | Mostrar escolhas no painel/calendário e manter as regras de cada check-in e modalidade. | Concluída: painel, calendário, agenda pessoal e check-in integrados e conferidos no HTTPS. |
+| 11/12 | Ensaiar segunda entrega em PostgreSQL, validar concorrência e fluxos adulto/menor/combo/perfis e interface. | Concluída: suíte PostgreSQL, concorrência, adulto/menor/combo, aluno/monitor/instrutor e navegação publicados. |
+| 12/12 | Preparar backup próprio, publicar a segunda entrega, conferir produção e registrar evidências finais. | Concluída: publicação final às 17h44 de 14/09, backups restaurados, sete contas técnicas removidas e 22 tabelas preservadas. Ver relatório da segunda entrega. |
 
 ## Regras preservadas
 
 - Contrato após entrar: 60 horas desde a criação para contas novas, sem aceite automático ou reinício do prazo. Contas antigas pendentes ficam sem cobrança retroativa.
 - Créditos de Jiu-Jitsu, Boxe e Muay Thai permanecem separados e contam cada ocorrência de aula. Não reclassificar registros antigos por suposição nem alterar preços.
-- Proposta para a próxima entrega: horário em plano por créditos é preferência, sem matrícula ou reserva permanente; plano de turma fixa gera matrícula e ocupa vaga. A capacidade precisa ser validada no servidor.
+- Implementado na segunda entrega: horário em plano por créditos é preferência, sem matrícula ou reserva permanente; plano de turma fixa gera matrícula e ocupa vaga. A capacidade precisa ser validada no servidor.
 - Turmas Kids usam faixas informadas pela academia; menoridade para responsável é uma regra distinta. Nenhum limite será inventado.
 - Usar somente registros reais para a oferta; testes usam dados técnicos identificáveis em ambientes isolados e, na conferência publicada, com remoção restrita a esses registros.
 - Registrar separadamente testes locais, PostgreSQL, emulação de navegador, produção e equipamento físico.
@@ -57,3 +57,7 @@ As etapas dependentes de decisões comerciais permanecem pendentes enquanto não
 - 8/12, validação: 110 testes SQLite e 110 PostgreSQL aprovados; oito cenários de navegador sintético e 24 verificações no HTTPS publicado. Horários de cada modalidade/combinação comparados à gestão. As listas maiores começam recolhidas; falha da consulta permite tentar novamente sem bloquear o formulário.
 - Publicação de 8/12: 29 itens conferidos na fonte e no contêiner, 23 contas e todas as 21 tabelas preservadas. Nenhuma gravação técnica em produção nesta rodada. Backup atual: /data/bjsports/backups/20260914-cadastro-horarios, com restauração comprovada de banco, fonte, volume e imagem. [Relatório e evidências](cadastro-horarios-2026-09-13/README.md).
 - Estado para a próxima continuidade: 7/12 parcial por depender de dados da academia; 8/12 com consulta concluída, escolha/resumo ainda pendentes; 9–12 pendentes. A publicação da consulta não equivale à publicação da matrícula integrada prevista em 12/12.
+
+## Encerramento — segunda entrega, 14/09/2026
+
+As cinco etapas da continuidade foram concluídas. [Relatório, regras adotadas, evidências e recuperação](segunda-entrega-2026-09-14/README.md). O resumo do cadastro distingue preferência sem vaga de matrícula efetiva; escolhas vazias ficam pendentes. As faixas etárias reais permanecem como dado da academia a cadastrar. A nova rota de catraca publicada em paralelo foi preservada. Após a conferência final, sete contas técnicas e seus vínculos foram removidos; as 22 tabelas voltaram ao estado anterior, sem diferenças.

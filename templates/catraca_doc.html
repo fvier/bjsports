@@ -15,8 +15,23 @@
   <p class="notice"><strong>O botão ainda não foi validado na placa.</strong> A compilação e os testes de software passaram. Acionamento elétrico, encerramento da manutenção, OTA e comunicação no tablet real continuam pendentes de bancada. Esta página não comprova qual versão está instalada no equipamento.</p>
 </header>
 <nav aria-label="Índice dos procedimentos">
-  <a href="#instalacao">Instalação</a><a href="#botao">Botão de manutenção</a><a href="#teste">Teste do pulso</a><a href="#tablet">Tablet</a><a href="#ota">Atualização</a><a href="#recuperacao">Recuperação</a><a href="#validacao">Validação</a><a href="{{ url_for('pagina_esp_hub') }}">Central ESP32 e downloads</a>
+  <a href="#cadastro-turmas">Cadastro e portal</a><a href="#instalacao">Instalação</a><a href="#botao">Botão de manutenção</a><a href="#teste">Teste do pulso</a><a href="#tablet">Tablet</a><a href="#ota">Atualização</a><a href="#recuperacao">Recuperação</a><a href="#validacao">Validação</a><a href="{{ url_for('pagina_esp_hub') }}">Central ESP32 e downloads</a>
 </nav>
+<section id="cadastro-turmas">
+  <h2>Cadastro, turmas e portal — segunda entrega</h2>
+  <p>Em <a href="/gestao_turmas.html">Turmas e planos</a>, mantenha modalidade, unidade, publicação, dias, horários, capacidade e faixa etária atualizados. O cadastro consulta esses mesmos registros.</p>
+  <ol>
+    <li>No cadastro, escolha modalidade/plano, frequência e turmas. Confira o resumo antes de concluir.</li>
+    <li>Nos planos individuais por créditos de Jiu-Jitsu, Boxe e Muay Thai, as escolhas são preferências: não reservam vagas nem restringem outras aulas elegíveis da modalidade.</li>
+    <li>Nos demais planos coletivos, a escolha cria matrícula, com uma turma por modalidade. A disponibilidade é conferida ao salvar a conta. Sem escolha, a modalidade fica pendente, sem reserva de vaga.</li>
+    <li>Para combos, escolha as modalidades previstas no plano e confira as turmas de cada uma. Aulas particulares mantêm a escolha do profissional.</li>
+    <li>Use somente faixas etárias definidas pela academia. Campo vazio significa idade não definida; confirme a adequação com a equipe. Menores precisam dos dados do responsável legal.</li>
+    <li>Após entrar, confira “Minhas turmas e preferências” no painel e as marcações no calendário. A agenda pessoal identifica preferências como provisórias; matrícula e preferência não são check-in.</li>
+    <li>Envie o check-in da aula elegível do dia e aguarde a análise do monitor ou instrutor. Cada aula conta separadamente, inclusive duas no mesmo dia.</li>
+  </ol>
+  <p>O contrato continua com aceite explícito após entrar, em até 60 horas desde um novo cadastro. Contas antigas pendentes não recebem prazo retroativo. Selecionar turma ou concluir cadastro não registra aceite.</p>
+  <p class="muted">Se a turma mudar de situação durante o cadastro, atualize os horários e escolha novamente. Uma falha na gravação desfaz conta e vínculos juntos. Não há atribuição automática de turmas a contas antigas.</p>
+</section>
 <section id="instalacao">
   <h2>1. Primeira instalação e configuração</h2>
   <ol>

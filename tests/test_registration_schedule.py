@@ -59,7 +59,7 @@ class RegistrationScheduleTests(unittest.TestCase):
     def test_catalog_exposes_only_public_fields_and_preserves_unknown_age(self):
         row = self.catalog()[0]
         self.assertEqual(set(row), {'id', 'name', 'modality', 'audience', 'age_label',
-                                   'instructor', 'schedules', 'location', 'full'})
+                                   'min_age', 'max_age', 'instructor', 'schedules', 'location', 'full'})
         self.assertEqual(set(row['location']), {'slug', 'name', 'city'})
         self.assertEqual(row['age_label'], 'Faixa etária não definida')
         self.assertEqual(row['schedules'], [
@@ -94,6 +94,6 @@ class RegistrationScheduleTests(unittest.TestCase):
             before = (User.query.count(), ClassEnrollment.query.count(), Booking.query.count())
         self.catalog()
         page = self.client.get('/login?mode=register').get_data(as_text=True)
-        self.assertIn('Esta consulta não reserva vaga', page)
+        self.assertIn('regClassSelection', page)
         with app.app_context():
             self.assertEqual(before, (User.query.count(), ClassEnrollment.query.count(), Booking.query.count()))

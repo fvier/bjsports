@@ -12,6 +12,23 @@ def cpf_digits(value):
 def age_on(birth_date, reference):
     return reference.year - birth_date.year - ((reference.month, reference.day) < (birth_date.month, birth_date.day))
 
+def class_age_error(birth_date, minimum, maximum, reference):
+    """Aplica somente os limites informados; público Kids não define idade."""
+    if minimum is None and maximum is None:
+        return None
+    if birth_date is None:
+        return 'Informe a data de nascimento para conferir a faixa etária da turma.'
+    age = age_on(birth_date, reference)
+    if (minimum is not None and age < minimum) or (maximum is not None and age > maximum):
+        return 'A idade do aluno está fora da faixa etária configurada para esta turma.'
+    return None
+
+
+def training_weekdays(schedule, flexible=False):
+    if flexible or schedule == 'todos':
+        return set(range(7))
+    return {'ter-qui': {1, 3}, 'seg-qua-sex': {0, 2, 4}}.get(schedule, set())
+
 
 def parse_age_limits(minimum, maximum):
     """Limites opcionais em anos completos; vazio nunca implica um limite padrão."""

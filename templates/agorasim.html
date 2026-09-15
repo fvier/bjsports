@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agora Sim! Guia Definitivo de Ligação da Catraca • BJ Sports</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131a29;
+      --card-border: #243049;
+      --card-hover: #1c263c;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .header-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%);
+      border: 1px solid #3b82f6;
+      border-radius: 20px;
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .img-container {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid #334155;
+      background: #020617;
+      text-align: center;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #2563eb;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .step-card {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 18px;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .step-red {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, #0f172a 100%);
+    }
+
+    .step-black {
+      border-color: rgba(148, 163, 184, 0.4);
+      background: linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, #0f172a 100%);
+    }
+
+    .step-yellow {
+      border-color: rgba(245, 158, 11, 0.6);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, #0f172a 100%);
+    }
+
+    .badge-fio {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .pin-box {
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 12px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .tip-box {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- HEADER -->
+    <div class="header-box">
+      <div class="header-badge">
+        <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+        Guia Definitivo • BJ Sports
+      </div>
+      <h1 style="font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 8px; color: #fff;">
+        Agora Sim! Como Ligar a Catraca Sem Erro
+      </h1>
+      <p style="color: #cbd5e1; font-size: 1rem; max-width: 750px;">
+        Este guia foi feito exatamente em cima das <strong>fotos reais das suas peças</strong>. São apenas <strong>3 fios coloridos</strong> para conectar o ESP32 ao módulo relé. Siga as cores abaixo:
+      </p>
+    </div>
+
+    <!-- IMAGEM PRINCIPAL COM AS FOTOS REAIS -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="camera" style="color: #38bdf8; width: 20px; height: 20px;"></i>
+          Foto Real das Peças com as Ligações:
+        </h2>
+        <div style="display: flex; gap: 8px;">
+          <a href="/static/img/catraca/guia_real_catraca.png" download="ligacao_catraca_bjsports.png" class="btn-action btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+            Baixar Imagem
+          </a>
+          <button onclick="copiarMensagem()" class="btn-action" style="padding: 8px 14px; font-size: 0.85rem; background: #059669;">
+            <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+            Copiar p/ WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <div class="img-container">
+        <a href="/static/img/catraca/guia_real_catraca.png" target="_blank" title="Clique para abrir em tamanho real">
+          <img src="/static/img/catraca/guia_real_catraca.png" alt="Esquema Real de Ligação ESP32 no Relé - BJ Sports">
+        </a>
+      </div>
+      <p style="text-align: center; font-size: 0.82rem; color: #64748b; margin-top: 8px;">
+        💡 Toque ou clique na imagem acima para abrir em tela cheia e dar zoom.
+      </p>
+    </div>
+
+    <!-- OS 3 FIOS PASSO A PASSO -->
+    <div class="card">
+      <h2 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="git-commit" style="color: #f59e0b; width: 22px; height: 22px;"></i>
+        Os 3 Fios Coloridos (Placa ESP32 ➔ Relé Azul):
+      </h2>
+      <p style="color: #94a3b8; font-size: 0.9rem;">
+        Pegue 3 cabinhos finos (jumpers) e espete exatamente nos pinos descritos abaixo:
+      </p>
+
+      <div class="steps-grid">
+        
+        <!-- FIO 1: VERMELHO -->
+        <div class="step-card step-red">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge-fio" style="background: #dc2626; color: #fff;">🔴 Fio 1 • Energia 5V</span>
+              <span style="font-size: 1.2rem;">🔌</span>
+            </div>
+            <h3 style="color: #f87171; font-size: 1.05rem; font-weight: 700; margin-top: 10px;">Fio Vermelho</h3>
+            <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+              Leva a energia de 5V da placa para alimentar o relé.
+            </p>
+            <div class="pin-box">
+              <div style="color: #94a3b8;">ESP32: <strong style="color: #f87171;">VIN</strong> (1º pino do topo direito)</div>
+              <div style="color: #94a3b8; margin-top: 4px;">Relé: <strong style="color: #f87171;">VCC</strong> (pino de baixo)</div>
+            </div>
+          </div>
+          <p class="tip-box">
+            ⚠️ <strong>Atenção:</strong> Ligue sempre no <strong>VIN</strong>, nunca no pino 3V3!
+          </p>
+        </div>
+
+        <!-- FIO 2: PRETO -->
+        <div class="step-card step-black">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge-fio" style="background: #475569; color: #fff;">⚫ Fio 2 • Terra Comum</span>
+              <span style="font-size: 1.2rem;">⚡</span>
+            </div>
+            <h3 style="color: #cbd5e1; font-size: 1.05rem; font-weight: 700; margin-top: 10px;">Fio Preto (ou Azul)</h3>
+            <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+              Faz o aterramento / polo negativo comum entre as duas placas.
+            </p>
+            <div class="pin-box">
+              <div style="color: #94a3b8;">ESP32: <strong style="color: #cbd5e1;">GND</strong> (2º pino do topo direito)</div>
+              <div style="color: #94a3b8; margin-top: 4px;">Relé: <strong style="color: #cbd5e1;">GND</strong> (pino do meio)</div>
+            </div>
+          </div>
+          <p class="tip-box">
+            💡 Fica logo abaixo do pino VIN no lado direito do ESP32.
+          </p>
+        </div>
+
+        <!-- FIO 3: AMARELO -->
+        <div class="step-card step-yellow">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge-fio" style="background: #d97706; color: #fff;">🟡 Fio 3 • Sinal de Abertura</span>
+              <span style="font-size: 1.2rem;">🎯</span>
+            </div>
+            <h3 style="color: #fbbf24; font-size: 1.05rem; font-weight: 700; margin-top: 10px;">Fio Amarelo (ou Verde)</h3>
+            <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">
+              Envia o pulso de 1 segundo para o relé liberar a passagem.
+            </p>
+            <div class="pin-box">
+              <div style="color: #94a3b8;">ESP32: <strong style="color: #fbbf24;">D4 (GPIO 4)</strong> (5º pino da esquerda)</div>
+              <div style="color: #94a3b8; margin-top: 4px;">Relé: <strong style="color: #fbbf24;">IN</strong> (pino de cima)</div>
+            </div>
+          </div>
+          <p class="tip-box">
+            ⭐ Na coluna da esquerda do ESP32, conte de cima para baixo até o 5º pino (3V3, GND, D15, D2, <strong>D4</strong>).
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BORNES AZUIS (TRAVA 12V) -->
+    <div class="card" style="border-color: #059669; background: linear-gradient(180deg, rgba(5, 150, 105, 0.08) 0%, #131a29 100%);">
+      <h2 style="font-size: 1.2rem; font-weight: 800; color: #34d399; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="shield-check" style="width: 22px; height: 22px;"></i>
+        Lado dos Parafusos Azuis do Relé (Ligação da Trava 12V da Catraca):
+      </h2>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 16px;">
+        Do outro lado do relé existem 3 parafusinhos azuis. Veja onde vai cada fio:
+      </p>
+
+      <!-- FOTO E ESQUEMA DO RELÉ COM A TRAVA MECÂNICA -->
+      <div class="img-container" style="margin-bottom: 20px; border-color: #059669;">
+        <a href="/static/img/catraca/ligacao_rele_trava.png" target="_blank" title="Clique para abrir em tamanho real">
+          <img src="/static/img/catraca/ligacao_rele_trava.png" alt="Esquema de Ligação do Relé 5V com a Trava Mecânica da Catraca">
+        </a>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 0.82rem; color: #a7f3d0;">💡 Toque na imagem para ampliar em tela cheia</span>
+        <a href="/static/img/catraca/ligacao_rele_trava.png" download="rele_trava_mecanica_bjsports.png" class="btn-action" style="background: #059669; padding: 6px 14px; font-size: 0.82rem;">
+          <i data-lucide="download" style="width: 14px; height: 14px;"></i> Baixar Esquema da Trava
+        </a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+        
+        <div style="background: #064e3b; border: 1px solid #10b981; border-radius: 12px; padding: 16px;">
+          <strong style="color: #a7f3d0; font-size: 0.95rem; display: block; margin-bottom: 6px;">1. Parafuso do Meio (COM):</strong>
+          <p style="font-size: 0.85rem; color: #ecfdf5;">
+            Ligue o fio <strong>Positivo (+12V)</strong> que vem da fonte de alimentação externa de 12V da catraca.
+          </p>
+        </div>
+
+        <div style="background: #064e3b; border: 1px solid #10b981; border-radius: 12px; padding: 16px;">
+          <strong style="color: #a7f3d0; font-size: 0.95rem; display: block; margin-bottom: 6px;">2. Parafuso da Esquerda (NO ou NA):</strong>
+          <p style="font-size: 0.85rem; color: #ecfdf5;">
+            Ligue em <strong>1 dos fios da trava / solenoide</strong> da catraca.
+          </p>
+        </div>
+
+        <div style="background: #064e3b; border: 1px solid #10b981; border-radius: 12px; padding: 16px;">
+          <strong style="color: #a7f3d0; font-size: 0.95rem; display: block; margin-bottom: 6px;">3. Fio Negativo (0V / GND da Fonte):</strong>
+          <p style="font-size: 0.85rem; color: #ecfdf5;">
+            Vai <strong>DIRETO para o outro fio da trava</strong> da catraca *(não precisa passar pelo relé)*.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TESTE RÁPIDO DE 10 SEGUNDOS -->
+    <div class="card" style="border-color: #3b82f6;">
+      <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="zap" style="color: #38bdf8; width: 20px; height: 20px;"></i>
+        Como Testar se Funcionou em 10 Segundos:
+      </h2>
+      <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.92rem; line-height: 1.8;">
+        <li>Conecte o cabo micro-USB no ESP32: a <strong>luz vermelha</strong> do relé vai acender na hora (indica que ele está recebendo energia de 5V).</li>
+        <li>Ao mandar liberar pelo sistema BJ Sports (ou apertar o botão de teste), você vai ouvir um estalo nítido (<strong>"CLICK"</strong>).</li>
+        <li>A <strong>luz verde</strong> do relé vai dar uma piscadela de exatamente 1 segundo e desarmar.</li>
+        <li>Nesse segundo em que a luz verde acende, a trava é liberada e a catraca gira livremente!</li>
+      </ol>
+    </div>
+
+    <!-- LINKS DE NAVEGAÇÃO -->
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+      <a href="/fazer" class="btn-action btn-secondary">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Voltar ao Manual Completo (/fazer)
+      </a>
+      <button onclick="copiarMensagem()" class="btn-action" style="background: #2563eb;">
+        <i data-lucide="share-2" style="width: 16px; height: 16px;"></i>
+        Copiar Resumo para Enviar no WhatsApp
+      </button>
+    </div>
+
+  </div>
+
+  <!-- TOAST FEEDBACK -->
+  <div id="toast" class="toast">
+    <i data-lucide="check" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;"></i>
+    Copiado com sucesso! Cole no WhatsApp.
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function copiarMensagem() {
+      const texto = `*LIGAÇÃO DA CATRACA BJ SPORTS (3 FIOS)*\n\n` +
+        `🔴 *Fio Vermelho (5V):*\n` +
+        `• No ESP32: pino VIN (1º pino do topo direito)\n` +
+        `• No Relé: pino VCC (pino de baixo)\n\n` +
+        `⚫ *Fio Preto (Terra):*\n` +
+        `• No ESP32: pino GND (2º pino do topo direito)\n` +
+        `• No Relé: pino GND (pino do meio)\n\n` +
+        `🟡 *Fio Amarelo (Sinal):*\n` +
+        `• No ESP32: pino D4 (5º pino do lado esquerdo)\n` +
+        `• No Relé: pino IN (pino de cima)\n\n` +
+        `--- \n` +
+        `⚡ *Parafusos da Trava 12V:*\n` +
+        `• Parafuso do meio (COM): Entra +12V da fonte\n` +
+        `• Parafuso da esquerda (NO/NA): Vai para a trava da catraca\n` +
+        `• Fio 0V (GND) da fonte: Direto para o outro fio da trava\n\n` +
+        `Veja a foto e o guia completo em: https://bjsports.com.br/agorasim`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+      });
+    }
+  </script>
+</body>
+</html>

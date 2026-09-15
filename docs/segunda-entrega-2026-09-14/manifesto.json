@@ -1,0 +1,11 @@
+{
+  "app.py": "8ac98f13d9c965de71540fcaf6078d8c940d752662c92781e46861aaf4408197",
+  "registration_rules.py": "4bf335e5eaf2dd3aaf365437bb5f3a17bc58d16d8f2d219e834f121c49666c07",
+  "static/css/interface.css": "2bb020549ba49f27db611e3c08fa03e769bae9d6f3801f0e9fd8f50e37ec38cc",
+  "static/js/registration_schedule.js": "b7857b6660c0514e85aabe202de3759f9e02bc325c3bb1f6812ca2607c736545",
+  "templates/login.html": "f7003573270864b474f884c35f91698ea623570e5e22f6d0cc64870706c337f5",
+  "templates/dashboard.html": "35e896cec9187967c6554c7551e3531f49930c8a30f94dc6c1146c98f999514b",
+  "templates/calendario.html": "c109d85e4627114ec5ae2ee104578f18b312671d1928891d47a1dc32dfc6f7ae",
+  "templates/base.html": "f45cc6a21a6181f64c523d687da75c73d5ce4d3de09e0c6f6d762e0cb6f62f1a",
+  "templates/catraca_doc.html": "9669927e35c6298c386a7dc727d5fa3c82410ed0397fc5b223409b92772c35f0"
+}

@@ -1,0 +1,195 @@
+{
+  "status": "Concluida e publicada; etapas 1-5 concluidas",
+  "published_at": "2026-09-14T20:44:23Z",
+  "image": "sha256:12ab6f819ff07d7e2c24a516b5ef8a489d3583f64cc3ac2016f752a2712ee8b7",
+  "validation": {
+    "sqlite_suite_passed": 126,
+    "postgres_first_revision_passed": 127,
+    "postgres_current_base": {
+      "postgres_tests": 127,
+      "initial_passed": 126,
+      "initial_time_dependent_failure": 1,
+      "corrected_booking_tests_passed": 4,
+      "remaining_failures": 0
+    },
+    "timestamp_fix_postgres_passed": 28,
+    "local_credit_registration_flows": 4,
+    "local_fixed_combo_flows": 2,
+    "local_catalog_checks": 8,
+    "published_flows": [
+      {
+        "scenario": "credit390",
+        "width": 390,
+        "registered": true,
+        "links_shown": 1,
+        "calendar": true,
+        "email_and_cpf_login": true,
+        "checkin_confirmed": true,
+        "javascript_errors": 0
+      },
+      {
+        "scenario": "credit1440",
+        "width": 1440,
+        "registered": true,
+        "links_shown": 1,
+        "calendar": true,
+        "email_and_cpf_login": true,
+        "checkin_confirmed": true,
+        "javascript_errors": 0
+      },
+      {
+        "scenario": "fixed390",
+        "width": 390,
+        "registered": true,
+        "links_shown": 2,
+        "calendar": true,
+        "email_and_cpf_login": true,
+        "checkin_confirmed": true,
+        "javascript_errors": 0
+      },
+      {
+        "scenario": "fixed1440",
+        "width": 1440,
+        "registered": true,
+        "links_shown": 2,
+        "calendar": true,
+        "email_and_cpf_login": true,
+        "checkin_confirmed": true,
+        "javascript_errors": 0
+      },
+      {
+        "scenario": "minor390",
+        "width": 390,
+        "registered": true,
+        "links_shown": 1,
+        "calendar": true,
+        "email_and_cpf_login": true,
+        "checkin_confirmed": false,
+        "javascript_errors": 0
+      }
+    ]
+  },
+  "persistence": [
+    {
+      "scenario": "credit390",
+      "preferences": 1,
+      "enrollments": 0,
+      "automatic_acceptances": 0,
+      "contract_deadline_hours": 60,
+      "confirmed_checkins": 1
+    },
+    {
+      "scenario": "credit1440",
+      "preferences": 1,
+      "enrollments": 0,
+      "automatic_acceptances": 0,
+      "contract_deadline_hours": 60,
+      "confirmed_checkins": 1
+    },
+    {
+      "scenario": "fixed390",
+      "preferences": 0,
+      "enrollments": 2,
+      "automatic_acceptances": 0,
+      "contract_deadline_hours": 60,
+      "confirmed_checkins": 1
+    },
+    {
+      "scenario": "fixed1440",
+      "preferences": 0,
+      "enrollments": 2,
+      "automatic_acceptances": 0,
+      "contract_deadline_hours": 60,
+      "confirmed_checkins": 1
+    },
+    {
+      "scenario": "minor390",
+      "preferences": 1,
+      "enrollments": 0,
+      "automatic_acceptances": 0,
+      "contract_deadline_hours": 60,
+      "confirmed_checkins": 0
+    }
+  ],
+  "cleanup": {
+    "removed_technical_accounts": 7,
+    "removed_dependent_rows": {
+      "class_preference": 3,
+      "class_enrollment": 4,
+      "attendance": 4,
+      "training_credit_period": 2,
+      "push_subscription": 0,
+      "monthly_payment": 0,
+      "monthly_fee_exemption": 0,
+      "graduation_record": 0,
+      "contract_acceptance": 0,
+      "championship_registration": 0
+    }
+  },
+  "production_preservation_after_cleanup": {
+    "tables_checked": 22,
+    "changed_tables": []
+  },
+  "backup": {
+    "directory": "/data/bjsports-releases/20260914-cadastro-integrado-r2",
+    "latest_database": "lockfix/database.dump",
+    "latest_volume": "lockfix/volume.tar.gz",
+    "off_host_private_copy_verified": true,
+    "source_and_volume_restore": {
+      "source_restored_files": 837,
+      "volume_restored_files": 4,
+      "mismatches": []
+    },
+    "latest_database_restore": {
+      "tables_checked": 22,
+      "changed_tables": []
+    },
+    "latest_volume_restore": {
+      "files": 4,
+      "mismatches": []
+    }
+  },
+  "migration": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "existing_accounts": 23,
+  "published_manifest": {
+    "checked": 17,
+    "mismatches": [],
+    "old_plan_template_removed": true
+  },
+  "public_routes_and_assets": {
+    "routes": {
+      "/login?mode=register": 200,
+      "/api/cadastro/turmas": 200,
+      "/catracadoc": 200,
+      "/loja.html": 200,
+      "/agorasim": 200
+    },
+    "assets": {
+      "static/js/registration_schedule.js": "hash_match",
+      "static/css/interface.css": "hash_match",
+      "static/img/catraca/guia_real_catraca.png": "hash_match",
+      "static/img/catraca/ligacao_rele_trava.png": "hash_match",
+      "static/img/store/rashguard_eagle_studio_v1.png": "hash_match",
+      "static/img/store/rashguard_camuflada_studio_v1.png": "hash_match",
+      "static/img/store/fight_shorts_brasil_studio_v1.png": "hash_match",
+      "static/img/store/fight_shorts_grappling_studio_v1.png": "hash_match"
+    },
+    "real_classes": 15
+  },
+  "pending_business_data": [
+    "Faixas etarias reais por turma, a informar pela academia; limites vazios continuam sem atribuicao automatica."
+  ],
+  "notes": [
+    "A primeira ativacao foi bloqueada antes de parar o servico, por alteracao paralela em app.py. A revisao r2 preserva agorasim e suas imagens.",
+    "A repeticao noturna identificou uma fixture de reserva que escolhia horario passado. Corrigida para a proxima ocorrencia; quatro testes afetados passaram em banco PostgreSQL novo.",
+    "Na primeira conferência publicada, bloqueios SQL atualizaram somente updated_at das turmas 2,5,6,7. Auditoria comparou com backup e snapshot pre-teste, restaurou apenas essas datas e confirmou 22 tabelas identicas. A correcao passou em 28 testes PostgreSQL; na rodada publicada final, nenhuma restauracao de datas foi necessaria."
+  ],
+  "isolated_environments_removed": {
+    "containers": 3,
+    "internal_networks": 3,
+    "anonymous_volumes": 3
+  }
+}

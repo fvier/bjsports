@@ -657,8 +657,24 @@ function setupRegistrationValidation() {
       : (digits.length > 1 ? `${digits.slice(0, 1)} ${digits.slice(1)}` : digits);
   });
 
+  const emailInput = document.getElementById('regEmail');
+  emailInput?.addEventListener('blur', () => {
+    emailInput.value = emailInput.value.trim().toLowerCase();
+  });
+
+  const usernameInput = document.getElementById('regUsername');
+  usernameInput?.addEventListener('blur', () => {
+    usernameInput.value = usernameInput.value.trim();
+  });
+
+  const nameInput = document.getElementById('regName');
+  nameInput?.addEventListener('blur', () => {
+    nameInput.value = nameInput.value.replace(/\s+/g, ' ').trim();
+  });
+
   const password = document.getElementById('regPass');
   const confirmation = document.getElementById('regPassConfirm');
+  const matchStatus = document.getElementById('passwordMatchStatus');
   const rules = {
     length: value => value.length >= 8,
     number: value => /\d/.test(value),
@@ -676,8 +692,27 @@ function setupRegistrationValidation() {
     });
     password.setCustomValidity(states.every(Boolean) || !password.value
       ? '' : 'A senha ainda não cumpre todos os requisitos.');
-    confirmation.setCustomValidity(!confirmation.value || confirmation.value === password.value
-      ? '' : 'As senhas não coincidem.');
+    
+    const hasConfirmation = Boolean(confirmation.value);
+    const matches = hasConfirmation && confirmation.value === password.value;
+    const mismatches = hasConfirmation && confirmation.value !== password.value;
+    
+    confirmation.setCustomValidity(mismatches ? 'As senhas não coincidem.' : '');
+    confirmation.classList.toggle('password-match-valid', matches);
+    confirmation.classList.toggle('password-match-invalid', mismatches);
+    
+    if (matchStatus) {
+      if (!hasConfirmation) {
+        matchStatus.innerHTML = '';
+        matchStatus.className = 'password-match-status';
+      } else if (matches) {
+        matchStatus.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>As senhas coincidem</span>';
+        matchStatus.className = 'password-match-status is-valid';
+      } else {
+        matchStatus.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> <span>As senhas não são iguais</span>';
+        matchStatus.className = 'password-match-status is-invalid';
+      }
+    }
   };
   password?.addEventListener('input', validatePasswords);
   confirmation?.addEventListener('input', validatePasswords);

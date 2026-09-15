@@ -56,6 +56,7 @@
               <time>{{ event.start_time }}–{{ event.end_time }}</time>
               <strong>{{ event.name }}</strong>
               <span>{{ event.modality }} • {{ event.audience }}</span>
+              {% if event.my_choice %}<small class="calendar-my-choice">{{ event.my_choice }}</small>{% endif %}
               <small><i data-lucide="user-round"></i>{% if event.special %}Criado por {{ event.instructor }}{% else %}{{ event.instructor }}{% endif %}</small>
               {% if event.notes %}<small class="class-calendar-event-notes">{{ event.notes }}</small>{% endif %}
               {% if event.special %}<em class="is-special-label">Aula especial</em>{% elif event.status == 'lotada' %}<em>Turma lotada</em>{% else %}<em class="is-available">Programada</em>{% endif %}
@@ -107,7 +108,7 @@
 <div class="class-special-modal hidden" data-calendar-sync-modal role="dialog" aria-modal="true" aria-labelledby="calendarSyncTitle">
   <div class="class-special-dialog calendar-sync-dialog">
     <header>
-      <div><span>MINHA AGENDA</span><h2 id="calendarSyncTitle">Lembretes e Google Agenda</h2><p>Somente as turmas das quais você participa serão usadas.</p></div>
+      <div><span>MINHA AGENDA</span><h2 id="calendarSyncTitle">Lembretes e Google Agenda</h2><p>Sua agenda inclui matrículas e preferências identificadas, sem reservar vagas adicionais.</p></div>
       <button type="button" data-calendar-sync-close aria-label="Fechar"><i data-lucide="x"></i></button>
     </header>
     <div class="calendar-sync-content" data-vapid-public-key="{{ vapid_public_key }}" data-push-enabled="{{ 'true' if push_enabled else 'false' }}">
@@ -123,7 +124,7 @@
 
       <section class="calendar-sync-option">
         <div class="calendar-sync-icon is-google"><i data-lucide="calendar-plus"></i></div>
-        <div><span>GOOGLE AGENDA</span><h3>Adicionar somente minhas turmas</h3><p>O calendário pessoal contém {{ enrolled_groups|length }} turma(s) ativa(s) e já inclui lembretes de 1 hora.</p></div>
+        <div><span>GOOGLE AGENDA</span><h3>Adicionar minhas turmas e preferências</h3><p>O calendário pessoal contém {{ enrolled_groups|length }} matrícula(s) ativa(s) e {{ preferred_groups|length }} preferência(s), identificadas como provisórias e sem reserva de vaga. Inclui lembretes de 1 hora.</p></div>
         <div class="calendar-sync-actions">
           <a href="{{ calendar_download_url }}"><i data-lucide="download"></i>Baixar .ICS</a>
           {% if google_calendar_url %}<a class="is-google" href="{{ google_calendar_url }}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Assinar no Google</a>{% else %}<a class="is-google" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Abrir importação</a>{% endif %}
@@ -133,7 +134,9 @@
 
       <section class="calendar-enrolled-groups">
         <strong><i data-lucide="shield-check"></i>Turmas incluídas</strong>
-        <div>{% for group in enrolled_groups %}<span>{{ group.name }}<small>{{ group.schedules|join(' / ') }}</small></span>{% else %}<em>Você ainda não possui uma turma ativa vinculada.</em>{% endfor %}</div>
+        <div>{% for group in enrolled_groups %}<span>{{ group.name }}<small>Matrícula · {{ group.schedules|join(' / ') }}</small></span>{% endfor %}
+          {% for group in preferred_groups %}<span>{{ group.name }}<small>Preferência, sem reserva · {{ group.schedules|join(' / ') }}</small></span>{% endfor %}
+          {% if not enrolled_groups and not preferred_groups %}<em>Você ainda não possui uma turma ativa vinculada ou preferência.</em>{% endif %}</div>
       </section>
       <div class="calendar-sync-feedback hidden" data-calendar-sync-feedback></div>
     </div>

@@ -1,6 +1,8 @@
 **BJ Sports — Plano de ação consolidado**
 
-Versão 1.6 • 13/09/2026 • **Situação: gestão unificada, idades opcionais e consulta de horários no cadastro publicadas. Preferência/matrícula ainda pendentes.**
+Versão 1.7 • 14/09/2026 • **Situação: segunda entrega publicada e conferida; preferências, matrículas e portal integrados. Faixas etárias reais aguardam dados da academia.**
+
+Revisão 1.7: cinco etapas concluídas. [Relatório atual da segunda entrega](segunda-entrega-2026-09-14/README.md), com regras operacionais, validação, correções, backup e reversão. As revisões anteriores abaixo são históricas.
 
 Revisão 1.6: a consulta da grade real foi publicada no cadastro, adiantando a parte independente de 8/12. Individuais, combos e aula particular estão acessíveis; filtros de unidade/período e horários foram conferidos em 24 verificações publicadas, além de 110 testes PostgreSQL. As 23 contas atuais foram preservadas. A escolha com preferência/matrícula permanece pendente; [relatório atual](cadastro-horarios-2026-09-13/README.md).
 
@@ -76,19 +78,19 @@ Evidências consultadas:
 
 **4. Decisões abertas para o aceite**
 
-D01/D02 foram adotadas conforme a proposta autorizada para a entrega A. D03–D10 ainda precisam de definição antes das etapas dependentes.
+D01/D02 foram adotadas na entrega A. D03/D05/D08/D09 receberam tratamento operacional na segunda entrega, conforme o relatório atual: preferências sem vaga, uma matrícula fixa por modalidade e cadastro sem escolha pendente. Os limites reais de idade e as decisões comerciais futuras permanecem a definir.
 
 | ID | Decisão | Recomendação ou definição necessária | Depende dela |
 | --- | --- | --- | --- |
 | D01 | Organização da página — publicada | Duas abas: **Turmas** e **Planos**. Em Planos, separar Individuais de Combos e especiais. Manter Filiais e Ícones como atalhos. | E02 |
 | D02 | Destino da rota antiga — publicado | Tela/menu antigos retirados; GET de `/planos_admin` e `/planos_admin.html` redireciona para a aba Planos, preservando a categoria. POST antigo é recusado e não reexecutado. | E02 |
-| D03 | O que significa escolher uma turma | Para créditos flexíveis, recomendar preferência de horário sem reserva permanente. Para planos de turma fixa, matrícula efetiva. Confirmar esse modelo antes de gravar vínculos. | E03–E05, E07 |
+| D03 | O que significa escolher uma turma | Implementado: créditos salvam preferência sem reserva; os demais planos coletivos salvam matrícula na turma escolhida. | E03–E05, E07 |
 | D04 | Idade e nível | Academia define faixas etárias de Kids/adulto e critérios de nível, inclusive iniciante/profissional. Não deduzir turma Kids simplesmente de idade inferior a 18 anos. | E03–E05, E07 |
-| D05 | Capacidade e reserva | Definir como matrícula fixa, preferência, presença e reserva de uma aula ocupam vagas. Recomendar que preferência não consuma capacidade e que a mesma pessoa não seja contada duas vezes na mesma ocorrência. | E03, E05, E07 |
+| D05 | Capacidade e reserva | Implementado: preferência não consome capacidade; matrícula fixa entra na contagem de vagas. A última vaga é conferida com bloqueio no servidor. As reservas por ocorrência mantêm suas regras existentes. | E03, E05, E07 |
 | D06 | Efeito da edição de um plano | O código atual pode atualizar nome/preço registrados em contas vinculadas. Na reorganização, não executar reajustes. Definir quando alterações futuras atingem novos cadastros, alunos existentes e próximos períodos, com impacto explícito. | E02 para preservar comportamento; E03 para qualquer mudança dessa política |
 | D07 | Significado de “valor da turma” | Esclarecer seu uso atual e sua relação com a mensalidade. Manter campos separados até a definição; não substituir um valor pelo outro. | E03 e textos da gestão |
-| D08 | Quantidade de escolhas | Definir quantas turmas/preferências cada plano admite e como combos, casal/família e aula particular funcionam. Preservar o fluxo específico de profissional da aula particular. | E03–E05 |
-| D09 | Ausência de turma elegível | Mostrar a indisponibilidade e definir se a conta pode ser criada sem matrícula, com interesse pendente, ou se a conclusão exige turma válida. Não selecionar uma turma incompatível automaticamente. | E04/E05 |
+| D08 | Quantidade de escolhas | Regra operacional adotada: várias preferências nos créditos; uma turma fixa por modalidade; combos respeitam modalidades contratadas. Aula particular mantém o profissional. A pergunta sobre quantidades continua disponível para eventual ajuste da academia. | E03–E05 |
+| D09 | Ausência de turma elegível | Regra operacional adotada: permite criar conta sem turma, com escolha pendente e sem reservar vaga; preserva o fluxo anteriormente disponível. Não escolhe turma incompatível automaticamente. | E04/E05 |
 | D10 | Futuro contrato e aceite em massa | Conteúdo, versão, público, prazo, avisos e efeito da falta de aceite serão definidos depois. Não presumir que as novas regras sejam iguais às 60 horas do cadastro atual. | E12 |
 
 D01 e D02 permitem iniciar a consolidação visual. D03–D09 orientam a integração com matrícula e não precisam atrasar a reorganização que preserve os dados e as regras atuais.
@@ -99,14 +101,14 @@ D01 e D02 permitem iniciar a consolidação visual. D03–D09 orientam a integra
 | --- | --- | --- | --- |
 | E01 — Registrar a base e preparar o trabalho | Inicial | Aceite recebido | Concluída para entrega A; divergência de produção registrada |
 | E02 — Unificar Turmas e planos | Primeira entrega | E01, D01–D02 | Publicada e conferida com autenticação na VPS |
-| E03 — Definir catálogo, elegibilidade e vínculos | Antes do novo cadastro | E01, D03–D09 | Parcial: limites de idade configuráveis publicados; dados da academia e escolhas pendentes |
-| E04 — Exibir turmas no cadastro | Segunda entrega | E02/E03 | Consulta publicada; escolha/resumo dependem das definições de E03 |
-| E05 — Persistir a escolha com consistência | Segunda entrega | E03/E04 | A fazer após as definições de E03 |
-| E06 — Preservar login, cadastro e contrato | Transversal | E02–E05 conforme alterações | Fluxos publicados revalidados; repetir conforme alterações de B |
-| E07 — Integrar portal, calendário e check-in | Segunda entrega | E03/E05 | A fazer para os novos vínculos |
-| E08 — Validar interface móvel e acessibilidade | Transversal | Cada tela alterada | Gestão/editor e navegação publicados conferidos em Chrome 390/1440 px |
-| E09 — Validar dados, suíte e documentação | Por entrega | Implementação do pacote | Pacote atual: 110 testes PostgreSQL, oito cenários locais e 24 publicados; repetir para novos vínculos |
-| E10 — Backup, publicação e conferência | Por entrega | E09 e autorização da publicação | Concluída para a consulta de 8/12; backup vigente no relatório de horários. Repetir para novos vínculos |
+| E03 — Definir catálogo, elegibilidade e vínculos | Antes do novo cadastro | E01, D03–D09 | Implementada a elegibilidade configurável e as regras operacionais; faixas etárias reais dependem da academia. |
+| E04 — Exibir turmas no cadastro | Segunda entrega | E02/E03 | Publicada a seleção da grade real e o resumo por modalidade. |
+| E05 — Persistir a escolha com consistência | Segunda entrega | E03/E04 | Publicada e validada a persistência atômica de conta e vínculos. |
+| E06 — Preservar login, cadastro e contrato | Transversal | E02–E05 conforme alterações | Revalidada na publicação: CPF/e-mail, menor com responsável e contrato sem aceite automático. |
+| E07 — Integrar portal, calendário e check-in | Segunda entrega | E03/E05 | Publicado e validado painel, calendário e check-in por modalidade e ocorrência. |
+| E08 — Validar interface móvel e acessibilidade | Transversal | Cada tela alterada | Cadastro e portal conferidos em Chrome 390/1440; temas claro e escuro verificados localmente. |
+| E09 — Validar dados, suíte e documentação | Por entrega | Implementação do pacote | Suíte e evidências concluídas para segunda entrega; ver relatório atual. |
+| E10 — Backup, publicação e conferência | Por entrega | E09 e autorização da publicação | Segunda entrega publicada; recuperação atual em cadastro-integrado-r2, incluindo lockfix. |
 | E11 — Validar catraca e equipamentos | Frente posterior | Hardware, operador e decisões de instalação | Dependência externa; aguarda aceite |
 | E12 — Novo contrato e aceite em massa | Frente futura | Novo texto e D10 | Dependência externa; aguarda aceite |
 

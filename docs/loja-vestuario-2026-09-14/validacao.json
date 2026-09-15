@@ -1,0 +1,137 @@
+{
+  "status": "Publicado e validado antes da segunda entrega; imagem posteriormente substituida por outras publicacoes.",
+  "published_browser": {
+    "base_url": "https://bjsports.com.br",
+    "products": [
+      {
+        "width": 360,
+        "product": "BJJ-004",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-004&cor=preto-vermelho"
+      },
+      {
+        "width": 360,
+        "product": "BJJ-005",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-005"
+      },
+      {
+        "width": 360,
+        "product": "BJJ-006",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-006"
+      },
+      {
+        "width": 360,
+        "product": "BJJ-007",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-007"
+      },
+      {
+        "width": 390,
+        "product": "BJJ-004",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-004&cor=preto-vermelho"
+      },
+      {
+        "width": 390,
+        "product": "BJJ-005",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-005"
+      },
+      {
+        "width": 390,
+        "product": "BJJ-006",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-006"
+      },
+      {
+        "width": 390,
+        "product": "BJJ-007",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-007"
+      },
+      {
+        "width": 1440,
+        "product": "BJJ-004",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-004&cor=preto-vermelho"
+      },
+      {
+        "width": 1440,
+        "product": "BJJ-005",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-005"
+      },
+      {
+        "width": 1440,
+        "product": "BJJ-006",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-006"
+      },
+      {
+        "width": 1440,
+        "product": "BJJ-007",
+        "image_loaded": true,
+        "whole_image": true,
+        "details": true,
+        "share_link": "https://bjsports.com.br/loja.html?produto=BJJ-007"
+      }
+    ],
+    "sharing": "mocked; no messages sent"
+  },
+  "backup_note": "Arquivos de recuperacao antigos foram encontrados incompletos na retomada. A recuperacao corrente e documentada na segunda entrega.",
+  "public-assets.json": [
+    {
+      "file": "static/css/store.css",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/rashguard_eagle_studio_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/rashguard_camuflada_studio_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/fight_shorts_brasil_studio_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/fight_shorts_grappling_studio_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    }
+  ],
+  "commercial-preservation.json": {
+    "products_checked": 4,
+    "commercial_fields_preserved": true
+  }
+}

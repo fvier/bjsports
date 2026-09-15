@@ -13,7 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text, or_, func
 from sqlalchemy.orm import validates
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from registration_rules import BRAZIL_DDDS, cpf_digits as normalize_cpf, age_on, parse_age_limits
+from registration_rules import BRAZIL_DDDS, cpf_digits as normalize_cpf, age_on, parse_age_limits, class_age_error, training_weekdays
 from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, datetime, timedelta
@@ -951,6 +951,16 @@ class ClassEnrollment(db.Model):
     user = db.relationship('User', backref=db.backref('class_enrollments', lazy=True, cascade='all, delete-orphan'))
     class_group = db.relationship('ClassGroup', backref=db.backref('enrollments', lazy=True, cascade='all, delete-orphan'))
 
+class ClassPreference(db.Model):
+    """Interesse em uma grade recorrente; nunca participa da contagem de vagas."""
+    __table_args__ = (db.UniqueConstraint('user_id', 'class_group_id', name='uq_user_class_preference'),)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    class_group_id = db.Column(db.Integer, db.ForeignKey('class_group.id'), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user = db.relationship('User', backref=db.backref('class_preferences', lazy=True, cascade='all, delete-orphan'))
+    class_group = db.relationship('ClassGroup', backref=db.backref('preferences', lazy=True, cascade='all, delete-orphan'))
+
 class SpecialClassEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
@@ -1321,12 +1331,17 @@ def match_remaining_seconds(match, reference_time=None):
 
 def class_occurrences_for_weekday(class_group, weekday):
     occurrences = []
-    for schedule in class_group.schedules:
-        days_text, _, times_text = schedule.partition('•')
+    raw_schedules = class_group.schedules
+    for schedule in raw_schedules if isinstance(raw_schedules, list) else []:
+        if not isinstance(schedule, str):
+            continue
+        days_text, separator, times_text = schedule.partition('•')
+        if not separator:
+            continue
         weekdays = [CLASS_WEEKDAY_LOOKUP.get(item.strip()) for item in days_text.split(',')]
         if weekday not in weekdays:
             continue
-        for class_time in re.findall(r'\d{2}:\d{2}', times_text):
+        for class_time in re.findall(r'(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)', times_text):
             start = time_to_minutes(class_time)
             occurrences.append({
                 'start': start, 'end': start + class_group.duration_minutes,
@@ -1334,13 +1349,33 @@ def class_occurrences_for_weekday(class_group, weekday):
                 'name': class_group.name, 'modality': class_group.modality,
                 'audience': class_group.audience, 'instructor': class_group.instructor,
                 'status': class_group.status, 'special': False,
+                'class_group_id': class_group.id,
             })
     return occurrences
 
 def active_groups_for_user(user_id):
     return [enrollment.class_group for enrollment in ClassEnrollment.query.filter_by(
         user_id=user_id, active=True,
-    ).all() if enrollment.class_group and enrollment.class_group.publish_public]
+    ).all() if enrollment.class_group and enrollment.class_group.publish_public
+        and enrollment.class_group.status in {'ativa', 'lotada'}]
+
+
+def preferred_groups_for_user(user_id):
+    return [choice.class_group for choice in ClassPreference.query.filter_by(user_id=user_id).all()
+            if choice.class_group and choice.class_group.publish_public
+            and choice.class_group.status in {'ativa', 'lotada'}]
+
+
+def user_training_choices(user):
+    choices = []
+    for kind, links in (('enrollment', [link for link in user.class_enrollments if link.active]),
+                        ('preference', user.class_preferences)):
+        for link in links:
+            group = link.class_group
+            if group:
+                choices.append({'kind': kind, 'group': group,
+                                'available': group.status in {'ativa', 'lotada'} and group.publish_public})
+    return sorted(choices, key=lambda item: (item['group'].modality, item['group'].name))
 
 def public_class_schedule_rows():
     """Flatten the public class registry into the rows consumed by the landing page."""
@@ -1389,21 +1424,32 @@ def personal_calendar_ics(user):
         'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:BJ Sports - Minhas Turmas',
         'X-WR-TIMEZONE:America/Recife',
     ]
-    for class_group in active_groups_for_user(user.id):
+    enrolled = active_groups_for_user(user.id)
+    enrolled_ids = {group.id for group in enrolled}
+    preferences = [group for group in preferred_groups_for_user(user.id) if group.id not in enrolled_ids]
+    plan_text = (user.plan or '').casefold()
+    allowed_days = (training_weekdays('seg-qua-sex') if all(day in plan_text for day in ('seg', 'qua', 'sex'))
+                    else training_weekdays('ter-qui') if all(day in plan_text for day in ('ter', 'qui'))
+                    else set(range(7))) if not credit_contract(user) else set(range(7))
+    for class_group in [*enrolled, *preferences]:
+        is_preference = class_group.id not in enrolled_ids
         for schedule_index, schedule in enumerate(class_group.schedules):
+            if not isinstance(schedule, str):
+                continue
             days_text, _, times_text = schedule.partition('•')
             weekdays = sorted({CLASS_WEEKDAY_LOOKUP[item.strip()] for item in days_text.split(',')
-                               if item.strip() in CLASS_WEEKDAY_LOOKUP})
+                               if item.strip() in CLASS_WEEKDAY_LOOKUP} & allowed_days)
             if not weekdays:
                 continue
             byday = ','.join(day_codes[item] for item in weekdays)
-            for class_time in re.findall(r'\d{2}:\d{2}', times_text):
+            for class_time in re.findall(r'(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)', times_text):
                 start_minutes = time_to_minutes(class_time)
                 days_until = min((weekday - today.weekday()) % 7 for weekday in weekdays)
                 first_date = today + timedelta(days=days_until)
                 start_value = f'{first_date:%Y%m%d}T{start_minutes // 60:02d}{start_minutes % 60:02d}00'
-                end_minutes = start_minutes + class_group.duration_minutes
-                end_value = f'{first_date:%Y%m%d}T{end_minutes // 60:02d}{end_minutes % 60:02d}00'
+                end_datetime = datetime.combine(first_date, datetime.min.time()) + timedelta(
+                    minutes=start_minutes + class_group.duration_minutes)
+                end_value = end_datetime.strftime('%Y%m%dT%H%M%S')
                 lines.extend([
                     'BEGIN:VEVENT',
                     f'UID:bjsports-{user.id}-{class_group.id}-{schedule_index}-{class_time.replace(":", "")}@bjsports',
@@ -1412,7 +1458,9 @@ def personal_calendar_ics(user):
                     f'DTEND;TZID=America/Recife:{end_value}',
                     f'RRULE:FREQ=WEEKLY;BYDAY={byday};UNTIL={until:%Y%m%d}T235959Z',
                     f'SUMMARY:{escape_ics(class_group.name)}',
-                    f'DESCRIPTION:{escape_ics(class_group.modality + " - " + class_group.audience)}',
+                    f'DESCRIPTION:{escape_ics(class_group.modality + " - " + class_group.audience + (" - Preferência de horário; não reserva vaga" if is_preference else " - Matrícula na turma"))}',
+                    f'STATUS:{"TENTATIVE" if is_preference else "CONFIRMED"}',
+                    f'TRANSP:{"TRANSPARENT" if is_preference else "OPAQUE"}',
                     f'LOCATION:{escape_ics("BJ Sports Centro de Treinamento")}',
                     'BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY',
                     f'DESCRIPTION:Lembrete: {escape_ics(class_group.name)} em 1 hora', 'END:VALARM',
@@ -2120,7 +2168,8 @@ def calendario():
     displayed_events = {index: [] for index in range(7)}
     occupied_events = {index: [] for index in range(7)}
 
-    for class_item in ClassGroup.query.filter_by(publish_public=True).order_by(ClassGroup.id).all():
+    for class_item in ClassGroup.query.filter(ClassGroup.publish_public.is_(True),
+            ClassGroup.status.in_({'ativa', 'lotada'})).order_by(ClassGroup.id).all():
         for weekday in range(7):
             occurrences = class_occurrences_for_weekday(class_item, weekday)
             occupied_events[weekday].extend(occurrences)
@@ -2174,6 +2223,13 @@ def calendario():
             'free_slots': free_slots, 'is_today': day_date == today,
         })
     current_user = db.session.get(User, session['user_id'])
+    enrollment_ids = {group.id for group in active_groups_for_user(current_user.id)}
+    preference_ids = {group.id for group in preferred_groups_for_user(current_user.id)}
+    for day in calendar_days:
+        for event in day['events']:
+            group_id = event.get('class_group_id')
+            event['my_choice'] = ('Matrícula na turma' if group_id in enrollment_ids else
+                                  ('Seu horário de preferência' if group_id in preference_ids else ''))
     feed_token = calendar_token_serializer.dumps({'user_id': current_user.id})
     feed_path = url_for('personal_calendar_feed', token=feed_token)
     public_base_url = os.getenv('PUBLIC_BASE_URL', '').rstrip('/')
@@ -2191,6 +2247,7 @@ def calendario():
         special_event_count=len(special_events),
         default_event_date=max(today, week_start) if max(today, week_start) <= week_end else today,
         enrolled_groups=active_groups_for_user(current_user.id),
+        preferred_groups=preferred_groups_for_user(current_user.id),
         calendar_download_url=url_for('personal_calendar_feed', token=feed_token, download='1'),
         google_calendar_url=('https://calendar.google.com/calendar/r?cid=' + urllib.parse.quote(feed_url, safe=''))
                             if google_feed_available else None,
@@ -3051,6 +3108,67 @@ def booking_availability():
                     options.append(availability)
     return jsonify({'options': options, 'classes': classes})
 
+def registration_selection_mode(plan):
+    if not plan:
+        return 'private'
+    modalities = plan.get_modalities()
+    if plan.category == 'Planos Individuais' and len(modalities) == 1 and modalities[0] in CREDIT_MODALITIES:
+        return 'preference'
+    return 'enrollment'
+
+
+def save_registration_class_choices(user, plan, raw_selection, schedule):
+    """Validate and stage the links in the caller's account transaction.
+
+    All selected class rows are locked in ID order. A fixed enrollment counts
+    capacity only after obtaining that lock; a preference never reserves a seat.
+    """
+    try:
+        identifiers = json.loads(raw_selection or '[]')
+    except (ValueError, TypeError):
+        raise ValueError('A seleção de turmas é inválida. Atualize os horários e escolha novamente.')
+    if (not isinstance(identifiers, list) or len(identifiers) > 100
+            or any(type(value) is not int or value <= 0 for value in identifiers)
+            or len(set(identifiers)) != len(identifiers)):
+        raise ValueError('A seleção de turmas é inválida ou contém uma turma repetida.')
+    if not identifiers:
+        return
+    mode = registration_selection_mode(plan)
+    if mode == 'private':
+        raise ValueError('Aula particular usa a escolha do profissional, sem matrícula na grade coletiva.')
+    allowed_modalities = set(user.get_selected_modalities_list())
+    days = training_weekdays(schedule, flexible=mode == 'preference')
+    chosen_modalities = set()
+    for identifier in sorted(identifiers):
+        # UPDATE also serializes writers on SQLite, unlike SELECT FOR UPDATE.
+        locked = db.session.execute(ClassGroup.__table__.update().where(
+            ClassGroup.id == identifier).values(name=ClassGroup.name, updated_at=ClassGroup.updated_at))
+        if locked.rowcount != 1:
+            raise ValueError('Uma turma escolhida não existe mais. Atualize os horários.')
+        group = db.session.get(ClassGroup, identifier)
+        db.session.refresh(group)
+        location = Location.query.filter_by(slug=group.location_slug, active=True).first()
+        if not group.publish_public or group.status not in {'ativa', 'lotada'} or not location:
+            raise ValueError(f'A turma {group.name} não está mais disponível no cadastro.')
+        if group.modality not in allowed_modalities:
+            raise ValueError('Uma turma escolhida não pertence às modalidades do plano.')
+        age_error = class_age_error(user.birth_date, group.min_age, group.max_age, datetime.now().date())
+        if age_error:
+            raise ValueError(f'{group.name}: {age_error}')
+        if not any(class_occurrences_for_weekday(group, weekday) for weekday in days):
+            raise ValueError(f'A turma {group.name} não tem horário compatível com os dias do plano.')
+        if mode == 'enrollment':
+            if group.modality in chosen_modalities:
+                raise ValueError('Escolha somente uma turma fixa por modalidade.')
+            count = ClassEnrollment.query.filter_by(class_group_id=group.id, active=True).count()
+            if group.status == 'lotada' or group.capacity <= count:
+                raise ValueError(f'A última vaga de {group.name} não está mais disponível. Escolha outra turma.')
+            db.session.add(ClassEnrollment(user_id=user.id, class_group_id=group.id, active=True))
+        else:
+            db.session.add(ClassPreference(user_id=user.id, class_group_id=group.id))
+        chosen_modalities.add(group.modality)
+
+
 @app.get('/api/cadastro/turmas')
 def registration_class_catalog():
     """Grade pública para consulta no cadastro; não cria vínculos ou reservas."""
@@ -3082,11 +3200,12 @@ def registration_class_catalog():
         classes.append({
             'id': group.id, 'name': group.name, 'modality': group.modality,
             'audience': group.audience, 'age_label': group.formatted_age_range,
+            'min_age': group.min_age, 'max_age': group.max_age,
             'instructor': group.instructor, 'schedules': schedules,
             'location': {'slug': location.slug, 'name': location.name, 'city': location.city},
             'full': group.status == 'lotada' or group.capacity <= enrolled,
         })
-    response = jsonify({'classes': classes})
+    response = jsonify({'classes': classes, 'reference_date': datetime.now().date().isoformat()})
     response.headers['Cache-Control'] = 'no-store'
     return response
 
@@ -3127,12 +3246,17 @@ def login():
             return redirect(url_for('login'))
 
         elif action == 'register':
-            username = request.form.get('regUsername', '').strip()
-            name = request.form.get('regName', '').strip()
+            honeypot = request.form.get('regWebsite', '').strip()
+            if honeypot:
+                app.logger.warning(f'Bot detectado no cadastro via honeypot: {request.remote_addr}')
+                return redirect(url_for('login'))
+
+            username = request.form.get('regUsername', '').strip().lower()
+            name = re.sub(r'\s+', ' ', request.form.get('regName', '').strip())
             cpf = request.form.get('regCpf', '').strip()
             ddd = request.form.get('regDDD', request.form.get('regDdd', '')).strip()
             phone = ''.join(c for c in request.form.get('regPhoneNumber', '') if c.isdigit())
-            email = request.form.get('regEmail', '').strip().casefold()
+            email = request.form.get('regEmail', '').strip().lower()
             sex = request.form.get('regSex', 'prefer_not').strip()
             selected_plan = request.form.get('regPlan', '').strip()
             training_days = request.form.get('regTrainingDays', '').strip()
@@ -3177,7 +3301,9 @@ def login():
                 if guardian_relationship not in {'mae', 'pai', 'responsavel_legal'}:
                     errors.append('Informe o vínculo do responsável legal pelo menor.')
             if not re.fullmatch(r'[A-Za-z0-9_.-]{3,80}', username): errors.append('Usuário deve ter de 3 a 80 caracteres válidos.')
-            if len(name) < 3: errors.append('Informe o nome completo.')
+            name_parts = [p for p in name.split() if len(p) >= 2]
+            if len(name) < 3 or len(name_parts) < 2:
+                errors.append('Informe seu nome completo (nome e sobrenome).')
             if not is_valid_cpf(cpf_digits): errors.append('CPF inválido.')
             if ddd not in BRAZIL_DDDS or not re.fullmatch(r'9[0-9]{8}', phone): errors.append('Telefone inválido. Escolha um DDD brasileiro e informe os 9 dígitos do celular.')
             if len(email) > 254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email): errors.append('Informe um e-mail válido.')
@@ -3185,6 +3311,9 @@ def login():
             if (len(password) < 8 or not re.search(r'\d', password)
                     or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password)):
                 errors.append('A senha deve ter pelo menos 8 caracteres, com número, letra maiúscula e letra minúscula.')
+            password_confirm = request.form.get('regPassConfirm')
+            if password_confirm is not None and password != password_confirm:
+                errors.append('As senhas digitadas não coincidem.')
             valid_plans = {
                 f'{p.name} — {p.price}': p for p in Plan.query.all()
                 if 'passe livre' not in p.name.casefold()
@@ -3199,7 +3328,7 @@ def login():
                 errors.append('Modalidade inválida.')
             selected_plan_record = valid_plans.get(selected_plan)
             expected_combo_count = selected_plan_record.get_selection_count() if selected_plan_record else 0
-            allowed_combo_modalities = {'Jiu-Jitsu', 'Boxe', 'Muay Thai', 'MMA'}
+            allowed_combo_modalities = set(selected_plan_record.get_modalities()) if selected_plan_record else set()
             if expected_combo_count:
                 if len(combo_modalities) != expected_combo_count or len(set(combo_modalities)) != expected_combo_count:
                     errors.append(f'Escolha {expected_combo_count} modalidades diferentes para este combo.')
@@ -3280,6 +3409,9 @@ def login():
                 )
                 new_user.set_password(password)
                 db.session.add(new_user)
+                db.session.flush()
+                save_registration_class_choices(new_user, selected_plan_record,
+                                                request.form.get('regClassSelection'), training_days)
                 # A conta nasce pendente. O aceite só é criado no formulário do contrato.
                 db.session.commit()
                 session.clear()
@@ -3290,9 +3422,18 @@ def login():
                 session['user_plan'] = new_user.plan
                 session['user_due_date'] = new_user.due_date
                 session['first_registration'] = True
+            except ValueError as error:
+                db.session.rollback()
+                flash(str(error), 'error')
+                return redirect(url_for('login', mode='register'))
             except IntegrityError:
                 db.session.rollback()
                 flash('Usuário, CPF ou e-mail já cadastrado. Confira os dados ou entre na sua conta.', 'error')
+                return redirect(url_for('login', mode='register'))
+            except SQLAlchemyError:
+                db.session.rollback()
+                app.logger.exception('Falha ao salvar conta e escolhas de turmas')
+                flash('Não foi possível concluir o cadastro. Nenhum vínculo parcial foi salvo. Tente novamente.', 'error')
                 return redirect(url_for('login', mode='register'))
             return redirect(url_for('dashboard'))
 
@@ -3327,6 +3468,7 @@ def login():
                 'todos': available_plan.get_price_for_schedule('todos'),
             },
             'credit_rules': available_plan.category == 'Planos Individuais' and len(available_plan.get_modalities()) == 1 and set(available_plan.get_modalities()) <= CREDIT_MODALITIES,
+            'selection_mode': registration_selection_mode(available_plan),
             'modalities': available_plan.get_modalities(),
             'selection_count': available_plan.get_selection_count(),
             'shared_type': available_plan.get_shared_type(),
@@ -3390,6 +3532,9 @@ def dashboard():
                            attendance_month=attendance_month, checkin_requests=checkin_requests,
                            overdue=overdue, masked_cpf=masked_cpf,
                            enrollment_duration=enrollment_duration,
+                           training_choices=user_training_choices(user),
+                           training_pending_modalities=sorted(set(user.get_selected_modalities_list()) - {
+                               item['group'].modality for item in user_training_choices(user) if item['available']}),
                            is_first_reg=session.pop('first_registration', False))
 
 @app.route('/presencas', methods=['GET', 'POST'])
@@ -3435,12 +3580,15 @@ def presencas():
             target = db.session.get(ClassGroup, int(group_id)) if group_id.isdigit() else None
             if target and db.engine.dialect.name == 'postgresql':
                 db.session.execute(text('SELECT id FROM class_group WHERE id = :id FOR UPDATE'), {'id': target.id})
+                db.session.refresh(target)
             occurrence = next((item for item in class_occurrences_for_weekday(target, today_date.weekday())
                                if item['start_time'] == class_time), None) if target else None
             if not separator or not target or target.status not in {'ativa', 'lotada'} or not occurrence:
                 flash('Selecione uma aula disponível para hoje.', 'error')
             elif target.modality != contract['modality']:
                 flash('Os créditos valem somente para a modalidade contratada.', 'error')
+            elif class_age_error(user.birth_date, target.min_age, target.max_age, today_date):
+                flash(class_age_error(user.birth_date, target.min_age, target.max_age, today_date), 'error')
             elif Attendance.query.filter_by(user_id=user.id, training_date=today_date,
                                             class_group_id=target.id, class_time=class_time).first():
                 flash('Esta aula já possui um check-in registrado.', 'info')
@@ -3469,7 +3617,7 @@ def presencas():
             return redirect(url_for('presencas'))
         # Serializa matrícula/solicitação por aluno e a disputa pela última vaga.
         db.session.execute(User.__table__.update().where(User.id == user.id).values(name=User.name))
-        db.session.execute(ClassGroup.__table__.update().where(ClassGroup.id == target.id).values(name=ClassGroup.name))
+        db.session.execute(ClassGroup.__table__.update().where(ClassGroup.id == target.id).values(name=ClassGroup.name, updated_at=ClassGroup.updated_at))
         db.session.refresh(target)
         occurrences = class_occurrences_for_weekday(target, today_date.weekday())
         if not class_time and len(occurrences) == 1:
@@ -3479,7 +3627,8 @@ def presencas():
         if target.status not in {'ativa', 'lotada'} or not occurrence:
             error = 'A turma escolhida está inativa ou não possui esta aula hoje.'
         else:
-            error = portal_class_eligibility(user, target, today_date, experimental)
+            error = (portal_class_eligibility(user, target, today_date, experimental)
+                     or class_age_error(user.birth_date, target.min_age, target.max_age, today_date))
         if not error and not portal_class_has_space(user, target, today_date, class_time):
             error = 'Esta aula está lotada ou sem capacidade disponível.'
         if error:
@@ -3551,6 +3700,8 @@ def presencas():
             user_id=user.id, training_date=today).all()}
         for group in ClassGroup.query.filter(ClassGroup.modality == credit_balance['modality'],
                                              ClassGroup.status.in_(['ativa', 'lotada'])).order_by(ClassGroup.name).all():
+            if class_age_error(user.birth_date, group.min_age, group.max_age, today):
+                continue
             for occurrence in class_occurrences_for_weekday(group, today.weekday()):
                 if ((group.id, occurrence['start_time']) not in registered
                         and credit_class_has_space(user, group, today, occurrence['start_time'])):
@@ -3562,7 +3713,8 @@ def presencas():
         registered = {(item.class_group_id, item.class_time) for item in Attendance.query.filter_by(
             user_id=user.id, training_date=today).all()}
         for group in ClassGroup.query.filter(ClassGroup.status.in_(['ativa', 'lotada'])).order_by(ClassGroup.name).all():
-            if portal_class_eligibility(user, group, today, experimental=not bool(user_active_enrollments)):
+            if (portal_class_eligibility(user, group, today, experimental=not bool(user_active_enrollments))
+                    or class_age_error(user.birth_date, group.min_age, group.max_age, today)):
                 continue
             for occurrence in class_occurrences_for_weekday(group, today.weekday()):
                 if ((group.id, occurrence['start_time']) not in registered
@@ -5601,6 +5753,16 @@ def pagina_oque_comprar():
 @app.route('/fazer.html')
 def pagina_fazer_catraca():
     resp = make_response(render_template('fazer.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
+
+@app.route('/agorasim')
+@app.route('/agorasim.html')
+def pagina_agorasim_catraca():
+    resp = make_response(render_template('agorasim.html'))
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     resp.headers['Pragma'] = 'no-cache'
     resp.headers['Expires'] = '0'

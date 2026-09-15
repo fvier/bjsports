@@ -19,13 +19,13 @@ with sync_playwright() as playwright:
    expect(section).to_be_hidden()
    plan.select_option(label='Boxe')
    expect(section.locator('.registration-class-card')).to_have_count(2)
-   expect(section.get_by_text('Turma lotada · consulte a academia',exact=True)).to_be_visible()
+   expect(section.get_by_text('Turma lotada · preferência não garante vaga',exact=True)).to_be_visible()
    expect(section.get_by_text('Professor: Professor de ensaio',exact=True)).to_have_count(2)
    expect(section.get_by_text('Adulto · Faixa etária não definida',exact=True)).to_have_count(2)
    page.locator('#registrationClassLocation').select_option('alpha')
    expect(section.locator('.registration-class-card')).to_have_count(1)
-   expect(section.locator('h4')).to_have_text('Boxe manhã')
-   page.locator('#registrationClassPeriod').select_option('noite')
+   expect(section.locator('.registration-class-card h4')).to_have_text('Boxe manhã')
+   page.locator('#registrationClassPeriod').select_option('tarde')
    expect(section.locator('.registration-class-card')).to_have_count(0)
    expect(section.get_by_text('Nenhuma turma publicada para esta modalidade e estes filtros. Consulte a academia.',exact=True)).to_be_visible()
    plan.select_option(label='Jiu-Jitsu')
@@ -34,7 +34,7 @@ with sync_playwright() as playwright:
    expect(page.locator('#registrationClassPeriod')).to_have_value('')
    expect(section.get_by_text('Kids · 7 a 12 anos',exact=True)).to_be_visible()
    expect(section.locator('h4').filter(has_text='Boxe')).to_have_count(0)
-   assert section.locator('input[name],select[name]').count()==0
+   assert section.locator('input[name=regClassSelection]').count()==1
    # Uma grade extensa pode ser consultada sem alongar todo o formulário.
    original=page.request.get(base+'/api/cadastro/turmas').json()['classes']
    sample=next(group for group in original if group['modality']=='Jiu-Jitsu')
@@ -78,7 +78,7 @@ with sync_playwright() as playwright:
    expect(section.locator('.registration-class-card')).to_have_count(2)
    expect(page.locator('#registrationClassLocation')).to_be_enabled()
    assert not errors,errors
-   results.append({'width':width,'theme':theme,'combo_modalities':True,'private_professional_preserved':True,'empty_and_failure_recovery':True,'no_enrollment_fields':True})
+   results.append({'width':width,'theme':theme,'combo_modalities':True,'private_professional_preserved':True,'empty_and_failure_recovery':True,'selection_field_present':True})
    context.close()
  browser.close()
 (output/'results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))

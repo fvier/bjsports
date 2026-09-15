@@ -1,0 +1,113 @@
+{
+  "status": "published",
+  "published_at_utc": "2026-09-14T08:03:16Z",
+  "image_id": "sha256:5fc483363b866242c2761d6d980835fc0157fdec2e2533ea0da293e5338c2eb5",
+  "sqlite": {
+    "tests": 113,
+    "passed": true
+  },
+  "postgresql_isolated": {
+    "tests": 113,
+    "passed": true
+  },
+  "browser_local": {
+    "base_url": "http://127.0.0.1:37994",
+    "checks": [
+      {
+        "width": 360,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      },
+      {
+        "width": 390,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      },
+      {
+        "width": 1440,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      }
+    ]
+  },
+  "browser_published": {
+    "base_url": "https://bjsports.com.br",
+    "checks": [
+      {
+        "width": 360,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      },
+      {
+        "width": 390,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      },
+      {
+        "width": 1440,
+        "status": "passed",
+        "javascript_errors": [],
+        "native_share": "mocked",
+        "clipboard": "mocked"
+      }
+    ]
+  },
+  "public_assets": [
+    {
+      "file": "static/js/store.js",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/css/store.css",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/kimono_preto_frente_costas_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/kimono_branco_frente_costas_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    },
+    {
+      "file": "static/img/store/kimono_azul_frente_costas_v1.png",
+      "http_status": 200,
+      "hash_matches": true
+    }
+  ],
+  "production_preservation": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "final_backup_restore": {
+    "tables_checked": 21,
+    "changed_tables": []
+  },
+  "source_and_volume": {
+    "protected_source_files": 348,
+    "restored_volume_files": 4,
+    "mismatches": []
+  },
+  "cleanup": {
+    "temporary_database_removed": true,
+    "temporary_network_removed": true,
+    "temporary_volumes_removed": 1,
+    "backups_preserved": true
+  },
+  "native_share_and_clipboard": "mocked; no messages sent; physical device UI not validated",
+  "backup": "/data/bjsports/backups/20260914-loja-kimono"
+}

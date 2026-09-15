@@ -289,3 +289,20 @@ button, .btn { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Cadastro: escolha explícita de preferência ou matrícula. */
+.registration-class-choice { display:flex; align-items:center; gap:10px; min-height:48px; margin-top:12px; padding:8px; cursor:pointer; border:1px solid var(--border-color, #737373); border-radius:8px; }
+.registration-class-choice input { width:20px; height:20px; flex:0 0 20px; accent-color:var(--accent-gold); }
+.registration-class-choice:has(input:disabled) { cursor:default; opacity:.75; }
+.registration-class-choice:focus-within { outline:2px solid var(--accent-gold); outline-offset:2px; }
+.registration-class-card { margin:12px 0; padding:14px; border:1px solid var(--border-light); border-radius:10px; }
+.registration-class-card.is-selected { border-color:var(--accent-gold); box-shadow:0 0 0 1px var(--accent-gold); }
+.registration-training-summary { margin-top:16px; padding:14px; border:1px solid var(--border-color, #737373); border-radius:10px; }
+.registration-training-summary:empty { display:none; }
+.registration-training-summary strong, .registration-training-summary small { display:block; margin-top:6px; }
+.registration-training-summary p { margin:6px 0; line-height:1.5; }
+.registration-classes [data-class-announcement]:empty { display:none; }
+.welcome-training-choices { margin:20px 0; }
+.welcome-training-choice { display:grid; gap:5px; padding:12px 0; border-bottom:1px solid var(--border-color, #737373); }
+.welcome-training-choice span, .welcome-training-choice small { line-height:1.5; }
+.calendar-my-choice { font-weight:700; border:1px solid currentColor; border-radius:5px; padding:3px 6px; }

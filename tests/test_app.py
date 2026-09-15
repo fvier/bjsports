@@ -57,7 +57,10 @@ class BJSportsTestCase(unittest.TestCase):
             'portalPassword': password, 'csrf_token': self.csrf()})
 
     def booking_slot(self, capacity=20):
-        class_date = datetime.now().date() + timedelta(days=(7 - datetime.now().date().weekday()) % 7)
+        now = datetime.now()
+        class_date = now.date() + timedelta(days=(7 - now.date().weekday()) % 7)
+        if datetime.combine(class_date, datetime.min.time()).replace(hour=19) <= now:
+            class_date += timedelta(days=7)
         with app.app_context():
             group = ClassGroup(name=f'Turma Reserva {capacity}', modality='Jiu-Jitsu', audience='Adulto',
                                instructor='Instrutor', capacity=capacity, status='ativa', publish_public=True)
@@ -464,7 +467,7 @@ class BJSportsTestCase(unittest.TestCase):
         self.login('aluno')
         page = self.client.get('/calendario').get_data(as_text=True)
         self.assertIn('Lembretes e Google', page)
-        self.assertIn('Somente as turmas das quais você participa serão usadas.', page)
+        self.assertIn('Sua agenda inclui matrículas e preferências identificadas', page)
         self.assertIn('Baixar .ICS', page)
 
         with app.app_context():
@@ -2239,5 +2242,3 @@ class BJSportsTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-

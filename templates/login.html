@@ -87,6 +87,12 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="action" value="register">
 
+            <!-- Proteção anti-bot invisível (Honeypot) -->
+            <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; height: 0; width: 0; overflow: hidden;" aria-hidden="true" tabindex="-1">
+              <label for="regWebsite">Website</label>
+              <input type="text" name="regWebsite" id="regWebsite" tabindex="-1" autocomplete="off">
+            </div>
+
             <!-- 1. Usuário (Único) -->
             <h2 class="registration-section-heading">Seus dados</h2>
             <div class="form-group">
@@ -103,7 +109,7 @@
               <label for="regName">Nome Completo *</label>
               <div class="input-with-icon">
                 <i data-lucide="user" class="input-icon"></i>
-                <input type="text" name="regName" id="regName" placeholder="Digite seu nome completo" autocomplete="name" required>
+                <input type="text" name="regName" id="regName" placeholder="Nome e sobrenome" autocomplete="name" required>
               </div>
             </div>
 
@@ -231,7 +237,9 @@
 
             <section id="registrationClasses" class="registration-classes hidden" aria-labelledby="registrationClassesTitle" data-catalog-url="{{ url_for('registration_class_catalog') }}">
               <h3 id="registrationClassesTitle">Turmas e horários</h3>
-              <p class="registration-classes-note">Consulte os horários da modalidade e confirme com a academia a turma adequada. Esta consulta não reserva vaga nem realiza matrícula em uma turma.</p>
+              <p class="registration-classes-note" data-class-rule></p>
+              <input type="hidden" name="regClassSelection" id="regClassSelection" value="[]">
+              <p class="registration-classes-note" data-class-announcement role="status" aria-live="polite"></p>
               <div class="registration-class-filters hidden" data-class-filters>
                 <label for="registrationClassLocation">Unidade<select id="registrationClassLocation"><option value="">Todas as unidades</option></select></label>
                 <label for="registrationClassPeriod">Período<select id="registrationClassPeriod"><option value="">Todos os períodos</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option></select></label>
@@ -239,6 +247,7 @@
               <p data-class-status role="status" aria-live="polite"></p>
               <button type="button" class="registration-class-refresh hidden" data-class-refresh>Atualizar horários</button>
               <div data-class-results></div>
+              <div class="registration-training-summary" data-training-summary></div>
             </section>
             <script type="application/json" id="registrationSchedulePlans">{{ (registration_modalities + registration_combos)|tojson }}</script>
 
@@ -276,11 +285,12 @@
                 <label for="regPassConfirm">Confirmar Senha *</label>
                 <div class="input-with-eye">
                   <i data-lucide="shield-check" class="input-icon"></i>
-                  <input type="password" id="regPassConfirm" autocomplete="new-password" placeholder="••••••••" required>
+                  <input type="password" name="regPassConfirm" id="regPassConfirm" autocomplete="new-password" placeholder="••••••••" required>
                   <button type="button" class="btn-toggle-eye" data-target="regPassConfirm" title="Mostrar/Ocultar Senha">
                     <i data-lucide="eye"></i>
                   </button>
                 </div>
+                <div id="passwordMatchStatus" class="password-match-status" aria-live="polite" style="margin-top: 7px; font-size: 0.78rem; min-height: 22px;"></div>
               </div>
             </div>
 
@@ -434,10 +444,33 @@
           item.setAttribute('aria-pressed', String(selected));
         });
         document.getElementById('regTrainingDays').value = button.dataset.planSchedule;
+        document.getElementById('regTrainingDays').dispatchEvent(new Event('change'));
       });
     });
 
-    document.getElementById('portalRegisterForm')?.addEventListener('submit', function() {
+    document.getElementById('portalRegisterForm')?.addEventListener('submit', function(e) {
+      const nameInput = document.getElementById('regName');
+      if (nameInput) {
+        const parts = nameInput.value.trim().split(/\s+/).filter(p => p.length >= 2);
+        if (parts.length < 2) {
+          e.preventDefault();
+          nameInput.focus();
+          nameInput.setCustomValidity('Por favor, informe seu nome completo (nome e sobrenome).');
+          nameInput.reportValidity();
+          return false;
+        } else {
+          nameInput.setCustomValidity('');
+        }
+      }
+      const pass = document.getElementById('regPass');
+      const passConfirm = document.getElementById('regPassConfirm');
+      if (pass && passConfirm && pass.value !== passConfirm.value) {
+        e.preventDefault();
+        passConfirm.focus();
+        passConfirm.setCustomValidity('As senhas não coincidem.');
+        passConfirm.reportValidity();
+        return false;
+      }
       const btn = document.getElementById('btnRegisterSubmit');
       if (btn) {
         btn.disabled = true;
@@ -556,7 +589,7 @@
 
     setupRegistrationDraft();
   </script>
-  <script src="{{ url_for('static', filename='js/registration_schedule.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/registration_schedule.js', v='20260914_choices1') }}" defer></script>
 
   {% else %}
 
